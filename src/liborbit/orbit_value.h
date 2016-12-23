@@ -162,8 +162,14 @@ static inline uint32_t orbit_valueHash(OrbitValueData value) {
     return hash;
 }
 
+/**
+ *
+ */
 extern OrbitObject* orbit_objectCreate(const OrbitClass* class);
 
+/**
+ *
+ */
 extern OrbitString* orbit_stringCreate(const OrbitClass* class, const char* contents);
 
 

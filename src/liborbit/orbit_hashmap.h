@@ -5,11 +5,11 @@
 //  Created by Cesar Parent on 22/11/2016.
 //  Copyright © 2016 cesarparent. All rights reserved.
 //
-
 #ifndef orbit_dispatch_h
 #define orbit_dispatch_h
 
-#include "orbit_value.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "orbit_platforms.h"
 
 
