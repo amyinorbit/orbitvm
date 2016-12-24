@@ -5,13 +5,12 @@
 //  Created by Cesar Parent on 22/11/2016.
 //  Copyright © 2016 cesarparent. All rights reserved.
 //
-
 #include "orbit_hashmap.h"
 #include "orbit_utils.h"
 
 // This must be a multiple of two, otherwise the mask (fast modulo) trick
 // will fall on its face.
-#define MAP_DEFAULT_SIZE 2
+#define MAP_DEFAULT_SIZE 32
 
 #ifndef __LP64__
 #define MAP_HASH(sel, mask) (((uintptr_t)(sel)>>2) & (mask))
@@ -73,13 +72,14 @@ HashMap* orbit_hashmapInsert(HashMap* map, const char* key, void* data) {
 
 void* orbit_hashmapGet(HashMap* map, const char* key) {
     OASSERT(map != NULL, "Null instance error");
-    size_t index = MAP_HASH(key, map->mask);
-    while(!map->data[index].used) {
-        index += 1;
-        if(index >= map->capacity) return NULL;
-        index &= map->mask;
+    for(size_t index = MAP_HASH(key, map->mask);
+        map->data[index].used;
+        index = (index +  1) & map->mask) {
+        if(key == map->data[index].key) {
+            return map->data[index].data;
+        }
     }
-    return map->data[index].data;
+    return NULL;
 }
 
 void orbit_hashmapDealloc(HashMap* map) {
