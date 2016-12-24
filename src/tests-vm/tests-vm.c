@@ -1,5 +1,5 @@
 //
-//  tests-vm/main.c
+//  tests-vm/tests-vm.c
 //  OrbitVM/Tests
 //
 //  Created by Cesar Parent on 24/12/2016.
