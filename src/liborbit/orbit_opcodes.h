@@ -1,5 +1,5 @@
 //
-//  OrbitOpcodes.h
+//  orbit_opcodes.h
 //  OrbitVM
 //
 //  Created by Cesar Parent on 13/11/2016.
@@ -10,7 +10,6 @@
 //  declaration of the opcodes defines how the main interpreter loop's jump
 //  table is laid out, and should be changed only if necessary.
 //
-
 #ifndef OPCODE
 #define OPCODE(_)
 #endif

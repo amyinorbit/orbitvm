@@ -5,7 +5,6 @@
 //  Created by Cesar Parent on 06/12/2016.
 //  Copyright © 2016 cesarparent. All rights reserved.
 //
-
 #include "orbit_utils.h"
 
 void* orbit_alloc(size_t size) {
