@@ -17,12 +17,12 @@
 static HashMap* orbit_hashmapGrow(HashMap* map) {
     OASSERT(map != NULL, "Null instance error");
     
-    HashMap* bigmap = ALLOC_FLEX(sizeof(HashMap),
-                                 sizeof(HashBucket),
-                                 map->capacity << 1);
-    bigmap->capacity = map->capacity << 1;
+    size_t newCapacity = map->capacity << 1;
+    HashMap* bigmap = REALLOC(NULL, sizeof(HashMap)
+                                    + (newCapacity * sizeof(HashBucket)));
+    bigmap->capacity = newCapacity;
     bigmap->size = 0;
-    bigmap->mask = bigmap->capacity - 1;
+    bigmap->mask = newCapacity - 1;
     
     for(size_t i = 0; i < map->capacity; ++i) {
         if(!map->data[i].used) continue;
@@ -41,11 +41,10 @@ static HashMap* orbit_hashmapGrow(HashMap* map) {
 }
 
 HashMap* orbit_hashmapNew(void) {
-    HashMap* map = ALLOC_FLEX(sizeof(HashMap),
-                              sizeof(HashBucket),
-                              ORBIT_MAP_DEFAULT_SIZE);
-    map->mask = ORBIT_MAP_DEFAULT_SIZE-1;
-    map->capacity = ORBIT_MAP_DEFAULT_SIZE;
+    HashMap* map = REALLOC(NULL, sizeof(HashMap)
+                                 + (ORBIT_MAP_CAPACITY * sizeof(HashBucket)));
+    map->mask = ORBIT_MAP_CAPACITY-1;
+    map->capacity = ORBIT_MAP_CAPACITY;
     map->size = 0;
     return map;
 }
@@ -81,5 +80,5 @@ void* orbit_hashmapGet(HashMap* map, const char* key) {
 
 void orbit_hashmapDealloc(HashMap* map) {
     OASSERT(map != NULL, "Null instance error");
-    DEALLOC(map);
+    REALLOC(map, 0);
 }

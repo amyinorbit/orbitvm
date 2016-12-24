@@ -32,8 +32,8 @@ typedef struct _HashMap {
 } HashMap;
 
 
-#ifndef ORBIT_MAP_DEFAULT_SIZE
-#define ORBIT_MAP_DEFAULT_SIZE 32
+#ifndef ORBIT_MAP_CAPACITY
+#define ORBIT_MAP_CAPACITY 32
 #endif
 
 extern HashMap* orbit_hashmapNew(void);

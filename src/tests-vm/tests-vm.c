@@ -13,7 +13,7 @@ void hashmap_create(void) {
     HashMap* map = orbit_hashmapNew();
     TEST_CHECK(map != NULL);
     TEST_CHECK(map->size == 0);
-    TEST_CHECK(map->capacity == ORBIT_MAP_DEFAULT_SIZE);
+    TEST_CHECK(map->capacity == ORBIT_MAP_CAPACITY);
 }
 
 void hashmap_insert(void) {
@@ -41,12 +41,12 @@ void hashmap_grow(void) {
     HashMap* map = orbit_hashmapNew();
     TEST_CHECK(map != NULL);
     
-    for(int i = 0; i < ORBIT_MAP_DEFAULT_SIZE; ++i) {
+    for(int i = 0; i < ORBIT_MAP_CAPACITY; ++i) {
         map = orbit_hashmapInsert(map, test_key, &data);
     }
     TEST_CHECK(map != NULL);
-    TEST_CHECK(map->size == ORBIT_MAP_DEFAULT_SIZE);
-    TEST_CHECK(map->capacity == ORBIT_MAP_DEFAULT_SIZE*2);
+    TEST_CHECK(map->size == ORBIT_MAP_CAPACITY);
+    TEST_CHECK(map->capacity == ORBIT_MAP_CAPACITY*2);
 }
 
 
