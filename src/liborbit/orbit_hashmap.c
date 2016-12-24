@@ -19,8 +19,8 @@ static HashMap* orbit_hashmapGrow(HashMap* map) {
     
     HashMap* bigmap = ALLOC_FLEX(sizeof(HashMap),
                                  sizeof(HashBucket),
-                                 map->capacity << 2);
-    bigmap->capacity = map->capacity << 2;
+                                 map->capacity << 1);
+    bigmap->capacity = map->capacity << 1;
     bigmap->size = 0;
     bigmap->mask = bigmap->capacity - 1;
     
@@ -33,6 +33,7 @@ static HashMap* orbit_hashmapGrow(HashMap* map) {
         bigmap->data[index].used = true;
         bigmap->data[index].key = map->data[i].key;
         bigmap->data[index].data = map->data[i].data;
+        bigmap->size += 1;
     }
     
     DEALLOC(map);
