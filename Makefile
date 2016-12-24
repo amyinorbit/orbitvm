@@ -1,15 +1,15 @@
 # Make sure that make is operating with a bash shell
-SHELL       := bash
-CXX			:= clang
+SHELL		:= bash
 
 # Product name and library definitions
-PRODUCT		:= tests
+PRODUCT		:= tests-vm
 LIBRARY		:= liborbit
 COMPILER	:= orbitc
 STATIC_LIB	:= $(LIBRARY).a
 DYNAMIC_LIB := $(LIBRARY).dylib
 
 # Toolchain, change this for other platforms
+CXX			:= clang
 AR			:= ar
 STRIP		:= strip
 
@@ -21,20 +21,20 @@ INC_INSTALL := /Users/cesar/toolchains/include
 SOURCE_DIR	:= ./src
 HEADERS_DIR := ./include
 BUILD_DIR	:= ./build
-LIB_DIR		:= $(BUILD_DIR)/lib
 OBJECTS_DIR := $(BUILD_DIR)/intermediate
 PRODUCT_DIR := $(BUILD_DIR)/product
+LIB_DIR		:= $(PRODUCT_DIR)/lib
 
 # Compiler and linker flags
-LIBS		:= -lorbit
+LIBS		:= orbit
 ARCHS		:= -arch x86_64 -arch i386
-CFLAGS		:= -std=c11 -Wall -Werror -I$(HEADERS_DIR) -fPIC
+CFLAGS		:= -std=c11 -Wall -Werror $(addprefix -I,$(HEADERS_DIR)) -fPIC
 LIBFLAGS	:= -std=c11 -fPIC
-LDFLAGS		:= -std=c11 -L$(LIB_DIR) $(LIBS)
+LDFLAGS		:= -std=c11 -L$(LIB_DIR) $(addprefix -l,$(LIBS))
 
 # Object and headers lists
 SOURCES		:= $(wildcard $(SOURCE_DIR)/$(PRODUCT)/*.c)
-SOURCES_LIB	:= $(wildcard $(SOURCE_DIR)/$(LIBRARY)/*.c)
+SOURCES_LIB := $(wildcard $(SOURCE_DIR)/$(LIBRARY)/*.c)
 OBJECTS		:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_DIR)/%.o, $(SOURCES))
 OBJECTS_LIB := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_DIR)/%.o, $(SOURCES_LIB))
 
@@ -73,7 +73,7 @@ $(STATIC_LIB): $(OBJECTS_LIB)
 $(DYNAMIC_LIB): $(OBJECTS_LIB)
 	@mkdir -p $(LIB_DIR)
 	@echo "linking dynamic library $@"
-	@$(CXX) -dynamiclib $(LDFLAGS) $(ARCHS) -o $(LIB_DIR)/$@ $(LIBS) $(OBJECTS_LIB)
+	@$(CXX) -dynamiclib $(LIBFLAGS) $(ARCHS) -o $(LIB_DIR)/$@ $(OBJECTS_LIB)
 
 $(OBJECTS_DIR)/%.o: $(SOURCE_DIR)/%.c
 	@mkdir -p $(dir $@)

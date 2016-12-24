@@ -32,6 +32,10 @@ typedef struct _HashMap {
 } HashMap;
 
 
+#ifndef ORBIT_MAP_DEFAULT_SIZE
+#define ORBIT_MAP_DEFAULT_SIZE 32
+#endif
+
 extern HashMap* orbit_hashmapNew(void);
 
 extern HashMap* orbit_hashmapInsert(HashMap* map, const char* key, void* data);

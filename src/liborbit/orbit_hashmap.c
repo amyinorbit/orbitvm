@@ -8,10 +8,6 @@
 #include "orbit_hashmap.h"
 #include "orbit_utils.h"
 
-// This must be a multiple of two, otherwise the mask (fast modulo) trick
-// will fall on its face.
-#define MAP_DEFAULT_SIZE 32
-
 #ifndef __LP64__
 #define MAP_HASH(sel, mask) (((uintptr_t)(sel)>>2) & (mask))
 #else
@@ -46,9 +42,9 @@ static HashMap* orbit_hashmapGrow(HashMap* map) {
 HashMap* orbit_hashmapNew(void) {
     HashMap* map = ALLOC_FLEX(sizeof(HashMap),
                               sizeof(HashBucket),
-                              MAP_DEFAULT_SIZE);
-    map->mask = MAP_DEFAULT_SIZE-1;
-    map->capacity = MAP_DEFAULT_SIZE;
+                              ORBIT_MAP_DEFAULT_SIZE);
+    map->mask = ORBIT_MAP_DEFAULT_SIZE-1;
+    map->capacity = ORBIT_MAP_DEFAULT_SIZE;
     map->size = 0;
     return map;
 }
