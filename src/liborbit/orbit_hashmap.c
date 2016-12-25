@@ -36,7 +36,7 @@ static HashMap* orbit_hashmapGrow(HashMap* map) {
         bigmap->size += 1;
     }
     
-    DEALLOC(map);
+    REALLOC(map, 0);
     return bigmap;
 }
 

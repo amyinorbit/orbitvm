@@ -9,9 +9,9 @@
 #define OrbitPlatforms_h
 
 #if __STDC_VERSION__ >= 199901L
-#define ORBIT_FLEXIBLE_ARRAY_MEMB   0
+#define ORBIT_FLEXIBLE_ARRAY_MEMB   
 #else
-#define ORBIT_FLEXIBLE_ARRRAY_MEMB  1
+#define ORBIT_FLEXIBLE_ARRRAY_MEMB  0
 #endif
 
 #endif /* OrbitPlatforms_h */

@@ -12,23 +12,25 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#define ALLOC(size) orbit_alloc(size)
-#define ALLOC_FLEX(size, arr_size, count) orbit_allocFlex((size), (arr_size), (count))
-#define DEALLOC(ptr) orbit_dealloc(ptr)
 #define REALLOC(ptr, size) orbit_realloc((ptr), (size))
 
-#define OASSERT(expr, error, ...)                                   \
+#ifdef NDEBUG
+#define OASSERT(expr, message)
+#else
+#define OASSERT(expr, message)                                      \
 do {                                                                \
     if(!(expr)) {                                                   \
-        fprintf(stderr, error " (" #expr ")\n", ##__VA_ARGS__);     \
-        exit(EXIT_FAILURE);                                         \
+        fprintf(stderr, "[%s:%d] Assert failed in %s(): %s\n",      \
+                __FILE__, __LINE__, __func__, message);             \
+        abort();                                                    \
     }                                                               \
 } while(0)
+#endif
 
-#ifndef NDEBUG
-#define DBG(fmt, ...) fprintf(stderr, "[debug]: " fmt "\n", ##__VA_ARGS__)
-#else
+#ifdef NDEBUG
 #define DBG(str, ...)
+#else
+#define DBG(fmt, ...) fprintf(stderr, "[debug]: " fmt "\n", ##__VA_ARGS__)
 #endif
 
 void* orbit_alloc(size_t size);
