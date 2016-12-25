@@ -39,11 +39,11 @@ LIBFLAGS	:= -L$(LIB_OUT) $(addprefix -l,$(LIBS))
 LDFLAGS		:= 
 
 # Object and headers lists
-#SOURCES		:= $(wildcard $(SOURCE_DIR)/$(PRODUCT)/*.c)
+SOURCES		:= $(wildcard $(SOURCE_DIR)/$(PRODUCT)/*.c)
 SOURCES_LIB := $(wildcard $(SOURCE_DIR)/$(LIBRARY)/*.c)
 SOURCES_TEST:= $(wildcard $(SOURCE_DIR)/$(TESTS)/*.c)
 
-#OBJECTS		:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES))
+OBJECTS		:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES))
 OBJECTS_LIB := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_LIB))
 OBJECTS_TEST:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_TEST))
 
