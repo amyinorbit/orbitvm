@@ -12,7 +12,17 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#define REALLOC(ptr, size) orbit_realloc((ptr), (size))
+#define ALLOC(vm, type) \
+    (type*)orbit_realloc(NULL, sizeof(type))
+
+#define ALLOC_ARRAY(vm, type, count) \
+    (type*)orbit_realloc(NULL, sizeof(type) * (count))
+
+#define ALLOC_FLEX(vm, type, arrayType, count) \
+    (type*)orbit_realloc(NULL, syzeof(type) + (sizeof(arrayType) * (count)))
+
+#define DEALLOC(vm, ptr) \
+    orbit_realloc(ptr, 0)
 
 #ifdef NDEBUG
 #define OASSERT(expr, message)
@@ -33,13 +43,7 @@ do {                                                                \
 #define DBG(fmt, ...) fprintf(stderr, "[debug]: " fmt "\n", ##__VA_ARGS__)
 #endif
 
-void* orbit_alloc(size_t size);
-
-void* orbit_allocFlex(size_t size, size_t arraySize, size_t count);
-
 void* orbit_realloc(void* ptr, size_t newSize);
-
-void orbit_dealloc(void* ptr);
 
 
 #endif /* orbit_utils_h */

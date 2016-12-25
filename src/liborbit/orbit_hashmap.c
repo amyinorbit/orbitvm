@@ -5,6 +5,7 @@
 //  Created by Cesar Parent on 22/11/2016.
 //  Copyright © 2016 cesarparent. All rights reserved.
 //
+#include <string.h>
 #include "orbit_hashmap.h"
 #include "orbit_utils.h"
 
@@ -14,42 +15,42 @@
 #define MAP_HASH(sel, mask) (((unsigned int)((uintptr_t)(sel)>>0)) & (mask))
 #endif
 
-static HashMap* orbit_hashmapGrow(HashMap* map) {
+static void orbit_hashmapGrow(HashMap* map) {
     OASSERT(map != NULL, "Null instance error");
     
-    size_t newCapacity = map->capacity << 1;
-    HashMap* bigmap = REALLOC(NULL, sizeof(HashMap)
-                                    + (newCapacity * sizeof(HashBucket)));
-    bigmap->capacity = newCapacity;
-    bigmap->size = 0;
-    bigmap->mask = newCapacity - 1;
+    HashBucket* oldData = map->data;
+    size_t oldCapacity = map->capacity;
     
-    for(size_t i = 0; i < map->capacity; ++i) {
-        if(!map->data[i].used) continue;
-        size_t index = MAP_HASH(map->data[i].key, bigmap->mask);
-        while(bigmap->data[index].used) {
-            index = (index + 1) & bigmap->mask;
+    map->capacity = map->capacity << 1;
+    map->mask = map->capacity - 1;
+    map->data = ALLOC_ARRAY(_, HashBucket, map->capacity);
+    memset(map->data, 0, map->capacity);
+    
+    for(size_t i = 0; i < oldCapacity; ++i) {
+        if(!oldData[i].used) continue;
+        size_t index = MAP_HASH(oldData[i].key, map->mask);
+        while(map->data[index].used) {
+            index = (index + 1) & map->mask;
         }
-        bigmap->data[index].used = true;
-        bigmap->data[index].key = map->data[i].key;
-        bigmap->data[index].data = map->data[i].data;
-        bigmap->size += 1;
+        map->data[index].used = true;
+        map->data[index].key = oldData[i].key;
+        map->data[index].data = oldData[i].data;
     }
-    
-    REALLOC(map, 0);
-    return bigmap;
+    DEALLOC(_, oldData);
 }
 
-HashMap* orbit_hashmapNew(void) {
-    HashMap* map = REALLOC(NULL, sizeof(HashMap)
-                                 + (ORBIT_MAP_CAPACITY * sizeof(HashBucket)));
+void orbit_hashmapInit(HashMap* map) {
+    OASSERT(map != NULL, "Null instance error");
+    
+    map->data = ALLOC_ARRAY(_, HashBucket, ORBIT_MAP_CAPACITY);
+    memset(map->data, 0, ORBIT_MAP_CAPACITY);
+    
     map->mask = ORBIT_MAP_CAPACITY-1;
     map->capacity = ORBIT_MAP_CAPACITY;
     map->size = 0;
-    return map;
 }
 
-HashMap* orbit_hashmapInsert(HashMap* map, const char* key, void* data) {
+void orbit_hashmapInsert(HashMap* map, const char* key, void* data) {
     OASSERT(map != NULL, "Null instance error");
     size_t index = MAP_HASH(key, map->mask);
     while(map->data[index].used) {
@@ -61,9 +62,8 @@ HashMap* orbit_hashmapInsert(HashMap* map, const char* key, void* data) {
     map->size += 1;
     
     if(map->size >= 0.75 * map->capacity) {
-        map = orbit_hashmapGrow(map);
+        orbit_hashmapGrow(map);
     }
-    return map;
 }
 
 void* orbit_hashmapGet(HashMap* map, const char* key) {
@@ -78,7 +78,7 @@ void* orbit_hashmapGet(HashMap* map, const char* key) {
     return NULL;
 }
 
-void orbit_hashmapDealloc(HashMap* map) {
+void orbit_hashmapDeinit(HashMap* map) {
     OASSERT(map != NULL, "Null instance error");
-    REALLOC(map, 0);
+    DEALLOC(_, map->data);
 }

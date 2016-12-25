@@ -28,7 +28,7 @@ typedef struct _HashMap {
     uint32_t    mask;
     uint32_t    capacity;
     uint32_t    size;
-    HashBucket  data[ORBIT_FLEXIBLE_ARRAY_MEMB];
+    HashBucket* data;
 } HashMap;
 
 
@@ -36,12 +36,12 @@ typedef struct _HashMap {
 #define ORBIT_MAP_CAPACITY 32
 #endif
 
-extern HashMap* orbit_hashmapNew(void);
+extern void orbit_hashmapInit(HashMap* map);
 
-extern HashMap* orbit_hashmapInsert(HashMap* map, const char* key, void* data);
+extern void orbit_hashmapInsert(HashMap* map, const char* key, void* data);
 
 extern void* orbit_hashmapGet(HashMap* map, const char* key);
 
-extern void orbit_hashmapDealloc(HashMap* map);
+extern void orbit_hashmapDeinit(HashMap* map);
 
 #endif /* orbit_dispatch_h */

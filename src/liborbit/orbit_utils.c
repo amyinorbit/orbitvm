@@ -7,24 +7,8 @@
 //
 #include "orbit_utils.h"
 
-void* orbit_alloc(size_t size) {
-    void* mem = calloc(size, 1);
-    OASSERT(mem != NULL, "Error allocating memory (%zu bytes)", size);
-    return mem;
-}
-
-void* orbit_allocFlex(size_t size, size_t arraySize, size_t count) {
-    void* mem = calloc(size + arraySize * count, 1);
-    OASSERT(mem != NULL, "Error allocating memory (%zu bytes)", size + arraySize * count);
-    return mem;
-}
-
 void* orbit_realloc(void* ptr, size_t newSize) {
     void* mem = realloc(ptr, newSize);
-    OASSERT(mem != NULL, "Error reallocating memory (%zu bytes)", newSize);
+    OASSERT(mem != NULL, "Error reallocating memory");
     return mem;
-}
-
-void orbit_dealloc(void* ptr) {
-    free(ptr);
 }
