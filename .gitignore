@@ -13,7 +13,6 @@ xcuserdata
 
 # Build products
 build/
-design/
 *tmp*
 *.o
 *.LinkFileList
@@ -25,3 +24,7 @@ design/
 *~
 *.dat
 *.dep
+
+# Experiments and notepads
+design/
+spike/

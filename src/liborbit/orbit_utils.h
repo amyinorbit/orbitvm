@@ -38,9 +38,10 @@ do {                                                                \
 #endif
 
 #ifdef NDEBUG
-#define DBG(str, ...)
+#define DBG(fmt, ...)
 #else
-#define DBG(fmt, ...) fprintf(stderr, "[debug]: " fmt "\n", ##__VA_ARGS__)
+#define DBG(fmt, ...) fprintf(stderr, "[%s:%d] %s(): " fmt "\n",    \
+    __FILE__, __LINE__, __func__ , ##__VA_ARGS__)
 #endif
 
 void* orbit_realloc(void* ptr, size_t newSize);
