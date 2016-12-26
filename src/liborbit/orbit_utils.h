@@ -19,7 +19,7 @@
     (type*)orbit_realloc(NULL, sizeof(type) * (count))
 
 #define ALLOC_FLEX(vm, type, arrayType, count) \
-    (type*)orbit_realloc(NULL, syzeof(type) + (sizeof(arrayType) * (count)))
+    (type*)orbit_realloc(NULL, sizeof(type) + (sizeof(arrayType) * (count)))
 
 #define DEALLOC(vm, ptr) \
     orbit_realloc(ptr, 0)

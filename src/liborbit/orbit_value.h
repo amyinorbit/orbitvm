@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <orbit/orbit.h>
 #include "orbit_platforms.h"
 
 typedef enum _ValueType     ValueType;
@@ -58,7 +59,7 @@ struct _VMInstance {
 struct _VMString {
     VMObject        base;
     size_t          length;
-    size_t          hash;
+    uint32_t        hash;
     char            data[ORBIT_FLEXIBLE_ARRAY_MEMB];
 };
 
@@ -79,5 +80,9 @@ struct _VMString {
 extern uint32_t orbit_hashString(const char* string, size_t length);
 
 extern uint32_t orbit_hashObject(VMInstance* object);
+
+extern void orbit_objectInit(VMObject* object, VMClass* class);
+
+extern VMString* orbit_stringNew(OrbitVM* vm, const char* string);
 
 #endif /* orbit_value_h */
