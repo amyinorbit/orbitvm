@@ -62,7 +62,7 @@ $(PRODUCT): $(OBJECTS) $(STATIC_LIB)
 	@mkdir -p $(PRODUCT_OUT)
 	@$(CXX) $(OBJECTS) $(LDFLAGS) -o $(PRODUCT_OUT)/$(PRODUCT)
 
-spike: CFLAGS += -iquote$(SOURCE_DIR)
+spike: CFLAGS += -I$(SOURCE_DIR)
 spike: LDFLAGS += $(LIBFLAGS)
 spike: $(SPIKES_DIR)/$(SPIKE).c $(STATIC_LIB) 
 	@mkdir -p $(SPIKES_OUT)
@@ -93,7 +93,7 @@ $(DYNAMIC_LIB): $(OBJECTS_LIB)
 	@echo "linking dynamic library $@"
 	@$(CXX) -dynamiclib $(LDFLAGS) $(ARCHS) -o $(LIB_OUT)/$@ $(OBJECTS_LIB)
 
-tests: CFLAGS += -iquote$(SOURCE_DIR)
+tests: CFLAGS += -I$(SOURCE_DIR)
 tests: LDFLAGS += $(LIBFLAGS)
 tests: $(STATIC_LIB) $(OBJECTS_TEST)
 	@mkdir -p $(TESTS_OUT)
