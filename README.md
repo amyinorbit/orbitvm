@@ -13,7 +13,7 @@ $ make liborbit.a
 $ make liborbit.dylib
 ````
 
-You can also build the unit tests (based on [Cutest][1])):
+You can also build the unit tests (based on [Cutest][1]):
 
 ````bash
 $ make tests
@@ -25,8 +25,8 @@ C standard library.
 
 ## Todo list
 
-[x] linear-probed hashmap-based dispatch table
-[ ] everything else
+ * [x] linear-probed hashmap-based dispatch table
+ * [ ] everything else
 
 
    [1]: https://github.com/mity/cutest
