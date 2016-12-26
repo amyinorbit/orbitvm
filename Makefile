@@ -63,7 +63,7 @@ $(PRODUCT): $(OBJECTS) $(STATIC_LIB)
 	@$(CXX) $(OBJECTS) $(LDFLAGS) -o $(PRODUCT_OUT)/$(PRODUCT)
 
 spike: CFLAGS += -iquote$(SOURCE_DIR)
-spike: LDFLAGS += LDFLAGS += $(LIBFLAGS)
+spike: LDFLAGS += $(LIBFLAGS)
 spike: $(SPIKES_DIR)/$(SPIKE).c $(STATIC_LIB) 
 	@mkdir -p $(SPIKES_OUT)
 	@echo "compiling spike $(SPIKE)"
