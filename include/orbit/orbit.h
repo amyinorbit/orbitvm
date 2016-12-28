@@ -12,25 +12,12 @@
 #include <stdint.h>
 #include <stddef.h>
 
-typedef struct _OrbitVM     OrbitVM;
-typedef struct _OrbitTask   OrbitTask;
-typedef struct _OrbitModule OrbitModule;
+typedef enum _VMResult  VMResult;
+typedef struct _OrbitVM OrbitVM;
 
-typedef enum _OrbitResult OrbitResult;
-
-enum _OrbitResult {
+enum _VMResult {
     ORBIT_SUCCESS,
     ORBIT_RUNTIME_ERROR
 };
-
-
-extern OrbitVM* orbit_createVM();
-
-extern OrbitModule* orbit_loadModule(uint8_t* bytes, size_t size);
-
-extern OrbitResult orbit_runByteCode(OrbitVM* vm, OrbitModule* task, const char* main);
-
-extern void orbit_destroyVM(OrbitVM* vm);
-
 
 #endif /* orbit_h */
