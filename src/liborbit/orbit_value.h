@@ -14,7 +14,6 @@
 #include <orbit/orbit.h>
 #include "orbit_platforms.h"
 
-typedef VMValue (*VMForeignFn)(VMValue*);
 typedef enum _ValueType     ValueType;
 typedef enum _VMFnType      VMFnType;
 typedef struct _VMValue     VMValue;
@@ -23,6 +22,7 @@ typedef struct _VMObject    VMObject;
 typedef struct _VMInstance  VMInstance;
 typedef struct _VMString    VMString;
 typedef struct _VMFunction  VMFunction;
+typedef VMValue (*VMForeignFn)(VMValue*);
 
 
 // The type tag of a VMValue tagged union. NIL, True and False are singletons
@@ -99,7 +99,7 @@ struct _VMString {
     char            data[ORBIT_FLEXIBLE_ARRAY_MEMB];
 };
 
-
+// The type fo a VM function.
 enum _VMFnType {
     FN_BYTECODE,
     FN_FOREIGN,
@@ -116,14 +116,14 @@ struct _VMFunction {
     VMFnType        type;
     uint8_t         parameterCount;
     union {
-        VMForeign   foreign;
+        VMForeignFn foreign;
         struct {
             size_t      constantCount;
             VMValue*    constants;
             size_t      byteCodeLength;
             uint8_t*    byteCode;
         }           native;
-    }
+    };
 };
 
 // Orbit's call stack frame structure.
