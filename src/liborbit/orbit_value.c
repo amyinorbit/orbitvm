@@ -9,6 +9,12 @@
 #include "orbit_value.h"
 #include "orbit_utils.h"
 
+
+typedef union {
+    double      number;
+    uint32_t    raw[2];
+} RawDouble;
+
 uint32_t orbit_hashString(const char* string, size_t length) {
     OASSERT(string != NULL, "Null instance error");
     
@@ -22,8 +28,9 @@ uint32_t orbit_hashString(const char* string, size_t length) {
     return hash;
 }
 
-uint32_t orbit_hashObject(VMInstance* object) {
-    return ((uint64_t)object >> 32) ^ ((uint64_t)object & 0x0000FFFF);
+uint32_t orbit_hashNumber(double number) {
+    RawDouble bits = {.number = number};
+    return bits.raw[0] ^ bits.raw[1];
 }
 
 void orbit_objectInit(VMObject* object, VMClass* class) {

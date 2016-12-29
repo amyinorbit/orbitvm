@@ -154,8 +154,8 @@ struct _VMCallFrame {
 // This is O(n) complexity and should be used lightly. 
 extern uint32_t orbit_hashString(const char* string, size_t length);
 
-// Computes the hash code of [object] by hasing its heap address.
-extern uint32_t orbit_hashObject(VMInstance* object);
+// Computes the hash code of [number].
+extern uint32_t orbit_hashNumber(double number);
 
 // Initialises [object] as an instance of [class].
 extern void orbit_objectInit(VMObject* object, VMClass* class);
@@ -163,4 +163,4 @@ extern void orbit_objectInit(VMObject* object, VMClass* class);
 // Creates a garbage collected string in [vm] from the bytes in [string].
 extern VMString* orbit_stringNew(OrbitVM* vm, const char* string);
 
-#endif /* orbit_value_h///
+#endif /* orbit_value_h */
