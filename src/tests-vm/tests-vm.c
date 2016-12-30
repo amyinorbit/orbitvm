@@ -7,6 +7,7 @@
 //
 #include "orbit_hashmap.h"
 #include "orbit_string.h"
+#include "orbit_double.h"
 
 #define DECL_TEST(test) {#test, test}
 
@@ -16,5 +17,6 @@ TEST_LIST = {
     DECL_TEST(hashmap_grow),
     DECL_TEST(string_create),
     DECL_TEST(string_hash),
+    DECL_TEST(double_hash),
     { 0 }
 };
