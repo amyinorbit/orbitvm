@@ -21,6 +21,7 @@ typedef struct _VMClass     VMClass;
 typedef struct _VMObject    VMObject;
 typedef struct _VMInstance  VMInstance;
 typedef struct _VMString    VMString;
+typedef struct _VMSelector  VMSelector;
 typedef struct _VMFunction  VMFunction;
 typedef VMValue (*VMForeignFn)(VMValue*);
 
@@ -94,7 +95,7 @@ struct _VMInstance {
 // length and hash, computed only once when the string is created.
 struct _VMString {
     VMObject        base;
-    size_t          length;
+    uint64_t        length;
     uint32_t        hash;
     char            data[ORBIT_FLEXIBLE_ARRAY_MEMB];
 };
@@ -105,6 +106,17 @@ enum _VMFnType {
     FN_FOREIGN,
 };
 
+// Selectors (like in Objective-C) identify a VM function.
+//
+// [signature] is a normalised formatting of the function's name, arity and
+// parameter type list. `func doSomething(a: Number, b: String): Void` would
+// become `doSomething(N,S)V`. This is ultimately used as symbolic references
+// in bytecode for the CALL_XYZ family of opcodes.
+struct _VMSelector {
+    const char*     signature;
+    uint64_t        length;
+    uint32_t        hash;
+};
 
 // Orbit's Function type.
 //
@@ -112,17 +124,17 @@ enum _VMFnType {
 // Orbit script file, or a pointer to their native implementation for functions
 // declared through the C API.
 struct _VMFunction {
-    const char*     signature;
+    VMSelector      selector;
     VMFnType        type;
     uint8_t         parameterCount;
     union {
         VMForeignFn foreign;
         struct {
-            size_t      constantCount;
+            uint8_t     constantCount;
+            uint8_t     byteCodeLength;
             VMValue*    constants;
-            size_t      byteCodeLength;
             uint8_t*    byteCode;
-        }           native;
+        } native;
     };
 };
 
