@@ -36,12 +36,12 @@ typedef struct _HashMap {
 #define ORBIT_MAP_CAPACITY 32
 #endif
 
-extern void orbit_hashmapInit(HashMap* map);
+void orbit_hashmapInit(HashMap* map);
 
-extern void orbit_hashmapInsert(HashMap* map, const char* key, void* data);
+void orbit_hashmapInsert(HashMap* map, const char* key, void* data);
 
-extern void* orbit_hashmapGet(HashMap* map, const char* key);
+void* orbit_hashmapGet(HashMap* map, const char* key);
 
-extern void orbit_hashmapDeinit(HashMap* map);
+void orbit_hashmapDeinit(HashMap* map);
 
 #endif /* orbit_dispatch_h */

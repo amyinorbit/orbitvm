@@ -113,7 +113,7 @@ enum _VMFnType {
 // become `doSomething(N,S)V`. This is ultimately used as symbolic references
 // in bytecode for the CALL_XYZ family of opcodes.
 struct _VMSelector {
-    const char*     signature;
+    const char*     data;
     uint64_t        length;
     uint32_t        hash;
 };
@@ -162,17 +162,10 @@ struct _VMCallFrame {
 #define AS_STRING(val)  ((VMString*)(val).stringValue)
 #define AS_OBJECT(val)  ((VMObject*)(val).objectvalue)
 
-// Computes the FNV-1a hash of [string].
-// This is O(n) complexity and should be used lightly. 
-extern uint32_t orbit_hashString(const char* string, size_t length);
-
-// Computes the hash code of [number].
-extern uint32_t orbit_hashNumber(double number);
-
 // Initialises [object] as an instance of [class].
-extern void orbit_objectInit(VMObject* object, VMClass* class);
+void orbit_objectInit(VMObject* object, VMClass* class);
 
 // Creates a garbage collected string in [vm] from the bytes in [string].
-extern VMString* orbit_stringNew(OrbitVM* vm, const char* string);
+VMString* orbit_vmStringNew(OrbitVM* vm, const char* string);
 
 #endif /* orbit_value_h */

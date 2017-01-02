@@ -23,7 +23,7 @@ static void orbit_hashmapGrow(HashMap* map) {
     
     map->capacity = map->capacity << 1;
     map->mask = map->capacity - 1;
-    map->data = ALLOC_ARRAY(_, HashBucket, map->capacity);
+    map->data = ALLOC_ARRAY(HashBucket, map->capacity);
     memset(map->data, 0, map->capacity);
     
     for(size_t i = 0; i < oldCapacity; ++i) {
@@ -36,13 +36,13 @@ static void orbit_hashmapGrow(HashMap* map) {
         map->data[index].key = oldData[i].key;
         map->data[index].data = oldData[i].data;
     }
-    DEALLOC(_, oldData);
+    DEALLOC(oldData);
 }
 
 void orbit_hashmapInit(HashMap* map) {
     OASSERT(map != NULL, "Null instance error");
     
-    map->data = ALLOC_ARRAY(_, HashBucket, ORBIT_MAP_CAPACITY);
+    map->data = ALLOC_ARRAY(HashBucket, ORBIT_MAP_CAPACITY);
     memset(map->data, 0, ORBIT_MAP_CAPACITY);
     
     map->mask = ORBIT_MAP_CAPACITY-1;
@@ -80,5 +80,5 @@ void* orbit_hashmapGet(HashMap* map, const char* key) {
 
 void orbit_hashmapDeinit(HashMap* map) {
     OASSERT(map != NULL, "Null instance error");
-    DEALLOC(_, map->data);
+    DEALLOC(map->data);
 }

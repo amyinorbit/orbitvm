@@ -12,17 +12,36 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#define ALLOC(vm, type) \
-    (type*)orbit_realloc(NULL, sizeof(type))
+typedef struct _String {
+    const char* data;
+    size_t      length;
+    uint32_t    hash;
+} String;
 
-#define ALLOC_ARRAY(vm, type, count) \
-    (type*)orbit_realloc(NULL, sizeof(type) * (count))
+#define ALLOC(type) \
+    (type*)calloc(sizeof(type), 1)
+#define ALLOC_ARRAY(type, count) \
+    (type*)calloc(sizeof(type), (count))
+#define ALLOC_FLEX(type, arrayType, count) \
+    (type*)calloc(sizeof(type) + (sizeof(arrayType) * (count)), 1)
+#define DEALLOC(ptr) \
+    free(ptr)
 
-#define ALLOC_FLEX(vm, type, arrayType, count) \
-    (type*)orbit_realloc(NULL, sizeof(type) + (sizeof(arrayType) * (count)))
+//
+void* orbit_realloc(void* ptr, size_t newSize);
 
-#define DEALLOC(vm, ptr) \
-    orbit_realloc(ptr, 0)
+// Hash functions
+    
+// Computes the FNV-1a hash of [string].
+// This is O(n) complexity and should be used lightly. 
+uint32_t orbit_hashString(const char* string, size_t length);
+
+// Computes the hash code of [number].
+uint32_t orbit_hashDouble(double number);
+        
+        
+// Debugging facilities. When compiling a release build, OASSERT is a no-op to
+// speed up the interpreter.
 
 #ifdef NDEBUG
 #define OASSERT(expr, message)
@@ -36,6 +55,9 @@ do {                                                                \
     }                                                               \
 } while(0)
 #endif
+    
+// DBG puts out console messages, with file, line number and function name when
+// running on non-release builds
 
 #ifdef NDEBUG
 #define DBG(fmt, ...)
@@ -43,8 +65,5 @@ do {                                                                \
 #define DBG(fmt, ...) fprintf(stderr, "[%s:%d] %s(): " fmt "\n",    \
     __FILE__, __LINE__, __func__ , ##__VA_ARGS__)
 #endif
-
-void* orbit_realloc(void* ptr, size_t newSize);
-
 
 #endif /* orbit_utils_h */
