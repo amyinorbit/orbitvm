@@ -5,7 +5,7 @@
 #include <liborbit/orbit_utils.h>
 
 void string_create(void) {
-    VMString* string = orbit_vmStringNew(NULL, "Hello, world!");
+    GCString* string = orbit_gcStringNew(NULL, "Hello, world!");
     TEST_CHECK(string != NULL);
     TEST_CHECK(string->length == 13);
     TEST_CHECK(strcmp(string->data, "Hello, world!") == 0);
@@ -13,9 +13,9 @@ void string_create(void) {
 }
 
 void string_hash(void) {
-    VMString* a = orbit_vmStringNew(NULL, "Hello");
-    VMString* b = orbit_vmStringNew(NULL, "Hello");
-    VMString* c = orbit_vmStringNew(NULL, "Goodbye!");
+    GCString* a = orbit_gcStringNew(NULL, "Hello");
+    GCString* b = orbit_gcStringNew(NULL, "Hello");
+    GCString* c = orbit_gcStringNew(NULL, "Goodbye!");
     
     TEST_CHECK(a != NULL);
     TEST_CHECK(b != NULL);

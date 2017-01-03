@@ -10,19 +10,19 @@
 #include "orbit_utils.h"
 
 
-void orbit_objectInit(VMObject* object, VMClass* class) {
+void orbit_objectInit(GCObject* object, GCClass* class) {
     OASSERT(object != NULL, "Null instance error");
     
     object->class = class;
     object->isDark = false;
 }
 
-VMString* orbit_vmStringNew(OrbitVM* vm, const char* string) {
+GCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
     OASSERT(string != NULL, "Null instance error");
     
     size_t length = strlen(string);
     
-    VMString* object = ALLOC_FLEX(VMString, char, length+1);
+    GCString* object = ALLOC_FLEX(GCString, char, length+1);
     orbit_objectInit(&object->base, NULL);
     
     object->length = length;

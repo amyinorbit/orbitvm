@@ -1,6 +1,6 @@
 //
 //  orbit_value.h
-//  OrbitVM
+//  OrbitGC
 //
 //  Created by Cesar Parent on 26/12/2016.
 //  Copyright © 2016 cesarparent. All rights reserved.
@@ -15,18 +15,19 @@
 #include "orbit_platforms.h"
 
 typedef enum _ValueType     ValueType;
-typedef enum _VMFnType      VMFnType;
-typedef struct _VMValue     VMValue;
-typedef struct _VMClass     VMClass;
-typedef struct _VMObject    VMObject;
-typedef struct _VMInstance  VMInstance;
-typedef struct _VMString    VMString;
+typedef enum _GCFnType      GCFnType;
+typedef struct _GCValue     GCValue;
+typedef struct _GCClass     GCClass;
+typedef struct _GCObject    GCObject;
+typedef struct _GCInstance  GCInstance;
+typedef struct _GCString    GCString;
 typedef struct _VMSelector  VMSelector;
 typedef struct _VMFunction  VMFunction;
-typedef VMValue (*VMForeignFn)(VMValue*);
+typedef struct _VMCallFrame VMCallFrame;
+typedef GCValue (*GCForeignFn)(GCValue*);
 
 
-// The type tag of a VMValue tagged union. NIL, True and False are singletons
+// The type tag of a GCValue tagged union. NIL, True and False are singletons
 // to simplify dealing with them often.
 //
 // All numbers are double to simplify the standard library and allow
@@ -36,7 +37,7 @@ typedef VMValue (*VMForeignFn)(VMValue*);
 // A value can also hold a function reference for potential closures in the
 // future.
 //
-// TODO: add support for future VMArray and VMMap types
+// TODO: add support for future GCArray and GCMap types
 enum _ValueType {
     TYPE_NIL,
     TYPE_TRUE,
@@ -47,15 +48,15 @@ enum _ValueType {
 };
 
 
-// Orbit's value type, used for the VM's stack and the language's variables.
+// Orbit's value type, used for the GC's stack and the language's variables.
 //
-// TODO: add support for future VMArray and VMMap types
-struct _VMValue {
+// TODO: add support for future GCArray and GCMap types
+struct _GCValue {
     ValueType       type;
     union {
         double      numValue;
-        VMString*   stringValue;
-        VMInstance* objectValue;
+        GCString*   stringValue;
+        GCInstance* objectValue;
     };
 };
 
@@ -63,19 +64,19 @@ struct _VMValue {
 // Orbit's class/user type representation. Even though Orbit 1 will probably
 // not support inheritance (if it even supports OOP at all), we keep some space
 // for a pointer to the parent class.
-struct _VMClass {
+struct _GCClass {
     const char*     name;
-    VMClass*        super;
+    GCClass*        super;
     uint16_t        fieldCount;
 };
 
 
-// The base struct for any object that must be kept track of by the VM's garbage
+// The base struct for any object that must be kept track of by the GC's garbage
 // collector.
-struct _VMObject {
-    VMClass*        class;
+struct _GCObject {
+    GCClass*        class;
     bool            isDark;
-    VMObject*       next;
+    GCObject*       next;
 };
 
 
@@ -83,9 +84,9 @@ struct _VMObject {
 // 
 // Half-classes like the language's primitives string, array and map do not
 // require [fields] and are implemented mostly in C.
-struct _VMInstance {
-    VMObject        base;
-    VMValue         fields[ORBIT_FLEXIBLE_ARRAY_MEMB];
+struct _GCInstance {
+    GCObject        base;
+    GCValue         fields[ORBIT_FLEXIBLE_ARRAY_MEMB];
 };
 
 
@@ -93,20 +94,20 @@ struct _VMInstance {
 //
 // Strings are immutable, which allows a bunch of optimisiations like storing
 // length and hash, computed only once when the string is created.
-struct _VMString {
-    VMObject        base;
+struct _GCString {
+    GCObject        base;
     uint64_t        length;
     uint32_t        hash;
     char            data[ORBIT_FLEXIBLE_ARRAY_MEMB];
 };
 
-// The type fo a VM function.
-enum _VMFnType {
+// The type fo a GC function.
+enum _GCFnType {
     FN_BYTECODE,
     FN_FOREIGN,
 };
 
-// Selectors (like in Objective-C) identify a VM function.
+// Selectors (like in Objective-C) identify a GC function.
 //
 // [signature] is a normalised formatting of the function's name, arity and
 // parameter type list. `func doSomething(a: Number, b: String): Void` would
@@ -125,14 +126,14 @@ struct _VMSelector {
 // declared through the C API.
 struct _VMFunction {
     VMSelector      selector;
-    VMFnType        type;
+    GCFnType        type;
     uint8_t         parameterCount;
     union {
-        VMForeignFn foreign;
+        GCForeignFn foreign;
         struct {
             uint8_t     constantCount;
             uint8_t     byteCodeLength;
-            VMValue*    constants;
+            GCValue*    constants;
             uint8_t*    byteCode;
         } native;
     };
@@ -142,10 +143,10 @@ struct _VMFunction {
 struct _VMCallFrame {
     VMFunction*     function;
     uint8_t*        ip;
-    VMValue*        stackBase;
+    GCValue*        stackBase;
 };
 
-// Macros used to check the type of an orbit VMValue tagged union.
+// Macros used to check the type of an orbit GCValue tagged union.
 
 #define IS_BOOL(val)    ((val).type == TYPE_TRUE || (val).type == TYPE_FALSE)
 #define IS_TRUE(val)    ((val).type != TYPE_FALSE)
@@ -155,17 +156,17 @@ struct _VMCallFrame {
 #define IS_STRING(val)  ((val).type == TYPE_STRING)
 #define IS_OBJECT(val)  ((val).type == TYPE_OBJECT)
 
-// Macros used to cast [val] to a given VM type.
+// Macros used to cast [val] to a given GC type.
 
 #define AS_BOOL(val)    ((val).type == TYPE_TRUE)
 #define AS_NUM(val)     ((double)(val).numValue)
-#define AS_STRING(val)  ((VMString*)(val).stringValue)
-#define AS_OBJECT(val)  ((VMObject*)(val).objectvalue)
+#define AS_STRING(val)  ((GCString*)(val).stringValue)
+#define AS_OBJECT(val)  ((GCObject*)(val).objectvalue)
 
 // Initialises [object] as an instance of [class].
-void orbit_objectInit(VMObject* object, VMClass* class);
+void orbit_objectInit(GCObject* object, GCClass* class);
 
 // Creates a garbage collected string in [vm] from the bytes in [string].
-VMString* orbit_vmStringNew(OrbitVM* vm, const char* string);
+GCString* orbit_gcStringNew(OrbitVM* vm, const char* string);
 
 #endif /* orbit_value_h */

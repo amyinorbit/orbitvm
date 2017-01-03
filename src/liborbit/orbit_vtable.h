@@ -13,7 +13,7 @@
 #include "orbit_platforms.h"
 
 typedef struct _VMFunction  VMFunction;
-typedef struct _VMString    VMString;
+typedef struct _GCString    GCString;
 typedef struct _OrbitVtable OrbitVtable;
 
 #define VTABLE_DEFAULT_CAPACITY 32
@@ -37,6 +37,6 @@ void orbit_vtableInsert(OrbitVtable* table, VMFunction* function);
 
 // Looks up [selector] in [table] and returns a pointer to the function. If the
 // function doesn't exist, returns [NULL].
-VMFunction* orbit_vtableLookup(OrbitVtable* table, VMString* selector);
+VMFunction* orbit_vtableLookup(OrbitVtable* table, GCString* selector);
 
 #endif /* orbit_vtable_h */

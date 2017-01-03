@@ -77,7 +77,7 @@ void orbit_vtableInsert(OrbitVtable* table, VMFunction* function) {
     }
 }
 
-VMFunction* orbit_vtableLookup(OrbitVtable* table, VMString* selector) {
+VMFunction* orbit_vtableLookup(OrbitVtable* table, GCString* selector) {
     OASSERT(table != NULL, "Null instance error");
     OASSERT(selector != NULL, "Null instance error");
     
