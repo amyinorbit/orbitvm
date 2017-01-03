@@ -12,12 +12,6 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-typedef struct _String {
-    const char* data;
-    size_t      length;
-    uint32_t    hash;
-} String;
-
 #define ALLOC(type) \
     (type*)calloc(sizeof(type), 1)
 #define ALLOC_ARRAY(type, count) \
