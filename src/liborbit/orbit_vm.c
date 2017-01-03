@@ -37,7 +37,7 @@ static void orbit_markInstance(OrbitVM* vm, GCInstance* instance) {
     // TODO: keep track of how many bytes the object uses.
 }
 
-void orbit_mark(OrbitVM* vm, GCValue value) {
+void orbit_gcMark(OrbitVM* vm, GCValue value) {
     if(!IS_OBJECT(value)) return;
     GCObject* obj = AS_OBJECT(value);
     if(obj == NULL) return;

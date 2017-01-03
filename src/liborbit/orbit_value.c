@@ -8,25 +8,42 @@
 #include <string.h>
 #include "orbit_value.h"
 #include "orbit_utils.h"
+#include "orbit_vm.h"
 
-
-void orbit_objectInit(GCObject* object, GCClass* class) {
-    OASSERT(object != NULL, "Null instance error");
+void orbit_objectInit(OrbitVM* vm, GCObject* object, GCClass* class) {
     
     object->class = class;
     object->mark = false;
+    object->type = OBJ_INSTANCE;
+    
+    object->next = vm->gcHead;
+    vm->gcHead = object;
 }
 
 GCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
-    OASSERT(string != NULL, "Null instance error");
     
     size_t length = strlen(string);
     
-    GCString* object = ALLOC_FLEX(NULL, GCString, char, length+1);
-    orbit_objectInit(&object->base, NULL);
+    GCString* object = ALLOC_FLEX(vm, GCString, char, length+1);
+    orbit_objectInit(vm, &object->base, NULL);
     
+    object->base.type = OBJ_STRING;
     object->length = length;
     object->hash = orbit_hashString(string, length);
-    strncpy(object->data, string, length);
+    memcpy(object->data, string, length);
     return object;
+}
+
+void orbit_gcStringDealloc(OrbitVM* vm, GCString* string) {
+    DEALLOC(vm, string);
+}
+
+GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class) {
+    GCInstance* object = ALLOC_FLEX(vm, GCInstance, GCValue, class->fieldCount);
+    orbit_objectInit(vm, &object->base, class);
+    return object;
+}
+
+void orbit_gcInstanceDealloc(OrbitVM* vm, GCInstance* instance) {
+    DEALLOC(vm, instance);
 }

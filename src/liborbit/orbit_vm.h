@@ -21,7 +21,7 @@ typedef struct _OrbitVM {
     
     OrbitVtable dispatchTable;
     
-    GCValue*    gcHead;
+    GCObject*   gcHead;
     size_t      allocated;
 } OrbitVM;
 
