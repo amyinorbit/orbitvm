@@ -19,22 +19,39 @@ void orbit_vmInit(OrbitVM* vm) {
     orbit_vtableInit(&vm->dispatchTable);
 }
 
-void orbit_gc(OrbitVM* vm) {
+void orbit_gcRun(OrbitVM* vm) {
+    // Reset allocation size so we can count as we go
+    vm->allocated = 0;
+    
     for(uint32_t i = 0; i < vm->sp; ++i) {
         orbit_gcMark(vm, vm->stack[i]);
     }
-    // TODO: sweep step;
+    
+// basic Mark-sweep algorithm from 
+// http://journal.stuffwithstuff.com/2013/12/08/babys-first-garbage-collector/
+    GCObject** obj = &vm->gcHead;
+    while(*obj) {
+        if(!(*obj)->mark) {
+            GCObject* garbage = *obj;
+            *obj = garbage->next;
+            DEALLOC(vm, garbage);
+        } else {
+            (*obj)->mark = false;
+            obj = &(*obj)->next;
+        }
+    }
 }
 
-static void orbit_markString(OrbitVM* vm,GCString* string) {
-    // TODO: keep track of how many bytes the string uses.
+static void orbit_markString(OrbitVM* vm, GCString* string) {
+    vm->allocated += sizeof(GCString) + string->length + 1;
 }
 
 static void orbit_markInstance(OrbitVM* vm, GCInstance* instance) {
     for(uint16_t i = 0; i < instance->base.class->fieldCount; ++i) {
         orbit_gcMark(vm, instance->fields[i]);
     }
-    // TODO: keep track of how many bytes the object uses.
+    vm->allocated += sizeof(GCInstance)
+                    + instance->base.class->fieldCount * sizeof(GCValue);
 }
 
 void orbit_gcMark(OrbitVM* vm, GCValue value) {

@@ -6,14 +6,16 @@
 //  Copyright © 2016 cesarparent. All rights reserved.
 //
 #include "orbit_utils.h"
+#include "orbit_vm.h"
 
-void* orbit_realloc(OrbitVM* vm, void* ptr, size_t newSize) {
+void* orbit_allocator(OrbitVM* vm, void* ptr, size_t newSize) {
     if(newSize == 0) {
         free(ptr);
         return NULL;
     }
     void* mem = realloc(ptr, newSize);
     OASSERT(mem != NULL, "Error reallocating memory");
+    if(vm != NULL) vm->allocated += newSize;
     return mem;
 }
 

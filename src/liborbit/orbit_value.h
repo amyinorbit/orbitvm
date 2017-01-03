@@ -144,6 +144,9 @@ struct _VMCallFrame {
 
 // Macros used to check the type of an orbit GCValue tagged union.
 
+#define MAKE_NUM(num)   ((GCValue){TYPE_NUM, {.numValue=(num)}})
+#define MAKE_OBJECT(obj)((GCValue){TYPE_OBJECT, {.objectValue=(obj)}})
+
 #define IS_BOOL(val)    ((val).type == TYPE_TRUE || (val).type == TYPE_FALSE)
 #define IS_TRUE(val)    ((val).type != TYPE_FALSE)
 #define IS_FALSE(val)   ((val).type == TYPE_FALSE)

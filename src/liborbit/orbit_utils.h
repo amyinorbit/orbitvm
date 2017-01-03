@@ -15,16 +15,16 @@
 typedef struct _OrbitVM OrbitVM;
 
 #define ALLOC(vm, type) \
-    (type*)orbit_realloc(vm, NULL, sizeof(type))
+    orbit_allocator(vm, NULL, sizeof(type))
 #define ALLOC_ARRAY(vm, type, count) \
-    (type*)orbit_realloc(vm, NULL, sizeof(type) * (count))
+    orbit_allocator(vm, NULL, sizeof(type) * (count))
 #define ALLOC_FLEX(vm, type, arrayType, count) \
-    (type*)orbit_realloc(vm, NULL, sizeof(type) + (sizeof(arrayType) * (count)))
+    orbit_allocator(vm, NULL, sizeof(type) + (sizeof(arrayType) * (count)))
 #define DEALLOC(vm, ptr) \
-    orbit_realloc(vm, ptr, 0)
+    orbit_allocator(vm, ptr, 0)
 
-//
-void* orbit_realloc(OrbitVM* vm, void* ptr, size_t newSize);
+// Single function used for memory allocation and deallocation in orbit.
+void* orbit_allocator(OrbitVM* vm, void* ptr, size_t newSize);
 
 // Hash functions
     

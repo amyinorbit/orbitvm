@@ -28,6 +28,16 @@ typedef struct _OrbitVM {
 
 void orbit_vmInit(OrbitVM* vm);
 
+static inline void orbit_vmPush(OrbitVM* vm, GCValue value) {
+    OASSERT(vm->sp < ORBIT_STACK_SIZE, "stack overflow");
+    vm->stack[vm->sp++] = value;
+}
+
+static inline GCValue orbit_vmPop(OrbitVM* vm) {
+    OASSERT(vm->sp > 0, "stack underflow");
+    return vm->stack[--vm->sp];
+}
+
 void orbit_gcRun(OrbitVM* vm);
 
 void orbit_gcMark(OrbitVM* vm, GCValue value);

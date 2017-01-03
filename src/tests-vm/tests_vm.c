@@ -19,6 +19,36 @@
 
 static OrbitVM vm;
 
+void gc_collect(void) {
+    orbit_vmInit(&vm);
+    TEST_ASSERT_EQUAL(vm.allocated, 0);
+    
+    GCString* string = orbit_gcStringNew(&vm, "Hello, world");
+    TEST_ASSERT_EQUAL(vm.allocated, sizeof(GCString) + string->length+1);
+    
+    orbit_gcRun(&vm);
+    
+    TEST_ASSERT_EQUAL(vm.allocated, 0);
+}
+
+void gc_savestack(void) {
+    orbit_vmInit(&vm);
+    TEST_ASSERT_EQUAL(vm.allocated, 0);
+    
+    GCString* string = orbit_gcStringNew(&vm, "Hello, world");
+    
+    size_t size = sizeof(GCString) + string->length+1;
+    TEST_ASSERT_EQUAL(vm.allocated, size);
+    
+    orbit_vmPush(&vm, MAKE_OBJECT(string));
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(vm.allocated, size);
+    orbit_vmPop(&vm);
+    orbit_gcRun(&vm);
+    
+    TEST_ASSERT_EQUAL(vm.allocated, 0);
+}
+
 void string_create(void) {
     orbit_vmInit(&vm);
     GCString* string = orbit_gcStringNew(&vm, "Hello, world!");
@@ -93,6 +123,8 @@ void vtable_insert_get(void) {
 
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(gc_collect);
+    RUN_TEST(gc_savestack);
     RUN_TEST(string_create);
     RUN_TEST(string_hash);
     RUN_TEST(double_hash);
