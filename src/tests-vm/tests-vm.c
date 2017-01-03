@@ -2,7 +2,7 @@
 //  tests-vm/tests-vm.c
 //  OrbitVM/Tests
 //
-//  Created by Cesar Parent on 24/12/2016.
+//  Created by Cesar Parent on 2016-12-24.
 //  Copyright © 2016 cesarparent. All rights reserved.
 //
 #include "orbit_string.h"

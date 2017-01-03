@@ -2,7 +2,7 @@
 //  orbit_string.c
 //  OrbitVM
 //
-//  Created by Cesar Parent on 03/01/2017.
+//  Created by Cesar Parent on 2017-01-03.
 //  Copyright © 2016 cesarparent. All rights reserved.
 //
 #include "orbit_string.h"
