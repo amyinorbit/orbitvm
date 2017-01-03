@@ -7,6 +7,15 @@
 //
 #include "orbit_string.h"
 
+void orbit_stringInitStatic(String* string, const char* text) {
+    OASSERT(string != NULL, "Null instance error");
+    OASSERT(text != NULL, "Null text reference");
+    
+    string->length = strlen(text);
+    string->data = (char*)text;
+    string->hash = orbit_hashString(string->data, string->length);
+}
+
 void orbit_stringInit(String* string, const char* text) {
     OASSERT(string != NULL, "Null instance error");
     OASSERT(text != NULL, "Null text reference");
