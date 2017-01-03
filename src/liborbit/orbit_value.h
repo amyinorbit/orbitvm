@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <orbit/orbit.h>
+#include "orbit_string.h"
 #include "orbit_platforms.h"
 
 typedef enum _ValueType     ValueType;
@@ -107,25 +108,13 @@ enum _GCFnType {
     FN_FOREIGN,
 };
 
-// Selectors (like in Objective-C) identify a GC function.
-//
-// [signature] is a normalised formatting of the function's name, arity and
-// parameter type list. `func doSomething(a: Number, b: String): Void` would
-// become `doSomething(N,S)V`. This is ultimately used as symbolic references
-// in bytecode for the CALL_XYZ family of opcodes.
-struct _VMSelector {
-    const char*     data;
-    uint64_t        length;
-    uint32_t        hash;
-};
-
 // Orbit's Function type.
 //
 // Function objects can hold either bytecode for functions compiled from an
 // Orbit script file, or a pointer to their native implementation for functions
 // declared through the C API.
 struct _VMFunction {
-    VMSelector      selector;
+    String          selector;
     GCFnType        type;
     uint8_t         parameterCount;
     union {

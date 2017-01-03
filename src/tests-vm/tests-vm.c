@@ -8,6 +8,7 @@
 #include "orbit_hashmap.h"
 #include "orbit_string.h"
 #include "orbit_double.h"
+#include "orbit_vtable.h"
 
 #define DECL_TEST(test) {#test, test}
 
@@ -18,5 +19,7 @@ TEST_LIST = {
     DECL_TEST(string_create),
     DECL_TEST(string_hash),
     DECL_TEST(double_hash),
+    DECL_TEST(vtable_create),
+    DECL_TEST(vtable_insert_get),
     { 0 }
 };
