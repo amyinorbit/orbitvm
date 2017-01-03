@@ -17,6 +17,7 @@
 
 typedef enum _ValueType     ValueType;
 typedef enum _GCFnType      GCFnType;
+typedef enum _GCObjType     GCObjType;
 typedef struct _GCValue     GCValue;
 typedef struct _GCClass     GCClass;
 typedef struct _GCObject    GCObject;
@@ -37,14 +38,11 @@ typedef GCValue (*GCForeignFn)(GCValue*);
 //
 // A value can also hold a function reference for potential closures in the
 // future.
-//
-// TODO: add support for future GCArray and GCMap types
 enum _ValueType {
     TYPE_NIL,
     TYPE_TRUE,
     TYPE_FALSE,
     TYPE_NUM,
-    TYPE_STRING,
     TYPE_OBJECT
 };
 
@@ -56,8 +54,7 @@ struct _GCValue {
     ValueType       type;
     union {
         double      numValue;
-        GCString*   stringValue;
-        GCInstance* objectValue;
+        void*       objectValue;
     };
 };
 
@@ -71,12 +68,22 @@ struct _GCClass {
     uint16_t        fieldCount;
 };
 
+// The type of a garbage-collected object. This is used to decide how to collect
+// the object, and wether it has fields pointing to other objects in the graph.
+//
+// TODO: add support for future GCArray and GCMap types
+enum _GCObjType {
+    OBJ_INSTANCE,
+    OBJ_STRING,
+};
+
 
 // The base struct for any object that must be kept track of by the GC's garbage
 // collector.
 struct _GCObject {
     GCClass*        class;
-    bool            isDark;
+    GCObjType       type;
+    bool            mark;
     GCObject*       next;
 };
 
@@ -142,15 +149,16 @@ struct _VMCallFrame {
 #define IS_FALSE(val)   ((val).type == TYPE_FALSE)
 #define IS_NIL(val)     ((val).type == TYPE_NIL)
 #define IS_NUM(val)     ((val).type == TYPE_NUM)
-#define IS_STRING(val)  ((val).type == TYPE_STRING)
 #define IS_OBJECT(val)  ((val).type == TYPE_OBJECT)
+#define IS_INSTANCE(val)(IS_OBJECT(val) && AS_OBJECT(val).type == OBJ_INSTANCE)
 
 // Macros used to cast [val] to a given GC type.
 
 #define AS_BOOL(val)    ((val).type == TYPE_TRUE)
 #define AS_NUM(val)     ((double)(val).numValue)
-#define AS_STRING(val)  ((GCString*)(val).stringValue)
-#define AS_OBJECT(val)  ((GCObject*)(val).objectvalue)
+#define AS_OBJECT(val)  ((GCObject*)(val).objectValue)
+#define AS_INST(val)    ((GCInstance*)AS_OBJECT(val))
+#define AS_STRING(val)  ((GCString*)AS_OBJECT(val))
 
 // Initialises [object] as an instance of [class].
 void orbit_objectInit(GCObject* object, GCClass* class);

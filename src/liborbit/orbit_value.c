@@ -14,7 +14,7 @@ void orbit_objectInit(GCObject* object, GCClass* class) {
     OASSERT(object != NULL, "Null instance error");
     
     object->class = class;
-    object->isDark = false;
+    object->mark = false;
 }
 
 GCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
