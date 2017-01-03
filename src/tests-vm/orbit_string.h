@@ -9,7 +9,7 @@ void string_create(void) {
     TEST_CHECK(string != NULL);
     TEST_CHECK(string->length == 13);
     TEST_CHECK(strcmp(string->data, "Hello, world!") == 0);
-    DEALLOC(string);
+    DEALLOC(NULL, string);
 }
 
 void string_hash(void) {
@@ -24,7 +24,7 @@ void string_hash(void) {
     TEST_CHECK(a->hash == b->hash);
     TEST_CHECK(a->hash != c->hash);
     
-    DEALLOC(a);
-    DEALLOC(b);
-    DEALLOC(c);
+    DEALLOC(NULL, a);
+    DEALLOC(NULL, b);
+    DEALLOC(NULL, c);
 }

@@ -21,7 +21,7 @@ void orbit_vmInit(OrbitVM* vm) {
 
 void orbit_gc(OrbitVM* vm) {
     for(uint32_t i = 0; i < vm->sp; ++i) {
-        orbit_mark(vm, vm->stack[i]);
+        orbit_gcMark(vm, vm->stack[i]);
     }
     // TODO: sweep step;
 }
@@ -32,8 +32,9 @@ static void orbit_markString(OrbitVM* vm,GCString* string) {
 
 static void orbit_markInstance(OrbitVM* vm, GCInstance* instance) {
     for(uint16_t i = 0; i < instance->base.class->fieldCount; ++i) {
-        orbit_mark(vm, instance->fields[i]);
+        orbit_gcMark(vm, instance->fields[i]);
     }
+    // TODO: keep track of how many bytes the object uses.
 }
 
 void orbit_mark(OrbitVM* vm, GCValue value) {

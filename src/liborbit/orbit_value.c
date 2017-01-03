@@ -22,7 +22,7 @@ GCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
     
     size_t length = strlen(string);
     
-    GCString* object = ALLOC_FLEX(GCString, char, length+1);
+    GCString* object = ALLOC_FLEX(NULL, GCString, char, length+1);
     orbit_objectInit(&object->base, NULL);
     
     object->length = length;

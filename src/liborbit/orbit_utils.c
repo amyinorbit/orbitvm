@@ -7,7 +7,11 @@
 //
 #include "orbit_utils.h"
 
-void* orbit_realloc(void* ptr, size_t newSize) {
+void* orbit_realloc(OrbitVM* vm, void* ptr, size_t newSize) {
+    if(newSize == 0) {
+        free(ptr);
+        return NULL;
+    }
     void* mem = realloc(ptr, newSize);
     OASSERT(mem != NULL, "Error reallocating memory");
     return mem;

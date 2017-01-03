@@ -28,8 +28,8 @@ typedef struct _OrbitVM {
 
 void orbit_vmInit(OrbitVM* vm);
 
-void orbit_gc(OrbitVM* vm);
+void orbit_gcRun(OrbitVM* vm);
 
-void orbit_mark(OrbitVM* vm, GCValue value);
+void orbit_gcMark(OrbitVM* vm, GCValue value);
 
 #endif /* orbit_vm_h */

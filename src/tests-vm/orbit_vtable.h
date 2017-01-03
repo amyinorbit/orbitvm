@@ -37,6 +37,6 @@ void vtable_insert_get(void) {
     TEST_CHECK(fetch != NULL);
     TEST_CHECK(fetch == &fn);
     
-    DEALLOC(lookup);
+    DEALLOC(NULL, lookup);
     orbit_vtableDeinit(&table);
 }

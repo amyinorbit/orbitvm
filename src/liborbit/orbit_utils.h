@@ -12,17 +12,19 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#define ALLOC(type) \
-    (type*)calloc(sizeof(type), 1)
-#define ALLOC_ARRAY(type, count) \
-    (type*)calloc(sizeof(type), (count))
-#define ALLOC_FLEX(type, arrayType, count) \
-    (type*)calloc(sizeof(type) + (sizeof(arrayType) * (count)), 1)
-#define DEALLOC(ptr) \
-    free(ptr)
+typedef struct _OrbitVM OrbitVM;
+
+#define ALLOC(vm, type) \
+    (type*)orbit_realloc(vm, NULL, sizeof(type))
+#define ALLOC_ARRAY(vm, type, count) \
+    (type*)orbit_realloc(vm, NULL, sizeof(type) * (count))
+#define ALLOC_FLEX(vm, type, arrayType, count) \
+    (type*)orbit_realloc(vm, NULL, sizeof(type) + (sizeof(arrayType) * (count)))
+#define DEALLOC(vm, ptr) \
+    orbit_realloc(vm, ptr, 0)
 
 //
-void* orbit_realloc(void* ptr, size_t newSize);
+void* orbit_realloc(OrbitVM* vm, void* ptr, size_t newSize);
 
 // Hash functions
     
