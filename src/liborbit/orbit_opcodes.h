@@ -14,29 +14,29 @@
 #define OPCODE(_)
 #endif
 
-OPCODE(HCF)             /// Halts the virtual machine.
-OPCODE(CONST)           /// Pushes a constant from the pool onto the stack.
-OPCODE(CONST_NULL)      /// 
-OPCODE(CONST_TRUE)      /// 
-OPCODE(CONST_FALSE)     /// 
-OPCODE(LOAD_LOCAL)      /// Pushes a local variable onto the stack.
-OPCODE(LOAD_FIELD)      /// Pushes an object's field onto the stack.
-OPCODE(LOAD_GLOBAL)     /// Pushes a global variable onto the stack.
-OPCODE(STORE_LOCAL)     /// Stores the top of the stack in a local variable.
-OPCODE(STORE_FIELD)     /// Stores the top of the stack in an object's field.
-OPCODE(STORE_GLOBAL)    /// Stores the top of the stack into a global variable.
+OPCODE(halt)            /// Halts the virtual machine.
+OPCODE(const_nil)       /// 
+OPCODE(const_true)      /// 
+OPCODE(const_false)     /// 
+OPCODE(load_const)      /// Pushes a constant from the pool onto the stack.
+OPCODE(load_local)      /// Pushes a local variable onto the stack.
+OPCODE(load_field)      /// Pushes an object's field onto the stack.
+OPCODE(load_global)     /// Pushes a global variable onto the stack.
+OPCODE(store_local)     /// Stores the top of the stack in a local variable.
+OPCODE(store_field)     /// Stores the top of the stack in an object's field.
+OPCODE(store_global)    /// Stores the top of the stack into a global variable.
 
-OPCODE(AND)             ///
-OPCODE(OR)              ///
+OPCODE(and)             ///
+OPCODE(or)              ///
 
 /**/
 
-OPCODE(JUMP_IF)         ///
-OPCODE(JUMP)            ///
-OPCODE(RJUMP_IF)        ///
-OPCODE(RJUMP)           ///
-OPCODE(POP)             ///
-OPCODE(SWAP)            ///
+OPCODE(jump_if)         ///
+OPCODE(jump)            ///
+OPCODE(rjump_if)        ///
+OPCODE(rjump)           ///
+OPCODE(pop)             ///
+OPCODE(swap)            ///
 
 /*
  * Invocation codes - dynamic run-time dispatch means the argument is an index
@@ -44,10 +44,10 @@ OPCODE(SWAP)            ///
  * in the VM's dispatch table
  */
 
-OPCODE(INVOKE)          /// Invoke a function
-OPCODE(RETURN_VAL)      ///
-OPCODE(RETURN)          ///
-OPCODE(INIT)            ///
-OPCODE(DBG_PRT)         ///
+OPCODE(invoke)          /// Invoke a function
+OPCODE(ret_val)         ///
+OPCODE(ret)             ///
+OPCODE(init)            ///
+OPCODE(debug_prt)       ///
 
 #undef OPCODE

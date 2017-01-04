@@ -33,6 +33,10 @@ C standard library.
 ## Todo list
 
  * [x] linear-probed hashmap-based dispatch table
+ * [x] basic garbage collector
+ * [x] Garbage-collected object and value system
+ * [ ] Object file layout design
+ * [ ] basic assembly language and assembler
  * [ ] everything else
 
 
