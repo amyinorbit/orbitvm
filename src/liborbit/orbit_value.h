@@ -169,10 +169,6 @@ void orbit_objectInit(OrbitVM* vm, GCObject* object, GCClass* class);
 // Creates a garbage collected string in [vm] from the bytes in [string].
 GCString* orbit_gcStringNew(OrbitVM* vm, const char* string);
 
-void orbit_gcStringDealloc(OrbitVM* vm, GCString* string);
-
 GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class);
-
-void orbit_gcInstanceDealloc(OrbitVM* vm, GCInstance* instance);
 
 #endif /* orbit_value_h */

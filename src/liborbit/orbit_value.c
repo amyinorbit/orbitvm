@@ -34,16 +34,8 @@ GCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
     return object;
 }
 
-void orbit_gcStringDealloc(OrbitVM* vm, GCString* string) {
-    DEALLOC(vm, string);
-}
-
 GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class) {
     GCInstance* object = ALLOC_FLEX(vm, GCInstance, GCValue, class->fieldCount);
     orbit_objectInit(vm, &object->base, class);
     return object;
-}
-
-void orbit_gcInstanceDealloc(OrbitVM* vm, GCInstance* instance) {
-    DEALLOC(vm, instance);
 }
