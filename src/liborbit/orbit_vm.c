@@ -15,8 +15,6 @@ void orbit_vmInit(OrbitVM* vm) {
     vm->ip = NULL;
     vm->gcHead = NULL;
     vm->allocated = 0;
-    
-    orbit_vtableInit(&vm->dispatchTable);
 }
 
 void orbit_gcRun(OrbitVM* vm) {
@@ -27,7 +25,7 @@ void orbit_gcRun(OrbitVM* vm) {
         orbit_gcMark(vm, vm->stack[i]);
     }
     
-    // TODO: mark functions in dispatch table
+    // TODO: mark contexts registered with the VM.
     
 // basic Mark-sweep algorithm from 
 // http://journal.stuffwithstuff.com/2013/12/08/babys-first-garbage-collector/
@@ -46,15 +44,14 @@ void orbit_gcRun(OrbitVM* vm) {
 
 static inline void orbit_markClass(OrbitVM* vm, GCClass* class) {
     vm->allocated += sizeof(GCClass);
+    vm->allocated += sizeof(char) * (class->name.length+1);
 }
 
 static inline void orbit_markString(OrbitVM* vm, GCString* string) {
-    string->base.mark = true;
     vm->allocated += sizeof(GCString) + string->length + 1;
 }
 
 static inline void orbit_markInstance(OrbitVM* vm, GCInstance* instance) {
-    instance->base.mark = true;
     // mark objects pointed to by the fields of the instance.
     for(uint16_t i = 0; i < instance->base.class->fieldCount; ++i) {
         orbit_gcMark(vm, instance->fields[i]);

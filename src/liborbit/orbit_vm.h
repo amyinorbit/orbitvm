@@ -19,8 +19,6 @@ typedef struct _OrbitVM {
     uint32_t    sp;
     GCValue     stack[ORBIT_STACK_SIZE];
     
-    OrbitVtable dispatchTable;
-    
     GCObject*   gcHead;
     size_t      allocated;
 } OrbitVM;
