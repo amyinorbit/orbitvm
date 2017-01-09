@@ -42,6 +42,14 @@ void orbit_gcRun(OrbitVM* vm) {
     }
 }
 
+static void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
+    vm->allocated += sizeof(VMFunction);
+    if(function->type == FN_NATIVE) {
+        vm->allocated += function->native.byteCodeLength
+                         + (function->native.constantCount * sizeof(GCValue));
+    }
+}
+
 static void orbit_markString(OrbitVM* vm, GCString* string) {
     vm->allocated += sizeof(GCString) + string->length + 1;
 }
@@ -68,6 +76,9 @@ void orbit_gcMark(OrbitVM* vm, GCValue value) {
         break;
     case OBJ_STRING:
         orbit_markString(vm, (GCString*)obj);
+        break;
+    case OBJ_FUNCTION:
+        orbit_markFunction(vm, (VMFunction*)obj);
         break;
     }
 }

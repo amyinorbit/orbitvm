@@ -75,6 +75,7 @@ struct _GCClass {
 enum _GCObjType {
     OBJ_INSTANCE,
     OBJ_STRING,
+    OBJ_FUNCTION,
 };
 
 
@@ -111,7 +112,7 @@ struct _GCString {
 
 // The type fo a GC function.
 enum _GCFnType {
-    FN_BYTECODE,
+    FN_NATIVE,
     FN_FOREIGN,
 };
 
@@ -121,6 +122,7 @@ enum _GCFnType {
 // Orbit script file, or a pointer to their native implementation for functions
 // declared through the C API.
 struct _VMFunction {
+    GCObject        base;
     String          selector;
     GCFnType        type;
     uint8_t         parameterCount;
