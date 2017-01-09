@@ -11,21 +11,24 @@
 
 void orbit_vmInit(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
-    vm->sp = 0;
-    vm->ip = NULL;
+    vm->currentContext = NULL;
     vm->gcHead = NULL;
     vm->allocated = 0;
+    
+    vm->gcStackSize = 0;
 }
 
 void orbit_gcRun(OrbitVM* vm) {
     // Reset allocation size so we can count as we go
     vm->allocated = 0;
     
-    for(uint32_t i = 0; i < vm->sp; ++i) {
-        orbit_gcMark(vm, vm->stack[i]);
-    }
+    // mark everything used by the current execution context
+    orbit_gcMarkObject(vm, (GCObject*)vm->currentContext);
     
-    // TODO: mark contexts registered with the VM.
+    // mark the retained objects
+    for(uint8_t i = 0; i < vm->gcStackSize; ++i) {
+        orbit_gcMarkObject(vm, vm->gcStack[i]);
+    }
     
 // basic Mark-sweep algorithm from 
 // http://journal.stuffwithstuff.com/2013/12/08/babys-first-garbage-collector/
@@ -74,6 +77,11 @@ static inline void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
 static inline void orbit_markContext(OrbitVM* vm, VMContext* context) {
     vm->allocated += sizeof(VMContext) + context->globalCount * sizeof(GCValue);
     vm->allocated += context->dispatchTable.capacity * sizeof(VMFunction);
+    
+    // Mark local variables from the stack
+    for(uint32_t i = 0; i < context->sp; ++i) {
+        orbit_gcMark(vm, context->stack[i]);
+    }
     
     // Mark all the globals
     for(uint16_t i = 0; i < context->globalCount; ++i) {

@@ -12,29 +12,28 @@
 #include "orbit_vtable.h"
 #include "orbit_value.h"
 
-#define ORBIT_STACK_SIZE 256
+#define ORBIT_GCSTACK_SIZE 16
 
 typedef struct _OrbitVM {
-    uint8_t*    ip;
-    uint32_t    sp;
-    GCValue     stack[ORBIT_STACK_SIZE];
-    
+    VMContext*  currentContext;
     GCObject*   gcHead;
     size_t      allocated;
+    
+    GCObject*   gcStack[ORBIT_GCSTACK_SIZE];
+    size_t      gcStackSize;
 } OrbitVM;
 
+static inline void orbit_gcRetain(OrbitVM* vm, GCObject* object) {
+    OASSERT(vm->gcStackSize < ORBIT_GCSTACK_SIZE-1, "stack overflow");
+    vm->gcStack[vm->gcStackSize++] = object;
+}
+
+static inline void orbit_gcRelease(OrbitVM* vm) {
+    OASSERT(vm->gcStackSize > 0, "stack underflow");
+    vm->gcStackSize--;
+}
 
 void orbit_vmInit(OrbitVM* vm);
-
-static inline void orbit_vmPush(OrbitVM* vm, GCValue value) {
-    OASSERT(vm->sp < ORBIT_STACK_SIZE, "stack overflow");
-    vm->stack[vm->sp++] = value;
-}
-
-static inline GCValue orbit_vmPop(OrbitVM* vm) {
-    OASSERT(vm->sp > 0, "stack underflow");
-    return vm->stack[--vm->sp];
-}
 
 void orbit_gcRun(OrbitVM* vm);
 

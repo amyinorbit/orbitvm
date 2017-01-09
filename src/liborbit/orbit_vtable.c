@@ -29,7 +29,9 @@ static void orbit_vtableGrow(OrbitVtable* table) {
     
     table->mask = table->capacity - 1;
     table->data = ALLOC_ARRAY(NULL, VMFunction*, table->capacity);
-    memset(table->data, 0, table->capacity);
+    for(uint32_t i = 0; i < table->capacity; ++i) {
+        table->data[i] = NULL;
+    }
     
     for(uint32_t i = 0; i < oldCapacity; ++i) {
         if(oldData[i] == NULL) continue;
@@ -50,7 +52,9 @@ void orbit_vtableInit(OrbitVtable* table) {
     table->mask = VTABLE_DEFAULT_CAPACITY - 1;
     table->size = 0;
     table->data = ALLOC_ARRAY(NULL, VMFunction*, VTABLE_DEFAULT_CAPACITY);
-    memset(table->data, 0, VTABLE_DEFAULT_CAPACITY);
+    for(uint32_t i = 0; i < VTABLE_DEFAULT_CAPACITY; ++i) {
+        table->data[i] = NULL;
+    }
 }
 
 void orbit_vtableDeinit(OrbitVtable* table) {

@@ -167,6 +167,14 @@ struct _VMContext {
     uint16_t        classCount;
     GCClass**       classes;
     OrbitVtable     dispatchTable;
+    
+    uint32_t        stackCapacity;
+    uint32_t        sp;
+    GCValue*        stack;
+    
+    uint32_t        frameCount;
+    uint32_t        frameCapacity;
+    VMCallFrame     frames;
 };
 
 // Macros used to check the type of an orbit GCValue tagged union.

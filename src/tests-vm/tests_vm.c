@@ -40,10 +40,10 @@ void gc_savestack(void) {
     size_t size = sizeof(GCString) + string->length+1;
     TEST_ASSERT_EQUAL(vm.allocated, size);
     
-    orbit_vmPush(&vm, MAKE_OBJECT(string));
+    orbit_gcRetain(&vm, (GCObject*)string);
     orbit_gcRun(&vm);
     TEST_ASSERT_EQUAL(vm.allocated, size);
-    orbit_vmPop(&vm);
+    orbit_gcRelease(&vm);
     orbit_gcRun(&vm);
     
     TEST_ASSERT_EQUAL(vm.allocated, 0);
@@ -55,7 +55,7 @@ void string_create(void) {
     
     TEST_ASSERT_NOT_NULL(string);
     TEST_ASSERT_EQUAL(string->length, 13);
-    TEST_ASSERT_EQUAL_STRING(string->data, "Hello, world!");
+    TEST_ASSERT_EQUAL_STRING("Hello, world!", string->data);
     
     DEALLOC(&vm, string);
 }

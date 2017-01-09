@@ -33,6 +33,7 @@ GCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
     object->length = length;
     object->hash = orbit_hashString(string, length);
     memcpy(object->data, string, length);
+    object->data[length] = '\0';
     return object;
 }
 
@@ -84,13 +85,6 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
 void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(object != NULL, "Null instance error");
-    
-    /*
-    OBJ_CLASS,
-    OBJ_INSTANCE,
-    OBJ_STRING,
-    OBJ_FUNCTION,
-    */
     
     switch(object->type) {
     case OBJ_CLASS:
