@@ -36,8 +36,7 @@ void orbit_gcRun(OrbitVM* vm) {
         if(!(*obj)->mark) {
             GCObject* garbage = *obj;
             *obj = garbage->next;
-            // TODO: change to object-specific deallocation function
-            DEALLOC(vm, garbage);
+            orbit_gcDeallocate(vm, garbage);
         } else {
             (*obj)->mark = false;
             obj = &(*obj)->next;
@@ -45,7 +44,29 @@ void orbit_gcRun(OrbitVM* vm) {
     }
 }
 
-static void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
+static inline void orbit_markClass(OrbitVM* vm, GCClass* class) {
+    vm->allocated += sizeof(GCClass);
+}
+
+static inline void orbit_markString(OrbitVM* vm, GCString* string) {
+    string->base.mark = true;
+    vm->allocated += sizeof(GCString) + string->length + 1;
+}
+
+static inline void orbit_markInstance(OrbitVM* vm, GCInstance* instance) {
+    instance->base.mark = true;
+    // mark objects pointed to by the fields of the instance.
+    for(uint16_t i = 0; i < instance->base.class->fieldCount; ++i) {
+        orbit_gcMark(vm, instance->fields[i]);
+    }
+    // mark the class .
+    orbit_gcMarkObject(vm, (GCObject*)instance->base.class);
+    
+    vm->allocated += sizeof(GCInstance)
+                    + instance->base.class->fieldCount * sizeof(GCValue);
+}
+
+static inline void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
     vm->allocated += sizeof(VMFunction);
     if(function->type == FN_NATIVE) {
         vm->allocated += function->native.byteCodeLength
@@ -53,27 +74,38 @@ static void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
     }
 }
 
-static void orbit_markString(OrbitVM* vm, GCString* string) {
-    vm->allocated += sizeof(GCString) + string->length + 1;
-}
-
-static void orbit_markInstance(OrbitVM* vm, GCInstance* instance) {
-    for(uint16_t i = 0; i < instance->base.class->fieldCount; ++i) {
-        orbit_gcMark(vm, instance->fields[i]);
+static inline void orbit_markContext(OrbitVM* vm, VMContext* context) {
+    vm->allocated += sizeof(VMContext) + context->globalCount * sizeof(GCValue);
+    vm->allocated += context->dispatchTable.capacity * sizeof(VMFunction);
+    
+    // Mark all the globals
+    for(uint16_t i = 0; i < context->globalCount; ++i) {
+        orbit_gcMark(vm, context->globals[i]);
     }
-    vm->allocated += sizeof(GCInstance)
-                    + instance->base.class->fieldCount * sizeof(GCValue);
+    
+    // Mark registered classes
+    for(uint16_t i = 0; i < context->classCount; ++i) {
+        orbit_gcMarkObject(vm, (GCObject*)context->classes[i]);
+    }
+    
+    // Mark functions from the context's dispatch table
+    for(uint32_t i = 0; i < context->dispatchTable.capacity; ++i) {
+        if(context->dispatchTable.data[i]) {
+            orbit_gcMarkObject(vm, (GCObject*)context->dispatchTable.data[i]);
+        }
+    }
 }
 
-void orbit_gcMark(OrbitVM* vm, GCValue value) {
-    if(!IS_OBJECT(value)) return;
-    GCObject* obj = AS_OBJECT(value);
+void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj) {
     if(obj == NULL) return;
     if(obj->mark) return;
     
     obj->mark = true;
     
     switch(obj->type) {
+    case OBJ_CLASS:
+        orbit_markClass(vm, (GCClass*)obj);
+        break;
     case OBJ_INSTANCE:
         orbit_markInstance(vm, (GCInstance*)obj);
         break;
@@ -83,5 +115,13 @@ void orbit_gcMark(OrbitVM* vm, GCValue value) {
     case OBJ_FUNCTION:
         orbit_markFunction(vm, (VMFunction*)obj);
         break;
+    case OBJ_CONTEXT:
+        orbit_markContext(vm, (VMContext*)obj);
+        break;
     }
+}
+
+void orbit_gcMark(OrbitVM* vm, GCValue value) {
+    if(!IS_OBJECT(value)) return;
+    orbit_gcMarkObject(vm, AS_OBJECT(value));
 }

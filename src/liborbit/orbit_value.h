@@ -14,6 +14,7 @@
 #include <orbit/orbit.h>
 #include "orbit_string.h"
 #include "orbit_platforms.h"
+#include "orbit_vtable.h"
 
 typedef enum _ValueType     ValueType;
 typedef enum _GCFnType      GCFnType;
@@ -26,6 +27,7 @@ typedef struct _GCString    GCString;
 typedef struct _VMSelector  VMSelector;
 typedef struct _VMFunction  VMFunction;
 typedef struct _VMCallFrame VMCallFrame;
+typedef struct _VMContext   VMContext;
 typedef GCValue (*GCForeignFn)(GCValue*);
 
 
@@ -58,24 +60,16 @@ struct _GCValue {
     };
 };
 
-
-// Orbit's class/user type representation. Even though Orbit 1 will probably
-// not support inheritance (if it even supports OOP at all), we keep some space
-// for a pointer to the parent class.
-struct _GCClass {
-    const char*     name;
-    GCClass*        super;
-    uint16_t        fieldCount;
-};
-
 // The type of a garbage-collected object. This is used to decide how to collect
 // the object, and wether it has fields pointing to other objects in the graph.
 //
 // TODO: add support for future GCArray and GCMap types
 enum _GCObjType {
+    OBJ_CLASS,
     OBJ_INSTANCE,
     OBJ_STRING,
     OBJ_FUNCTION,
+    OBJ_CONTEXT,
 };
 
 
@@ -86,6 +80,17 @@ struct _GCObject {
     GCObjType       type;
     bool            mark;
     GCObject*       next;
+};
+
+
+// Orbit's class/user type representation. Even though Orbit 1 will probably
+// not support inheritance (if it even supports OOP at all), we keep some space
+// for a pointer to the parent class.
+struct _GCClass {
+    GCObject        base;
+    String          name;
+    GCClass*        super;
+    uint16_t        fieldCount;
 };
 
 
@@ -116,6 +121,14 @@ enum _GCFnType {
     FN_FOREIGN,
 };
 
+// Orbit's native function type, used for bytecode-compiled functions.
+typedef struct _GCNativeFn {
+    uint8_t     constantCount;
+    uint16_t     byteCodeLength;
+    GCValue*    constants;
+    uint8_t*    byteCode;
+} GCNativeFn;
+
 // Orbit's Function type.
 //
 // Function objects can hold either bytecode for functions compiled from an
@@ -128,20 +141,32 @@ struct _VMFunction {
     uint8_t         parameterCount;
     union {
         GCForeignFn foreign;
-        struct {
-            uint8_t     constantCount;
-            uint8_t     byteCodeLength;
-            GCValue*    constants;
-            uint8_t*    byteCode;
-        } native;
+        GCNativeFn  native;
     };
 };
 
 // Orbit's call stack frame structure.
 struct _VMCallFrame {
+    VMContext*      context;
     VMFunction*     function;
     uint8_t*        ip;
     GCValue*        stackBase;
+};
+
+// VMContext holds all that is needed for a bytecode file to be executed.
+// A context is created when a bytecode file is loaded into the VM, and can be
+// used to hold state in between C API function calls.
+//
+// In the future, VMContext might become a cooperative threading system similar
+// to coroutines or fibers (yield-based system).
+struct _VMContext {
+    OrbitVM*        vm;
+    GCObject        base;
+    uint16_t        globalCount;
+    GCValue*        globals;
+    uint16_t        classCount;
+    GCClass**       classes;
+    OrbitVtable     dispatchTable;
 };
 
 // Macros used to check the type of an orbit GCValue tagged union.
@@ -165,12 +190,20 @@ struct _VMCallFrame {
 #define AS_INST(val)    ((GCInstance*)AS_OBJECT(val))
 #define AS_STRING(val)  ((GCString*)AS_OBJECT(val))
 
-// Initialises [object] as an instance of [class].
-void orbit_objectInit(OrbitVM* vm, GCObject* object, GCClass* class);
-
 // Creates a garbage collected string in [vm] from the bytes in [string].
 GCString* orbit_gcStringNew(OrbitVM* vm, const char* string);
 
+// Creates a garbage collected instance of [class] in [vm].
 GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class);
+
+// Creates a new class meta-object in [vm] named [className].
+GCClass* orbit_gcClassNew(OrbitVM* vm, const char* name, uint16_t fieldCount);
+
+// Creates a native bytecode function.
+VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
+                                uint16_t byteCodeLength, uint8_t constantCount);
+
+// Deallocates [object].
+void orbit_gcDeallocate(OrbitVM* vm, GCObject* object);
 
 #endif /* orbit_value_h */
