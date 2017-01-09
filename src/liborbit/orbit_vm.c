@@ -27,6 +27,8 @@ void orbit_gcRun(OrbitVM* vm) {
         orbit_gcMark(vm, vm->stack[i]);
     }
     
+    // TODO: mark functions in dispatch table
+    
 // basic Mark-sweep algorithm from 
 // http://journal.stuffwithstuff.com/2013/12/08/babys-first-garbage-collector/
     GCObject** obj = &vm->gcHead;
@@ -34,6 +36,7 @@ void orbit_gcRun(OrbitVM* vm) {
         if(!(*obj)->mark) {
             GCObject* garbage = *obj;
             *obj = garbage->next;
+            // TODO: change to object-specific deallocation function
             DEALLOC(vm, garbage);
         } else {
             (*obj)->mark = false;
