@@ -121,6 +121,18 @@ void vtable_insert_get(void) {
     orbit_vtableDeinit(&table);
 }
 
+void gcarray_new(void) {
+    orbit_vmInit(&vm);
+    
+    GCArray* array = orbit_gcArrayNew(&vm);
+    
+    TEST_ASSERT_NOT_NULL(array);
+    TEST_ASSERT_EQUAL(0, array->size);
+    TEST_ASSERT_EQUAL(GCARRAY_DEFAULT_CAPACITY, array->capacity);
+    
+    orbit_gcDeallocate(&vm, (GCObject*)array);
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(gc_collect);
@@ -130,5 +142,6 @@ int main(void) {
     RUN_TEST(double_hash);
     RUN_TEST(vtable_create);
     RUN_TEST(vtable_insert_get);
+    RUN_TEST(gcarray_new);
     return UNITY_END();
 }

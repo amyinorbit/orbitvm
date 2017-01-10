@@ -205,6 +205,7 @@ GCMap* orbit_gcMapNew(OrbitVM* vm) {
     orbit_objectInit(vm, (GCObject*)map, NULL/* TODO: replace with Map class*/);
     map->base.type = OBJ_MAP;
     
+    map->data = NULL;
     map->capacity = 0;
     orbit_gcMapGrow(vm, map);
     
@@ -278,6 +279,7 @@ GCArray* orbit_gcArrayNew(OrbitVM* vm) {
     orbit_objectInit(vm, (GCObject*)array, NULL);
     array->base.type = OBJ_ARRAY;
     
+    array->data = NULL;
     array->capacity = 0;
     orbit_gcArrayGrow(vm, array);
     
