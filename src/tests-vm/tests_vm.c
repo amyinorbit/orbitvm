@@ -27,7 +27,6 @@ void gc_collect(void) {
     TEST_ASSERT_EQUAL(vm.allocated, sizeof(GCString) + string->length+1);
     
     orbit_gcRun(&vm);
-    
     TEST_ASSERT_EQUAL(vm.allocated, 0);
 }
 
@@ -44,8 +43,8 @@ void gc_savestack(void) {
     orbit_gcRun(&vm);
     TEST_ASSERT_EQUAL(vm.allocated, size);
     orbit_gcRelease(&vm);
-    orbit_gcRun(&vm);
     
+    orbit_gcRun(&vm);
     TEST_ASSERT_EQUAL(vm.allocated, 0);
 }
 
@@ -57,7 +56,8 @@ void string_create(void) {
     TEST_ASSERT_EQUAL(string->length, 13);
     TEST_ASSERT_EQUAL_STRING("Hello, world!", string->data);
     
-    DEALLOC(&vm, string);
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(vm.allocated, 0);
 }
 
 void string_hash(void) {
@@ -73,9 +73,8 @@ void string_hash(void) {
     TEST_ASSERT_EQUAL(a->hash, b->hash);
     TEST_ASSERT_NOT_EQUAL(a->hash, c->hash);
     
-    DEALLOC(&vm, a);
-    DEALLOC(&vm, b);
-    DEALLOC(&vm, c);
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(vm.allocated, 0);
 }
 
 void double_hash(void) {
