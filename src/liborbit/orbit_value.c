@@ -61,7 +61,42 @@ GCClass* orbit_gcClassNew(OrbitVM* vm, const char* name, uint16_t fieldCount) {
     return class;
 }
 
-// Creates a native bytecode function.
+
+GCMap* orbit_gcMapNew(OrbitVM* vm) {
+    OASSERT(vm != NULL, "Null instance error");
+    
+    GCMap* map = ALLOC(vm, GCMap);
+    orbit_objectInit(vm, (GCObject*)map, NULL/* TODO: replace with Map class*/);
+    map->base.type = OBJ_MAP;
+    
+    map->capacity = GCMAP_DEFAULT_CAPACITY;
+    map->mask = GCMAP_DEFAULT_CAPACITY - 1;
+    map->size = 0;
+    map->data = ALLOC_ARRAY(vm, GCMapEntry, GCMAP_DEFAULT_CAPACITY);
+    
+    for(uint32_t i = 0; i < GCMAP_DEFAULT_CAPACITY; ++i) {
+        map->data[i].key = VAL_NIL;
+        map->data[i].value = VAL_NIL;
+    }
+    
+    return map;
+}
+
+GCArray* orbit_gcArrayNew(OrbitVM* vm) {
+    OASSERT(vm != NULL, "Null instance error");
+    
+    GCArray* array = ALLOC(vm, GCArray);
+    orbit_objectInit(vm, (GCObject*)array, NULL);
+    array->base.type = OBJ_ARRAY;
+    
+    array->capacity = GCARRAY_DEFAULT_CAPACITY;
+    array->size = 0;
+    array->data = ALLOC_ARRAY(vm, GCValue, GCARRAY_DEFAULT_CAPACITY);
+    
+    return array;
+}
+
+
 VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
                                              uint16_t byteCodeLength,
                                              uint8_t constantCount) {
@@ -89,15 +124,20 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
     switch(object->type) {
     case OBJ_CLASS:
         orbit_stringDeinit(&((GCClass*)object)->name);
-        DEALLOC(vm, object);
         break;
         
     case OBJ_INSTANCE:
-        DEALLOC(vm, object);
         break;
         
     case OBJ_STRING:
-        DEALLOC(vm, object);
+        break;
+        
+    case OBJ_MAP:
+        DEALLOC(vm, ((GCMap*)object)->data);
+        break;
+    
+    case OBJ_ARRAY:
+        DEALLOC(vm, ((GCArray*)object)->data);
         break;
         
     case OBJ_FUNCTION:
@@ -105,11 +145,11 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
             DEALLOC(vm, ((VMFunction*)object)->native.byteCode);
             DEALLOC(vm, ((VMFunction*)object)->native.constants);
         }
-        DEALLOC(vm, object);
         break;
         
     case OBJ_CONTEXT:
-    // TODO: implement context deallocation.
+        // TODO: implement context deallocation.
         break;
     }
+    DEALLOC(vm, object);
 }

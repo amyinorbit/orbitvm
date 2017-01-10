@@ -66,6 +66,26 @@ static inline void orbit_markInstance(OrbitVM* vm, GCInstance* instance) {
                     + instance->base.class->fieldCount * sizeof(GCValue);
 }
 
+static inline void orbit_markMap(OrbitVM* vm, GCMap* map) {
+    vm->allocated += sizeof(GCMap);
+    vm->allocated += sizeof(GCMapEntry) * map->capacity;
+    
+    for(uint32_t i = 0; i < map->capacity; ++i) {
+        if(IS_NIL(map->data[i].key)) continue;
+        orbit_gcMark(vm, map->data[i].key);
+        orbit_gcMark(vm, map->data[i].value);
+    }
+}
+
+static inline void orbit_markArray(OrbitVM* vm, GCArray* array) {
+    vm->allocated += sizeof(GCArray);
+    vm->allocated += sizeof(GCValue) * array->capacity;
+    
+    for(uint32_t i = 0; i < array->size; ++i) {
+        orbit_gcMark(vm, array->data[i]);
+    }
+}
+
 static inline void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
     vm->allocated += sizeof(VMFunction);
     if(function->type == FN_NATIVE) {
@@ -116,6 +136,12 @@ void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj) {
         break;
     case OBJ_STRING:
         orbit_markString(vm, (GCString*)obj);
+        break;
+    case OBJ_MAP:
+        orbit_markMap(vm, (GCMap*)obj);
+        break;
+    case OBJ_ARRAY:
+        orbit_markArray(vm, (GCArray*)obj);
         break;
     case OBJ_FUNCTION:
         orbit_markFunction(vm, (VMFunction*)obj);

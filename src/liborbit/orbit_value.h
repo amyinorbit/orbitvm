@@ -24,7 +24,8 @@ typedef struct _GCClass     GCClass;
 typedef struct _GCObject    GCObject;
 typedef struct _GCInstance  GCInstance;
 typedef struct _GCString    GCString;
-typedef struct _VMSelector  VMSelector;
+typedef struct _GCMap       GCMap;
+typedef struct _GCArray     GCArray;
 typedef struct _VMFunction  VMFunction;
 typedef struct _VMCallFrame VMCallFrame;
 typedef struct _VMContext   VMContext;
@@ -62,12 +63,12 @@ struct _GCValue {
 
 // The type of a garbage-collected object. This is used to decide how to collect
 // the object, and wether it has fields pointing to other objects in the graph.
-//
-// TODO: add support for future GCArray and GCMap types
 enum _GCObjType {
     OBJ_CLASS,
     OBJ_INSTANCE,
     OBJ_STRING,
+    OBJ_MAP,
+    OBJ_ARRAY,
     OBJ_FUNCTION,
     OBJ_CONTEXT,
 };
@@ -113,6 +114,37 @@ struct _GCString {
     uint64_t        length;
     uint32_t        hash;
     char            data[ORBIT_FLEXIBLE_ARRAY_MEMB];
+};
+
+// Orbit's primitive map's entry type. Key can be any primitive value (string
+// or number).
+typedef struct {
+    GCValue         key;
+    GCValue         value;
+} GCMapEntry;
+
+// The default capacity of a hash map. Must be a power of two to allow for
+// AND modulo hack.
+#define GCMAP_DEFAULT_CAPACITY 32
+
+// Orbit's associative array type, implemented as an open-addressed, linear
+// probed hash map.
+struct _GCMap {
+    GCObject        base;
+    uint32_t        mask;
+    uint32_t        size;
+    uint32_t        capacity;
+    GCMapEntry*     data;
+};
+
+#define GCARRAY_DEFAULT_CAPACITY 32
+
+// Orbit's dynamic array type.
+struct _GCArray {
+    GCObject        base;
+    uint32_t        size;
+    uint32_t        capacity;
+    GCValue*        data;
 };
 
 // The type fo a GC function.
@@ -182,6 +214,10 @@ struct _VMContext {
 #define MAKE_NUM(num)   ((GCValue){TYPE_NUM, {.numValue=(num)}})
 #define MAKE_OBJECT(obj)((GCValue){TYPE_OBJECT, {.objectValue=(obj)}})
 
+#define VAL_NIL         ((GCValue){TYPE_NIL})
+#define VAL_TRUE        ((GCValue){TYPE_TRUE})
+#define VAL_FALSE       ((GCValue){TYPE_FALSE})
+
 #define IS_BOOL(val)    ((val).type == TYPE_TRUE || (val).type == TYPE_FALSE)
 #define IS_TRUE(val)    ((val).type != TYPE_FALSE)
 #define IS_FALSE(val)   ((val).type == TYPE_FALSE)
@@ -206,6 +242,12 @@ GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class);
 
 // Creates a new class meta-object in [vm] named [className].
 GCClass* orbit_gcClassNew(OrbitVM* vm, const char* name, uint16_t fieldCount);
+
+// Creates a new hash map object in [vm];
+GCMap* orbit_gcMapNew(OrbitVM* vm);
+
+// Creates a new array in [vm].
+GCArray* orbit_gcArrayNew(OrbitVM* vm);
 
 // Creates a native bytecode function.
 VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
