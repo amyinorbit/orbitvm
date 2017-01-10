@@ -191,13 +191,11 @@ struct _VMCallFrame {
 // In the future, VMContext might become a cooperative threading system similar
 // to coroutines or fibers (yield-based system).
 struct _VMContext {
-    OrbitVM*        vm;
     GCObject        base;
-    uint16_t        globalCount;
-    GCValue*        globals;
-    uint16_t        classCount;
-    GCClass**       classes;
-    OrbitVtable     dispatchTable;
+    
+    GCMap*          globals;
+    GCMap*          classes;
+    GCMap*          dispatchTable;
     
     uint32_t        stackCapacity;
     uint32_t        sp;
@@ -205,7 +203,7 @@ struct _VMContext {
     
     uint32_t        frameCount;
     uint32_t        frameCapacity;
-    VMCallFrame     frames;
+    VMCallFrame*    frames;
 };
 
 // Macros used to check the type of an orbit GCValue tagged union.
@@ -273,6 +271,9 @@ bool orbit_gcArrayRemove(OrbitVM* vm, GCArray* array, uint32_t index);
 // Creates a native bytecode function.
 VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
                                 uint16_t byteCodeLength, uint8_t constantCount);
+
+// Creates a context that can be populated with the contents of a bytecode file.
+VMContext* orbit_gcContextNew(OrbitVM* vm);
 
 // Deallocates [object].
 void orbit_gcDeallocate(OrbitVM* vm, GCObject* object);

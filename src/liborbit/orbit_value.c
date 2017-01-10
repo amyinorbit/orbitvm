@@ -27,7 +27,7 @@ GCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
     
     size_t length = strlen(string);
     GCString* object = ALLOC_FLEX(vm, GCString, char, length+1);
-    orbit_objectInit(vm, &object->base, NULL);
+    orbit_objectInit(vm, (GCObject*)object, NULL);
     
     object->base.type = OBJ_STRING;
     object->length = length;
@@ -42,7 +42,7 @@ GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class) {
     OASSERT(class != NULL, "Null class error");
     
     GCInstance* object = ALLOC_FLEX(vm, GCInstance, GCValue, class->fieldCount);
-    orbit_objectInit(vm, &object->base, class);
+    orbit_objectInit(vm, (GCObject*)object, class);
     object->base.type = OBJ_INSTANCE;
     return object;
 }
@@ -52,7 +52,7 @@ GCClass* orbit_gcClassNew(OrbitVM* vm, const char* name, uint16_t fieldCount) {
     OASSERT(name != NULL, "Null name error");
     
     GCClass* class = ALLOC(vm, GCClass);
-    orbit_objectInit(vm, &class->base, NULL);
+    orbit_objectInit(vm, (GCObject*)class, NULL);
     class->base.type = OBJ_CLASS;
     class->super = NULL;
     class->fieldCount = fieldCount;
@@ -68,7 +68,7 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
     OASSERT(vm != NULL, "Null instance error");
     
     VMFunction* function = ALLOC(vm, VMFunction);
-    orbit_objectInit(vm, &function->base, NULL);
+    orbit_objectInit(vm, (GCObject*)function, NULL);
     function->base.type = OBJ_FUNCTION;
     function->type = FN_NATIVE;
     
@@ -80,6 +80,20 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
     function->native.constantCount = constantCount;
     
     return function;
+}
+
+VMContext* orbit_gcContextNew(OrbitVM* vm) {
+    OASSERT(vm != NULL, "Null instance error");
+    
+    VMContext* context = ALLOC(vm, VMContext);
+    orbit_objectInit(vm, (GCObject*)context, NULL);
+    context->base.type = OBJ_CONTEXT;
+    
+    context->globals = orbit_gcMapNew(vm);
+    context->classes = orbit_gcMapNew(vm);
+    context->dispatchTable = orbit_gcMapNew(vm);
+    
+    return context;
 }
 
 void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
@@ -113,7 +127,9 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
         break;
         
     case OBJ_CONTEXT:
-        // TODO: implement context deallocation.
+        orbit_gcDeallocate(vm, (GCObject*)((VMContext*)object)->globals);
+        orbit_gcDeallocate(vm, (GCObject*)((VMContext*)object)->classes);
+        orbit_gcDeallocate(vm, (GCObject*)((VMContext*)object)->dispatchTable);
         break;
     }
     DEALLOC(vm, object);

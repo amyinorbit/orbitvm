@@ -95,30 +95,16 @@ static inline void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
 }
 
 static inline void orbit_markContext(OrbitVM* vm, VMContext* context) {
-    vm->allocated += sizeof(VMContext) + context->globalCount * sizeof(GCValue);
-    vm->allocated += context->dispatchTable.capacity * sizeof(VMFunction);
+    vm->allocated += sizeof(VMContext);
     
     // Mark local variables from the stack
     for(uint32_t i = 0; i < context->sp; ++i) {
         orbit_gcMark(vm, context->stack[i]);
     }
     
-    // Mark all the globals
-    for(uint16_t i = 0; i < context->globalCount; ++i) {
-        orbit_gcMark(vm, context->globals[i]);
-    }
-    
-    // Mark registered classes
-    for(uint16_t i = 0; i < context->classCount; ++i) {
-        orbit_gcMarkObject(vm, (GCObject*)context->classes[i]);
-    }
-    
-    // Mark functions from the context's dispatch table
-    for(uint32_t i = 0; i < context->dispatchTable.capacity; ++i) {
-        if(context->dispatchTable.data[i]) {
-            orbit_gcMarkObject(vm, (GCObject*)context->dispatchTable.data[i]);
-        }
-    }
+    orbit_gcMarkObject(vm, (GCObject*)context->globals);
+    orbit_gcMarkObject(vm, (GCObject*)context->classes);
+    orbit_gcMarkObject(vm, (GCObject*)context->dispatchTable);
 }
 
 void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj) {
