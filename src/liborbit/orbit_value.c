@@ -281,6 +281,7 @@ GCArray* orbit_gcArrayNew(OrbitVM* vm) {
     
     array->data = NULL;
     array->capacity = 0;
+    array->size = 0;
     orbit_gcArrayGrow(vm, array);
     
     return array;

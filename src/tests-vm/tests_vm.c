@@ -127,9 +127,70 @@ void gcarray_new(void) {
     GCArray* array = orbit_gcArrayNew(&vm);
     
     TEST_ASSERT_NOT_NULL(array);
+    TEST_ASSERT_NOT_NULL(array->data);
     TEST_ASSERT_EQUAL(0, array->size);
     TEST_ASSERT_EQUAL(GCARRAY_DEFAULT_CAPACITY, array->capacity);
     
+    orbit_gcDeallocate(&vm, (GCObject*)array);
+}
+
+void gcarray_add(void) {
+    orbit_vmInit(&vm);
+    GCArray* array = orbit_gcArrayNew(&vm);
+    orbit_gcArrayAdd(&vm, array, MAKE_NUM(123.456));
+    
+    TEST_ASSERT_EQUAL(1, array->size);
+    
+    orbit_gcDeallocate(&vm, (GCObject*)array);
+}
+
+void gcarray_get(void) {
+    GCValue result;
+    bool success = false;
+    
+    orbit_vmInit(&vm);
+    GCArray* array = orbit_gcArrayNew(&vm);
+    orbit_gcArrayAdd(&vm, array, MAKE_NUM(123.456));
+    
+    TEST_ASSERT_EQUAL(1, array->size);
+    success = orbit_gcArrayGet(array, 0, &result);
+    TEST_ASSERT_TRUE(success);
+    TEST_ASSERT_EQUAL(123.456, AS_NUM(result));
+    
+    orbit_gcDeallocate(&vm, (GCObject*)array);
+}
+
+void gcarray_remove(void) {
+    GCValue result;
+    bool success = false;
+    
+    orbit_vmInit(&vm);
+    GCArray* array = orbit_gcArrayNew(&vm);
+    orbit_gcArrayAdd(&vm, array, MAKE_NUM(123.456));
+    orbit_gcArrayAdd(&vm, array, MAKE_NUM(-1));
+    
+    success = orbit_gcArrayRemove(&vm, array, 0);
+    TEST_ASSERT_TRUE(success);
+    TEST_ASSERT_EQUAL(1, array->size);
+    
+    success = orbit_gcArrayGet(array, 0, &result);
+    TEST_ASSERT_TRUE(success);
+    TEST_ASSERT_EQUAL(-1, AS_NUM(result));
+    
+    orbit_gcDeallocate(&vm, (GCObject*)array);
+}
+
+void gcarray_grow(void) {
+    orbit_vmInit(&vm);
+    GCArray* array = orbit_gcArrayNew(&vm);
+    
+    for(uint32_t i = 0; i <= GCARRAY_DEFAULT_CAPACITY; ++i) {
+        orbit_gcArrayAdd(&vm, array, MAKE_NUM(i));
+    }
+
+    TEST_ASSERT_NOT_NULL(array->data);
+    TEST_ASSERT_EQUAL(GCARRAY_DEFAULT_CAPACITY+1, array->size);
+    TEST_ASSERT_EQUAL(2*GCARRAY_DEFAULT_CAPACITY, array->capacity);
     orbit_gcDeallocate(&vm, (GCObject*)array);
 }
 
@@ -143,5 +204,9 @@ int main(void) {
     RUN_TEST(vtable_create);
     RUN_TEST(vtable_insert_get);
     RUN_TEST(gcarray_new);
+    RUN_TEST(gcarray_add);
+    RUN_TEST(gcarray_get);
+    RUN_TEST(gcarray_remove);
+    RUN_TEST(gcarray_grow);
     return UNITY_END();
 }
