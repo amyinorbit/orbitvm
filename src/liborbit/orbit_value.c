@@ -61,20 +61,6 @@ GCClass* orbit_gcClassNew(OrbitVM* vm, const char* name, uint16_t fieldCount) {
     return class;
 }
 
-GCArray* orbit_gcArrayNew(OrbitVM* vm) {
-    OASSERT(vm != NULL, "Null instance error");
-    
-    GCArray* array = ALLOC(vm, GCArray);
-    orbit_objectInit(vm, (GCObject*)array, NULL);
-    array->base.type = OBJ_ARRAY;
-    
-    array->capacity = GCARRAY_DEFAULT_CAPACITY;
-    array->size = 0;
-    array->data = ALLOC_ARRAY(vm, GCValue, GCARRAY_DEFAULT_CAPACITY);
-    
-    return array;
-}
-
 
 VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
                                              uint16_t byteCodeLength,
@@ -155,6 +141,7 @@ static void orbit_gcMapGrow(OrbitVM* vm, GCMap* map) {
     
     map->data = ALLOC_ARRAY(vm, GCMapEntry, map->capacity);
     map->size = 0;
+    map->mask = map->capacity - 1;
     
     for(uint32_t i = 0; i < map->capacity; ++i) {
         map->data[i].key = VAL_NIL;
@@ -164,6 +151,8 @@ static void orbit_gcMapGrow(OrbitVM* vm, GCMap* map) {
     for(uint32_t i = 0; i < oldCapacity; ++i) {
         orbit_gcMapAdd(vm, map, oldData[i].key, oldData[i].value);
     }
+    
+    DEALLOC(vm, oldData);
 }
 
 // Custom equality check for map, we avoid unused cases (only number and string
@@ -183,8 +172,7 @@ static inline bool orbit_gcMapComp(GCValue a, GCValue b) {
 
 // Find the entry in [map] keyed by [key], or return a pointer to the entry
 // where a value should be inserted.
-static GCMapEntry* orbit_gcMapFindSlot(OrbitVM* vm, GCMap* map, GCValue key) {
-    
+static GCMapEntry* orbit_gcMapFindSlot(GCMap* map, GCValue key) {
     GCMapEntry* insert = NULL;
     uint32_t index = orbit_valueHash(key);
     uint32_t start = index;
@@ -217,15 +205,8 @@ GCMap* orbit_gcMapNew(OrbitVM* vm) {
     orbit_objectInit(vm, (GCObject*)map, NULL/* TODO: replace with Map class*/);
     map->base.type = OBJ_MAP;
     
-    map->capacity = GCMAP_DEFAULT_CAPACITY;
-    map->mask = GCMAP_DEFAULT_CAPACITY - 1;
-    map->size = 0;
-    map->data = ALLOC_ARRAY(vm, GCMapEntry, GCMAP_DEFAULT_CAPACITY);
-    
-    for(uint32_t i = 0; i < GCMAP_DEFAULT_CAPACITY; ++i) {
-        map->data[i].key = VAL_NIL;
-        map->data[i].value = VAL_NIL;
-    }
+    map->capacity = 0;
+    orbit_gcMapGrow(vm, map);
     
     return map;
 }
@@ -239,18 +220,23 @@ void orbit_gcMapAdd(OrbitVM* vm, GCMap* map, GCValue key, GCValue value) {
         orbit_gcMapGrow(vm, map);
     }
     
-    GCMapEntry* slot = orbit_gcMapFindSlot(vm, map, key);
+    GCMapEntry* slot = orbit_gcMapFindSlot(map, key);
     slot->value = value;
     map->size += 1;
 }
 
-GCValue orbit_gcMapGet(OrbitVM* vm, GCMap* map, GCValue key) {
-    OASSERT(vm != NULL, "Null instance error");
+bool orbit_gcMapGet(GCMap* map, GCValue key, GCValue* value) {
     OASSERT(map != NULL, "Null instance error");
     OASSERT(IS_NUM(key) || IS_STRING(key), "Map keys must be primitives");
     
-    GCMapEntry* slot = orbit_gcMapFindSlot(vm, map, key);
-    return IS_NIL(slot->key) ? VAL_NIL : slot->value;
+    GCMapEntry* slot = orbit_gcMapFindSlot(map, key);
+    if(IS_NIL(slot->key)) {
+        *value = VAL_NIL;
+        return false;
+    } else {
+        *value = slot->value;
+        return true;
+    }
 }
 
 void orbit_gcMapRemove(OrbitVM* vm, GCMap* map, GCValue key) {
@@ -258,7 +244,7 @@ void orbit_gcMapRemove(OrbitVM* vm, GCMap* map, GCValue key) {
     OASSERT(map != NULL, "Null instance error");
     OASSERT(IS_NUM(key) || IS_STRING(key), "Map keys must be primitives");
     
-    GCMapEntry* slot = orbit_gcMapFindSlot(vm, map, key);
+    GCMapEntry* slot = orbit_gcMapFindSlot(map, key);
     if(IS_NIL(slot->key)) return;
     
     // Tombstone, so that entries pushed further by collisions can still be
@@ -266,4 +252,66 @@ void orbit_gcMapRemove(OrbitVM* vm, GCMap* map, GCValue key) {
     slot->key = VAL_NIL;
     slot->value = VAL_TRUE;
     map->size -= 1;
+}
+
+// MARK: - Array functions implementation
+
+static void orbit_gcArrayGrow(OrbitVM* vm, GCArray* array) {
+    if(array->capacity == 0)
+        array->capacity = GCARRAY_DEFAULT_CAPACITY;
+    else
+        array->capacity = array->capacity << 1;
+    array->data = REALLOC_ARRAY(vm, array->data, GCValue, array->capacity);
+}
+//
+// static inline void orbit_gcArrayShrink(OrbitVM* vm, GCArray* array) {
+//     while(array->capacity >> 1 > array->size) {
+//         array->capacity = array->capacity >> 1;
+//     }
+//     array->data = REALLOC_ARRAY(vm, array->data, GCValue, array->capacity);
+// }
+
+GCArray* orbit_gcArrayNew(OrbitVM* vm) {
+    OASSERT(vm != NULL, "Null instance error");
+    
+    GCArray* array = ALLOC(vm, GCArray);
+    orbit_objectInit(vm, (GCObject*)array, NULL);
+    array->base.type = OBJ_ARRAY;
+    
+    array->capacity = 0;
+    orbit_gcArrayGrow(vm, array);
+    
+    return array;
+}
+
+void orbit_gcArrayAdd(OrbitVM* vm, GCArray* array, GCValue value) {
+    OASSERT(vm != NULL, "Null instance error");
+    OASSERT(array != NULL, "Null instance error");
+    
+    if(array->size + 1 > array->capacity) {
+        orbit_gcArrayGrow(vm, array);
+    }
+    array->data[array->size++] = value;
+}
+
+bool orbit_gcArrayGet(GCArray* array, uint32_t index, GCValue* value) {
+    OASSERT(array != NULL, "Null instance error");
+    
+    if(index > array->size) {
+        *value = VAL_NIL;
+        return false;
+    }
+    *value = array->data[index];
+    return true;
+}
+
+bool orbit_gcArrayRemove(OrbitVM* vm, GCArray* array, uint32_t index) {
+    OASSERT(vm != NULL, "Null instance error");
+    OASSERT(array != NULL, "Null instance error");
+    
+    if(index > array->size) return false;
+    array->size -= 1;
+    memmove(&array->data[index], &array->data[index+1],
+            sizeof(GCValue)*(array->size - index));
+    return true;
 }

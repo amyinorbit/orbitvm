@@ -250,14 +250,26 @@ GCMap* orbit_gcMapNew(OrbitVM* vm);
 // Add a the [key] ==> [value] pair to [map]. [map] is grown if necessary.
 void orbit_gcMapAdd(OrbitVM* vm, GCMap* map, GCValue key, GCValue value);
 
-// Fetch the value for [key] in [map]. Returns nil [key] doesn't exist in [map].
-GCValue orbit_gcMapGet(OrbitVM* vm, GCMap* map, GCValue key);
+// Fetch the value for [key] in [map] into [value]. If [key] does not exist in
+// [map], returns false.
+bool orbit_gcMapGet(GCMap* map, GCValue key, GCValue* value);
 
 // Remove the value for [key] in [map] if it exists.
 void orbit_gcMapRemove(OrbitVM* vm, GCMap* map, GCValue key);
 
 // Creates a new array in [vm].
 GCArray* orbit_gcArrayNew(OrbitVM* vm);
+
+// Add [value] to [array].
+void orbit_gcArrayAdd(OrbitVM* vm, GCArray* array, GCValue value);
+
+// Fetch the value at [index] in [array] into [value]. If [index] is out of
+// bounds, returns false.
+bool orbit_gcArrayGet(GCArray* array, uint32_t index, GCValue* value);
+
+// Remove the value at [index] in [array]. If [index] is out of bounds, returns
+// false. Shrink [array] if necessary.
+bool orbit_gcArrayRemove(OrbitVM* vm, GCArray* array, uint32_t index);
 
 // Creates a native bytecode function.
 VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,

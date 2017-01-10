@@ -20,6 +20,8 @@ typedef struct _OrbitVM OrbitVM;
     orbit_allocator(vm, NULL, sizeof(type) * (count))
 #define ALLOC_FLEX(vm, type, arrayType, count) \
     orbit_allocator(vm, NULL, sizeof(type) + (sizeof(arrayType) * (count)))
+#define REALLOC_ARRAY(vm, array, type, count) \
+    orbit_allocator(vm, array, (sizeof(type) * (count)))
 #define DEALLOC(vm, ptr) \
     orbit_allocator(vm, ptr, 0)
 
