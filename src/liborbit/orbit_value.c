@@ -61,27 +61,6 @@ GCClass* orbit_gcClassNew(OrbitVM* vm, const char* name, uint16_t fieldCount) {
     return class;
 }
 
-
-GCMap* orbit_gcMapNew(OrbitVM* vm) {
-    OASSERT(vm != NULL, "Null instance error");
-    
-    GCMap* map = ALLOC(vm, GCMap);
-    orbit_objectInit(vm, (GCObject*)map, NULL/* TODO: replace with Map class*/);
-    map->base.type = OBJ_MAP;
-    
-    map->capacity = GCMAP_DEFAULT_CAPACITY;
-    map->mask = GCMAP_DEFAULT_CAPACITY - 1;
-    map->size = 0;
-    map->data = ALLOC_ARRAY(vm, GCMapEntry, GCMAP_DEFAULT_CAPACITY);
-    
-    for(uint32_t i = 0; i < GCMAP_DEFAULT_CAPACITY; ++i) {
-        map->data[i].key = VAL_NIL;
-        map->data[i].value = VAL_NIL;
-    }
-    
-    return map;
-}
-
 GCArray* orbit_gcArrayNew(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
     
@@ -152,4 +131,139 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
         break;
     }
     DEALLOC(vm, object);
+}
+
+// MARK: - Map functions implementations
+
+static inline uint32_t orbit_valueHash(GCValue value) {
+    if(IS_NUM(value))
+        return orbit_hashDouble(AS_NUM(value));
+    if(IS_STRING(value))
+        return AS_STRING(value)->hash;
+    else
+        return 0; // TODO: replace with pointer hash.
+}
+
+static void orbit_gcMapGrow(OrbitVM* vm, GCMap* map) {
+    uint32_t oldCapacity = map->capacity;
+    GCMapEntry* oldData = map->data;
+    
+    if(map->capacity == 0)
+        map->capacity = GCMAP_DEFAULT_CAPACITY;
+    else
+        map->capacity = map->capacity << 1;
+    
+    map->data = ALLOC_ARRAY(vm, GCMapEntry, map->capacity);
+    map->size = 0;
+    
+    for(uint32_t i = 0; i < map->capacity; ++i) {
+        map->data[i].key = VAL_NIL;
+        map->data[i].value = VAL_FALSE;
+    }
+    
+    for(uint32_t i = 0; i < oldCapacity; ++i) {
+        orbit_gcMapAdd(vm, map, oldData[i].key, oldData[i].value);
+    }
+}
+
+// Custom equality check for map, we avoid unused cases (only number and string
+// comparisons)
+static inline bool orbit_gcMapComp(GCValue a, GCValue b) {
+    if(IS_NUM(a) && IS_NUM(b)) {
+        return AS_NUM(a) == AS_NUM(b);
+    }
+    GCString *stra = AS_STRING(a), *strb = AS_STRING(b);
+    
+    // Check for pointer equality first.
+    return (stra == strb)
+        || (stra->length == strb->length
+            && stra->hash == strb->hash
+            && memcmp(stra->data, strb->data, stra->length) == 0); 
+}
+
+// Find the entry in [map] keyed by [key], or return a pointer to the entry
+// where a value should be inserted.
+static GCMapEntry* orbit_gcMapFindSlot(OrbitVM* vm, GCMap* map, GCValue key) {
+    
+    GCMapEntry* insert = NULL;
+    uint32_t index = orbit_valueHash(key);
+    uint32_t start = index;
+    
+    do {
+        if(IS_NIL(map->data[index].key)) {
+            if(IS_FALSE(map->data[index].value)) {
+                // Empty slot, we're done, the key is not in the map.
+                return &map->data[index];
+            } else {
+                // Tombstone, so we need to keep searching. Keep a pointer
+                // to the tombstone so that this can be returned for insertion.
+                if(insert == NULL) insert = &map->data[index];
+            }
+        } else {
+            if(orbit_gcMapComp(key, map->data[index].key)) {
+                return &map->data[index];
+            }
+        }
+        index = (index + 1) & map->capacity;
+    } while(index != start);
+    
+    return insert;
+}
+
+GCMap* orbit_gcMapNew(OrbitVM* vm) {
+    OASSERT(vm != NULL, "Null instance error");
+    
+    GCMap* map = ALLOC(vm, GCMap);
+    orbit_objectInit(vm, (GCObject*)map, NULL/* TODO: replace with Map class*/);
+    map->base.type = OBJ_MAP;
+    
+    map->capacity = GCMAP_DEFAULT_CAPACITY;
+    map->mask = GCMAP_DEFAULT_CAPACITY - 1;
+    map->size = 0;
+    map->data = ALLOC_ARRAY(vm, GCMapEntry, GCMAP_DEFAULT_CAPACITY);
+    
+    for(uint32_t i = 0; i < GCMAP_DEFAULT_CAPACITY; ++i) {
+        map->data[i].key = VAL_NIL;
+        map->data[i].value = VAL_NIL;
+    }
+    
+    return map;
+}
+
+void orbit_gcMapAdd(OrbitVM* vm, GCMap* map, GCValue key, GCValue value) {
+    OASSERT(vm != NULL, "Null instance error");
+    OASSERT(map != NULL, "Null instance error");
+    OASSERT(IS_NUM(key) || IS_STRING(key), "Map keys must be primitives");
+    
+    if(map->size+1 > 0.75 * map->capacity) {
+        orbit_gcMapGrow(vm, map);
+    }
+    
+    GCMapEntry* slot = orbit_gcMapFindSlot(vm, map, key);
+    slot->value = value;
+    map->size += 1;
+}
+
+GCValue orbit_gcMapGet(OrbitVM* vm, GCMap* map, GCValue key) {
+    OASSERT(vm != NULL, "Null instance error");
+    OASSERT(map != NULL, "Null instance error");
+    OASSERT(IS_NUM(key) || IS_STRING(key), "Map keys must be primitives");
+    
+    GCMapEntry* slot = orbit_gcMapFindSlot(vm, map, key);
+    return IS_NIL(slot->key) ? VAL_NIL : slot->value;
+}
+
+void orbit_gcMapRemove(OrbitVM* vm, GCMap* map, GCValue key) {
+    OASSERT(vm != NULL, "Null instance error");
+    OASSERT(map != NULL, "Null instance error");
+    OASSERT(IS_NUM(key) || IS_STRING(key), "Map keys must be primitives");
+    
+    GCMapEntry* slot = orbit_gcMapFindSlot(vm, map, key);
+    if(IS_NIL(slot->key)) return;
+    
+    // Tombstone, so that entries pushed further by collisions can still be
+    // found using gcMapFindSlot.
+    slot->key = VAL_NIL;
+    slot->value = VAL_TRUE;
+    map->size -= 1;
 }

@@ -224,7 +224,8 @@ struct _VMContext {
 #define IS_NIL(val)     ((val).type == TYPE_NIL)
 #define IS_NUM(val)     ((val).type == TYPE_NUM)
 #define IS_OBJECT(val)  ((val).type == TYPE_OBJECT)
-#define IS_INSTANCE(val)(IS_OBJECT(val) && AS_OBJECT(val).type == OBJ_INSTANCE)
+#define IS_INSTANCE(val)(IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_INSTANCE)
+#define IS_STRING(val)  (IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_STRING)
 
 // Macros used to cast [val] to a given GC type.
 
@@ -245,6 +246,15 @@ GCClass* orbit_gcClassNew(OrbitVM* vm, const char* name, uint16_t fieldCount);
 
 // Creates a new hash map object in [vm];
 GCMap* orbit_gcMapNew(OrbitVM* vm);
+
+// Add a the [key] ==> [value] pair to [map]. [map] is grown if necessary.
+void orbit_gcMapAdd(OrbitVM* vm, GCMap* map, GCValue key, GCValue value);
+
+// Fetch the value for [key] in [map]. Returns nil [key] doesn't exist in [map].
+GCValue orbit_gcMapGet(OrbitVM* vm, GCMap* map, GCValue key);
+
+// Remove the value for [key] in [map] if it exists.
+void orbit_gcMapRemove(OrbitVM* vm, GCMap* map, GCValue key);
 
 // Creates a new array in [vm].
 GCArray* orbit_gcArrayNew(OrbitVM* vm);
