@@ -149,6 +149,7 @@ static void orbit_gcMapGrow(OrbitVM* vm, GCMap* map) {
     }
     
     for(uint32_t i = 0; i < oldCapacity; ++i) {
+        if(IS_NIL(oldData[i].key)) continue;
         orbit_gcMapAdd(vm, map, oldData[i].key, oldData[i].value);
     }
     
@@ -161,8 +162,8 @@ static inline bool orbit_gcMapComp(GCValue a, GCValue b) {
     if(IS_NUM(a) && IS_NUM(b)) {
         return AS_NUM(a) == AS_NUM(b);
     }
-    GCString *stra = AS_STRING(a), *strb = AS_STRING(b);
-    
+    GCString* stra = AS_STRING(a);
+    GCString* strb = AS_STRING(b);
     // Check for pointer equality first.
     return (stra == strb)
         || (stra->length == strb->length
@@ -174,7 +175,7 @@ static inline bool orbit_gcMapComp(GCValue a, GCValue b) {
 // where a value should be inserted.
 static GCMapEntry* orbit_gcMapFindSlot(GCMap* map, GCValue key) {
     GCMapEntry* insert = NULL;
-    uint32_t index = orbit_valueHash(key);
+    uint32_t index = orbit_valueHash(key) & map->capacity;
     uint32_t start = index;
     
     do {
@@ -192,7 +193,7 @@ static GCMapEntry* orbit_gcMapFindSlot(GCMap* map, GCValue key) {
                 return &map->data[index];
             }
         }
-        index = (index + 1) & map->capacity;
+        index = (index + 1) & map->mask;
     } while(index != start);
     
     return insert;
@@ -222,8 +223,11 @@ void orbit_gcMapAdd(OrbitVM* vm, GCMap* map, GCValue key, GCValue value) {
     }
     
     GCMapEntry* slot = orbit_gcMapFindSlot(map, key);
+    if(IS_NIL(slot->key)) {
+        map->size += 1;
+    }
+    slot->key = key;
     slot->value = value;
-    map->size += 1;
 }
 
 bool orbit_gcMapGet(GCMap* map, GCValue key, GCValue* value) {

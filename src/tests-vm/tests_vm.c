@@ -131,7 +131,8 @@ void gcarray_new(void) {
     TEST_ASSERT_EQUAL(0, array->size);
     TEST_ASSERT_EQUAL(GCARRAY_DEFAULT_CAPACITY, array->capacity);
     
-    orbit_gcDeallocate(&vm, (GCObject*)array);
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcarray_add(void) {
@@ -141,7 +142,8 @@ void gcarray_add(void) {
     
     TEST_ASSERT_EQUAL(1, array->size);
     
-    orbit_gcDeallocate(&vm, (GCObject*)array);
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcarray_get(void) {
@@ -157,7 +159,8 @@ void gcarray_get(void) {
     TEST_ASSERT_TRUE(success);
     TEST_ASSERT_EQUAL(123.456, AS_NUM(result));
     
-    orbit_gcDeallocate(&vm, (GCObject*)array);
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcarray_remove(void) {
@@ -177,7 +180,8 @@ void gcarray_remove(void) {
     TEST_ASSERT_TRUE(success);
     TEST_ASSERT_EQUAL(-1, AS_NUM(result));
     
-    orbit_gcDeallocate(&vm, (GCObject*)array);
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcarray_grow(void) {
@@ -191,7 +195,164 @@ void gcarray_grow(void) {
     TEST_ASSERT_NOT_NULL(array->data);
     TEST_ASSERT_EQUAL(GCARRAY_DEFAULT_CAPACITY+1, array->size);
     TEST_ASSERT_EQUAL(2*GCARRAY_DEFAULT_CAPACITY, array->capacity);
-    orbit_gcDeallocate(&vm, (GCObject*)array);
+    
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
+}
+
+void gcmap_new(void) {
+    orbit_vmInit(&vm);
+    
+    GCMap* map = orbit_gcMapNew(&vm);
+    
+    TEST_ASSERT_NOT_NULL(map);
+    TEST_ASSERT_NOT_NULL(map->data);
+    TEST_ASSERT_EQUAL(0, map->size);
+    TEST_ASSERT_EQUAL(GCMAP_DEFAULT_CAPACITY, map->capacity);
+    
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
+}
+
+void gcmap_insert(void) {
+    orbit_vmInit(&vm);
+    
+    GCValue key1 = MAKE_OBJECT(orbit_gcStringNew(&vm, "key1"));
+    GCValue key2 = MAKE_NUM(123);
+    GCMap* map = orbit_gcMapNew(&vm);
+    
+    orbit_gcMapAdd(&vm, map, key1, MAKE_NUM(1000));
+    orbit_gcMapAdd(&vm, map, key2, MAKE_NUM(-1000));
+    TEST_ASSERT_EQUAL(2, map->size);
+    
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
+}
+
+void gcmap_get(void) {
+    orbit_vmInit(&vm);
+    GCValue result;
+    bool success = false;
+    
+    GCValue key1 = MAKE_OBJECT(orbit_gcStringNew(&vm, "key1"));
+    GCValue key2 = MAKE_NUM(123);
+    GCMap* map = orbit_gcMapNew(&vm);
+    
+    orbit_gcMapAdd(&vm, map, key1, MAKE_NUM(1000));
+    orbit_gcMapAdd(&vm, map, key2, MAKE_NUM(-1000));
+    
+    success = orbit_gcMapGet(map, key1, &result);
+    TEST_ASSERT_TRUE(success);
+    TEST_ASSERT_EQUAL(1000, AS_NUM(result));
+    
+    success = orbit_gcMapGet(map, key2, &result);
+    TEST_ASSERT_TRUE(success);
+    TEST_ASSERT_EQUAL(-1000, AS_NUM(result));
+    
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
+}
+
+void gcmap_overwrite(void) {
+    orbit_vmInit(&vm);
+    GCValue result;
+    bool success = false;
+    
+    GCValue key1 = MAKE_OBJECT(orbit_gcStringNew(&vm, "key1"));
+    GCValue key2 = MAKE_NUM(123);
+    GCMap* map = orbit_gcMapNew(&vm);
+    
+    orbit_gcMapAdd(&vm, map, key1, MAKE_NUM(1000));
+    orbit_gcMapAdd(&vm, map, key2, MAKE_NUM(-1000));
+    TEST_ASSERT_EQUAL(2, map->size);
+    orbit_gcMapAdd(&vm, map, key1, MAKE_NUM(-5));
+    
+    TEST_ASSERT_EQUAL(2, map->size);
+    success = orbit_gcMapGet(map, key1, &result);
+    TEST_ASSERT_TRUE(success);
+    TEST_ASSERT_EQUAL(-5, AS_NUM(result));
+    
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
+}
+
+void gcmap_remove(void) {
+    orbit_vmInit(&vm);
+    GCValue result;
+    bool success = false;
+    
+    GCValue key1 = MAKE_OBJECT(orbit_gcStringNew(&vm, "key1"));
+    GCValue key2 = MAKE_NUM(123);
+    GCMap* map = orbit_gcMapNew(&vm);
+    
+    orbit_gcMapAdd(&vm, map, key1, MAKE_NUM(1000));
+    orbit_gcMapAdd(&vm, map, key2, MAKE_NUM(-1000));
+    TEST_ASSERT_EQUAL(2, map->size);
+    
+    orbit_gcMapRemove(&vm, map, key1);
+    TEST_ASSERT_EQUAL(1, map->size);
+    
+    success = orbit_gcMapGet(map, key1, &result);
+    TEST_ASSERT_FALSE(success);
+    TEST_ASSERT_TRUE(IS_NIL(result));
+    
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
+}
+
+void gcmap_removeAdd(void) {
+    orbit_vmInit(&vm);
+    GCValue result;
+    bool success = false;
+    
+    GCValue key1 = MAKE_OBJECT(orbit_gcStringNew(&vm, "key1"));
+    GCValue key2 = MAKE_NUM(123);
+    GCMap* map = orbit_gcMapNew(&vm);
+    
+    orbit_gcMapAdd(&vm, map, key1, MAKE_NUM(1000));
+    orbit_gcMapAdd(&vm, map, key2, MAKE_NUM(-1000));
+    TEST_ASSERT_EQUAL(2, map->size);
+    
+    orbit_gcMapRemove(&vm, map, key1);
+    TEST_ASSERT_EQUAL(1, map->size);
+    
+    success = orbit_gcMapGet(map, key1, &result);
+    TEST_ASSERT_FALSE(success);
+    TEST_ASSERT_TRUE(IS_NIL(result));
+    
+    orbit_gcMapAdd(&vm, map, key1, MAKE_NUM(123));
+    TEST_ASSERT_EQUAL(2, map->size);
+    
+    success = orbit_gcMapGet(map, key1, &result);
+    TEST_ASSERT_TRUE(success);
+    TEST_ASSERT_EQUAL(123, AS_NUM(result));
+    
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
+}
+
+void gcmap_grow(void) {
+
+    orbit_vmInit(&vm);
+    GCMap* map = orbit_gcMapNew(&vm);
+    
+    for(uint32_t i = 0; i <= GCMAP_DEFAULT_CAPACITY; ++i) {
+        orbit_gcMapAdd(&vm, map, MAKE_NUM(i), MAKE_NUM(i*1000));
+    }
+    
+    TEST_ASSERT_NOT_NULL(map->data);
+    TEST_ASSERT_EQUAL(GCMAP_DEFAULT_CAPACITY*2, map->capacity);
+    
+    GCValue result;
+    bool success = false;
+    for(uint32_t i = 0; i <= GCMAP_DEFAULT_CAPACITY; ++i) {
+        success = orbit_gcMapGet(map, MAKE_NUM(i), &result);
+        TEST_ASSERT_TRUE(success);
+        TEST_ASSERT_EQUAL(i*1000, AS_NUM(result));
+    }
+    
+    orbit_gcRun(&vm);
+    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 int main(void) {
@@ -201,12 +362,22 @@ int main(void) {
     RUN_TEST(string_create);
     RUN_TEST(string_hash);
     RUN_TEST(double_hash);
+    
     RUN_TEST(vtable_create);
     RUN_TEST(vtable_insert_get);
+    
     RUN_TEST(gcarray_new);
     RUN_TEST(gcarray_add);
     RUN_TEST(gcarray_get);
     RUN_TEST(gcarray_remove);
     RUN_TEST(gcarray_grow);
+    
+    RUN_TEST(gcmap_new);
+    RUN_TEST(gcmap_insert);
+    RUN_TEST(gcmap_get);
+    RUN_TEST(gcmap_overwrite);
+    RUN_TEST(gcmap_remove);
+    RUN_TEST(gcmap_removeAdd);
+    RUN_TEST(gcmap_grow);
     return UNITY_END();
 }

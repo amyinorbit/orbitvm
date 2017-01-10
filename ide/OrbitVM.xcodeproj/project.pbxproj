@@ -7,29 +7,55 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DB2E86B51DE3D9CA005E3865 /* orbit_dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = DB2E86B31DE3D9CA005E3865 /* orbit_dispatch.c */; };
-		DB2E86B61DE3D9CA005E3865 /* orbit_dispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = DB2E86B41DE3D9CA005E3865 /* orbit_dispatch.h */; };
-		DB6512731DD9D53800A7DC78 /* orbit_value.c in Sources */ = {isa = PBXBuildFile; fileRef = DBE878241DD913D000FA071C /* orbit_value.c */; };
-		DB6BDCAB1DF981B8009977D7 /* orbit_vm.c in Sources */ = {isa = PBXBuildFile; fileRef = DB6BDCA91DF981B8009977D7 /* orbit_vm.c */; };
-		DB6BDCAC1DF981B8009977D7 /* orbit_vm.h in Headers */ = {isa = PBXBuildFile; fileRef = DB6BDCAA1DF981B8009977D7 /* orbit_vm.h */; };
-		DBF4F2601DF6D05500EBE231 /* orbit_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = DBF4F25E1DF6D05500EBE231 /* orbit_utils.c */; };
-		DBF4F2611DF6D05500EBE231 /* orbit_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = DBF4F25F1DF6D05500EBE231 /* orbit_utils.h */; };
+		DBC001441E25303B007CAD72 /* orbit_opcodes.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC001381E25303B007CAD72 /* orbit_opcodes.h */; };
+		DBC001451E25303B007CAD72 /* orbit_platforms.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC001391E25303B007CAD72 /* orbit_platforms.h */; };
+		DBC001461E25303B007CAD72 /* orbit_string.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC0013A1E25303B007CAD72 /* orbit_string.c */; };
+		DBC001471E25303B007CAD72 /* orbit_string.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC0013B1E25303B007CAD72 /* orbit_string.h */; };
+		DBC001481E25303B007CAD72 /* orbit_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC0013C1E25303B007CAD72 /* orbit_utils.c */; };
+		DBC001491E25303B007CAD72 /* orbit_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC0013D1E25303B007CAD72 /* orbit_utils.h */; };
+		DBC0014A1E25303B007CAD72 /* orbit_value.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC0013E1E25303B007CAD72 /* orbit_value.c */; };
+		DBC0014B1E25303B007CAD72 /* orbit_value.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC0013F1E25303B007CAD72 /* orbit_value.h */; };
+		DBC0014C1E25303B007CAD72 /* orbit_vm.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC001401E25303B007CAD72 /* orbit_vm.c */; };
+		DBC0014D1E25303B007CAD72 /* orbit_vm.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC001411E25303B007CAD72 /* orbit_vm.h */; };
+		DBC0014E1E25303B007CAD72 /* orbit_vtable.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC001421E25303B007CAD72 /* orbit_vtable.c */; };
+		DBC0014F1E25303B007CAD72 /* orbit_vtable.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC001431E25303B007CAD72 /* orbit_vtable.h */; };
+		DBC0015F1E25306F007CAD72 /* tests_vm.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC0015B1E25306F007CAD72 /* tests_vm.c */; };
+		DBC001601E25306F007CAD72 /* unity.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC0015D1E25306F007CAD72 /* unity.c */; };
+		DBC001611E25307C007CAD72 /* libOrbitVM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB65126F1DD9D53200A7DC78 /* libOrbitVM.a */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		DBC001521E253054007CAD72 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		DB2E86B31DE3D9CA005E3865 /* orbit_dispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_dispatch.c; path = ../src/orbit/orbit_dispatch.c; sourceTree = "<group>"; };
-		DB2E86B41DE3D9CA005E3865 /* orbit_dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_dispatch.h; path = ../src/orbit/orbit_dispatch.h; sourceTree = "<group>"; };
 		DB65126F1DD9D53200A7DC78 /* libOrbitVM.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOrbitVM.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		DB6512741DD9DA0F00A7DC78 /* orbit_platforms.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = orbit_platforms.h; path = ../src/orbit/orbit_platforms.h; sourceTree = "<group>"; };
-		DB6BDCA91DF981B8009977D7 /* orbit_vm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_vm.c; path = ../src/orbit/orbit_vm.c; sourceTree = "<group>"; };
-		DB6BDCAA1DF981B8009977D7 /* orbit_vm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_vm.h; path = ../src/orbit/orbit_vm.h; sourceTree = "<group>"; };
-		DB7C69F71DFAC806004EF182 /* orbit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = orbit.h; path = ../include/orbit/orbit.h; sourceTree = "<group>"; };
-		DBE8781F1DD90F0B00FA071C /* orbit_opcodes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = orbit_opcodes.h; path = ../src/orbit/orbit_opcodes.h; sourceTree = "<group>"; };
+		DBC001381E25303B007CAD72 /* orbit_opcodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_opcodes.h; path = ../src/liborbit/orbit_opcodes.h; sourceTree = "<group>"; };
+		DBC001391E25303B007CAD72 /* orbit_platforms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_platforms.h; path = ../src/liborbit/orbit_platforms.h; sourceTree = "<group>"; };
+		DBC0013A1E25303B007CAD72 /* orbit_string.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_string.c; path = ../src/liborbit/orbit_string.c; sourceTree = "<group>"; };
+		DBC0013B1E25303B007CAD72 /* orbit_string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_string.h; path = ../src/liborbit/orbit_string.h; sourceTree = "<group>"; };
+		DBC0013C1E25303B007CAD72 /* orbit_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_utils.c; path = ../src/liborbit/orbit_utils.c; sourceTree = "<group>"; };
+		DBC0013D1E25303B007CAD72 /* orbit_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_utils.h; path = ../src/liborbit/orbit_utils.h; sourceTree = "<group>"; };
+		DBC0013E1E25303B007CAD72 /* orbit_value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_value.c; path = ../src/liborbit/orbit_value.c; sourceTree = "<group>"; };
+		DBC0013F1E25303B007CAD72 /* orbit_value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_value.h; path = ../src/liborbit/orbit_value.h; sourceTree = "<group>"; };
+		DBC001401E25303B007CAD72 /* orbit_vm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_vm.c; path = ../src/liborbit/orbit_vm.c; sourceTree = "<group>"; };
+		DBC001411E25303B007CAD72 /* orbit_vm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_vm.h; path = ../src/liborbit/orbit_vm.h; sourceTree = "<group>"; };
+		DBC001421E25303B007CAD72 /* orbit_vtable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_vtable.c; path = ../src/liborbit/orbit_vtable.c; sourceTree = "<group>"; };
+		DBC001431E25303B007CAD72 /* orbit_vtable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_vtable.h; path = ../src/liborbit/orbit_vtable.h; sourceTree = "<group>"; };
+		DBC001541E253054007CAD72 /* vm-tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "vm-tests"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DBC0015B1E25306F007CAD72 /* tests_vm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tests_vm.c; path = "../../src/tests-vm/tests_vm.c"; sourceTree = "<group>"; };
+		DBC0015C1E25306F007CAD72 /* unity_internals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unity_internals.h; path = "../../src/tests-vm/unity_internals.h"; sourceTree = "<group>"; };
+		DBC0015D1E25306F007CAD72 /* unity.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = unity.c; path = "../../src/tests-vm/unity.c"; sourceTree = "<group>"; };
+		DBC0015E1E25306F007CAD72 /* unity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unity.h; path = "../../src/tests-vm/unity.h"; sourceTree = "<group>"; };
 		DBE878211DD910E000FA071C /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; name = Makefile; path = ../Makefile; sourceTree = "<group>"; usesTabs = 1; };
-		DBE878241DD913D000FA071C /* orbit_value.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_value.c; path = ../src/orbit/orbit_value.c; sourceTree = "<group>"; };
-		DBE878251DD913D000FA071C /* orbit_value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_value.h; path = ../src/orbit/orbit_value.h; sourceTree = "<group>"; };
-		DBF4F25E1DF6D05500EBE231 /* orbit_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_utils.c; path = ../src/orbit/orbit_utils.c; sourceTree = "<group>"; };
-		DBF4F25F1DF6D05500EBE231 /* orbit_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_utils.h; path = ../src/orbit/orbit_utils.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,6 +63,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DBC001511E253054007CAD72 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBC001611E25307C007CAD72 /* libOrbitVM.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -50,6 +84,17 @@
 			name = OrbitAS;
 			sourceTree = "<group>";
 		};
+		DBC001551E253054007CAD72 /* vm-tests */ = {
+			isa = PBXGroup;
+			children = (
+				DBC0015B1E25306F007CAD72 /* tests_vm.c */,
+				DBC0015C1E25306F007CAD72 /* unity_internals.h */,
+				DBC0015D1E25306F007CAD72 /* unity.c */,
+				DBC0015E1E25306F007CAD72 /* unity.h */,
+			);
+			path = "vm-tests";
+			sourceTree = "<group>";
+		};
 		DBE8780D1DD90D4F00FA071C = {
 			isa = PBXGroup;
 			children = (
@@ -57,6 +102,7 @@
 				DBE8781D1DD90D8500FA071C /* OrbitVM */,
 				DBE8781E1DD90D8C00FA071C /* Tests */,
 				DBE878201DD910C900FA071C /* Meta */,
+				DBC001551E253054007CAD72 /* vm-tests */,
 				DBE878171DD90D4F00FA071C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,6 +111,7 @@
 			isa = PBXGroup;
 			children = (
 				DB65126F1DD9D53200A7DC78 /* libOrbitVM.a */,
+				DBC001541E253054007CAD72 /* vm-tests */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -72,8 +119,18 @@
 		DBE8781D1DD90D8500FA071C /* OrbitVM */ = {
 			isa = PBXGroup;
 			children = (
-				DBE878231DD9110400FA071C /* include */,
-				DBE878221DD910FE00FA071C /* src */,
+				DBC001381E25303B007CAD72 /* orbit_opcodes.h */,
+				DBC001391E25303B007CAD72 /* orbit_platforms.h */,
+				DBC0013A1E25303B007CAD72 /* orbit_string.c */,
+				DBC0013B1E25303B007CAD72 /* orbit_string.h */,
+				DBC0013C1E25303B007CAD72 /* orbit_utils.c */,
+				DBC0013D1E25303B007CAD72 /* orbit_utils.h */,
+				DBC0013E1E25303B007CAD72 /* orbit_value.c */,
+				DBC0013F1E25303B007CAD72 /* orbit_value.h */,
+				DBC001401E25303B007CAD72 /* orbit_vm.c */,
+				DBC001411E25303B007CAD72 /* orbit_vm.h */,
+				DBC001421E25303B007CAD72 /* orbit_vtable.c */,
+				DBC001431E25303B007CAD72 /* orbit_vtable.h */,
 			);
 			name = OrbitVM;
 			sourceTree = "<group>";
@@ -93,31 +150,6 @@
 			name = Meta;
 			sourceTree = "<group>";
 		};
-		DBE878221DD910FE00FA071C /* src */ = {
-			isa = PBXGroup;
-			children = (
-				DB2E86B31DE3D9CA005E3865 /* orbit_dispatch.c */,
-				DB2E86B41DE3D9CA005E3865 /* orbit_dispatch.h */,
-				DBE8781F1DD90F0B00FA071C /* orbit_opcodes.h */,
-				DB6512741DD9DA0F00A7DC78 /* orbit_platforms.h */,
-				DBE878241DD913D000FA071C /* orbit_value.c */,
-				DBE878251DD913D000FA071C /* orbit_value.h */,
-				DBF4F25E1DF6D05500EBE231 /* orbit_utils.c */,
-				DBF4F25F1DF6D05500EBE231 /* orbit_utils.h */,
-				DB6BDCA91DF981B8009977D7 /* orbit_vm.c */,
-				DB6BDCAA1DF981B8009977D7 /* orbit_vm.h */,
-			);
-			name = src;
-			sourceTree = "<group>";
-		};
-		DBE878231DD9110400FA071C /* include */ = {
-			isa = PBXGroup;
-			children = (
-				DB7C69F71DFAC806004EF182 /* orbit.h */,
-			);
-			name = include;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -125,9 +157,13 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DB2E86B61DE3D9CA005E3865 /* orbit_dispatch.h in Headers */,
-				DB6BDCAC1DF981B8009977D7 /* orbit_vm.h in Headers */,
-				DBF4F2611DF6D05500EBE231 /* orbit_utils.h in Headers */,
+				DBC001451E25303B007CAD72 /* orbit_platforms.h in Headers */,
+				DBC001471E25303B007CAD72 /* orbit_string.h in Headers */,
+				DBC0014F1E25303B007CAD72 /* orbit_vtable.h in Headers */,
+				DBC0014B1E25303B007CAD72 /* orbit_value.h in Headers */,
+				DBC001441E25303B007CAD72 /* orbit_opcodes.h in Headers */,
+				DBC0014D1E25303B007CAD72 /* orbit_vm.h in Headers */,
+				DBC001491E25303B007CAD72 /* orbit_utils.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,6 +204,23 @@
 			productReference = DB65126F1DD9D53200A7DC78 /* libOrbitVM.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		DBC001531E253054007CAD72 /* vm-tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DBC001581E253054007CAD72 /* Build configuration list for PBXNativeTarget "vm-tests" */;
+			buildPhases = (
+				DBC001501E253054007CAD72 /* Sources */,
+				DBC001511E253054007CAD72 /* Frameworks */,
+				DBC001521E253054007CAD72 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "vm-tests";
+			productName = "vm-tests";
+			productReference = DBC001541E253054007CAD72 /* vm-tests */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -187,6 +240,11 @@
 						DevelopmentTeam = 28JAK56248;
 						ProvisioningStyle = Automatic;
 					};
+					DBC001531E253054007CAD72 = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = 28JAK56248;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = DBE878111DD90D4F00FA071C /* Build configuration list for PBXProject "OrbitVM" */;
@@ -203,6 +261,7 @@
 			targets = (
 				DB65126E1DD9D53200A7DC78 /* OrbitVM-internal */,
 				DB6512751DD9ECBA00A7DC78 /* liborbit.a */,
+				DBC001531E253054007CAD72 /* vm-tests */,
 			);
 		};
 /* End PBXProject section */
@@ -212,10 +271,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DB2E86B51DE3D9CA005E3865 /* orbit_dispatch.c in Sources */,
-				DB6BDCAB1DF981B8009977D7 /* orbit_vm.c in Sources */,
-				DB6512731DD9D53800A7DC78 /* orbit_value.c in Sources */,
-				DBF4F2601DF6D05500EBE231 /* orbit_utils.c in Sources */,
+				DBC0014E1E25303B007CAD72 /* orbit_vtable.c in Sources */,
+				DBC001481E25303B007CAD72 /* orbit_utils.c in Sources */,
+				DBC0014C1E25303B007CAD72 /* orbit_vm.c in Sources */,
+				DBC001461E25303B007CAD72 /* orbit_string.c in Sources */,
+				DBC0014A1E25303B007CAD72 /* orbit_value.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DBC001501E253054007CAD72 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBC0015F1E25306F007CAD72 /* tests_vm.c in Sources */,
+				DBC001601E25306F007CAD72 /* unity.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,6 +333,26 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = orbit;
+			};
+			name = Release;
+		};
+		DBC001591E253054007CAD72 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 28JAK56248;
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src\"";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "";
+			};
+			name = Debug;
+		};
+		DBC0015A1E253054007CAD72 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 28JAK56248;
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../src\"";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;
 		};
@@ -376,6 +465,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		DBC001581E253054007CAD72 /* Build configuration list for PBXNativeTarget "vm-tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBC001591E253054007CAD72 /* Debug */,
+				DBC0015A1E253054007CAD72 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 		DBE878111DD90D4F00FA071C /* Build configuration list for PBXProject "OrbitVM" */ = {
 			isa = XCConfigurationList;

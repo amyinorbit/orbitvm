@@ -11,7 +11,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include <orbit/orbit.h>
 #include "orbit_string.h"
 #include "orbit_platforms.h"
 #include "orbit_vtable.h"
