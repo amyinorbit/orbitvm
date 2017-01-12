@@ -9,12 +9,9 @@
 #include <liborbit/orbit_utils.h>
 #include <liborbit/orbit_value.h>
 #include <liborbit/orbit_vm.h>
+#include <liborbit/orbit_gc.h>
 
 #include "unity.h"
-
-// #include "test_string.h"
-// #include "test_double.h"
-// #include "test_vtable.h"
 
 static OrbitVM vm;
 

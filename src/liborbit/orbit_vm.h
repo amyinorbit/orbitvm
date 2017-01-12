@@ -34,10 +34,4 @@ static inline void orbit_gcRelease(OrbitVM* vm) {
 
 void orbit_vmInit(OrbitVM* vm);
 
-void orbit_gcRun(OrbitVM* vm);
-
-void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj);
-
-void orbit_gcMark(OrbitVM* vm, GCValue value);
-
 #endif /* orbit_vm_h */

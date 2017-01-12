@@ -1,0 +1,21 @@
+//
+//  orbit_gc.h
+//  OrbitVM
+//
+//  Created by Cesar Parent on 2017-01-12.
+//  Copyright © 2017 cesarparent. All rights reserved.
+//
+#ifndef orbit_gc_h
+#define orbit_gc_h
+
+#include "orbit_value.h"
+#include "orbit_vm.h"
+
+void orbit_gcRun(OrbitVM* vm);
+
+void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj);
+
+void orbit_gcMark(OrbitVM* vm, GCValue value);
+
+
+#endif /* orbit_gc_h */
