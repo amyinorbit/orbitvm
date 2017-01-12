@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		DB2F146A1E27FACF001B1579 /* orbit_gc.c in Sources */ = {isa = PBXBuildFile; fileRef = DB2F14681E27FACF001B1579 /* orbit_gc.c */; };
 		DB2F146B1E27FACF001B1579 /* orbit_gc.h in Headers */ = {isa = PBXBuildFile; fileRef = DB2F14691E27FACF001B1579 /* orbit_gc.h */; };
+		DB2F14701E27FDBB001B1579 /* tests_vm.c in Sources */ = {isa = PBXBuildFile; fileRef = DB2F146C1E27FDBB001B1579 /* tests_vm.c */; };
+		DB2F14711E27FDBB001B1579 /* unity.c in Sources */ = {isa = PBXBuildFile; fileRef = DB2F146E1E27FDBB001B1579 /* unity.c */; };
 		DBC001441E25303B007CAD72 /* orbit_opcodes.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC001381E25303B007CAD72 /* orbit_opcodes.h */; };
 		DBC001451E25303B007CAD72 /* orbit_platforms.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC001391E25303B007CAD72 /* orbit_platforms.h */; };
 		DBC001461E25303B007CAD72 /* orbit_string.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC0013A1E25303B007CAD72 /* orbit_string.c */; };
@@ -19,8 +21,6 @@
 		DBC0014B1E25303B007CAD72 /* orbit_value.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC0013F1E25303B007CAD72 /* orbit_value.h */; };
 		DBC0014C1E25303B007CAD72 /* orbit_vm.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC001401E25303B007CAD72 /* orbit_vm.c */; };
 		DBC0014D1E25303B007CAD72 /* orbit_vm.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC001411E25303B007CAD72 /* orbit_vm.h */; };
-		DBC0015F1E25306F007CAD72 /* tests_vm.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC0015B1E25306F007CAD72 /* tests_vm.c */; };
-		DBC001601E25306F007CAD72 /* unity.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC0015D1E25306F007CAD72 /* unity.c */; };
 		DBC001611E25307C007CAD72 /* libOrbitVM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB65126F1DD9D53200A7DC78 /* libOrbitVM.a */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +39,10 @@
 /* Begin PBXFileReference section */
 		DB2F14681E27FACF001B1579 /* orbit_gc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_gc.c; path = ../src/liborbit/orbit_gc.c; sourceTree = "<group>"; };
 		DB2F14691E27FACF001B1579 /* orbit_gc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_gc.h; path = ../src/liborbit/orbit_gc.h; sourceTree = "<group>"; };
+		DB2F146C1E27FDBB001B1579 /* tests_vm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tests_vm.c; path = "../src/tests-vm/tests_vm.c"; sourceTree = "<group>"; };
+		DB2F146D1E27FDBB001B1579 /* unity_internals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unity_internals.h; path = "../src/tests-vm/unity_internals.h"; sourceTree = "<group>"; };
+		DB2F146E1E27FDBB001B1579 /* unity.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = unity.c; path = "../src/tests-vm/unity.c"; sourceTree = "<group>"; };
+		DB2F146F1E27FDBB001B1579 /* unity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unity.h; path = "../src/tests-vm/unity.h"; sourceTree = "<group>"; };
 		DB65126F1DD9D53200A7DC78 /* libOrbitVM.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOrbitVM.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBC001381E25303B007CAD72 /* orbit_opcodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_opcodes.h; path = ../src/liborbit/orbit_opcodes.h; sourceTree = "<group>"; };
 		DBC001391E25303B007CAD72 /* orbit_platforms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_platforms.h; path = ../src/liborbit/orbit_platforms.h; sourceTree = "<group>"; };
@@ -51,10 +55,6 @@
 		DBC001401E25303B007CAD72 /* orbit_vm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_vm.c; path = ../src/liborbit/orbit_vm.c; sourceTree = "<group>"; };
 		DBC001411E25303B007CAD72 /* orbit_vm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_vm.h; path = ../src/liborbit/orbit_vm.h; sourceTree = "<group>"; };
 		DBC001541E253054007CAD72 /* vm-tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "vm-tests"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DBC0015B1E25306F007CAD72 /* tests_vm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tests_vm.c; path = "../../src/tests-vm/tests_vm.c"; sourceTree = "<group>"; };
-		DBC0015C1E25306F007CAD72 /* unity_internals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unity_internals.h; path = "../../src/tests-vm/unity_internals.h"; sourceTree = "<group>"; };
-		DBC0015D1E25306F007CAD72 /* unity.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = unity.c; path = "../../src/tests-vm/unity.c"; sourceTree = "<group>"; };
-		DBC0015E1E25306F007CAD72 /* unity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unity.h; path = "../../src/tests-vm/unity.h"; sourceTree = "<group>"; };
 		DBE878211DD910E000FA071C /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; name = Makefile; path = ../Makefile; sourceTree = "<group>"; usesTabs = 1; };
 /* End PBXFileReference section */
 
@@ -87,10 +87,10 @@
 		DBC001551E253054007CAD72 /* vm-tests */ = {
 			isa = PBXGroup;
 			children = (
-				DBC0015B1E25306F007CAD72 /* tests_vm.c */,
-				DBC0015C1E25306F007CAD72 /* unity_internals.h */,
-				DBC0015D1E25306F007CAD72 /* unity.c */,
-				DBC0015E1E25306F007CAD72 /* unity.h */,
+				DB2F146C1E27FDBB001B1579 /* tests_vm.c */,
+				DB2F146D1E27FDBB001B1579 /* unity_internals.h */,
+				DB2F146E1E27FDBB001B1579 /* unity.c */,
+				DB2F146F1E27FDBB001B1579 /* unity.h */,
 			);
 			path = "vm-tests";
 			sourceTree = "<group>";
@@ -283,8 +283,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DBC0015F1E25306F007CAD72 /* tests_vm.c in Sources */,
-				DBC001601E25306F007CAD72 /* unity.c in Sources */,
+				DB2F14701E27FDBB001B1579 /* tests_vm.c in Sources */,
+				DB2F14711E27FDBB001B1579 /* unity.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

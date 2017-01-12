@@ -50,8 +50,6 @@ enum _ValueType {
 
 
 // Orbit's value type, used for the GC's stack and the language's variables.
-//
-// TODO: add support for future GCArray and GCMap types
 struct _GCValue {
     ValueType       type;
     union {
@@ -229,15 +227,17 @@ struct _VMModule {
 #define IS_INSTANCE(val)(IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_INSTANCE)
 #define IS_STRING(val)  (IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_STRING)
 #define IS_CLASS(val)   (IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_CLASS)
+#define IS_FUNCTION(val)(IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_FUNCTION)
 
 // Macros used to cast [val] to a given GC type.
 
 #define AS_BOOL(val)    ((val).type == TYPE_TRUE)
 #define AS_NUM(val)     ((double)(val).numValue)
 #define AS_OBJECT(val)  ((GCObject*)(val).objectValue)
-#define AS_CLASS(val)   ((GCClass*)AS_OBJECT(val));
+#define AS_CLASS(val)   ((GCClass*)AS_OBJECT(val))
 #define AS_INST(val)    ((GCInstance*)AS_OBJECT(val))
 #define AS_STRING(val)  ((GCString*)AS_OBJECT(val))
+#define AS_FUNCTION(val)((VMFunction*)AS_OBJECT(val))
 
 // Creates a garbage collected string in [vm] from the bytes in [string].
 GCString* orbit_gcStringNew(OrbitVM* vm, const char* string);

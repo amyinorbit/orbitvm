@@ -34,16 +34,26 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
     OASSERT(task->frameCount > 0, "task must have an entry point");
     
     vm->task = task;
+    
+    // pull stuff in locals so we don't have to follow 10 pointers every
+    // two line. This means invoke: and return: will have to update those
+    // so that we stay on the same page.
     VMCode instruction;
+    
+    VMCallFrame* frame = &task->frames[task->frameCount-1];
+    VMFunction* fn = frame->function;
+    uint8_t* ip = frame->ip;
+    GCValue* locals = frame->stackBase;
     
 #define FRAME() (task->frames[task->frameCount-1])
 #define PUSH(value) (*(task->sp++) = (value))
 #define PEEK() (*(task->sp - 1))
 #define POP() (*(--task->sp))
-#define READ() (*(FRAME().ip++))
-#define REPLACE(val) (*(FRAME().ip - 1) = (val))
     
-#define DISPATCH() goto loop
+#define READ8() (*(ip++))
+#define READ16() (ip += 2, (uint16_t)((ip[-2] << 8) | ip[-1]))
+    
+#define NEXT() goto loop
 #define CASE_OP(val) case CODE_##val
     
     // Macro to ease building binary math operator opcodes
@@ -56,100 +66,106 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
     
     // Main loop. Tonnes of opimisations to be done here (obviously)
     loop:
-    switch(instruction = (VMCode)READ()) {
+    switch(instruction = (VMCode)READ8()) {
         
         CASE_OP(halt):
             return true;
         
         CASE_OP(load_nil):
             PUSH(VAL_NIL);
-            DISPATCH();
+            NEXT();
         
         CASE_OP(load_true):
             PUSH(VAL_TRUE);
-            DISPATCH();
+            NEXT();
             
         CASE_OP(load_false):
             PUSH(VAL_FALSE);
-            DISPATCH();
+            NEXT();
             
         CASE_OP(load_const):
-            PUSH(FRAME().function->native.constants[READ()]);
-            DISPATCH();
+            PUSH(fn->native.constants[READ8()]);
+            NEXT();
             
-            CASE_OP(load_local):
-            PUSH(task->frames[task->frameCount-1].stackBase[READ()]);
-            DISPATCH();
+        CASE_OP(load_local):
+            PUSH(locals[READ8()]);
+            NEXT();
             
         CASE_OP(load_field):
             {
                 GCInstance* obj = AS_INST(POP());
-                PUSH(obj->fields[READ()]);
+                PUSH(obj->fields[READ8()]);
             }
-            DISPATCH();
+            NEXT();
             
         CASE_OP(load_global):
             {
                 //TODO: replace globals map with array + symbol list
             }
-            DISPATCH();
+            NEXT();
             
         CASE_OP(store_local):
-            FRAME().stackBase[READ()] = POP();
-            DISPATCH();
+            locals[READ8()] = POP();
+            NEXT();
             
         CASE_OP(store_field):
             {
                 GCValue val = POP();
-                AS_INST(POP())->fields[READ()] = val;
+                AS_INST(POP())->fields[READ8()] = val;
             }
-            DISPATCH();
+            NEXT();
             
         CASE_OP(store_global):
             {
                 //TODO: replace globals map with array + symbol list
-                DISPATCH();
+                NEXT();
             }
             
         CASE_OP(add):
             DECL_MATH(+);
-            DISPATCH();
+            NEXT();
             
         CASE_OP(sub):
             DECL_MATH(-);
-            DISPATCH();
+            NEXT();
             
         CASE_OP(mul):
             DECL_MATH(*);
-            DISPATCH();
+            NEXT();
             
         CASE_OP(div):
             DECL_MATH(/);
-            DISPATCH();
+            NEXT();
             
         CASE_OP(and):
             // TODO: implementation
-            DISPATCH();
+            NEXT();
             
         CASE_OP(or):
             // TODO: implementation
-            DISPATCH();
+            NEXT();
             
         CASE_OP(jump_if):
-            if(IS_FALSE(PEEK())) DISPATCH();
+            if(IS_FALSE(PEEK())) NEXT();
         CASE_OP(jump):
-            FRAME().ip += READ();
-            DISPATCH();
+            {
+                uint16_t offset = READ16();
+                ip += offset;
+                NEXT();
+            }
             
         CASE_OP(rjump_if):
-            if(IS_FALSE(PEEK())) DISPATCH();
+            if(IS_FALSE(PEEK())) NEXT();
         CASE_OP(rjump):
-            FRAME().ip -= READ();
-            DISPATCH();
+            {
+                uint16_t offset = READ16();
+                ip -= offset;
+                NEXT();
+            }
             
         CASE_OP(pop):
             POP();
-            DISPATCH();
+            NEXT();
             
         CASE_OP(swap):
             {
@@ -158,30 +174,71 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                 PUSH(a);
                 PUSH(b);
             }
-            DISPATCH();
+            NEXT();
+            
+            
+        {
+            GCValue callee;
+        CASE_OP(invoke_sym):
+        
+            // TODO: function resolution
+            goto do_invoke;
             
         CASE_OP(invoke):
-            {
-                // TODO: implementation
-            }
-            DISPATCH();
+            // Invoke a function by direct reference: by then, the entry in the
+            // run-time constant pool points to a function object rather than
+            // a string, and we can just go along.
+            callee = fn->native.constants[READ8()];
+        do_invoke:
+            
+            OASSERT(IS_FUNCTION(callee), "invoke must be given a function");
+            // First, we need to store the data brought up into locals back
+            // into the task's frame stack.
+            frame->ip = ip;
         
-            CASE_OP(ret_val):
-            {
-                // TODO: implementation
+            switch(AS_FUNCTION(callee)->type) {
+            case FN_NATIVE:
+                // TODO: ensure we have enough frames in the task.
+            
+                // Get the pointer to the function object for convenience
+                fn = AS_FUNCTION(callee);
+                
+                // setup a new frame on the task's call stack
+                frame = &task->frames[task->frameCount++];
+                frame->task = task;
+                frame->function = fn;
+                frame->ip = fn->native.byteCode;
+                
+                // The stack base points to the first parameter
+                frame->stackBase = task->sp - fn->parameterCount;
+                locals = frame->stackBase;
+                
+                // And now we bring up the new frame's IP into the local.
+                // NEXT() will start the new function.
+                ip = frame->ip;
+                NEXT();
+                break;
+                
+            case FN_FOREIGN:
+                // TODO: implement Foreign Function invocation
+                fn = AS_FUNCTION(callee);
+                fn->foreign(task->sp - fn->parameterCount);
+                fn = frame->function;
+                NEXT();
+                break;
             }
-            DISPATCH();
+        }
             
         CASE_OP(ret):
             {
                 // TODO: implementation
+                
             }
-            DISPATCH();
+            NEXT();
             
         CASE_OP(init):
             {
-                uint8_t index = READ();
-                GCValue* ref = &(FRAME().function->native.constants[READ()]);
+                GCValue* ref = &fn->native.constants[READ8()];
                 GCClass* class;
                 if(IS_CLASS(*ref)) {
                     class = AS_CLASS(*ref);
@@ -189,7 +246,6 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                     // Lazy resolution, like JVM. If it's a symbolic reference,
                     // then we resolve the class, and replace the entry in the
                     // runtime constant pool with a direct ref to the class.
-                    VMFunction* fn = task->frames[task->frameCount-1].function;
                     if(!orbit_gcMapGet(fn->module->classes, *ref, ref)) {
                         return false;
                     }
@@ -198,10 +254,10 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                 // Do the construction;
                 PUSH(MAKE_OBJECT(orbit_gcInstanceNew(vm, class)));
             }
-            DISPATCH();
+            NEXT();
             
         CASE_OP(debug_prt):
-            DISPATCH();
+            NEXT();
         
         default:
             break;
