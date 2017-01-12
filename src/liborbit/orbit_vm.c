@@ -178,10 +178,32 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
             
         {
+            // invoke family of opcodes. When compiled, all invocations are
+            // done through `invoke_sym`, and point to a symbolic reference
+            // (string in the function's constant pool).
+            //
+            // The first time an invocation happens, the symbolic reference is
+            // resolved (through the module's symbol table). The opcode is
+            // replaced with `invoke` and the constant changed to point to the
+            // function object in memory. This avoids the overhead of hashmap
+            // lookup with every single invocation, but does not require the
+            // whole bytecode to be checked and doctored at load time.
             GCValue callee;
+            uint8_t idx;
+            
         CASE_OP(invoke_sym):
-        
-            // TODO: function resolution
+            
+            idx = READ8();
+            GCValue symbol = fn->native.constants[idx];
+            orbit_gcMapGet(fn->module->dispatchTable, symbol, &callee);
+            if(!IS_FUNCTION(callee)) return false;
+            
+            // replace the opcode in the bytecode stream so that future calls
+            // can use the direct reference.
+            ip[-2] = CODE_invoke;
+            fn->native.constants[idx] = callee;
+            
+            // Start invocation.
             goto do_invoke;
             
         CASE_OP(invoke):
