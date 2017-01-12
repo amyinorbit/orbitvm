@@ -26,7 +26,8 @@ typedef struct _GCMap       GCMap;
 typedef struct _GCArray     GCArray;
 typedef struct _VMFunction  VMFunction;
 typedef struct _VMCallFrame VMCallFrame;
-typedef struct _VMContext   VMContext;
+typedef struct _VMModule    VMModule;
+typedef struct _VMTask      VMTask;
 typedef GCValue (*GCForeignFn)(GCValue*);
 
 
@@ -68,7 +69,8 @@ enum _GCObjType {
     OBJ_MAP,
     OBJ_ARRAY,
     OBJ_FUNCTION,
-    OBJ_CONTEXT,
+    OBJ_MODULE,
+    OBJ_TASK,
 };
 
 
@@ -154,7 +156,7 @@ enum _GCFnType {
 // Orbit's native function type, used for bytecode-compiled functions.
 typedef struct _GCNativeFn {
     uint8_t     constantCount;
-    uint16_t     byteCodeLength;
+    uint16_t    byteCodeLength;
     GCValue*    constants;
     uint8_t*    byteCode;
 } GCNativeFn;
@@ -166,8 +168,8 @@ typedef struct _GCNativeFn {
 // declared through the C API.
 struct _VMFunction {
     GCObject        base;
-    String          selector;
     GCFnType        type;
+    VMModule*       module;
     uint8_t         parameterCount;
     union {
         GCForeignFn foreign;
@@ -177,32 +179,36 @@ struct _VMFunction {
 
 // Orbit's call stack frame structure.
 struct _VMCallFrame {
-    VMContext*      context;
+    VMTask*         task;
     VMFunction*     function;
     uint8_t*        ip;
     GCValue*        stackBase;
 };
 
-// VMContext holds all that is needed for a bytecode file to be executed.
-// A context is created when a bytecode file is loaded into the VM, and can be
-// used to hold state in between C API function calls.
-//
-// In the future, VMContext might become a cooperative threading system similar
-// to coroutines or fibers (yield-based system).
-struct _VMContext {
+// Tasks hold the data required to execute bytecode: an operand stack for
+// temporary results, as well as a call stack for function invocation and
+// return.
+struct _VMTask {
     GCObject        base;
     
-    GCMap*          globals;
-    GCMap*          classes;
-    GCMap*          dispatchTable;
-    
     uint32_t        stackCapacity;
-    uint32_t        sp;
+    GCValue*        sp;
     GCValue*        stack;
     
     uint32_t        frameCount;
     uint32_t        frameCapacity;
     VMCallFrame*    frames;
+};
+
+// VMModule holds all that is needed for a bytecode file to be executed.
+// A module is created when a bytecode file is loaded into the VM, and can be
+// used to hold state in between C API function calls.
+struct _VMModule {
+    GCObject        base;
+    
+    GCMap*          globals;
+    GCMap*          classes;
+    GCMap*          dispatchTable;
 };
 
 // Macros used to check the type of an orbit GCValue tagged union.
@@ -271,8 +277,11 @@ bool orbit_gcArrayRemove(OrbitVM* vm, GCArray* array, uint32_t index);
 VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
                                 uint16_t byteCodeLength, uint8_t constantCount);
 
-// Creates a context that can be populated with the contents of a bytecode file.
-VMContext* orbit_gcContextNew(OrbitVM* vm);
+// Creates a module that can be populated with the contents of a bytecode file.
+VMModule* orbit_gcModuleNew(OrbitVM* vm);
+
+// Creates a new task in [vm] and push [function] on the call stack;
+VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function);
 
 // Deallocates [object].
 void orbit_gcDeallocate(OrbitVM* vm, GCObject* object);

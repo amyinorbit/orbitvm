@@ -13,7 +13,7 @@ void orbit_gcRun(OrbitVM* vm) {
     vm->allocated = 0;
     
     // mark everything used by the current execution context
-    orbit_gcMarkObject(vm, (GCObject*)vm->currentContext);
+    orbit_gcMarkObject(vm, (GCObject*)vm->task);
     
     // mark the retained objects
     for(uint8_t i = 0; i < vm->gcStackSize; ++i) {
@@ -78,23 +78,35 @@ static inline void orbit_markArray(OrbitVM* vm, GCArray* array) {
 
 static inline void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
     vm->allocated += sizeof(VMFunction);
+    orbit_gcMarkObject(vm, (GCObject*)function->module);
     if(function->type == FN_NATIVE) {
         vm->allocated += function->native.byteCodeLength
                          + (function->native.constantCount * sizeof(GCValue));
     }
 }
 
-static inline void orbit_markContext(OrbitVM* vm, VMContext* context) {
-    vm->allocated += sizeof(VMContext);
-    
-    // Mark local variables from the stack
-    for(uint32_t i = 0; i < context->sp; ++i) {
-        orbit_gcMark(vm, context->stack[i]);
-    }
+static inline void orbit_markModule(OrbitVM* vm, VMModule* context) {
+    vm->allocated += sizeof(VMModule);
     
     orbit_gcMarkObject(vm, (GCObject*)context->globals);
     orbit_gcMarkObject(vm, (GCObject*)context->classes);
     orbit_gcMarkObject(vm, (GCObject*)context->dispatchTable);
+}
+
+static inline void orbit_markTask(OrbitVM* vm, VMTask* task) {
+    vm->allocated += sizeof(VMTask);
+    vm->allocated += sizeof(VMCallFrame) * task->frameCapacity;
+    vm->allocated += sizeof(GCValue) * task->stackCapacity;
+    
+    // mark the stack
+    for(GCValue* val = task->stack; val < task->sp; val++) {
+        orbit_gcMark(vm, *val);
+    }
+    
+    // mark the call frames
+    for(uint32_t i = 0; i < task->frameCount; ++i) {
+        orbit_gcMarkObject(vm, (GCObject*)task->frames[i].function);
+    }
 }
 
 void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj) {
@@ -122,8 +134,11 @@ void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj) {
     case OBJ_FUNCTION:
         orbit_markFunction(vm, (VMFunction*)obj);
         break;
-    case OBJ_CONTEXT:
-        orbit_markContext(vm, (VMContext*)obj);
+    case OBJ_MODULE:
+        orbit_markModule(vm, (VMModule*)obj);
+        break;
+    case OBJ_TASK:
+        orbit_markTask(vm, (VMTask*)obj);
         break;
     }
 }

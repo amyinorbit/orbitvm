@@ -61,7 +61,6 @@ GCClass* orbit_gcClassNew(OrbitVM* vm, const char* name, uint16_t fieldCount) {
     return class;
 }
 
-
 VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
                                              uint16_t byteCodeLength,
                                              uint8_t constantCount) {
@@ -71,6 +70,9 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
     orbit_objectInit(vm, (GCObject*)function, NULL);
     function->base.type = OBJ_FUNCTION;
     function->type = FN_NATIVE;
+    
+    // By default the function lives in the wild
+    function->module = NULL;
     
     function->native.byteCode = ALLOC_ARRAY(vm, uint8_t, byteCodeLength);
     function->native.byteCodeLength = byteCodeLength;
@@ -82,18 +84,34 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
     return function;
 }
 
-VMContext* orbit_gcContextNew(OrbitVM* vm) {
+VMModule* orbit_gcModuleNew(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
     
-    VMContext* context = ALLOC(vm, VMContext);
-    orbit_objectInit(vm, (GCObject*)context, NULL);
-    context->base.type = OBJ_CONTEXT;
+    VMModule* module = ALLOC(vm, VMModule);
+    orbit_objectInit(vm, (GCObject*)module, NULL);
+    module->base.type = OBJ_MODULE;
     
-    context->globals = orbit_gcMapNew(vm);
-    context->classes = orbit_gcMapNew(vm);
-    context->dispatchTable = orbit_gcMapNew(vm);
+    module->globals = orbit_gcMapNew(vm);
+    module->classes = orbit_gcMapNew(vm);
+    module->dispatchTable = orbit_gcMapNew(vm);
     
-    return context;
+    return module;
+}
+
+VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function) {
+    
+    VMTask* task = ALLOC(vm, VMTask);
+    orbit_objectInit(vm, (GCObject*)task, NULL);
+    task->base.type = OBJ_TASK;
+    
+    task->stack = task->sp = ALLOC_ARRAY(vm, GCValue, 512);
+    task->stackCapacity = 512;
+    
+    task->frames = ALLOC_ARRAY(vm, VMTask, 32);
+    task->frameCount = 0;
+    task->frameCapacity = 32;
+    
+    return task;
 }
 
 void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
@@ -126,10 +144,15 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
         }
         break;
         
-    case OBJ_CONTEXT:
-        orbit_gcDeallocate(vm, (GCObject*)((VMContext*)object)->globals);
-        orbit_gcDeallocate(vm, (GCObject*)((VMContext*)object)->classes);
-        orbit_gcDeallocate(vm, (GCObject*)((VMContext*)object)->dispatchTable);
+    case OBJ_MODULE:
+        orbit_gcDeallocate(vm, (GCObject*)((VMModule*)object)->globals);
+        orbit_gcDeallocate(vm, (GCObject*)((VMModule*)object)->classes);
+        orbit_gcDeallocate(vm, (GCObject*)((VMModule*)object)->dispatchTable);
+        break;
+        
+    case OBJ_TASK:
+        DEALLOC(vm, ((VMTask*)object)->stack);
+        DEALLOC(vm, ((VMTask*)object)->frames);
         break;
     }
     DEALLOC(vm, object);

@@ -29,6 +29,12 @@ OPCODE(load_global, 1)  /// Pushes a global variable onto the stack.
 OPCODE(store_local, 1)  /// Stores the top of the stack in a local variable.
 OPCODE(store_field, 1)  /// Stores the top of the stack in an object's field.
 OPCODE(store_global, 1) /// Stores the top of the stack into a global variable.
+    
+OPCODE(add, 0)
+OPCODE(sub, 0)
+OPCODE(mult, 0)
+OPCODE(div, 0)
+OPCODE(mod, 0)
 
 OPCODE(and, 1)          ///
 OPCODE(or, 1)           ///

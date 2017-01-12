@@ -11,7 +11,7 @@
 
 void orbit_vmInit(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
-    vm->currentContext = NULL;
+    vm->task = NULL;
     vm->gcHead = NULL;
     vm->allocated = 0;
     

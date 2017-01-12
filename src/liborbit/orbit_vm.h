@@ -14,7 +14,7 @@
 #define ORBIT_GCSTACK_SIZE 16
 
 typedef struct _OrbitVM {
-    VMContext*  currentContext;
+    VMTask*     task;
     GCObject*   gcHead;
     size_t      allocated;
     

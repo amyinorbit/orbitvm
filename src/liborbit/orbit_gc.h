@@ -17,5 +17,4 @@ void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj);
 
 void orbit_gcMark(OrbitVM* vm, GCValue value);
 
-
 #endif /* orbit_gc_h */
