@@ -83,43 +83,6 @@ void double_hash(void) {
     TEST_ASSERT_NOT_EQUAL(orbit_hashDouble(0.0), orbit_hashDouble(-0.0));
 }
 
-void vtable_create(void) {
-    OrbitVtable table;
-    orbit_vtableInit(&table);
-    
-    TEST_ASSERT_NOT_NULL(table.data);
-    TEST_ASSERT_EQUAL(table.size, 0);
-    TEST_ASSERT_EQUAL(table.capacity, VTABLE_DEFAULT_CAPACITY);
-    
-    orbit_vtableDeinit(&table);
-}
-
-void vtable_insert_get(void) {
-    orbit_vmInit(&vm);
-    
-    const char* signature = "doSomething(String;Int;MyObject)Void";
-    
-    OrbitVtable table;
-    orbit_vtableInit(&table);
-    TEST_ASSERT_NOT_NULL(table.data);
-    
-    VMFunction fn;
-    orbit_stringInitStatic(&fn.selector, signature);
-    
-    GCString* lookup = orbit_gcStringNew(&vm, signature);
-    
-    orbit_vtableInsert(&table, &fn);
-    TEST_ASSERT_NOT_NULL(table.data);
-    TEST_ASSERT_EQUAL(table.size, 1);
-    
-    VMFunction* fetch = orbit_vtableLookup(&table, lookup);
-    TEST_ASSERT_NOT_NULL(fetch);
-    TEST_ASSERT_EQUAL(fetch, &fn);
-    
-    DEALLOC(&vm, lookup);
-    orbit_vtableDeinit(&table);
-}
-
 void gcarray_new(void) {
     orbit_vmInit(&vm);
     
@@ -361,9 +324,6 @@ int main(void) {
     RUN_TEST(string_create);
     RUN_TEST(string_hash);
     RUN_TEST(double_hash);
-    
-    RUN_TEST(vtable_create);
-    RUN_TEST(vtable_insert_get);
     
     RUN_TEST(gcarray_new);
     RUN_TEST(gcarray_add);

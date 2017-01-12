@@ -9,7 +9,6 @@
 #define orbit_vm_h
 
 #include <stdint.h>
-#include "orbit_vtable.h"
 #include "orbit_value.h"
 
 #define ORBIT_GCSTACK_SIZE 16
