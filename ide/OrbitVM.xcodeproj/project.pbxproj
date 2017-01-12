@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DB2F146A1E27FACF001B1579 /* orbit_gc.c in Sources */ = {isa = PBXBuildFile; fileRef = DB2F14681E27FACF001B1579 /* orbit_gc.c */; };
+		DB2F146B1E27FACF001B1579 /* orbit_gc.h in Headers */ = {isa = PBXBuildFile; fileRef = DB2F14691E27FACF001B1579 /* orbit_gc.h */; };
 		DBC001441E25303B007CAD72 /* orbit_opcodes.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC001381E25303B007CAD72 /* orbit_opcodes.h */; };
 		DBC001451E25303B007CAD72 /* orbit_platforms.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC001391E25303B007CAD72 /* orbit_platforms.h */; };
 		DBC001461E25303B007CAD72 /* orbit_string.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC0013A1E25303B007CAD72 /* orbit_string.c */; };
@@ -17,8 +19,6 @@
 		DBC0014B1E25303B007CAD72 /* orbit_value.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC0013F1E25303B007CAD72 /* orbit_value.h */; };
 		DBC0014C1E25303B007CAD72 /* orbit_vm.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC001401E25303B007CAD72 /* orbit_vm.c */; };
 		DBC0014D1E25303B007CAD72 /* orbit_vm.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC001411E25303B007CAD72 /* orbit_vm.h */; };
-		DBC0014E1E25303B007CAD72 /* orbit_vtable.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC001421E25303B007CAD72 /* orbit_vtable.c */; };
-		DBC0014F1E25303B007CAD72 /* orbit_vtable.h in Headers */ = {isa = PBXBuildFile; fileRef = DBC001431E25303B007CAD72 /* orbit_vtable.h */; };
 		DBC0015F1E25306F007CAD72 /* tests_vm.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC0015B1E25306F007CAD72 /* tests_vm.c */; };
 		DBC001601E25306F007CAD72 /* unity.c in Sources */ = {isa = PBXBuildFile; fileRef = DBC0015D1E25306F007CAD72 /* unity.c */; };
 		DBC001611E25307C007CAD72 /* libOrbitVM.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB65126F1DD9D53200A7DC78 /* libOrbitVM.a */; };
@@ -37,6 +37,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DB2F14681E27FACF001B1579 /* orbit_gc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_gc.c; path = ../src/liborbit/orbit_gc.c; sourceTree = "<group>"; };
+		DB2F14691E27FACF001B1579 /* orbit_gc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_gc.h; path = ../src/liborbit/orbit_gc.h; sourceTree = "<group>"; };
 		DB65126F1DD9D53200A7DC78 /* libOrbitVM.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOrbitVM.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBC001381E25303B007CAD72 /* orbit_opcodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_opcodes.h; path = ../src/liborbit/orbit_opcodes.h; sourceTree = "<group>"; };
 		DBC001391E25303B007CAD72 /* orbit_platforms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_platforms.h; path = ../src/liborbit/orbit_platforms.h; sourceTree = "<group>"; };
@@ -48,8 +50,6 @@
 		DBC0013F1E25303B007CAD72 /* orbit_value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_value.h; path = ../src/liborbit/orbit_value.h; sourceTree = "<group>"; };
 		DBC001401E25303B007CAD72 /* orbit_vm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_vm.c; path = ../src/liborbit/orbit_vm.c; sourceTree = "<group>"; };
 		DBC001411E25303B007CAD72 /* orbit_vm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_vm.h; path = ../src/liborbit/orbit_vm.h; sourceTree = "<group>"; };
-		DBC001421E25303B007CAD72 /* orbit_vtable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = orbit_vtable.c; path = ../src/liborbit/orbit_vtable.c; sourceTree = "<group>"; };
-		DBC001431E25303B007CAD72 /* orbit_vtable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = orbit_vtable.h; path = ../src/liborbit/orbit_vtable.h; sourceTree = "<group>"; };
 		DBC001541E253054007CAD72 /* vm-tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "vm-tests"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBC0015B1E25306F007CAD72 /* tests_vm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tests_vm.c; path = "../../src/tests-vm/tests_vm.c"; sourceTree = "<group>"; };
 		DBC0015C1E25306F007CAD72 /* unity_internals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unity_internals.h; path = "../../src/tests-vm/unity_internals.h"; sourceTree = "<group>"; };
@@ -129,8 +129,8 @@
 				DBC0013F1E25303B007CAD72 /* orbit_value.h */,
 				DBC001401E25303B007CAD72 /* orbit_vm.c */,
 				DBC001411E25303B007CAD72 /* orbit_vm.h */,
-				DBC001421E25303B007CAD72 /* orbit_vtable.c */,
-				DBC001431E25303B007CAD72 /* orbit_vtable.h */,
+				DB2F14681E27FACF001B1579 /* orbit_gc.c */,
+				DB2F14691E27FACF001B1579 /* orbit_gc.h */,
 			);
 			name = OrbitVM;
 			sourceTree = "<group>";
@@ -157,9 +157,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DB2F146B1E27FACF001B1579 /* orbit_gc.h in Headers */,
 				DBC001451E25303B007CAD72 /* orbit_platforms.h in Headers */,
 				DBC001471E25303B007CAD72 /* orbit_string.h in Headers */,
-				DBC0014F1E25303B007CAD72 /* orbit_vtable.h in Headers */,
 				DBC0014B1E25303B007CAD72 /* orbit_value.h in Headers */,
 				DBC001441E25303B007CAD72 /* orbit_opcodes.h in Headers */,
 				DBC0014D1E25303B007CAD72 /* orbit_vm.h in Headers */,
@@ -271,10 +271,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DBC0014E1E25303B007CAD72 /* orbit_vtable.c in Sources */,
 				DBC001481E25303B007CAD72 /* orbit_utils.c in Sources */,
 				DBC0014C1E25303B007CAD72 /* orbit_vm.c in Sources */,
 				DBC001461E25303B007CAD72 /* orbit_string.c in Sources */,
+				DB2F146A1E27FACF001B1579 /* orbit_gc.c in Sources */,
 				DBC0014A1E25303B007CAD72 /* orbit_value.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -473,6 +473,7 @@
 				DBC0015A1E253054007CAD72 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		DBE878111DD90D4F00FA071C /* Build configuration list for PBXProject "OrbitVM" */ = {
 			isa = XCConfigurationList;
