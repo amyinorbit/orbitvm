@@ -250,13 +250,40 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                 break;
             }
         }
+        
+        {
+            // When we reach `ret`, the function that has just finished its
+            // job might not have left a clean stack. Functions in orbit
+            // consume their parameters: they are considered off the stack
+            // once the function returns. To do that, we reset the stack
+            // pointer to the start of the frame. For ret_val, the return
+            // value is popped off the stack before reseting sp, and pushed
+            // back on top after.
+            
+            GCValue returnValue;
+        CASE_OP(ret_val):
+            returnValue = POP();
+            task->sp = frame->stackBase;
+            PUSH(returnValue);
+            goto do_return;
             
         CASE_OP(ret):
-            {
-                // TODO: implementation
-                
-            }
+            // We reset the stack pointer first, before we loose track of the 
+            // ending call frame.
+            task->sp = frame->stackBase;
+            
+        do_return:
+            if(--task->frameCount == 0) return true;
+            
+            // Now we can bring the old frame's pointers back up in the
+            // locals. After this, the call to NEXT() will resume execution of
+            // the calling function.
+            frame = &task->frames[task->frameCount-1];
+            fn = frame->function;
+            ip = frame->ip;
+            locals = frame->stackBase;
             NEXT();
+        }
             
         CASE_OP(init):
             {
@@ -279,6 +306,8 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             NEXT();
             
         CASE_OP(debug_prt):
+            fprintf(stderr, "stack size: %zu\n", task->sp - task->stack);
+            fprintf(stderr, "allocated: %zu\n", vm->allocated);
             NEXT();
         
         default:
