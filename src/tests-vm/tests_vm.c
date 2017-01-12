@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <liborbit/orbit_utils.h>
 #include <liborbit/orbit_value.h>
-#include <liborbit/orbit_vtable.h>
 #include <liborbit/orbit_vm.h>
 
 #include "unity.h"
