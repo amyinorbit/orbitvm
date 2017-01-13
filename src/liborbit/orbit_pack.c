@@ -1,11 +1,11 @@
 //
-//  orbit_objfile.h
+//  orbit_pack.c
 //  OrbitVM
 //
 //  Created by Cesar Parent on 2017-01-12.
 //  Copyright © 2017 cesarparent. All rights reserved.
 //
-#include "orbit_objfile.h"
+#include "orbit_pack.h"
 
 #define IEEE754_BITS 64
 #define IEEE754_EXPBITS 11
@@ -13,7 +13,7 @@
 
 // Barely adapted form `Beej's guide to network programming`
 // http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html#serialization
-uint64_t pack754(long double f)
+static uint64_t pack754(long double f)
 {
     long double fnorm;
     int32_t shift;
@@ -43,7 +43,7 @@ uint64_t pack754(long double f)
 
 // Barely adapted form `Beej's guide to network programming`
 // http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html#serialization
-long double unpack754(uint64_t i)
+static long double unpack754(uint64_t i)
 {
     long double result;
     int64_t shift;
@@ -66,15 +66,15 @@ long double unpack754(uint64_t i)
     return result;
 }
 
-bool orbit_objWrite8(FILE* out, uint8_t bits) {
+bool orbit_pack8(FILE* out, uint8_t bits) {
     return fwrite(&bits, 1, 1, out) == 1;
 }
 
-bool orbit_objWrite16(FILE* out, uint16_t bits) {
-    return orbit_objWrite8(out, bits >> 8) && orbit_objWrite8(out, bits & 0x00ff);
+bool orbit_pack16(FILE* out, uint16_t bits) {
+    return orbit_pack8(out, bits >> 8) && orbit_pack8(out, bits & 0x00ff);
 }
 
-bool orbit_objWrite32(FILE* out, uint32_t bits) {
+bool orbit_pack32(FILE* out, uint32_t bits) {
     uint8_t byte;
     for(int8_t i = 3; i >= 0; --i) {
         byte = bits >> (8*i);
@@ -83,7 +83,7 @@ bool orbit_objWrite32(FILE* out, uint32_t bits) {
     return true;
 }
 
-bool orbit_objWrite64(FILE* out, uint64_t bits) {
+bool orbit_pack64(FILE* out, uint64_t bits) {
     uint8_t byte;
     for(int8_t i = 7; i >= 0; --i) {
         byte = (bits >> (8*i)) & 0x00000000000000ff;
@@ -92,19 +92,19 @@ bool orbit_objWrite64(FILE* out, uint64_t bits) {
     return true;
 }
 
-bool orbit_objWriteIEEE754(FILE* out, double bits) {
-    return orbit_objWrite64(out, pack754(bits));
+bool orbit_packIEEE754(FILE* out, double bits) {
+    return orbit_pack64(out, pack754(bits));
 }
 
-bool orbit_objWriteBytes(FILE* out, uint8_t* bytes, size_t count) {
+bool orbit_packBytes(FILE* out, uint8_t* bytes, size_t count) {
     return fwrite(bytes, 1, count, out) == count;
 }
 
-bool orbit_objRead8(FILE* in, uint8_t* out) {
+bool orbit_unpack8(FILE* in, uint8_t* out) {
     return fread(out, 1, 1, in) == 1;
 }
 
-bool orbit_objRead16(FILE* in, uint16_t* out) {
+bool orbit_unpack16(FILE* in, uint16_t* out) {
     uint8_t high = 0, low = 0;
     if(fread(&high, 1, 1, in) != 1) return false;
     if(fread(&low, 1, 1, in) != 1) return false;
@@ -113,7 +113,7 @@ bool orbit_objRead16(FILE* in, uint16_t* out) {
     return true;
 }
 
-bool orbit_objRead32(FILE* in, uint32_t* out) {
+bool orbit_unpack32(FILE* in, uint32_t* out) {
     uint8_t byte = 0;
     *out = 0;
     
@@ -124,7 +124,7 @@ bool orbit_objRead32(FILE* in, uint32_t* out) {
     return true;
 }
 
-bool orbit_objRead64(FILE* in, uint64_t* out) {
+bool orbit_unpack64(FILE* in, uint64_t* out) {
     uint8_t byte = 0;
     *out = 0;
     
@@ -135,13 +135,13 @@ bool orbit_objRead64(FILE* in, uint64_t* out) {
     return true;
 }
 
-bool orbit_objReadIEEE754(FILE* in, double* out) {
+bool orbit_unpackIEEE754(FILE* in, double* out) {
     uint64_t raw = 0;
-    if(!orbit_objRead64(in, &raw)) return false;
+    if(!orbit_unpack64(in, &raw)) return false;
     *out = unpack754(raw);
     return true;
 }
 
-bool orbit_objReadBytes(FILE* in, uint8_t* bytes, size_t count) {
+bool orbit_unpackBytes(FILE* in, uint8_t* bytes, size_t count) {
     return fread(bytes, 1, count, in) == count;
 }
