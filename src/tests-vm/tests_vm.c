@@ -26,7 +26,7 @@ void obj_uint8(void) {
     TEST_ASSERT_TRUE(orbit_objWrite8(f, in));
     fseek(f, 0, SEEK_SET);
     TEST_ASSERT_TRUE(orbit_objRead8(f, &out));
-    TEST_ASSERT_EQUAL(in, out);
+    TEST_ASSERT_EQUAL_HEX8(in, out);
     
     fclose(f);
 }
@@ -41,7 +41,7 @@ void obj_uint16(void) {
     TEST_ASSERT_TRUE(orbit_objWrite16(f, in));
     fseek(f, 0, SEEK_SET);
     TEST_ASSERT_TRUE(orbit_objRead16(f, &out));
-    TEST_ASSERT_EQUAL(in, out);
+    TEST_ASSERT_EQUAL_HEX16(in, out);
     
     fclose(f);
 }
@@ -56,7 +56,7 @@ void obj_uint32(void) {
     TEST_ASSERT_TRUE(orbit_objWrite32(f, in));
     fseek(f, 0, SEEK_SET);
     TEST_ASSERT_TRUE(orbit_objRead32(f, &out));
-    TEST_ASSERT_EQUAL(in, out);
+    TEST_ASSERT_EQUAL_HEX32(in, out);
     
     fclose(f);
 }
@@ -65,13 +65,13 @@ void obj_uint64(void) {
     FILE* f = fopen("/tmp/test", "w+");
     TEST_ASSERT_NOT_NULL(f);
     
-    uint64_t in = 112345123;
+    uint64_t in = (1ULL << 63) + 1234;
     uint64_t out = 0;
     
     TEST_ASSERT_TRUE(orbit_objWrite64(f, in));
     fseek(f, 0, SEEK_SET);
     TEST_ASSERT_TRUE(orbit_objRead64(f, &out));
-    TEST_ASSERT_EQUAL(in, out);
+    TEST_ASSERT_EQUAL_HEX64(in, out);
     
     fclose(f);
 }
@@ -89,6 +89,21 @@ void obj_bytes(void) {
     fseek(f, 0, SEEK_SET);
     TEST_ASSERT_TRUE(orbit_objReadBytes(f, (uint8_t*)out, len));
     TEST_ASSERT_EQUAL_HEX8_ARRAY(in, out, len);
+    fclose(f);
+}
+
+void obj_ieee754(void) {
+    FILE* f = fopen("/tmp/test", "w+");
+    TEST_ASSERT_NOT_NULL(f);
+    
+    double in = 123.456;
+    double out = 0;
+    
+    TEST_ASSERT_TRUE(orbit_objWriteIEEE754(f, in));
+    fseek(f, 0, SEEK_SET);
+    TEST_ASSERT_TRUE(orbit_objReadIEEE754(f, &out));
+    TEST_ASSERT_EQUAL(in, out);
+    
     fclose(f);
 }
 
@@ -397,6 +412,7 @@ int main(void) {
     RUN_TEST(obj_uint32);
     RUN_TEST(obj_uint64);
     RUN_TEST(obj_bytes);
+    RUN_TEST(obj_ieee754);
     
     RUN_TEST(gc_collect);
     RUN_TEST(gc_savestack);

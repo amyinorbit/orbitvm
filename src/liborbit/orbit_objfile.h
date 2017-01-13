@@ -34,7 +34,7 @@ bool orbit_objRead32(FILE* in, uint32_t* out);
 
 bool orbit_objRead64(FILE* in, uint64_t* out);
 
-bool orbit_objReadIEE754(FILE* in, double* out);
+bool orbit_objReadIEEE754(FILE* in, double* out);
 
 bool orbit_objReadBytes(FILE* in, uint8_t* bytes, size_t count);
 

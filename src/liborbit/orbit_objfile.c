@@ -7,6 +7,65 @@
 //
 #include "orbit_objfile.h"
 
+#define IEEE754_BITS 64
+#define IEEE754_EXPBITS 11
+#define IEEE754_SIGNIFICANDBITS (IEEE754_BITS - IEEE754_EXPBITS - 1)
+
+// Barely adapted form `Beej's guide to network programming`
+// http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html#serialization
+uint64_t pack754(long double f)
+{
+    long double fnorm;
+    int32_t shift;
+    int64_t sign, exp, significand;
+
+    if (f == 0.0) return 0; // get this special case out of the way
+
+    // check sign and begin normalization
+    if (f < 0) { sign = 1; fnorm = -f; }
+    else { sign = 0; fnorm = f; }
+
+    // get the normalized form of f and track the exponent
+    shift = 0;
+    while(fnorm >= 2.0) { fnorm /= 2.0; shift++; }
+    while(fnorm < 1.0) { fnorm *= 2.0; shift--; }
+    fnorm = fnorm - 1.0;
+
+    // calculate the binary form (non-float) of the significand data
+    significand = fnorm * ((1LL<<IEEE754_SIGNIFICANDBITS) + 0.5f);
+
+    // get the biased exponent
+    exp = shift + ((1<<(IEEE754_EXPBITS-1)) - 1); // shift + bias
+
+    // return the final answer
+    return (sign<<(IEEE754_BITS-1)) | (exp<<(IEEE754_BITS-IEEE754_EXPBITS-1)) | significand;
+}
+
+// Barely adapted form `Beej's guide to network programming`
+// http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html#serialization
+long double unpack754(uint64_t i)
+{
+    long double result;
+    int64_t shift;
+    uint32_t bias;
+    if (i == 0) return 0.0;
+
+    // pull the significand
+    result = (i&((1LL<<IEEE754_SIGNIFICANDBITS)-1)); // mask
+    result /= (1LL<<IEEE754_SIGNIFICANDBITS); // convert back to float
+    result += 1.0f; // add the one back on
+
+    // deal with the exponent
+    bias = (1<<(IEEE754_EXPBITS-1)) - 1;
+    shift = ((i>>IEEE754_SIGNIFICANDBITS)&((1LL<<IEEE754_EXPBITS)-1)) - bias;
+    while(shift > 0) { result *= 2.0; shift--; }
+    while(shift < 0) { result /= 2.0; shift++; }
+
+    // sign it
+    result *= (i>>(IEEE754_BITS-1))&1? -1.0: 1.0;
+    return result;
+}
+
 bool orbit_objWrite8(FILE* out, uint8_t bits) {
     return fwrite(&bits, 1, 1, out) == 1;
 }
@@ -27,21 +86,19 @@ bool orbit_objWrite32(FILE* out, uint32_t bits) {
 bool orbit_objWrite64(FILE* out, uint64_t bits) {
     uint8_t byte;
     for(int8_t i = 7; i >= 0; --i) {
-        byte = bits >> (8*i);
+        byte = (bits >> (8*i)) & 0x00000000000000ff;
         if(fwrite(&byte, 1, 1, out) != 1) return false;
     }
     return true;
 }
 
 bool orbit_objWriteIEEE754(FILE* out, double bits) {
-    // TODO: implementation
-    return false;
+    return orbit_objWrite64(out, pack754(bits));
 }
 
 bool orbit_objWriteBytes(FILE* out, uint8_t* bytes, size_t count) {
     return fwrite(bytes, 1, count, out) == count;
 }
-
 
 bool orbit_objRead8(FILE* in, uint8_t* out) {
     return fread(out, 1, 1, in) == 1;
@@ -62,7 +119,7 @@ bool orbit_objRead32(FILE* in, uint32_t* out) {
     
     for(int8_t i = 3; i >= 0; --i) {
         if(fread(&byte, 1, 1, in) != 1) return false;
-        *out = (*out) | (uint32_t)(byte << (8*i));
+        *out = (*out) | ((uint32_t)byte << (8*i));
     }
     return true;
 }
@@ -73,14 +130,16 @@ bool orbit_objRead64(FILE* in, uint64_t* out) {
     
     for(int8_t i = 7; i >= 0; --i) {
         if(fread(&byte, 1, 1, in) != 1) return false;
-        *out = (*out) | (uint64_t)(byte << (8*i));
+        *out = (*out) | ((uint64_t)byte << (8*i));
     }
     return true;
 }
 
-bool orbit_objReadIEE754(FILE* in, double* out) {
-    // TODO: implementation
-    return false;
+bool orbit_objReadIEEE754(FILE* in, double* out) {
+    uint64_t raw = 0;
+    if(!orbit_objRead64(in, &raw)) return false;
+    *out = unpack754(raw);
+    return true;
 }
 
 bool orbit_objReadBytes(FILE* in, uint8_t* bytes, size_t count) {
