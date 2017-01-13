@@ -40,8 +40,8 @@ OPCODE(or, 1)           ///
 
 /**/
 
-OPCODE(jump_if, 1)      ///
-OPCODE(jump, 1)         ///
+OPCODE(jump_if, 2)      ///
+OPCODE(jump, 2)         ///
 OPCODE(rjump_if, 1)     ///
 OPCODE(rjump, 1)        ///
 OPCODE(pop, 0)          ///
@@ -57,6 +57,7 @@ OPCODE(invoke_sym, 1)   /// Invoke function by symbolic reference.
 OPCODE(invoke, 1)       /// Invoke a function by direct reference.
 OPCODE(ret_val, 1)      ///
 OPCODE(ret, 0)          ///
+OPCODE(init_sym, 1)     /// Symbolic version of init
 OPCODE(init, 1)         ///
 OPCODE(debug_prt, 1)    ///
 

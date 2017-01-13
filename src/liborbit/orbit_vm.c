@@ -38,14 +38,14 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
     // pull stuff in locals so we don't have to follow 10 pointers every
     // two line. This means invoke: and return: will have to update those
     // so that we stay on the same page.
-    VMCode instruction;
     
     VMCallFrame* frame = &task->frames[task->frameCount-1];
-    VMFunction* fn = frame->function;
-    uint8_t* ip = frame->ip;
-    GCValue* locals = frame->stackBase;
     
-#define FRAME() (task->frames[task->frameCount-1])
+    register VMCode instruction;
+    register VMFunction* fn = frame->function;
+    register uint8_t* ip = frame->ip;
+    register GCValue* locals = frame->stackBase;
+    
 #define PUSH(value) (*(task->sp++) = (value))
 #define PEEK() (*(task->sp - 1))
 #define POP() (*(--task->sp))
@@ -55,14 +55,6 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
     
 #define NEXT() goto loop
 #define CASE_OP(val) case CODE_##val
-    
-    // Macro to ease building binary math operator opcodes
-#define DECL_MATH(operator)                                 \
-    do {                                                    \
-        GCValue b = POP();                                  \
-        GCValue a = POP();                                  \
-        PUSH(MAKE_NUM(AS_NUM(a) operator AS_NUM(b)));       \
-    } while(false)
     
     // Main loop. Tonnes of opimisations to be done here (obviously)
     loop:
@@ -121,20 +113,36 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                 NEXT();
             }
             
-        CASE_OP(add):
-            DECL_MATH(+);
+            CASE_OP(add):
+            {
+                double b = AS_NUM(POP());
+                double a = AS_NUM(POP());
+                PUSH(MAKE_NUM(a + b));
+            }
             NEXT();
             
         CASE_OP(sub):
-            DECL_MATH(-);
+            {
+                double b = AS_NUM(POP());
+                double a = AS_NUM(POP());
+                PUSH(MAKE_NUM(a - b));
+            }
             NEXT();
             
         CASE_OP(mul):
-            DECL_MATH(*);
+            {
+                double b = AS_NUM(POP());
+                double a = AS_NUM(POP());
+                PUSH(MAKE_NUM(a * b));
+            }
             NEXT();
             
         CASE_OP(div):
-            DECL_MATH(/);
+            {
+                double b = AS_NUM(POP());
+                double a = AS_NUM(POP());
+                PUSH(MAKE_NUM(a / b));
+            }
             NEXT();
             
         CASE_OP(and):
@@ -211,6 +219,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             // run-time constant pool points to a function object rather than
             // a string, and we can just go along.
             callee = fn->native.constants[READ8()];
+            if(!IS_FUNCTION(callee)) return false;
         do_invoke:
             
             OASSERT(IS_FUNCTION(callee), "invoke must be given a function");
@@ -284,26 +293,30 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             locals = frame->stackBase;
             NEXT();
         }
+        
+        
+        {
+            GCValue class;
+            uint8_t idx;
+        CASE_OP(init_sym):
+            
+            idx = READ8();
+            GCValue symbol = fn->native.constants[idx];
+            orbit_gcMapGet(fn->module->classes, symbol, &class);
+            // replace the opcode in the bytecode stream so that future calls
+            // can use the direct reference.
+            ip[-2] = CODE_init;
+            fn->native.constants[idx] = class;
+            // Start invocation.
+            goto do_init;
             
         CASE_OP(init):
-            {
-                GCValue* ref = &fn->native.constants[READ8()];
-                GCClass* class;
-                if(IS_CLASS(*ref)) {
-                    class = AS_CLASS(*ref);
-                } else {
-                    // Lazy resolution, like JVM. If it's a symbolic reference,
-                    // then we resolve the class, and replace the entry in the
-                    // runtime constant pool with a direct ref to the class.
-                    if(!orbit_gcMapGet(fn->module->classes, *ref, ref)) {
-                        return false;
-                    }
-                    class = AS_CLASS(*ref);
-                }
-                // Do the construction;
-                PUSH(MAKE_OBJECT(orbit_gcInstanceNew(vm, class)));
-            }
+            class = fn->native.constants[READ8()];
+            if(!IS_CLASS(class)) return false;
+        do_init:
+            PUSH(MAKE_OBJECT(orbit_gcInstanceNew(vm, AS_CLASS(class))));
             NEXT();
+        }
             
         CASE_OP(debug_prt):
             fprintf(stderr, "stack size: %zu\n", task->sp - task->stack);
