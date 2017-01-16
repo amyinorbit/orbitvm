@@ -321,6 +321,10 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
         CASE_OP(debug_prt):
             fprintf(stderr, "stack size: %zu\n", task->sp - task->stack);
             fprintf(stderr, "allocated: %zu\n", vm->allocated);
+            GCValue tos = PEEK();
+            if(IS_NUM(tos)) {
+                fprintf(stderr, "TOS: #%lf\n", AS_NUM(tos));
+            }
             NEXT();
         
         default:
