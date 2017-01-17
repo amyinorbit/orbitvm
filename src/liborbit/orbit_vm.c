@@ -56,9 +56,11 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
 #define NEXT() goto loop
 #define CASE_OP(val) case CODE_##val
     
+#define START_LOOP() loop: switch(instruction = (VMCode)READ8())
+    
     // Main loop. Tonnes of opimisations to be done here (obviously)
-    loop:
-    switch(instruction = (VMCode)READ8()) {
+    START_LOOP()
+    {
         
         CASE_OP(halt):
             return true;
@@ -204,7 +206,6 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             idx = READ8();
             GCValue symbol = fn->native.constants[idx];
             orbit_gcMapGet(fn->module->dispatchTable, symbol, &callee);
-            if(!IS_FUNCTION(callee)) return false;
             
             // replace the opcode in the bytecode stream so that future calls
             // can use the direct reference.
@@ -219,10 +220,9 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             // run-time constant pool points to a function object rather than
             // a string, and we can just go along.
             callee = fn->native.constants[READ8()];
-            if(!IS_FUNCTION(callee)) return false;
         do_invoke:
-            
-            OASSERT(IS_FUNCTION(callee), "invoke must be given a function");
+
+            if(!IS_FUNCTION(callee)) return false;
             // First, we need to store the data brought up into locals back
             // into the task's frame stack.
             frame->ip = ip;
@@ -243,6 +243,10 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                 // The stack base points to the first parameter
                 frame->stackBase = task->sp - fn->parameterCount;
                 locals = frame->stackBase;
+                
+                // Move the stack pointer up so we have room reserved for
+                // local variables
+                task->sp += fn->localCount;
                 
                 // And now we bring up the new frame's IP into the local.
                 // NEXT() will start the new function.

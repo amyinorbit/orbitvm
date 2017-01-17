@@ -153,10 +153,10 @@ enum _GCFnType {
 
 // Orbit's native function type, used for bytecode-compiled functions.
 typedef struct _GCNativeFn {
-    uint8_t     constantCount;
-    uint16_t    byteCodeLength;
-    GCValue*    constants;
-    uint8_t*    byteCode;
+    uint8_t         constantCount;
+    uint16_t        byteCodeLength;
+    GCValue*        constants;
+    uint8_t*        byteCode;
 } GCNativeFn;
 
 // Orbit's Function type.
@@ -169,6 +169,7 @@ struct _VMFunction {
     GCFnType        type;
     VMModule*       module;
     uint8_t         parameterCount;
+    uint8_t         localCount;
     union {
         GCForeignFn foreign;
         GCNativeFn  native;

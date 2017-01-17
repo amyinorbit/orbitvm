@@ -81,6 +81,9 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
     function->native.constants = ALLOC_ARRAY(vm, GCValue, constantCount);
     function->native.constantCount = constantCount;
     
+    function->parameterCount = 0;
+    function->localCount = 0;
+    
     return function;
 }
 
