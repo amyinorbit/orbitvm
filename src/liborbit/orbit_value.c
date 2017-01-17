@@ -87,16 +87,21 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
     return function;
 }
 
-VMModule* orbit_gcModuleNew(OrbitVM* vm) {
+VMModule* orbit_gcModuleNew(OrbitVM* vm, uint8_t globalCount) {
     OASSERT(vm != NULL, "Null instance error");
     
-    VMModule* module = ALLOC(vm, VMModule);
+    VMModule* module = ALLOC_FLEX(vm, VMModule, VMGlobal, globalCount);
     orbit_objectInit(vm, (GCObject*)module, NULL);
     module->base.type = OBJ_MODULE;
     
-    module->globals = orbit_gcMapNew(vm);
     module->classes = orbit_gcMapNew(vm);
     module->dispatchTable = orbit_gcMapNew(vm);
+    module->globalCount = globalCount;
+    
+    for(uint8_t i = 0; i < globalCount; ++i) {
+        module->globals[i].name = VAL_NIL;
+        module->globals[i].global = VAL_NIL;
+    }
     
     return module;
 }
@@ -148,7 +153,6 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
         break;
         
     case OBJ_MODULE:
-        orbit_gcDeallocate(vm, (GCObject*)((VMModule*)object)->globals);
         orbit_gcDeallocate(vm, (GCObject*)((VMModule*)object)->classes);
         orbit_gcDeallocate(vm, (GCObject*)((VMModule*)object)->dispatchTable);
         break;

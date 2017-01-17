@@ -89,12 +89,17 @@ static inline void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
     }
 }
 
-static inline void orbit_markModule(OrbitVM* vm, VMModule* context) {
-    vm->allocated += sizeof(VMModule);
+static inline void orbit_markModule(OrbitVM* vm, VMModule* module) {
+    vm->allocated += sizeof(VMModule)
+                   + (module->globalCount * sizeof(VMGlobal));
     
-    orbit_gcMarkObject(vm, (GCObject*)context->globals);
-    orbit_gcMarkObject(vm, (GCObject*)context->classes);
-    orbit_gcMarkObject(vm, (GCObject*)context->dispatchTable);
+    orbit_gcMarkObject(vm, (GCObject*)module->classes);
+    orbit_gcMarkObject(vm, (GCObject*)module->dispatchTable);
+    
+    for(uint8_t i = 0; i < module->globalCount; ++i) {
+        orbit_gcMark(vm, module->globals[i].name);
+        orbit_gcMark(vm, module->globals[i].global);
+    }
 }
 
 static inline void orbit_markTask(OrbitVM* vm, VMTask* task) {

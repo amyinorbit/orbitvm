@@ -105,7 +105,9 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
         CASE_OP(load_global):
             {
-                //TODO: replace globals map with array + symbol list
+                uint8_t idx = READ8();
+                OASSERT(idx < fn->module->globalCount, "global index out of range");
+                PUSH(fn->module->globals[idx].global);
             }
             NEXT();
             
@@ -122,9 +124,11 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
         CASE_OP(store_global):
             {
-                //TODO: replace globals map with array + symbol list
-                NEXT();
+                uint8_t idx = READ8();
+                OASSERT(idx < fn->module->globalCount, "global index out of range");
+                fn->module->globals[idx].global = POP();
             }
+            NEXT();
             
             CASE_OP(add):
             {

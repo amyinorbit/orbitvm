@@ -26,6 +26,7 @@ typedef struct _GCMap       GCMap;
 typedef struct _GCArray     GCArray;
 typedef struct _VMFunction  VMFunction;
 typedef struct _VMCallFrame VMCallFrame;
+typedef struct _VMGlobal    VMGlobal;
 typedef struct _VMModule    VMModule;
 typedef struct _VMTask      VMTask;
 typedef GCValue (*GCForeignFn)(GCValue*);
@@ -199,15 +200,21 @@ struct _VMTask {
     VMCallFrame*    frames;
 };
 
+struct _VMGlobal {
+    GCValue         name;
+    GCValue         global;
+};
+
 // VMModule holds all that is needed for a bytecode file to be executed.
 // A module is created when a bytecode file is loaded into the VM, and can be
 // used to hold state in between C API function calls.
 struct _VMModule {
     GCObject        base;
-    
-    GCMap*          globals;
     GCMap*          classes;
     GCMap*          dispatchTable;
+    
+    uint8_t         globalCount;
+    VMGlobal        globals[ORBIT_FLEXIBLE_ARRAY_MEMB];
 };
 
 // Macros used to check the type of an orbit GCValue tagged union.
@@ -281,7 +288,7 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
                                 uint16_t byteCodeLength, uint8_t constantCount);
 
 // Creates a module that can be populated with the contents of a bytecode file.
-VMModule* orbit_gcModuleNew(OrbitVM* vm);
+VMModule* orbit_gcModuleNew(OrbitVM* vm, uint8_t globalCount);
 
 // Creates a new task in [vm] and push [function] on the call stack;
 VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function);
