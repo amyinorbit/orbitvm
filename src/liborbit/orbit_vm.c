@@ -26,8 +26,19 @@ void orbit_vmInit(OrbitVM* vm) {
     vm->gcStackSize = 0;
 }
 
-bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
+// checks that a task has enough frames left in the call stack for one more
+// to be pushed.
+static void orbit_vmEnsureFrames(OrbitVM* vm, VMTask* task) {
+    OASSERT(vm != NULL, "Null instance error");
+    OASSERT(task != NULL, "Null instance error");
     
+    if(task->frameCount + 1 < task->frameCapacity) return;
+    task->frameCapacity *= 2;
+    task->frames = REALLOC_ARRAY(vm, task->frames,
+                                 VMCallFrame, task->frameCapacity);
+}
+
+bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(task != NULL, "Null instance error");
     
@@ -229,7 +240,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
         
             switch(AS_FUNCTION(callee)->type) {
             case FN_NATIVE:
-                // TODO: ensure we have enough frames in the task.
+                orbit_vmEnsureFrames(vm, task);
             
                 // Get the pointer to the function object for convenience
                 fn = AS_FUNCTION(callee);

@@ -80,6 +80,10 @@ static inline void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
     vm->allocated += sizeof(VMFunction);
     orbit_gcMarkObject(vm, (GCObject*)function->module);
     if(function->type == FN_NATIVE) {
+        for(uint8_t i = 0; i < function->native.constantCount; ++i) {
+            orbit_gcMark(vm, function->native.constants[i]);
+        }
+        
         vm->allocated += function->native.byteCodeLength
                          + (function->native.constantCount * sizeof(GCValue));
     }
