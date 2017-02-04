@@ -35,15 +35,15 @@ OPCODE(sub, 0)
 OPCODE(mul, 0)
 OPCODE(div, 0)
 
-OPCODE(and, 1)          ///
-OPCODE(or, 1)           ///
+OPCODE(and, 2)          ///
+OPCODE(or, 2)           ///
 
 /**/
 
 OPCODE(jump_if, 2)      ///
 OPCODE(jump, 2)         ///
-OPCODE(rjump_if, 1)     ///
-OPCODE(rjump, 1)        ///
+OPCODE(rjump_if, 2)     ///
+OPCODE(rjump, 2)        ///
 OPCODE(pop, 0)          ///
 OPCODE(swap, 0)         ///
 
