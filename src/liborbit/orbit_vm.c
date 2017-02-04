@@ -257,7 +257,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                 frame->ip = fn->native.byteCode;
                 
                 // The stack base points to the first parameter
-                frame->stackBase = task->sp - fn->parameterCount;
+                frame->stackBase = task->sp - fn->arity;
                 locals = frame->stackBase;
                 
                 // Move the stack pointer up so we have room reserved for
@@ -273,7 +273,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             case FN_FOREIGN:
                 // TODO: implement Foreign Function invocation
                 fn = AS_FUNCTION(callee);
-                fn->foreign(task->sp - fn->parameterCount);
+                fn->foreign(task->sp - fn->arity);
                 fn = frame->function;
                 NEXT();
                 break;
