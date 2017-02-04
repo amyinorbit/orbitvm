@@ -98,6 +98,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
         CASE_OP(load_field):
             {
+                // TODO: replace POP() by PEEK() ?
                 GCInstance* obj = AS_INST(POP());
                 PUSH(obj->fields[READ8()]);
             }
@@ -130,7 +131,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             }
             NEXT();
             
-            CASE_OP(add):
+        CASE_OP(add):
             {
                 double b = AS_NUM(POP());
                 double a = AS_NUM(POP());
@@ -347,6 +348,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             NEXT();
         
         default:
+            return false;
             break;
     }
     

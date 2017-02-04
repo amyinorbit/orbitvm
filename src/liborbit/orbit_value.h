@@ -169,7 +169,7 @@ struct _VMFunction {
     GCObject        base;
     GCFnType        type;
     VMModule*       module;
-    uint8_t         parameterCount;
+    uint8_t         arity;
     uint8_t         localCount;
     union {
         GCForeignFn foreign;

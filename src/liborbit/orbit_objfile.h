@@ -52,6 +52,7 @@
 //      string_struct   name
 //
 //      u8              param_count
+//      u8              local_count
 //      u16             stack_effect
 //      
 //      u8              constant_count
