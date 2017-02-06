@@ -6,6 +6,7 @@
 //  Copyright © 2017 cesarparent. All rights reserved.
 //
 #include "orbit_gc.h"
+#include "orbit_vm.h"
 #include "orbit_utils.h"
 
 void orbit_gcRun(OrbitVM* vm) {

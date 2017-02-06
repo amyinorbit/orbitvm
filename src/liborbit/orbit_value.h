@@ -14,6 +14,8 @@
 #include "orbit_string.h"
 #include "orbit_platforms.h"
 
+typedef struct _OrbitVM     OrbitVM;
+
 typedef enum _ValueType     ValueType;
 typedef enum _GCFnType      GCFnType;
 typedef enum _GCObjType     GCObjType;
