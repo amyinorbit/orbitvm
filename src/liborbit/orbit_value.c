@@ -26,15 +26,30 @@ GCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
     OASSERT(vm != NULL, "Null instance error");
     
     size_t length = strlen(string);
+    GCString* object = orbit_gcStringReserve(vm, length);
+    
+    memcpy(object->data, string, length);
+    object->data[length] = '\0';
+    orbit_gcStringComputeHash(object);
+    return object;
+}
+
+GCString* orbit_gcStringReserve(OrbitVM* vm, size_t length) {
+    OASSERT(vm != NULL, "Null instance error");
+    
     GCString* object = ALLOC_FLEX(vm, GCString, char, length+1);
     orbit_objectInit(vm, (GCObject*)object, NULL);
     
     object->base.type = OBJ_STRING;
+    object->hash = 0;
     object->length = length;
-    object->hash = orbit_hashString(string, length);
-    memcpy(object->data, string, length);
-    object->data[length] = '\0';
+    object->data[0] = '\0';
     return object;
+}
+
+void orbit_gcStringComputeHash(GCString* string) {
+    OASSERT(string != NULL, "Null instance error");
+    string->hash = orbit_hashString(string->data, string->length);
 }
 
 GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class) {
@@ -82,25 +97,20 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode, uint16_t byteCod
     return function;
 }
 
-VMModule* orbit_gcModuleNew(OrbitVM* vm, uint8_t globalCount, uint16_t constantCount) {
+VMModule* orbit_gcModuleNew(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
     
-    VMModule* module = ALLOC_FLEX(vm, VMModule, VMGlobal, globalCount);
+    VMModule* module = ALLOC(vm, VMModule);
     orbit_objectInit(vm, (GCObject*)module, NULL);
     module->base.type = OBJ_MODULE;
     
     module->classes = orbit_gcMapNew(vm);
     module->dispatchTable = orbit_gcMapNew(vm);
     
-    module->constantCount = constantCount;
-    module->constants = ALLOC_ARRAY(vm, GCValue, constantCount);
-    module->globalCount = globalCount;
-    module->globals = ALLOC_ARRAY(vm, VMGlobal, globalCount);
-    
-    for(uint8_t i = 0; i < globalCount; ++i) {
-        module->globals[i].name = VAL_NIL;
-        module->globals[i].global = VAL_NIL;
-    }
+    module->constantCount = 0;
+    module->constants = NULL;
+    module->globalCount = 0;
+    module->globals = NULL;
     
     return module;
 }

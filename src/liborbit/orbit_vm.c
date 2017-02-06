@@ -106,7 +106,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
         CASE_OP(load_global):
             {
-                uint8_t idx = READ8();
+                uint16_t idx = READ16();
                 OASSERT(idx < fn->module->globalCount, "global index out of range");
                 PUSH(fn->module->globals[idx].global);
             }
@@ -125,7 +125,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
         CASE_OP(store_global):
             {
-                uint8_t idx = READ8();
+                uint16_t idx = READ16();
                 OASSERT(idx < fn->module->globalCount, "global index out of range");
                 fn->module->globals[idx].global = POP();
             }

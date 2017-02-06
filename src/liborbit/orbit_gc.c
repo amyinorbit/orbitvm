@@ -92,7 +92,7 @@ static inline void orbit_markModule(OrbitVM* vm, VMModule* module) {
     orbit_gcMarkObject(vm, (GCObject*)module->classes);
     orbit_gcMarkObject(vm, (GCObject*)module->dispatchTable);
     
-    for(uint8_t i = 0; i < module->globalCount; ++i) {
+    for(uint16_t i = 0; i < module->globalCount; ++i) {
         orbit_gcMark(vm, module->globals[i].name);
         orbit_gcMark(vm, module->globals[i].global);
     }

@@ -216,7 +216,7 @@ struct _VMModule {
     uint16_t        constantCount;
     GCValue*        constants;
     
-    uint8_t         globalCount;
+    uint16_t        globalCount;
     VMGlobal*       globals;
 };
 
@@ -252,6 +252,12 @@ struct _VMModule {
 
 // Creates a garbage collected string in [vm] from the bytes in [string].
 GCString* orbit_gcStringNew(OrbitVM* vm, const char* string);
+
+// Creates a garbage collected string in [vm] with [size] bytes.
+GCString* orbit_gcStringReserve(OrbitVM* vm, size_t size);
+
+// Recomputes the hash of [string] and stores it.
+void orbit_gcStringComputeHash(GCString* string);
 
 // Creates a garbage collected instance of [class] in [vm].
 GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class);
@@ -290,7 +296,9 @@ bool orbit_gcArrayRemove(OrbitVM* vm, GCArray* array, uint32_t index);
 VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode, uint16_t byteCodeLength);
 
 // Creates a module that can be populated with the contents of a bytecode file.
-VMModule* orbit_gcModuleNew(OrbitVM* vm, uint8_t globalCount, uint16_t constantCount);
+// The resulting module has no constant or variable space reserved. This must
+// be handled by the function generating the module.
+VMModule* orbit_gcModuleNew(OrbitVM* vm);
 
 // Creates a new task in [vm] and push [function] on the call stack;
 VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function);

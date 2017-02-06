@@ -11,16 +11,17 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "orbit_value.h"
 #include "orbit_platforms.h"
 
 // Object Files are binary files that contain the bytecode and user type info
 // compiled from an orbit source file. 
 // 
-// [Orbit Object File Format]:
+// [Orbit Module File Format]:
 //
 // object_file {
-//      c4              fingerprint     'OOFF'
-//      u16             version_number  (0x0001)
+//      c4              fingerprint     'OMFF'
+//      u8              version_number  (0x0001)
 //
 //      u16             constant_count
 //      const_struct[]  constants;
@@ -42,6 +43,7 @@
 // var_struct {
 //     u8               tag             (TYPE_VARIABLE)
 //     string_struct    name
+//     u16              constant_index
 // }
 //
 // class_struct {
@@ -72,11 +74,22 @@
 // }
 //
 // num_struct {
-//      u8              tag             (TYPE_NUM)
+//      u8              tag             (TYPE_NUMBER)
 //      b64             data            (IEEE754-encoded double precision)
 // }
 //
 //
+
+typedef enum {
+    OMF_VARIABLE,
+    OMF_CLASS,
+    OMF_FUNCTION,
+    OMF_STRING,
+    OMF_NUM,
+} OMFTag;
+
+// Unpacks a module from [file] and adds it to [vm].
+VMModule* orbit_unpackModule(OrbitVM* vm, FILE* file);
 
 
 #endif /* orbit_pack_h */
