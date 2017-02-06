@@ -1,0 +1,43 @@
+// OrbitVM assembler - BNF
+// BNF grammar for the OrbitVM intermediate representation language
+// this is basically assembly with more contextual data.
+
+<program>       ::= <function> <program>
+                  | <>
+
+<declarations>  ::= <declaration> <declarations>
+                  | <>
+
+<declaration>   ::= "global" <identifier>
+
+<function>      ::= <signature> "{" <statements> "}"
+
+<signature>     ::= <identifier> "(" <args> ")"
+
+<args>          ::= <variable>
+                  | <variable> "," <args>
+                  | <>
+
+<statements>    ::= <statement>
+                  | <statement> <statements>
+
+<statement>     ::= <opcode> <operand> <eol>
+                  | "var" <variable> <eol>
+                  | <label> <eol>
+
+<opcode>        ::= <identifier>
+
+<label>         ::= <identifier> ":"
+
+<operand>       ::= <number>
+                  | <index>
+                  | <string>
+                  | <variable>
+                  | <>
+
+<number>        ::= // number
+
+<index>         ::= <integer>
+
+<variable>      ::= "%"<identifier>
+

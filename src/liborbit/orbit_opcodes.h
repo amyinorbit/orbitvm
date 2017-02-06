@@ -19,16 +19,16 @@
 #endif
 
 OPCODE(halt, 0)         /// Halts the virtual machine.
-OPCODE(load_nil, 0)    /// 
+OPCODE(load_nil, 0)     /// 
 OPCODE(load_true, 0)    /// 
 OPCODE(load_false, 0)   /// 
-OPCODE(load_const, 1)   /// Pushes a constant from the pool onto the stack.
+OPCODE(load_const, 2)   /// Pushes a constant from the pool onto the stack.
 OPCODE(load_local, 1)   /// Pushes a local variable onto the stack.
-OPCODE(load_field, 1)   /// Pushes an object's field onto the stack.
-OPCODE(load_global, 1)  /// Pushes a global variable onto the stack.
+OPCODE(load_field, 2)   /// Pushes an object's field onto the stack.
+OPCODE(load_global, 2)  /// Pushes a global variable onto the stack.
 OPCODE(store_local, 1)  /// Stores the top of the stack in a local variable.
-OPCODE(store_field, 1)  /// Stores the top of the stack in an object's field.
-OPCODE(store_global, 1) /// Stores the top of the stack into a global variable.
+OPCODE(store_field, 2)  /// Stores the top of the stack in an object's field.
+OPCODE(store_global, 2) /// Stores the top of the stack into a global variable.
     
 OPCODE(add, 0)
 OPCODE(sub, 0)

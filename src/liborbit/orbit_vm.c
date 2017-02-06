@@ -100,7 +100,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             {
                 // TODO: replace POP() by PEEK() ?
                 GCInstance* obj = AS_INST(POP());
-                PUSH(obj->fields[READ8()]);
+                PUSH(obj->fields[READ16()]);
             }
             NEXT();
             
@@ -119,7 +119,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
         CASE_OP(store_field):
             {
                 GCValue val = POP();
-                AS_INST(POP())->fields[READ8()] = val;
+                AS_INST(POP())->fields[READ16()] = val;
             }
             NEXT();
             
