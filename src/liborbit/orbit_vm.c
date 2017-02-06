@@ -89,7 +89,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             NEXT();
             
         CASE_OP(load_const):
-            PUSH(fn->native.constants[READ8()]);
+            PUSH(fn->module->constants[READ16()]);
             NEXT();
             
         CASE_OP(load_local):
@@ -215,18 +215,18 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             // lookup with every single invocation, but does not require the
             // whole bytecode to be checked and doctored at load time.
             GCValue callee;
-            uint8_t idx;
+            uint16_t idx;
             
         CASE_OP(invoke_sym):
             
-            idx = READ8();
-            GCValue symbol = fn->native.constants[idx];
+            idx = READ16();
+            GCValue symbol = fn->module->constants[idx];
             orbit_gcMapGet(fn->module->dispatchTable, symbol, &callee);
             
             // replace the opcode in the bytecode stream so that future calls
             // can use the direct reference.
             ip[-2] = CODE_invoke;
-            fn->native.constants[idx] = callee;
+            fn->module->constants[idx] = callee;
             
             // Start invocation.
             goto do_invoke;
@@ -235,7 +235,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             // Invoke a function by direct reference: by then, the entry in the
             // run-time constant pool points to a function object rather than
             // a string, and we can just go along.
-            callee = fn->native.constants[READ8()];
+            callee = fn->module->constants[READ16()];
         do_invoke:
 
             if(!IS_FUNCTION(callee)) return false;
@@ -317,21 +317,21 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
         
         {
             GCValue class;
-            uint8_t idx;
+            uint16_t idx;
         CASE_OP(init_sym):
             
             idx = READ8();
-            GCValue symbol = fn->native.constants[idx];
+            GCValue symbol = fn->module->constants[idx];
             orbit_gcMapGet(fn->module->classes, symbol, &class);
             // replace the opcode in the bytecode stream so that future calls
             // can use the direct reference.
             ip[-2] = CODE_init;
-            fn->native.constants[idx] = class;
+            fn->module->constants[idx] = class;
             // Start invocation.
             goto do_init;
             
         CASE_OP(init):
-            class = fn->native.constants[READ8()];
+            class = fn->module->constants[READ16()];
             if(!IS_CLASS(class)) return false;
         do_init:
             PUSH(MAKE_OBJECT(orbit_gcInstanceNew(vm, AS_CLASS(class))));

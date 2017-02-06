@@ -156,9 +156,7 @@ enum _GCFnType {
 
 // Orbit's native function type, used for bytecode-compiled functions.
 typedef struct _GCNativeFn {
-    uint8_t         constantCount;
     uint16_t        byteCodeLength;
-    GCValue*        constants;
     uint8_t*        byteCode;
 } GCNativeFn;
 
@@ -215,8 +213,11 @@ struct _VMModule {
     GCMap*          classes;
     GCMap*          dispatchTable;
     
+    uint16_t        constantCount;
+    GCValue*        constants;
+    
     uint8_t         globalCount;
-    VMGlobal        globals[ORBIT_FLEXIBLE_ARRAY_MEMB];
+    VMGlobal*       globals;
 };
 
 // Macros used to check the type of an orbit GCValue tagged union.
@@ -286,11 +287,10 @@ bool orbit_gcArrayGet(GCArray* array, uint32_t index, GCValue* value);
 bool orbit_gcArrayRemove(OrbitVM* vm, GCArray* array, uint32_t index);
 
 // Creates a native bytecode function.
-VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
-                                uint16_t byteCodeLength, uint8_t constantCount);
+VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode, uint16_t byteCodeLength);
 
 // Creates a module that can be populated with the contents of a bytecode file.
-VMModule* orbit_gcModuleNew(OrbitVM* vm, uint8_t globalCount);
+VMModule* orbit_gcModuleNew(OrbitVM* vm, uint8_t globalCount, uint16_t constantCount);
 
 // Creates a new task in [vm] and push [function] on the call stack;
 VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function);

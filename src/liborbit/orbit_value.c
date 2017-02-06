@@ -61,9 +61,7 @@ GCClass* orbit_gcClassNew(OrbitVM* vm, const char* name, uint16_t fieldCount) {
     return class;
 }
 
-VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
-                                             uint16_t byteCodeLength,
-                                             uint8_t constantCount) {
+VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode, uint16_t byteCodeLength) {
     OASSERT(vm != NULL, "Null instance error");
     
     VMFunction* function = ALLOC(vm, VMFunction);
@@ -78,16 +76,13 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode,
     function->native.byteCodeLength = byteCodeLength;
     memcpy(function->native.byteCode, byteCode, byteCodeLength);
     
-    function->native.constants = ALLOC_ARRAY(vm, GCValue, constantCount);
-    function->native.constantCount = constantCount;
-    
     function->arity = 0;
     function->localCount = 0;
     
     return function;
 }
 
-VMModule* orbit_gcModuleNew(OrbitVM* vm, uint8_t globalCount) {
+VMModule* orbit_gcModuleNew(OrbitVM* vm, uint8_t globalCount, uint16_t constantCount) {
     OASSERT(vm != NULL, "Null instance error");
     
     VMModule* module = ALLOC_FLEX(vm, VMModule, VMGlobal, globalCount);
@@ -96,7 +91,11 @@ VMModule* orbit_gcModuleNew(OrbitVM* vm, uint8_t globalCount) {
     
     module->classes = orbit_gcMapNew(vm);
     module->dispatchTable = orbit_gcMapNew(vm);
+    
+    module->constantCount = constantCount;
+    module->constants = ALLOC_ARRAY(vm, GCValue, constantCount);
     module->globalCount = globalCount;
+    module->globals = ALLOC_ARRAY(vm, VMGlobal, globalCount);
     
     for(uint8_t i = 0; i < globalCount; ++i) {
         module->globals[i].name = VAL_NIL;
@@ -148,13 +147,14 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
     case OBJ_FUNCTION:
         if(((VMFunction*)object)->type == FN_NATIVE) {
             DEALLOC(vm, ((VMFunction*)object)->native.byteCode);
-            DEALLOC(vm, ((VMFunction*)object)->native.constants);
         }
         break;
         
     case OBJ_MODULE:
         orbit_gcDeallocate(vm, (GCObject*)((VMModule*)object)->classes);
         orbit_gcDeallocate(vm, (GCObject*)((VMModule*)object)->dispatchTable);
+        DEALLOC(vm, ((VMModule*)object)->constants);
+        DEALLOC(vm, ((VMModule*)object)->globals);
         break;
         
     case OBJ_TASK:
