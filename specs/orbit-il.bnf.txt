@@ -1,6 +1,7 @@
-// OrbitVM assembler - BNF
-// BNF grammar for the OrbitVM intermediate representation language
-// this is basically assembly with more contextual data.
+// OrbitVM Intermediate Language - BNF
+// BNF grammar for the OrbitVM intermediate language
+// Orbit-IL is closer to the VM's operating model than normal Orbit source code,
+// but still provides higher-level concepts (variable names, literal operands). 
 
 <program>       ::= <function> <program>
                   | <>
