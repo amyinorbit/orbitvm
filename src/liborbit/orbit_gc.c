@@ -38,7 +38,7 @@ void orbit_gcRun(OrbitVM* vm) {
 
 static inline void orbit_markClass(OrbitVM* vm, GCClass* class) {
     vm->allocated += sizeof(GCClass);
-    vm->allocated += sizeof(char) * (class->name.length+1);
+    orbit_gcMarkObject(vm, (GCObject*)class->name);
 }
 
 static inline void orbit_markString(OrbitVM* vm, GCString* string) {

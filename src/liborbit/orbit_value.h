@@ -90,7 +90,7 @@ struct _GCObject {
 // for a pointer to the parent class.
 struct _GCClass {
     GCObject        base;
-    String          name;
+    GCString*       name;
     GCClass*        super;
     uint16_t        fieldCount;
 };
@@ -171,6 +171,7 @@ struct _VMFunction {
     VMModule*       module;
     uint8_t         arity;
     uint8_t         localCount;
+    uint8_t         stackEffect;
     union {
         GCForeignFn foreign;
         GCNativeFn  native;
@@ -263,7 +264,7 @@ void orbit_gcStringComputeHash(GCString* string);
 GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class);
 
 // Creates a new class meta-object in [vm] named [className].
-GCClass* orbit_gcClassNew(OrbitVM* vm, const char* name, uint16_t fieldCount);
+GCClass* orbit_gcClassNew(OrbitVM* vm, GCString* name, uint16_t fieldCount);
 
 // Creates a new hash map object in [vm];
 GCMap* orbit_gcMapNew(OrbitVM* vm);
@@ -293,7 +294,7 @@ bool orbit_gcArrayGet(GCArray* array, uint32_t index, GCValue* value);
 bool orbit_gcArrayRemove(OrbitVM* vm, GCArray* array, uint32_t index);
 
 // Creates a native bytecode function.
-VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode, uint16_t byteCodeLength);
+VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength);
 
 // Creates a module that can be populated with the contents of a bytecode file.
 // The resulting module has no constant or variable space reserved. This must

@@ -106,6 +106,8 @@ static inline bool _loadString(OrbitVM* vm, FILE* in, GCValue* value, OrbitPackE
     uint16_t length = orbit_unpack16(in, error);
     if(*error != PACK_NOERROR) { return false; }
     
+    // TODO: Check that the string is valid UTF-8
+    
     GCString* string = orbit_gcStringReserve(vm, length);
     *error = orbit_unpackBytes(in, (uint8_t*)string->data, length);
     if(*error != PACK_NOERROR) { return false; }
@@ -122,6 +124,7 @@ static bool _loadConstant(OrbitVM* vm, FILE* in, GCValue* value, OrbitPackError*
     
     switch(tag) {
     case OMF_STRING:
+        
         return _loadString(vm, in, value, error);
         break;
         
@@ -133,6 +136,63 @@ static bool _loadConstant(OrbitVM* vm, FILE* in, GCValue* value, OrbitPackError*
         break;
     }
     return false;
+}
+
+static bool _loadClass(OrbitVM* vm,
+                       FILE* in,
+                       GCValue* className,
+                       GCValue* class,
+                       OrbitPackError* error)
+{
+    uint8_t tag = orbit_unpack8(in, error);
+    if(*error != PACK_NOERROR) { return false; }
+    if(tag != OMF_CLASS) { return false; }
+    
+    if(!_loadString(vm, in, className, error)) { return false; }
+    
+    uint16_t fieldCount = orbit_unpack16(in, error);
+    if(*error != PACK_NOERROR) { return false; }
+    
+    GCClass* impl = orbit_gcClassNew(vm, AS_STRING(*className), fieldCount);
+    *class = MAKE_OBJECT(impl);
+    return true;
+}
+
+static bool _loadFunction(OrbitVM* vm,
+                          FILE* in,
+                          GCValue* signature,
+                          GCValue* function,
+                          OrbitPackError* error)
+{
+    uint8_t tag = orbit_unpack8(in, error);
+    if(*error != PACK_NOERROR) { return false; }
+    if(tag != OMF_FUNCTION) { return false; }
+    
+    if(!_loadString(vm, in, signature, error)) { return false; }
+    
+    uint8_t arity = orbit_unpack8(in, error);
+    if(*error != PACK_NOERROR) { return false; }
+    
+    uint8_t localCount = orbit_unpack8(in, error);
+    if(*error != PACK_NOERROR) { return false; }
+    
+    uint8_t stackEffect = orbit_unpack8(in, error);
+    if(*error != PACK_NOERROR) { return false; }
+    
+    uint16_t byteCodeLength = orbit_unpack16(in, error);
+    if(*error != PACK_NOERROR) { return false; }
+    
+    VMFunction* impl = orbit_gcFunctionNew(vm, byteCodeLength);
+    
+    impl->arity = arity;
+    impl->localCount = localCount;
+    impl->stackEffect = stackEffect;
+    impl->native.byteCodeLength = byteCodeLength;
+    *error = orbit_unpackBytes(in, impl->native.byteCode, byteCodeLength);
+    if(*error != PACK_NOERROR) { return false; }
+    
+    *function = MAKE_OBJECT(impl);
+    return true;
 }
 
 VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
@@ -171,9 +231,22 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
     }
     
     // TODO: Read user types in
+    uint16_t classCount = orbit_unpack16(in, errorp);
+    if(error != PACK_NOERROR) { goto fail; }
+    for(uint8_t i = 0; i < classCount; ++i) {
+        GCValue name, class;
+        if(!_loadClass(vm, in, &name, &class, errorp)) { goto fail; }
+        orbit_gcMapAdd(vm, module->classes, name, class);
+    }
     
     // TODO: Read bytecode functions in
-    
+    uint16_t functionCount = orbit_unpack16(in, errorp);
+    if(error != PACK_NOERROR) { goto fail; }
+    for(uint16_t i = 0; i < functionCount; ++i) {
+        GCValue signature, function;
+        if(!_loadFunction(vm, in, &signature, &function, errorp)) { goto fail; }
+        orbit_gcMapAdd(vm, module->dispatchTable, signature, function);
+    }
     
     orbit_gcRelease(vm);
     return module;

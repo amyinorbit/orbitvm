@@ -62,21 +62,21 @@ GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class) {
     return object;
 }
 
-GCClass* orbit_gcClassNew(OrbitVM* vm, const char* name, uint16_t fieldCount) {
+GCClass* orbit_gcClassNew(OrbitVM* vm, GCString* name, uint16_t fieldCount) {
     OASSERT(vm != NULL, "Null instance error");
-    OASSERT(name != NULL, "Null name error");
+    OASSERT(name != NULL, "Null instance error");
     
     GCClass* class = ALLOC(vm, GCClass);
     orbit_objectInit(vm, (GCObject*)class, NULL);
     class->base.type = OBJ_CLASS;
     class->super = NULL;
     class->fieldCount = fieldCount;
-    orbit_stringInit(&class->name, name);
+    class->name = name;
     
     return class;
 }
 
-VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode, uint16_t byteCodeLength) {
+VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength) {
     OASSERT(vm != NULL, "Null instance error");
     
     VMFunction* function = ALLOC(vm, VMFunction);
@@ -89,10 +89,10 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint8_t* byteCode, uint16_t byteCod
     
     function->native.byteCode = ALLOC_ARRAY(vm, uint8_t, byteCodeLength);
     function->native.byteCodeLength = byteCodeLength;
-    memcpy(function->native.byteCode, byteCode, byteCodeLength);
     
     function->arity = 0;
     function->localCount = 0;
+    function->stackEffect = 0;
     
     return function;
 }
@@ -137,7 +137,6 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
     
     switch(object->type) {
     case OBJ_CLASS:
-        orbit_stringDeinit(&((GCClass*)object)->name);
         break;
         
     case OBJ_INSTANCE:
