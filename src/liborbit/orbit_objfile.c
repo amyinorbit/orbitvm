@@ -12,74 +12,6 @@
 #include "orbit_pack.h"
 #include "orbit_utils.h"
 
-// Object Files are binary files that contain the bytecode and user type info
-// compiled from an orbit source file. 
-// 
-// [Orbit Module File Format]:
-//
-// object_file {
-//      c4              fingerprint     'OMFF'
-//      u8              version_number  (0x0001)
-//
-//      u16             constant_count
-//      const_struct[]  constants;
-//
-//      u16             variable_count
-//      var_struct[]    variables
-//
-//      u16             class_count
-//      class_struct[]  classes
-//
-//      u16             function_count
-//      func_struct[]   functions
-//
-//      u32             file_checksum
-// }
-// 
-// [Entry formats]
-//
-// var_struct {
-//     u8               tag             (TYPE_VARIABLE)
-//     string_struct    name
-//     u16              constant_index
-// }
-//
-// class_struct {
-//     u8               tag             (TYPE_CLASS)
-//     string_struct    name
-//     u16              field_count
-// }
-//
-// func_struct {
-//      u8              tag             (TYPE_FUNCTION)
-//      string_struct   name
-//
-//      u8              param_count
-//      u8              local_count
-//      u16             stack_effect
-//
-//      u16             code_length
-//      b8[]            bytecode
-// }
-//
-//
-// const_struct = (num_struct || string_struct)
-//
-// string_struct {
-//      u8              tag             (TYPE_STRING)
-//      u16             length
-//      b8[]            data
-// }
-//
-// num_struct {
-//      u8              tag             (TYPE_NUM)
-//      b64             data            (IEEE754-encoded double precision)
-// }
-//
-//
-
-#define CHECK_PTR_FALSE(error) (if(*error != PACK_NOERROR) { return false; })
-
 static bool _checkSignature(FILE* in, OrbitPackError* error) {
     static const char signature[] = "OMFF";
     char extracted[4];
@@ -230,7 +162,7 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
         module->globals[i].global = VAL_NIL;
     }
     
-    // TODO: Read user types in
+    // Read user types in
     uint16_t classCount = orbit_unpack16(in, errorp);
     if(error != PACK_NOERROR) { goto fail; }
     for(uint8_t i = 0; i < classCount; ++i) {
@@ -239,7 +171,7 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
         orbit_gcMapAdd(vm, module->classes, name, class);
     }
     
-    // TODO: Read bytecode functions in
+    // Read bytecode functions in
     uint16_t functionCount = orbit_unpack16(in, errorp);
     if(error != PACK_NOERROR) { goto fail; }
     for(uint16_t i = 0; i < functionCount; ++i) {
