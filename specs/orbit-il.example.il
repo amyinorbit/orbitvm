@@ -44,5 +44,5 @@ loop:
     rjump_if loop
     
 exit:
-    ret_val
+    ret
 }

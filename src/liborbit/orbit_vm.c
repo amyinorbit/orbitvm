@@ -168,24 +168,26 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
         CASE_OP(or):
             // TODO: implementation
             NEXT();
-            
+
+        {
+            uint16_t offset;
         CASE_OP(jump_if):
+            offset = READ16();
             if(IS_FALSE(PEEK())) NEXT();
         CASE_OP(jump):
-            {
-                uint16_t offset = READ16();
-                ip += offset;
-                NEXT();
-            }
-            
+            ip += offset;
+            NEXT();
+        }
+        
+        {
+            uint16_t offset;
         CASE_OP(rjump_if):
+            offset = READ16();
             if(IS_FALSE(PEEK())) NEXT();
         CASE_OP(rjump):
-            {
-                uint16_t offset = READ16();
-                ip -= offset;
-                NEXT();
-            }
+            ip -= offset;
+            NEXT();
+        }
             
         CASE_OP(pop):
             POP();
