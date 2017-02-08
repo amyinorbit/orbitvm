@@ -81,11 +81,11 @@
 //
 
 typedef enum {
-    OMF_VARIABLE,
-    OMF_CLASS,
-    OMF_FUNCTION,
-    OMF_STRING,
-    OMF_NUM,
+    OMF_VARIABLE    = 0x01,
+    OMF_CLASS       = 0x02,
+    OMF_FUNCTION    = 0x03,
+    OMF_STRING      = 0x04,
+    OMF_NUM         = 0x05,
 } OMFTag;
 
 // Unpacks a module from [file] and adds it to [vm].

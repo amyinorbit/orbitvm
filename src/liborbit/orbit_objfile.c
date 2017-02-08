@@ -12,6 +12,13 @@
 #include "orbit_pack.h"
 #include "orbit_utils.h"
 
+static bool _expect(FILE* in, OMFTag expected, OrbitPackError* error) {
+    uint8_t tag = orbit_unpack8(in, error);
+    if(*error != PACK_NOERROR) { return false; }
+    if(tag != expected) { return false; }
+    return true;
+}
+
 static bool _checkSignature(FILE* in, OrbitPackError* error) {
     static const char signature[] = "OMFF";
     char extracted[4];
@@ -21,8 +28,8 @@ static bool _checkSignature(FILE* in, OrbitPackError* error) {
     return memcmp(signature, extracted, 4) == 0;
 }
 
-static bool _checkVersion(FILE* in, uint8_t version, OrbitPackError* error) {
-    uint8_t fileVersion = orbit_unpack8(in, error);
+static bool _checkVersion(FILE* in, uint16_t version, OrbitPackError* error) {
+    uint16_t fileVersion = orbit_unpack16(in, error);
     if(*error != PACK_NOERROR) { return false; }
     return fileVersion == version;
 }
@@ -39,8 +46,8 @@ static inline bool _loadString(OrbitVM* vm, FILE* in, GCValue* value, OrbitPackE
     if(*error != PACK_NOERROR) { return false; }
     
     // TODO: Check that the string is valid UTF-8
-    
     GCString* string = orbit_gcStringReserve(vm, length);
+    
     *error = orbit_unpackBytes(in, (uint8_t*)string->data, length);
     if(*error != PACK_NOERROR) { return false; }
     
@@ -56,7 +63,6 @@ static bool _loadConstant(OrbitVM* vm, FILE* in, GCValue* value, OrbitPackError*
     
     switch(tag) {
     case OMF_STRING:
-        
         return _loadString(vm, in, value, error);
         break;
         
@@ -76,10 +82,8 @@ static bool _loadClass(OrbitVM* vm,
                        GCValue* class,
                        OrbitPackError* error)
 {
-    uint8_t tag = orbit_unpack8(in, error);
-    if(*error != PACK_NOERROR) { return false; }
-    if(tag != OMF_CLASS) { return false; }
-    
+    if(!_expect(in, OMF_CLASS, error)) { return false; }
+    if(!_expect(in, OMF_STRING, error)) { return false; }
     if(!_loadString(vm, in, className, error)) { return false; }
     
     uint16_t fieldCount = orbit_unpack16(in, error);
@@ -96,10 +100,8 @@ static bool _loadFunction(OrbitVM* vm,
                           GCValue* function,
                           OrbitPackError* error)
 {
-    uint8_t tag = orbit_unpack8(in, error);
-    if(*error != PACK_NOERROR) { return false; }
-    if(tag != OMF_FUNCTION) { return false; }
-    
+    if(!_expect(in, OMF_FUNCTION, error)) { return false; }
+    if(!_expect(in, OMF_STRING, error)) { return false; }
     if(!_loadString(vm, in, signature, error)) { return false; }
     
     uint8_t arity = orbit_unpack8(in, error);
@@ -156,8 +158,10 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
     module->globalCount = orbit_unpack16(in, errorp);
     if(error != PACK_NOERROR) { goto fail; }
     module->globals = ALLOC_ARRAY(vm, VMGlobal, module->globalCount);
-    
+
     for(uint16_t i = 0; i < module->globalCount; ++i) {
+        if(!_expect(in, OMF_VARIABLE, errorp)) { goto fail; }
+        if(!_expect(in, OMF_STRING, errorp)) { goto fail; }
         if(!_loadString(vm, in, &module->globals[i].name, errorp)) { goto fail; }
         module->globals[i].global = VAL_NIL;
     }
@@ -174,9 +178,11 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
     // Read bytecode functions in
     uint16_t functionCount = orbit_unpack16(in, errorp);
     if(error != PACK_NOERROR) { goto fail; }
+    
     for(uint16_t i = 0; i < functionCount; ++i) {
         GCValue signature, function;
         if(!_loadFunction(vm, in, &signature, &function, errorp)) { goto fail; }
+        AS_FUNCTION(function)->module = module;
         orbit_gcMapAdd(vm, module->dispatchTable, signature, function);
     }
     
@@ -185,6 +191,6 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
     
 fail:
     // TODO: design error model for VM
-    fprintf(stderr, "error parsing module");
+    fprintf(stderr, "error parsing module\n");
     return NULL;
 }

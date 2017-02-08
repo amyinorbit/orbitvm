@@ -68,11 +68,9 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
 #define CASE_OP(val) case CODE_##val
     
 #define START_LOOP() loop: switch(instruction = (VMCode)READ8())
-    
     // Main loop. Tonnes of opimisations to be done here (obviously)
     START_LOOP()
     {
-        
         CASE_OP(halt):
             return true;
         
@@ -225,7 +223,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
             // replace the opcode in the bytecode stream so that future calls
             // can use the direct reference.
-            ip[-2] = CODE_invoke;
+            ip[-3] = CODE_invoke;
             fn->module->constants[idx] = callee;
             
             // Start invocation.
@@ -237,12 +235,11 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             // a string, and we can just go along.
             callee = fn->module->constants[READ16()];
         do_invoke:
-
             if(!IS_FUNCTION(callee)) return false;
             // First, we need to store the data brought up into locals back
             // into the task's frame stack.
             frame->ip = ip;
-        
+            
             switch(AS_FUNCTION(callee)->type) {
             case FN_NATIVE:
                 orbit_vmEnsureFrames(vm, task);
@@ -272,9 +269,12 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                 
             case FN_FOREIGN:
                 // TODO: implement Foreign Function invocation
-                fn = AS_FUNCTION(callee);
-                fn->foreign(task->sp - fn->arity);
-                fn = frame->function;
+                //VMFunction* impl = AS_FUNCTION(callee);
+                if(AS_FUNCTION(callee)->foreign(task->sp - AS_FUNCTION(callee)->arity)) {
+                    task->sp -= AS_FUNCTION(callee)->arity + 1;
+                } else {
+                    task->sp -= AS_FUNCTION(callee)->arity;
+                }
                 NEXT();
                 break;
             }
@@ -325,7 +325,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             orbit_gcMapGet(fn->module->classes, symbol, &class);
             // replace the opcode in the bytecode stream so that future calls
             // can use the direct reference.
-            ip[-2] = CODE_init;
+            ip[-3] = CODE_init;
             fn->module->constants[idx] = class;
             // Start invocation.
             goto do_init;

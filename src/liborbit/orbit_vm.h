@@ -34,4 +34,6 @@ static inline void orbit_gcRelease(OrbitVM* vm) {
 
 void orbit_vmInit(OrbitVM* vm);
 
+bool orbit_vmRun(OrbitVM* vm, VMTask* task);
+
 #endif /* orbit_vm_h */

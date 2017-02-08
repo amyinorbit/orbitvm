@@ -53,12 +53,12 @@ OPCODE(swap, 0)         ///
  * in the VM's dispatch table
  */
 
-OPCODE(invoke_sym, 1)   /// Invoke function by symbolic reference.
-OPCODE(invoke, 1)       /// Invoke a function by direct reference.
-OPCODE(ret_val, 1)      ///
+OPCODE(invoke_sym, 2)   /// Invoke function by symbolic reference.
+OPCODE(invoke, 2)       /// Invoke a function by direct reference.
+OPCODE(ret_val, 0)      ///
 OPCODE(ret, 0)          ///
-OPCODE(init_sym, 1)     /// Symbolic version of init
-OPCODE(init, 1)         ///
-OPCODE(debug_prt, 1)    ///
+OPCODE(init_sym, 2)     /// Symbolic version of init
+OPCODE(init, 2)         ///
+OPCODE(debug_prt, 0)    ///
 
 #undef OPCODE

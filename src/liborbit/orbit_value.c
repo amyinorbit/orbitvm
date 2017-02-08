@@ -43,7 +43,7 @@ GCString* orbit_gcStringReserve(OrbitVM* vm, size_t length) {
     object->base.type = OBJ_STRING;
     object->hash = 0;
     object->length = length;
-    object->data[0] = '\0';
+    memset(object->data, '\0', length);
     return object;
 }
 
@@ -125,8 +125,16 @@ VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function) {
     task->stackCapacity = 512;
     
     task->frames = ALLOC_ARRAY(vm, VMTask, 32);
-    task->frameCount = 0;
     task->frameCapacity = 32;
+    
+    // Create the first frame
+    task->frameCount = 1;
+    VMCallFrame* frame = &task->frames[0];
+    
+    frame->task = task;
+    frame->function = function;
+    frame->ip = function->native.byteCode;
+    frame->stackBase = task->stack;
     
     return task;
 }
@@ -207,7 +215,6 @@ static void orbit_gcMapGrow(OrbitVM* vm, GCMap* map) {
         if(IS_NIL(oldData[i].key)) continue;
         orbit_gcMapAdd(vm, map, oldData[i].key, oldData[i].value);
     }
-    
     DEALLOC(vm, oldData);
 }
 
@@ -230,7 +237,7 @@ static inline bool orbit_gcMapComp(GCValue a, GCValue b) {
 // where a value should be inserted.
 static GCMapEntry* orbit_gcMapFindSlot(GCMap* map, GCValue key) {
     GCMapEntry* insert = NULL;
-    uint32_t index = orbit_valueHash(key) & map->capacity;
+    uint32_t index = orbit_valueHash(key) & map->mask;
     uint32_t start = index;
     
     do {

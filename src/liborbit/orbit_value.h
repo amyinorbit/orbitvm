@@ -31,7 +31,7 @@ typedef struct _VMCallFrame VMCallFrame;
 typedef struct _VMGlobal    VMGlobal;
 typedef struct _VMModule    VMModule;
 typedef struct _VMTask      VMTask;
-typedef GCValue (*GCForeignFn)(GCValue*);
+typedef bool (*GCForeignFn)(GCValue*);
 
 
 // The type tag of a GCValue tagged union. NIL, True and False are singletons
@@ -226,13 +226,13 @@ struct _VMModule {
 #define MAKE_NUM(num)   ((GCValue){TYPE_NUM, {.numValue=(num)}})
 #define MAKE_OBJECT(obj)((GCValue){TYPE_OBJECT, {.objectValue=(obj)}})
 
-#define VAL_NIL         ((GCValue){TYPE_NIL})
-#define VAL_TRUE        ((GCValue){TYPE_TRUE})
-#define VAL_FALSE       ((GCValue){TYPE_FALSE})
+#define VAL_NIL         ((GCValue){TYPE_NIL, {.objectValue=NULL}})
+#define VAL_TRUE        ((GCValue){TYPE_TRUE, {.objectValue=NULL}})
+#define VAL_FALSE       ((GCValue){TYPE_FALSE, {.objectValue=NULL}})
 
 #define IS_BOOL(val)    ((val).type == TYPE_TRUE || (val).type == TYPE_FALSE)
-#define IS_TRUE(val)    ((val).type != TYPE_FALSE)
-#define IS_FALSE(val)   ((val).type == TYPE_FALSE)
+#define IS_TRUE(val)    ((val).type == TYPE_TRUE || (IS_NUM(val) && AS_NUM(val) != 0.0))
+#define IS_FALSE(val)   (!IS_TRUE(val))
 #define IS_NIL(val)     ((val).type == TYPE_NIL)
 #define IS_NUM(val)     ((val).type == TYPE_NUM)
 #define IS_OBJECT(val)  ((val).type == TYPE_OBJECT)

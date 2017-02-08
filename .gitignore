@@ -28,3 +28,5 @@ build/
 # Experiments and notepads
 design/
 spikes/
+*.omf
+

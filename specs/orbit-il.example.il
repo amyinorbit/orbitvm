@@ -1,9 +1,27 @@
 global %global_var1
 global %global_var2
 
-def main() {
-    load_const "Hello, World!"
+def decrement(%value) {
+    load_local %value
+    debug_prt
+    jump_if doit
+    ret
+doit:
+    load_const 1.0
+    sub
+    invoke_sym "decrement"
+    ret
+}
+
+def main2() {
     load_const 20.0
+    invoke_sym "decrement"
+    ret
+}
+
+def main() {
+    load_const 20.0
+    load_const "Hello, World!"
     invoke_sym "printNTimes"
     ret
 }
