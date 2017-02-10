@@ -10,13 +10,6 @@
 #include "orbit_utils.h"
 #include "orbit_gc.h"
 
-// We use the X-Macro to define the opcode enum
-#define OPCODE(code, _) CODE_##code,
-typedef enum {
-#include "orbit_opcodes.h"
-} VMCode;
-#undef OPCODE
-
 void orbit_vmInit(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
     vm->task = NULL;
@@ -161,6 +154,30 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             }
             NEXT();
             
+        CASE_OP(test_lt):
+            {
+                double b = AS_NUM(POP());
+                double a = AS_NUM(POP());
+                PUSH(MAKE_BOOL(a < b));
+            }
+            NEXT();
+        
+        CASE_OP(test_gt):
+            {
+                double b = AS_NUM(POP());
+                double a = AS_NUM(POP());
+                PUSH(MAKE_BOOL(a > b));
+            }
+            NEXT();
+            
+        CASE_OP(test_eq):
+            {
+                double b = AS_NUM(POP());
+                double a = AS_NUM(POP());
+                PUSH(MAKE_BOOL(a == b));
+            }
+            NEXT();
+            
         CASE_OP(and):
             // TODO: implementation
             NEXT();
@@ -169,22 +186,34 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             // TODO: implementation
             NEXT();
 
-        {
-            uint16_t offset;
         CASE_OP(jump_if):
-            offset = READ16();
+        {
+            uint16_t offset= READ16();
             if(IS_FALSE(PEEK())) NEXT();
-        CASE_OP(jump):
             ip += offset;
             NEXT();
         }
         
+        CASE_OP(jump):
+        {
+            uint16_t offset= READ16();
+            ip += offset;
+            NEXT();
+        }
+            
+            
+        CASE_OP(rjump_if):
         {
             uint16_t offset;
-        CASE_OP(rjump_if):
             offset = READ16();
             if(IS_FALSE(PEEK())) NEXT();
+            ip -= offset;
+            NEXT();
+        }
+            
         CASE_OP(rjump):
+        {
+            uint16_t offset= READ16();
             ip -= offset;
             NEXT();
         }
@@ -341,11 +370,26 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
         }
             
         CASE_OP(debug_prt):
-            fprintf(stderr, "stack size: %zu\n", task->sp - task->stack);
-            fprintf(stderr, "allocated: %zu\n", vm->allocated);
-            GCValue tos = PEEK();
-            if(IS_NUM(tos)) {
-                fprintf(stderr, "TOS: #%lf\n", AS_NUM(tos));
+            {
+                GCValue tos = PEEK();
+                if(IS_NUM(tos)) {
+                    fprintf(stderr, "TOS: %lf\n", AS_NUM(tos));
+                }
+                else if(IS_NIL(tos)) {
+                    fprintf(stderr, "TOS: nil\n");
+                }
+                else if(IS_BOOL(tos)) {
+                    fprintf(stderr, "TOS: %s\n",
+                            IS_TRUE(tos) ? "true" : "false");
+                }
+                else if(IS_STRING(tos)) {
+                    fprintf(stderr, "TOS: \"%.*s\"\n",
+                            (int)AS_STRING(tos)->length,
+                            AS_STRING(tos)->data);
+                }
+                else {
+                    fprintf(stderr, "TOS: @%p\n", AS_OBJECT(tos));
+                }
             }
             NEXT();
         

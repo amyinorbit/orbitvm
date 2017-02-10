@@ -15,37 +15,41 @@
 //  argument.
 //
 #ifndef OPCODE
-#define OPCODE(_, _)
+#define OPCODE(_, _, _)
 #endif
 
-OPCODE(halt, 0)         /// Halts the virtual machine.
-OPCODE(load_nil, 0)     /// 
-OPCODE(load_true, 0)    /// 
-OPCODE(load_false, 0)   /// 
-OPCODE(load_const, 2)   /// Pushes a constant from the pool onto the stack.
-OPCODE(load_local, 1)   /// Pushes a local variable onto the stack.
-OPCODE(load_field, 2)   /// Pushes an object's field onto the stack.
-OPCODE(load_global, 2)  /// Pushes a global variable onto the stack.
-OPCODE(store_local, 1)  /// Stores the top of the stack in a local variable.
-OPCODE(store_field, 2)  /// Stores the top of the stack in an object's field.
-OPCODE(store_global, 2) /// Stores the top of the stack into a global variable.
+OPCODE(halt, 0, 0)          /// Stops VM
+OPCODE(load_nil, 0, 1)      /// [...]       -> [..., nil]
+OPCODE(load_true, 0, 1)     /// [...]       -> [..., true]
+OPCODE(load_false, 0, 1)    /// [...]       -> [..., false]
+OPCODE(load_const, 2, 1)    /// [...]       -> [..., constants[idx16]]
+OPCODE(load_local, 1, 1)    /// [...]       -> [..., locals[idx8]]
+OPCODE(load_field, 2, 0)    /// [..., obj]  -> [..., obj[idx16]]
+OPCODE(load_global, 2, 1)   /// [...]       -> [..., globals[idx16]]
+OPCODE(store_local, 1, -1)  /// [..., val]  -> [...], locals[idx8] = val
+OPCODE(store_field, 2, -2)  /// [..., val, ojb]  -> [...], obj[idx16] = val
+OPCODE(store_global, 2, -1) /// [..., val]  -> [...], globals[idx16] = val
     
-OPCODE(add, 0)
-OPCODE(sub, 0)
-OPCODE(mul, 0)
-OPCODE(div, 0)
+OPCODE(add, 0, -1)          /// [..., b, a] -> [..., a+b]
+OPCODE(sub, 0, -1)          /// [..., b, a] -> [..., a-b]
+OPCODE(mul, 0, -1)          /// [..., b, a] -> [..., a*b]
+OPCODE(div, 0, -1)          /// [..., b, a] -> [..., a/b]
 
-OPCODE(and, 2)          ///
-OPCODE(or, 2)           ///
+OPCODE(test_lt, 0, -1)      /// [..., b, a] -> [..., (a<b)]
+OPCODE(test_gt, 0, -1)      /// [..., b, a] -> [..., (a>b)]
+OPCODE(test_eq, 0, -1)      /// [..., b, a] -> [..., (a==b)]
+
+OPCODE(and, 2, 0)           /// 
+OPCODE(or, 2, 0)            ///
 
 /**/
 
-OPCODE(jump_if, 2)      ///
-OPCODE(jump, 2)         ///
-OPCODE(rjump_if, 2)     ///
-OPCODE(rjump, 2)        ///
-OPCODE(pop, 0)          ///
-OPCODE(swap, 0)         ///
+OPCODE(jump_if, 2, 0)       /// [..., val] -> [..., val], if(val) ip += idx16
+OPCODE(jump, 2, 0)          /// [...] -> [...], if(val) ip += idx16
+OPCODE(rjump_if, 2, 0)      /// [..., val] -> [..., val], if(val) ip -= idx16
+OPCODE(rjump, 2, 0)         /// [...] -> [...], if(val) ip -= idx16
+OPCODE(pop, 0, -1)          /// [..., val] -> [...]
+OPCODE(swap, 0, 0)          /// [..., a, b] -> [..., b, a]
 
 /*
  * Invocation codes - dynamic run-time dispatch means the argument is an index
@@ -53,12 +57,12 @@ OPCODE(swap, 0)         ///
  * in the VM's dispatch table
  */
 
-OPCODE(invoke_sym, 2)   /// Invoke function by symbolic reference.
-OPCODE(invoke, 2)       /// Invoke a function by direct reference.
-OPCODE(ret_val, 0)      ///
-OPCODE(ret, 0)          ///
-OPCODE(init_sym, 2)     /// Symbolic version of init
-OPCODE(init, 2)         ///
-OPCODE(debug_prt, 0)    ///
+OPCODE(invoke_sym, 2, -1)   /// [..., ref] -> [...], call(dispatch[ref])
+OPCODE(invoke, 2, -1)       /// [..., func] -> [...], call(func)
+OPCODE(ret_val, 0, 0)       /// [..., [frame]] -> [..., ret_val]
+OPCODE(ret, 0, 0)           /// [..., [frame]] -> [...]
+OPCODE(init_sym, 2, 1)      /// [...] -> [..., new(classes[constants[idx16]])]
+OPCODE(init, 2, 1)          /// [...] -> [..., new(constants[idx16])]
+OPCODE(debug_prt, 0, 0)     /// [...] -> [...]
 
 #undef OPCODE

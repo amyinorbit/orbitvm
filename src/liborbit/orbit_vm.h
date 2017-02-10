@@ -11,8 +11,14 @@
 #include <stdint.h>
 #include "orbit_value.h"
 
-#define ORBIT_GCSTACK_SIZE 16
+// We use the X-Macro to define the opcode enum
+#define OPCODE(code, idx, stack) CODE_##code,
+typedef enum {
+#include "orbit_opcodes.h"
+} VMCode;
+#undef OPCODE
 
+#define ORBIT_GCSTACK_SIZE 16
 typedef struct _OrbitVM {
     VMTask*     task;
     GCObject*   gcHead;

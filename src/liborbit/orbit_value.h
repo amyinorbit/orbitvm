@@ -224,6 +224,7 @@ struct _VMModule {
 // Macros used to check the type of an orbit GCValue tagged union.
 
 #define MAKE_NUM(num)   ((GCValue){TYPE_NUM, {.numValue=(num)}})
+#define MAKE_BOOL(val)  ((GCValue){(val)? TYPE_TRUE : TYPE_FALSE, {.numValue=0}})
 #define MAKE_OBJECT(obj)((GCValue){TYPE_OBJECT, {.objectValue=(obj)}})
 
 #define VAL_NIL         ((GCValue){TYPE_NIL, {.objectValue=NULL}})
