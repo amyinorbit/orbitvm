@@ -8,8 +8,6 @@
 #ifndef orbit_stdlib_h
 #define orbit_stdlib_h
 
-#include "orbit_platforms.h"
-
 typedef struct _OrbitVM OrbitVM;
 
 void orbit_registerStandardLib(OrbitVM* vm);

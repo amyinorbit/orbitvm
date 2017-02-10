@@ -86,7 +86,6 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength) {
     
     // By default the function lives in the wild
     function->module = NULL;
-    
     function->native.byteCode = ALLOC_ARRAY(vm, uint8_t, byteCodeLength);
     function->native.byteCodeLength = byteCodeLength;
     
@@ -105,7 +104,8 @@ VMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_t ari
     orbit_objectInit(vm, (GCObject*)function, NULL);
     function->base.type = OBJ_FUNCTION;
     function->type = FN_FOREIGN;
-    
+
+    function->module = NULL;
     function->foreign = ffi;
     
     function->arity = arity;
@@ -121,9 +121,6 @@ VMModule* orbit_gcModuleNew(OrbitVM* vm) {
     VMModule* module = ALLOC(vm, VMModule);
     orbit_objectInit(vm, (GCObject*)module, NULL);
     module->base.type = OBJ_MODULE;
-    
-    module->classes = orbit_gcMapNew(vm);
-    module->dispatchTable = orbit_gcMapNew(vm);
     
     module->constantCount = 0;
     module->constants = NULL;
@@ -186,8 +183,6 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
         break;
         
     case OBJ_MODULE:
-        orbit_gcDeallocate(vm, (GCObject*)((VMModule*)object)->classes);
-        orbit_gcDeallocate(vm, (GCObject*)((VMModule*)object)->dispatchTable);
         DEALLOC(vm, ((VMModule*)object)->constants);
         DEALLOC(vm, ((VMModule*)object)->globals);
         break;

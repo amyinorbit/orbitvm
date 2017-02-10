@@ -9,6 +9,7 @@
 #include "orbit_vm.h"
 #include "orbit_utils.h"
 #include "orbit_gc.h"
+#include "orbit_stdlib.h"
 
 void orbit_vmInit(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
@@ -20,6 +21,8 @@ void orbit_vmInit(OrbitVM* vm) {
     vm->classes = orbit_gcMapNew(vm);
     
     vm->gcStackSize = 0;
+    
+    orbit_registerStandardLib(vm);
 }
 
 void orbit_vmDeinit(OrbitVM* vm) {
@@ -337,7 +340,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                 
             case FN_FOREIGN:
             
-                if(AS_FUNCTION(callee)->foreign(task->sp - AS_FUNCTION(callee)->arity)) {
+                if(AS_FUNCTION(callee)->foreign(vm, task->sp - AS_FUNCTION(callee)->arity)) {
                     task->sp -= (AS_FUNCTION(callee)->arity - 1);
                 } else {
                     task->sp -= AS_FUNCTION(callee)->arity;

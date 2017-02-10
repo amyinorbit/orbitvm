@@ -30,7 +30,7 @@ typedef struct _VMCallFrame VMCallFrame;
 typedef struct _VMGlobal    VMGlobal;
 typedef struct _VMModule    VMModule;
 typedef struct _VMTask      VMTask;
-typedef bool (*GCForeignFn)(GCValue*);
+typedef bool (*GCForeignFn)(OrbitVM* vm, GCValue*);
 
 
 // The type tag of a GCValue tagged union. NIL, True and False are singletons

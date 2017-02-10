@@ -120,31 +120,31 @@ void pack_ieee754(void) {
 
 void gc_collect(void) {
     orbit_vmInit(&vm);
-    TEST_ASSERT_EQUAL(vm.allocated, 0);
+    size_t zero_alloc = vm.allocated;
     
     GCString* string = orbit_gcStringNew(&vm, "Hello, world");
-    TEST_ASSERT_EQUAL(vm.allocated, sizeof(GCString) + string->length+1);
+    size_t size = sizeof(GCString) + string->length+1;
+    TEST_ASSERT_EQUAL(zero_alloc + size, vm.allocated);
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(vm.allocated, 0);
+    TEST_ASSERT_EQUAL(zero_alloc, vm.allocated);
 }
 
 void gc_savestack(void) {
     orbit_vmInit(&vm);
-    TEST_ASSERT_EQUAL(vm.allocated, 0);
+    size_t zero_alloc = vm.allocated;
     
     GCString* string = orbit_gcStringNew(&vm, "Hello, world");
     
     size_t size = sizeof(GCString) + string->length+1;
-    TEST_ASSERT_EQUAL(vm.allocated, size);
+    TEST_ASSERT_EQUAL(zero_alloc + size, vm.allocated);
     
     orbit_gcRetain(&vm, (GCObject*)string);
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(vm.allocated, size);
+    TEST_ASSERT_EQUAL(zero_alloc+size, vm.allocated);
     orbit_gcRelease(&vm);
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(vm.allocated, 0);
 }
 
 void string_create(void) {
@@ -156,7 +156,6 @@ void string_create(void) {
     TEST_ASSERT_EQUAL_STRING("Hello, world!", string->data);
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(vm.allocated, 0);
 }
 
 void string_hash(void) {
@@ -173,7 +172,6 @@ void string_hash(void) {
     TEST_ASSERT_NOT_EQUAL(a->hash, c->hash);
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(vm.allocated, 0);
 }
 
 void double_hash(void) {
@@ -193,7 +191,6 @@ void gcarray_new(void) {
     TEST_ASSERT_EQUAL(GCARRAY_DEFAULT_CAPACITY, array->capacity);
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcarray_add(void) {
@@ -204,7 +201,6 @@ void gcarray_add(void) {
     TEST_ASSERT_EQUAL(1, array->size);
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcarray_get(void) {
@@ -221,7 +217,6 @@ void gcarray_get(void) {
     TEST_ASSERT_EQUAL(123.456, AS_NUM(result));
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcarray_remove(void) {
@@ -242,7 +237,6 @@ void gcarray_remove(void) {
     TEST_ASSERT_EQUAL(-1, AS_NUM(result));
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcarray_grow(void) {
@@ -258,7 +252,6 @@ void gcarray_grow(void) {
     TEST_ASSERT_EQUAL(2*GCARRAY_DEFAULT_CAPACITY, array->capacity);
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcmap_new(void) {
@@ -272,7 +265,6 @@ void gcmap_new(void) {
     TEST_ASSERT_EQUAL(GCMAP_DEFAULT_CAPACITY, map->capacity);
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcmap_insert(void) {
@@ -287,7 +279,6 @@ void gcmap_insert(void) {
     TEST_ASSERT_EQUAL(2, map->size);
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcmap_get(void) {
@@ -311,7 +302,6 @@ void gcmap_get(void) {
     TEST_ASSERT_EQUAL(-1000, AS_NUM(result));
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcmap_overwrite(void) {
@@ -334,7 +324,6 @@ void gcmap_overwrite(void) {
     TEST_ASSERT_EQUAL(-5, AS_NUM(result));
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcmap_remove(void) {
@@ -358,7 +347,6 @@ void gcmap_remove(void) {
     TEST_ASSERT_TRUE(IS_NIL(result));
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcmap_removeAdd(void) {
@@ -389,7 +377,6 @@ void gcmap_removeAdd(void) {
     TEST_ASSERT_EQUAL(123, AS_NUM(result));
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 void gcmap_grow(void) {
@@ -413,7 +400,6 @@ void gcmap_grow(void) {
     }
     
     orbit_gcRun(&vm);
-    TEST_ASSERT_EQUAL(0, vm.allocated);
 }
 
 int main(void) {
