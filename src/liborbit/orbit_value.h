@@ -132,9 +132,9 @@ typedef struct {
 // probed hash map.
 struct _GCMap {
     GCObject        base;
-    uint32_t        mask;
-    uint32_t        size;
-    uint32_t        capacity;
+    uint64_t        mask;
+    uint64_t        size;
+    uint64_t        capacity;
     GCMapEntry*     data;
 };
 
@@ -143,8 +143,8 @@ struct _GCMap {
 // Orbit's dynamic array type.
 struct _GCArray {
     GCObject        base;
-    uint32_t        size;
-    uint32_t        capacity;
+    uint64_t        size;
+    uint64_t        capacity;
     GCValue*        data;
 };
 
@@ -192,12 +192,12 @@ struct _VMCallFrame {
 struct _VMTask {
     GCObject        base;
     
-    uint32_t        stackCapacity;
+    uint64_t        stackCapacity;
     GCValue*        sp;
     GCValue*        stack;
     
-    uint32_t        frameCount;
-    uint32_t        frameCapacity;
+    uint64_t        frameCount;
+    uint64_t        frameCapacity;
     VMCallFrame*    frames;
 };
 

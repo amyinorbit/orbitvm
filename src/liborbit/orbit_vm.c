@@ -19,6 +19,35 @@ void orbit_vmInit(OrbitVM* vm) {
     vm->gcStackSize = 0;
 }
 
+// Checks that [task]'s stack as at least [effect] more slots available. If it
+// doesn't grow the stack.
+static inline void orbit_vmEnsureStack(OrbitVM* vm, VMTask* task, uint8_t req) {
+    uint64_t stackSize = (task->sp - task->stack);
+    uint64_t required = stackSize + req;
+    if(required <= task->stackCapacity) { return; }
+    
+    // First we reallocate the stak. The rest is not so trivial: the tasks
+    // keeps a bunch of pointers to different locations in the stack:
+    // - the most obvious one is the stack pointer
+    // - each frame's base pointer
+    // since REALLOC can move memory if it needs to, we need to calculate an
+    // offset and (if it's not zero) shift everything.
+    
+    while(task->stackCapacity < required) {
+        task->stackCapacity *= 2;
+    }
+    GCValue* oldStack = task->stack;
+    task->stack = REALLOC_ARRAY(vm, task->stack, GCValue, task->stackCapacity);
+    
+    int64_t stackOffset = task->stack - oldStack;
+    if(stackOffset == 0) { return; }
+    
+    task->sp += stackOffset;
+    for(uint64_t i = 0; i < task->frameCount; ++i) {
+        task->frames[i].stackBase += stackOffset;
+    }
+}
+
 // checks that a task has enough frames left in the call stack for one more
 // to be pushed.
 static void orbit_vmEnsureFrames(OrbitVM* vm, VMTask* task) {
@@ -273,10 +302,10 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
             switch(AS_FUNCTION(callee)->type) {
             case FN_NATIVE:
-                orbit_vmEnsureFrames(vm, task);
-            
                 // Get the pointer to the function object for convenience
                 fn = AS_FUNCTION(callee);
+                orbit_vmEnsureFrames(vm, task);
+                orbit_vmEnsureStack(vm, task, fn->stackEffect);
                 
                 // setup a new frame on the task's call stack
                 frame = &task->frames[task->frameCount++];
