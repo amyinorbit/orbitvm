@@ -9,6 +9,7 @@
 #define orbit_vm_h
 
 #include <stdint.h>
+#include "orbit_utils.h"
 #include "orbit_value.h"
 
 // We use the X-Macro to define the opcode enum

@@ -6,6 +6,7 @@
 //  Copyright © 2016 cesarparent. All rights reserved.
 //
 #include <stdio.h>
+#include <string.h>
 #include <liborbit/orbit_pack.h>
 #include <liborbit/orbit_utils.h>
 #include <liborbit/orbit_value.h>
