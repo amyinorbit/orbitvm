@@ -172,7 +172,7 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
     for(uint8_t i = 0; i < classCount; ++i) {
         GCValue name, class;
         if(!_loadClass(vm, in, &name, &class, errorp)) { goto fail; }
-        orbit_gcMapAdd(vm, module->classes, name, class);
+        orbit_gcMapAdd(vm, vm->classes, name, class);
     }
     
     // Read bytecode functions in
@@ -183,7 +183,7 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
         GCValue signature, function;
         if(!_loadFunction(vm, in, &signature, &function, errorp)) { goto fail; }
         AS_FUNCTION(function)->module = module;
-        orbit_gcMapAdd(vm, module->dispatchTable, signature, function);
+        orbit_gcMapAdd(vm, vm->dispatchTable, signature, function);
     }
     
     orbit_gcRelease(vm);

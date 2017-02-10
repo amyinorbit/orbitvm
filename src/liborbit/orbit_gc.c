@@ -15,6 +15,8 @@ void orbit_gcRun(OrbitVM* vm) {
     
     // mark everything used by the current execution context
     orbit_gcMarkObject(vm, (GCObject*)vm->task);
+    orbit_gcMarkObject(vm, (GCObject*)vm->dispatchTable);
+    orbit_gcMarkObject(vm, (GCObject*)vm->classes);
     
     // mark the retained objects
     for(uint8_t i = 0; i < vm->gcStackSize; ++i) {
@@ -88,9 +90,6 @@ static inline void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
 static inline void orbit_markModule(OrbitVM* vm, VMModule* module) {
     vm->allocated += sizeof(VMModule)
                    + (module->globalCount * sizeof(VMGlobal));
-    
-    orbit_gcMarkObject(vm, (GCObject*)module->classes);
-    orbit_gcMarkObject(vm, (GCObject*)module->dispatchTable);
     
     for(uint16_t i = 0; i < module->globalCount; ++i) {
         orbit_gcMark(vm, module->globals[i].name);

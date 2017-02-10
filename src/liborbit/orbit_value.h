@@ -210,8 +210,6 @@ struct _VMGlobal {
 // used to hold state in between C API function calls.
 struct _VMModule {
     GCObject        base;
-    GCMap*          classes;
-    GCMap*          dispatchTable;
     
     uint16_t        constantCount;
     GCValue*        constants;

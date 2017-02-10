@@ -25,6 +25,9 @@ typedef struct _OrbitVM {
     GCObject*   gcHead;
     size_t      allocated;
     
+    GCMap*      dispatchTable;
+    GCMap*      classes;
+    
     GCObject*   gcStack[ORBIT_GCSTACK_SIZE];
     size_t      gcStackSize;
 } OrbitVM;
@@ -40,6 +43,8 @@ static inline void orbit_gcRelease(OrbitVM* vm) {
 }
 
 void orbit_vmInit(OrbitVM* vm);
+
+void orbit_vmDeinit(OrbitVM* vm);
 
 bool orbit_vmRun(OrbitVM* vm, VMTask* task);
 

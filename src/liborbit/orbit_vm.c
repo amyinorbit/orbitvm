@@ -16,7 +16,15 @@ void orbit_vmInit(OrbitVM* vm) {
     vm->gcHead = NULL;
     vm->allocated = 0;
     
+    vm->dispatchTable = orbit_gcMapNew(vm);
+    vm->classes = orbit_gcMapNew(vm);
+    
     vm->gcStackSize = 0;
+}
+
+void orbit_vmDeinit(OrbitVM* vm) {
+    OASSERT(vm != NULL, "Null instance error");
+    
 }
 
 // Checks that [task]'s stack as at least [effect] more slots available. If it
@@ -279,7 +287,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
             idx = READ16();
             GCValue symbol = fn->module->constants[idx];
-            orbit_gcMapGet(fn->module->dispatchTable, symbol, &callee);
+            orbit_gcMapGet(vm->dispatchTable, symbol, &callee);
             
             // replace the opcode in the bytecode stream so that future calls
             // can use the direct reference.
@@ -381,7 +389,7 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
             idx = READ8();
             GCValue symbol = fn->module->constants[idx];
-            orbit_gcMapGet(fn->module->classes, symbol, &class);
+            orbit_gcMapGet(vm->classes, symbol, &class);
             // replace the opcode in the bytecode stream so that future calls
             // can use the direct reference.
             ip[-3] = CODE_init;
