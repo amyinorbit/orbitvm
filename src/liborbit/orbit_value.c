@@ -122,7 +122,7 @@ VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function) {
     task->base.type = OBJ_TASK;
     
     task->stack = task->sp = ALLOC_ARRAY(vm, GCValue, 512);
-    task->stackCapacity = 16;
+    task->stackCapacity = 512;
     
     task->frames = ALLOC_ARRAY(vm, VMTask, 32);
     task->frameCapacity = 32;
