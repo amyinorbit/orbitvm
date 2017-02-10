@@ -97,10 +97,21 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
 #define READ8() (*(ip++))
 #define READ16() (ip += 2, (uint16_t)((ip[-2] << 8) | ip[-1]))
     
-#define NEXT() goto loop
-#define CASE_OP(val) case CODE_##val
+#ifdef ORBIT_FAST_INTERPRET
+    #define OPCODE(code, _, __) &&code_##code,
+        static void* dispatch[] = {
+    #include "orbit_opcodes.h"
+        };
+    #undef OPCODE
+    #define CASE_OP(code) code_##code
+    #define NEXT() goto *dispatch[instruction = (VMCode)READ8()]
+    #define START_LOOP() NEXT();
+#else
+    #define NEXT() goto loop
+    #define CASE_OP(val) case CODE_##val
+    #define START_LOOP() loop: switch(instruction = (VMCode)READ8())
+#endif
     
-#define START_LOOP() loop: switch(instruction = (VMCode)READ8())
     // Main loop. Tonnes of opimisations to be done here (obviously)
     START_LOOP()
     {
@@ -431,10 +442,6 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                 }
             }
             NEXT();
-        
-        default:
-            return false;
-            break;
     }
     
     return true;

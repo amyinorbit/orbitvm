@@ -27,6 +27,10 @@
 #define ORBIT_PLATFORM "Unknown Platform"
 #endif
 
+#ifndef _MSC_VER
+#define ORBIT_FAST_INTERPRET
+#endif
+
 #if __STDC_VERSION__ >= 199901L
 #define ORBIT_FLEXIBLE_ARRAY_MEMB   
 #else
