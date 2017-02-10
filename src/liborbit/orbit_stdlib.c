@@ -23,7 +23,7 @@ bool print_String_Void(OrbitVM* vm, GCValue* args) {
 }
 
 bool print_Number_Void(OrbitVM* vm, GCValue* args) {
-    printf("%f\n", AS_NUM(args[0]));
+    printf("%g\n", AS_NUM(args[0]));
     return false;
 }
 
