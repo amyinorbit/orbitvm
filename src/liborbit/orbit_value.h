@@ -297,6 +297,9 @@ bool orbit_gcArrayRemove(OrbitVM* vm, GCArray* array, uint32_t index);
 // Creates a native bytecode function.
 VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength);
 
+// Creates a new foreign function
+VMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_t arity);
+
 // Creates a module that can be populated with the contents of a bytecode file.
 // The resulting module has no constant or variable space reserved. This must
 // be handled by the function generating the module.

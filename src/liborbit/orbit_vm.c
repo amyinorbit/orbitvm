@@ -328,10 +328,9 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                 break;
                 
             case FN_FOREIGN:
-                // TODO: implement Foreign Function invocation
-                //VMFunction* impl = AS_FUNCTION(callee);
+            
                 if(AS_FUNCTION(callee)->foreign(task->sp - AS_FUNCTION(callee)->arity)) {
-                    task->sp -= AS_FUNCTION(callee)->arity + 1;
+                    task->sp -= (AS_FUNCTION(callee)->arity - 1);
                 } else {
                     task->sp -= AS_FUNCTION(callee)->arity;
                 }

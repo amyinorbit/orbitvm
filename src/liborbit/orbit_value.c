@@ -97,6 +97,24 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength) {
     return function;
 }
 
+// Creates a new foreign function
+VMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_t arity) {
+    OASSERT(vm != NULL, "Null instance error");
+    
+    VMFunction* function = ALLOC(vm, VMFunction);
+    orbit_objectInit(vm, (GCObject*)function, NULL);
+    function->base.type = OBJ_FUNCTION;
+    function->type = FN_FOREIGN;
+    
+    function->foreign = ffi;
+    
+    function->arity = arity;
+    function->localCount = 0;
+    function->stackEffect = 0;
+    
+    return function;
+}
+
 VMModule* orbit_gcModuleNew(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
     

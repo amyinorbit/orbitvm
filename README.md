@@ -35,7 +35,9 @@ C standard library.
  * [x] linear-probed hashmap-based dispatch table
  * [x] basic garbage collector
  * [x] Garbage-collected object and value system
- * [ ] Object file layout design
+ * [x] Object file layout design
+ * [x] Stack allocation and growth
+ * [ ] Basic Standard Library
  * [ ] basic assembly language and assembler
  * [ ] everything else
 
