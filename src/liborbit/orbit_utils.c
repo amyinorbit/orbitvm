@@ -7,15 +7,21 @@
 //
 #include "orbit_utils.h"
 #include "orbit_vm.h"
+#include "orbit_gc.h"
 
 void* orbit_allocator(OrbitVM* vm, void* ptr, size_t newSize) {
+    OASSERT(vm != NULL, "Null instance error");
+    vm->allocated += newSize;
+    if(vm->allocated > vm->nextGC) {
+        orbit_gcRun(vm);
+    }
+    
     if(newSize == 0) {
         free(ptr);
         return NULL;
     }
     void* mem = realloc(ptr, newSize);
     OASSERT(mem != NULL, "Error reallocating memory");
-    if(vm != NULL) vm->allocated += newSize;
     return mem;
 }
 

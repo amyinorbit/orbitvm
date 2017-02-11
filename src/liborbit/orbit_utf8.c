@@ -7,7 +7,42 @@
 //
 #include <ctype.h>
 #include "orbit_utf8.h"
+#include "orbit_utils.h"
+
 #define IN_RANGE(val, lower, upper) ((val) >= (lower) && (val) <= (upper))
+
+codepoint_t utf8_getCodepoint(const char* data, uint64_t length) {
+    uint8_t remaining = 0;
+    codepoint_t point = 0;
+    
+    if((*data & 0x80) == 0x00) {
+        return *data;
+    }
+    
+    if((*data & 0xe0) == 0xc0) {
+        point = *data & 0x1f;
+        remaining = 1;
+    }
+    else if((*data & 0xf0) == 0xe0) {
+        point = *data & 0x0f;
+        remaining = 2;
+    }
+    else if((*data & 0xf8) == 0xf0) {
+        point = *data & 0x07;
+        remaining = 3;
+    }
+    else { return -1; }
+    
+    if(remaining > length + 1) { return -1; }
+    
+    while(remaining > 0) {
+        data += 1;
+        remaining -= 1;
+        if((*data & 0xc0) != 0x80) { return -1; }
+        point = (point << 6) | (*data & 0x3f);
+    }
+    return point;
+}
 
 int8_t utf8_codepointSize(codepoint_t point) {
     if (point < 0) return -1;

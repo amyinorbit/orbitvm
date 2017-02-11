@@ -18,6 +18,7 @@ void orbit_vmInit(OrbitVM* vm) {
     vm->task = NULL;
     vm->gcHead = NULL;
     vm->allocated = 0;
+    vm->nextGC = ORBIT_FIRST_GC;
     
     vm->dispatchTable = orbit_gcMapNew(vm);
     vm->classes = orbit_gcMapNew(vm);

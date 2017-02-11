@@ -10,8 +10,9 @@
 #include "orbit_value.h"
 #include "orbit_vm.h"
 #include "orbit_platforms.h"
+#include "orbit_utf8.h"
 
-#define REGISTER_FN(name, arity) orbit_registerFn(vm, #name, &(name), (arity));
+#define REGISTER_FN(name, arity) orbit_registerFn(vm, #name, &(name), (arity))
 
 bool currentPlatform_Void(OrbitVM* vm, GCValue* args) {
     GCString* platformString = orbit_gcStringNew(vm, ORBIT_PLATFORM);
@@ -25,20 +26,40 @@ bool currentPlatform_Void(OrbitVM* vm, GCValue* args) {
 
 bool print_String_Void(OrbitVM* vm, GCValue* args) {
     printf("%.*s\n", (int)AS_STRING(args[0])->length, AS_STRING(args[0])->data);
-    return false;
+    return true;
 }
 
 bool print_Number_Void(OrbitVM* vm, GCValue* args) {
     printf("%g\n", AS_NUM(args[0]));
-    return false;
+    return true;
 }
 
 bool print_Bool_Void(OrbitVM* vm, GCValue* args) {
     printf("%s\n", IS_TRUE(args[0]) ? "true" : "false");
-    return false;
+    return true;
 }
 
 // String Library
+
+bool length_String_Number(OrbitVM* vm, GCValue* args) {
+    args[0] = MAKE_NUM(AS_STRING(args[0])->length);
+    return true;
+}
+
+bool characterCount_String_Number(OrbitVM* vm, GCValue* args) {
+    uint64_t index = 0, count = 0, length = AS_STRING(args[0])->length;
+    char* characters = AS_STRING(args[0])->data;
+    
+    while(index < length) {
+        codepoint_t c = utf8_getCodepoint(characters+index, length-index);
+        int clen = utf8_codepointSize(c);
+        index += clen;
+        count += 1;
+    }
+    
+    args[0] = MAKE_NUM(count);
+    return true;
+}
 
 bool plus_String_String_String(OrbitVM* vm, GCValue* args) {
     GCString* a = AS_STRING(args[0]);
@@ -62,8 +83,13 @@ static void orbit_registerFn(OrbitVM* vm, const char* signature,
 
 void orbit_registerStandardLib(OrbitVM* vm) {
     REGISTER_FN(currentPlatform_Void, 0);
+    
     REGISTER_FN(print_String_Void, 1);
     REGISTER_FN(print_Number_Void, 1);
     REGISTER_FN(print_Bool_Void, 1);
-    REGISTER_FN(plus_String_String_String, 2)
+    
+    REGISTER_FN(characterCount_String_Number, 1);
+    REGISTER_FN(length_String_Number, 1);
+    
+    REGISTER_FN(plus_String_String_String, 2);
 }

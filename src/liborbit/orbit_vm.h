@@ -19,17 +19,20 @@ typedef enum {
 } VMCode;
 #undef OPCODE
 
+#define ORBIT_FIRST_GC (32 * 1024)
+
 #define ORBIT_GCSTACK_SIZE 16
 typedef struct _OrbitVM {
     VMTask*     task;
     GCObject*   gcHead;
-    size_t      allocated;
+    uint64_t    allocated;
+    uint64_t    nextGC;
     
     GCMap*      dispatchTable;
     GCMap*      classes;
     
     GCObject*   gcStack[ORBIT_GCSTACK_SIZE];
-    size_t      gcStackSize;
+    uint64_t    gcStackSize;
 } OrbitVM;
 
 static inline void orbit_gcRetain(OrbitVM* vm, GCObject* object) {

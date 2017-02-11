@@ -11,6 +11,9 @@
 
 void orbit_gcRun(OrbitVM* vm) {
     // Reset allocation size so we can count as we go
+    DBG("gc run: kick (%llu)", vm->allocated);
+    DBG("gc run: marking objects");
+    
     vm->allocated = 0;
     
     // mark everything used by the current execution context
@@ -22,6 +25,8 @@ void orbit_gcRun(OrbitVM* vm) {
     for(uint8_t i = 0; i < vm->gcStackSize; ++i) {
         orbit_gcMarkObject(vm, vm->gcStack[i]);
     }
+    
+    DBG("gc run: sweeping");
     
 // basic Mark-sweep algorithm from 
 // http://journal.stuffwithstuff.com/2013/12/08/babys-first-garbage-collector/
@@ -36,6 +41,9 @@ void orbit_gcRun(OrbitVM* vm) {
             obj = &(*obj)->next;
         }
     }
+    
+    DBG("gc run: done (%llu)", vm->allocated);
+    vm->nextGC = vm->allocated * 2;
 }
 
 static inline void orbit_markClass(OrbitVM* vm, GCClass* class) {

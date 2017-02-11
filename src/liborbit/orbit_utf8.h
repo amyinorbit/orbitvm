@@ -18,6 +18,8 @@
 
 typedef int32_t codepoint_t;
 
+codepoint_t utf8_getCodepoint(const char* data, uint64_t length);
+
 // Returns how many bytes are required to encode [point], or -1 if the codepoint
 // is not a valid one.
 int8_t utf8_codepointSize(codepoint_t point);
