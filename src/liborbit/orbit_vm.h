@@ -46,6 +46,6 @@ void orbit_vmInit(OrbitVM* vm);
 
 void orbit_vmDeinit(OrbitVM* vm);
 
-bool orbit_vmRun(OrbitVM* vm, VMTask* task);
+bool orbit_vmInvoke(OrbitVM* vm, const char* entry);
 
 #endif /* orbit_vm_h */

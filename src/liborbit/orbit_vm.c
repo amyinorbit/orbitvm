@@ -11,6 +11,8 @@
 #include "orbit_gc.h"
 #include "orbit_stdlib.h"
 
+static bool orbit_vmRun(OrbitVM*, VMTask*);
+
 void orbit_vmInit(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
     vm->task = NULL;
@@ -27,7 +29,19 @@ void orbit_vmInit(OrbitVM* vm) {
 
 void orbit_vmDeinit(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
+}
+
+bool orbit_vmInvoke(OrbitVM* vm, const char* entry) {
+    OASSERT(vm != NULL, "Null instance error");
     
+    GCValue signature = MAKE_OBJECT(orbit_gcStringNew(vm, entry));
+    GCValue fn = VAL_NIL;
+    if(!orbit_gcMapGet(vm->dispatchTable, signature, &fn) || !IS_FUNCTION(fn)) {
+        fprintf(stderr, "error: cannot find `main()` (entry point)\n");
+        return false;
+    }
+    VMTask* task = orbit_gcTaskNew(vm, AS_FUNCTION(fn));
+    return orbit_vmRun(vm, task);
 }
 
 // Checks that [task]'s stack as at least [effect] more slots available. If it
@@ -37,7 +51,7 @@ static inline void orbit_vmEnsureStack(OrbitVM* vm, VMTask* task, uint8_t req) {
     uint64_t required = stackSize + req;
     if(required <= task->stackCapacity) { return; }
     
-    // First we reallocate the stak. The rest is not so trivial: the tasks
+    // First we reallocate the stack. The rest is not so trivial: the tasks
     // keeps a bunch of pointers to different locations in the stack:
     // - the most obvious one is the stack pointer
     // - each frame's base pointer
@@ -71,7 +85,7 @@ static void orbit_vmEnsureFrames(OrbitVM* vm, VMTask* task) {
                                  VMCallFrame, task->frameCapacity);
 }
 
-bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
+static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(task != NULL, "Null instance error");
     
@@ -444,5 +458,5 @@ bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             NEXT();
     }
     
-    return true;
+    return false;
 }
