@@ -138,6 +138,9 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
     OrbitPackError* errorp = &error;
     VMModule* module = orbit_gcModuleNew(vm);
     
+    // TODO: change API to include module name
+    // TODO: insert module in VM registry
+    
     // We don't want the module to get destroyed collected if the GC kicks
     // in while we're creating it.
     orbit_gcRetain(vm, (GCObject*)module);

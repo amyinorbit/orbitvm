@@ -22,6 +22,7 @@ void orbit_vmInit(OrbitVM* vm) {
     
     vm->dispatchTable = orbit_gcMapNew(vm);
     vm->classes = orbit_gcMapNew(vm);
+    vm->modules = orbit_gcMapNew(vm);
     
     vm->gcStackSize = 0;
     

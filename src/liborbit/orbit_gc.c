@@ -9,10 +9,16 @@
 #include "orbit_vm.h"
 #include "orbit_utils.h"
 
+#ifdef DEBUG_GC
+#define GCDBG(fmt, ...) DBG(fmt, ##__VA_ARGS__)
+#else
+#define GCDBG(fmt, ...)
+#endif
+
 void orbit_gcRun(OrbitVM* vm) {
     // Reset allocation size so we can count as we go
-    DBG("gc run: kick (%llu)", vm->allocated);
-    DBG("gc run: marking objects");
+    GCDBG("gc run: kick (%llu)", vm->allocated);
+    GCDBG("gc run: marking objects");
     
     vm->allocated = 0;
     
@@ -20,13 +26,14 @@ void orbit_gcRun(OrbitVM* vm) {
     orbit_gcMarkObject(vm, (GCObject*)vm->task);
     orbit_gcMarkObject(vm, (GCObject*)vm->dispatchTable);
     orbit_gcMarkObject(vm, (GCObject*)vm->classes);
+    orbit_gcMarkObject(vm, (GCObject*)vm->modules);
     
     // mark the retained objects
     for(uint8_t i = 0; i < vm->gcStackSize; ++i) {
         orbit_gcMarkObject(vm, vm->gcStack[i]);
     }
     
-    DBG("gc run: sweeping");
+    GCDBG("gc run: sweeping");
     
 // basic Mark-sweep algorithm from 
 // http://journal.stuffwithstuff.com/2013/12/08/babys-first-garbage-collector/
@@ -42,7 +49,7 @@ void orbit_gcRun(OrbitVM* vm) {
         }
     }
     
-    DBG("gc run: done (%llu)", vm->allocated);
+    GCDBG("gc run: done (%llu)", vm->allocated);
     vm->nextGC = vm->allocated * 2;
 }
 

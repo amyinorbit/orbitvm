@@ -30,6 +30,7 @@ typedef struct _OrbitVM {
     
     GCMap*      dispatchTable;
     GCMap*      classes;
+    GCMap*      modules;
     
     GCObject*   gcStack[ORBIT_GCSTACK_SIZE];
     uint64_t    gcStackSize;
