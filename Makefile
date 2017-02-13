@@ -34,7 +34,7 @@ TESTS_OUT	:= $(PRODUCT_OUT)/tests
 # Compiler and linker flags
 LIBS		:= orbit
 ARCHS		:= #-arch x86_64 -arch i386
-CFLAGS		:= -g -O0 -std=c11 -Wall -Werror $(addprefix -I,$(HEADERS_DIR))
+CFLAGS		:= -std=c11 -Wall -Werror $(addprefix -I,$(HEADERS_DIR))
 LIBFLAGS	:= -L$(LIB_OUT) $(addprefix -l,$(LIBS))
 LDFLAGS		:= 
 
@@ -47,6 +47,12 @@ OBJECTS		:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES))
 OBJECTS_LIB := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_LIB))
 OBJECTS_TEST:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_TEST))
 
+ifeq ($(DEBUG), 1)
+CFLAGS += -DDEBUG -ggdb -g -O0
+else
+CFLAGS += -DNDEBUG -O3 -flto
+LDFLAGS += -flto
+endif
 
 .PHONY: clean install spike tests
 

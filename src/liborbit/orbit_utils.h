@@ -37,9 +37,6 @@ uint32_t orbit_hashString(const char* string, size_t length);
 
 // Computes the hash code of [number].
 uint32_t orbit_hashDouble(double number);
-
-
-        
         
 // Debugging facilities. When compiling a release build, OASSERT is a no-op to
 // speed up the interpreter.

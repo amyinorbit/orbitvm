@@ -115,9 +115,9 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
     
 #ifdef ORBIT_FAST_INTERPRET
     #define OPCODE(code, _, __) &&code_##code,
-        static void* dispatch[] = {
+    static void* dispatch[] = {
     #include "orbit_opcodes.h"
-        };
+    };
     #undef OPCODE
     #define CASE_OP(code) code_##code
     #define NEXT() goto *dispatch[instruction = (VMCode)READ8()]
