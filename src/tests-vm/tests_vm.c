@@ -7,11 +7,11 @@
 //
 #include <stdio.h>
 #include <string.h>
-#include <liborbit/orbit_pack.h>
-#include <liborbit/orbit_utils.h>
-#include <liborbit/orbit_value.h>
-#include <liborbit/orbit_vm.h>
-#include <liborbit/orbit_gc.h>
+#include <orbit/orbit_pack.h>
+#include <orbit/orbit_utils.h>
+#include <orbit/orbit_value.h>
+#include <orbit/orbit_vm.h>
+#include <orbit/orbit_gc.h>
 
 #include "unity.h"
 

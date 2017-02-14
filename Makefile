@@ -2,11 +2,11 @@
 SHELL		:= bash
 
 # Product name and library definitions
-#PRODUCT		:= tests-vm
 SPIKE		:= main
 LIBRARY		:= liborbit
 TESTS		:= tests-vm
 COMPILER	:= orbitc
+RUNTIME		:= orbit
 STATIC_LIB	:= $(LIBRARY).a
 DYNAMIC_LIB := $(LIBRARY).dylib
 
@@ -39,11 +39,13 @@ LIBFLAGS	:= -L$(LIB_OUT) $(addprefix -l,$(LIBS))
 LDFLAGS		:= 
 
 # Object and headers lists
-SOURCES		:= $(wildcard $(SOURCE_DIR)/$(PRODUCT)/*.c)
-SOURCES_LIB := $(wildcard $(SOURCE_DIR)/$(LIBRARY)/*.c)
-SOURCES_TEST:= $(wildcard $(SOURCE_DIR)/$(TESTS)/*.c)
+SOURCES_COM := $(wildcard $(SOURCE_DIR)/compiler/*.c)
+SOURCES_RT  := $(wildcard $(SOURCE_DIR)/runtime/*.c)
+SOURCES_LIB := $(wildcard $(SOURCE_DIR)/orbit/*.c)
+SOURCES_TEST:= $(wildcard $(SOURCE_DIR)/tests-vm/*.c)
 
-OBJECTS		:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES))
+OBJECTS_COMP:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_COM))
+OBJECTS_RT  := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_RT))
 OBJECTS_LIB := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_LIB))
 OBJECTS_TEST:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_TEST))
 
@@ -87,6 +89,16 @@ install: $(STATIC_LIB) $(DYNAMIC_LIB)
 	@echo "installing libraries"
 	@cp -R $(LIB_OUT)/$(STATIC_LIB) $(LIB_INSTALL)/$(STATIC_LIB)
 	@cp -R $(LIB_OUT)/$(DYNAMIC_LIB) $(LIB_INSTALL)/$(DYNAMIC_LIB)
+
+$(COMPILER): $(OBJECTS_COM) $(STATIC_LIB)
+	@mkdir -p $(PRODUCT_OUT)
+	@echo "linking $(COMPILER)"
+	@$(CXX) $(OBJECTS_COM) $(LDFLAGS) $(LIBFLAGS) -o $(PRODUCT_OUT)/$(COMPILER)
+
+$(RUNTIME): $(OBJECTS_RT) $(STATIC_LIB)
+	@mkdir -p $(PRODUCT_OUT)
+	@echo "linking $(RUNTIME)"
+	@$(CXX) $(OBJECTS_RT) $(LDFLAGS) $(LIBFLAGS) -o $(PRODUCT_OUT)/$(RUNTIME)
 
 $(STATIC_LIB): $(OBJECTS_LIB)
 	@mkdir -p $(LIB_OUT)
