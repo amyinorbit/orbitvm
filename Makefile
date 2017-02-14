@@ -64,12 +64,6 @@ all: $(STATIC_LIB) $(DYNAMIC_LIB)
 clean:
 	@rm -rf $(BUILD_DIR)
 
-$(PRODUCT): LDFLAGS += $(LIBFLAGS)
-$(PRODUCT): $(OBJECTS) $(STATIC_LIB)
-	@echo "linking executable $@"
-	@mkdir -p $(PRODUCT_OUT)
-	@$(CXX) $(OBJECTS) $(LDFLAGS) -o $(PRODUCT_OUT)/$(PRODUCT)
-
 spike: CFLAGS += -I$(SOURCE_DIR)
 spike: LDFLAGS += $(LIBFLAGS)
 spike: $(SPIKES_DIR)/$(SPIKE).c $(STATIC_LIB) 
