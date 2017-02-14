@@ -33,7 +33,7 @@ TESTS_OUT	:= $(PRODUCT_OUT)/tests
 
 # Compiler and linker flags
 LIBS		:= orbit
-ARCHS		:= #-arch x86_64 -arch i386
+ARCHS		:= -arch x86_64 -arch i386
 CFLAGS		:= -std=c11 -Wall -Werror $(addprefix -I,$(HEADERS_DIR))
 LIBFLAGS	:= -L$(LIB_OUT) $(addprefix -l,$(LIBS))
 LDFLAGS		:= 
