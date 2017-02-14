@@ -42,7 +42,7 @@ The immediate next steps are:
 Once this is done, the next main step will be the compiler:
 
  * [ ] define complete Orbit grammar
- * [-] describe Orbit type system
+ * [ ] describe Orbit type system
  * [ ] implement Recursive-descent parser
  * [ ] provide AST walker API:
      * [ ] implement OMF backend (source to orbit module file)
