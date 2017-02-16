@@ -9,6 +9,7 @@
 #define orbit_vm_h
 
 #include <stdint.h>
+#include <orbit/orbit.h>
 #include "orbit_utils.h"
 #include "orbit_value.h"
 
@@ -22,7 +23,7 @@ typedef enum {
 #define ORBIT_FIRST_GC (32 * 1024)
 
 #define ORBIT_GCSTACK_SIZE 16
-typedef struct _OrbitVM {
+struct _OrbitVM {
     VMTask*     task;
     GCObject*   gcHead;
     uint64_t    allocated;
@@ -34,7 +35,7 @@ typedef struct _OrbitVM {
     
     GCObject*   gcStack[ORBIT_GCSTACK_SIZE];
     uint64_t    gcStackSize;
-} OrbitVM;
+};
 
 static inline void orbit_gcRetain(OrbitVM* vm, GCObject* object) {
     OASSERT(vm->gcStackSize < ORBIT_GCSTACK_SIZE-1, "stack overflow");
@@ -45,10 +46,6 @@ static inline void orbit_gcRelease(OrbitVM* vm) {
     OASSERT(vm->gcStackSize > 0, "stack underflow");
     vm->gcStackSize--;
 }
-
-void orbit_vmInit(OrbitVM* vm);
-
-void orbit_vmDeinit(OrbitVM* vm);
 
 bool orbit_vmInvoke(OrbitVM* vm, const char* entry);
 

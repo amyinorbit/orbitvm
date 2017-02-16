@@ -20,4 +20,8 @@ enum _VMResult {
     ORBIT_RUNTIME_ERROR
 };
 
+OrbitVM* orbit_vmNew();
+
+void orbit_vmDealloc(OrbitVM* vm);
+
 #endif /* orbit_h */

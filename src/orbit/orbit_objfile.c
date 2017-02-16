@@ -89,6 +89,7 @@ static bool _loadClass(OrbitVM* vm,
     uint16_t fieldCount = orbit_unpack16(in, error);
     if(*error != PACK_NOERROR) { return false; }
     
+    DBG("CREATE NEW CLASS");
     GCClass* impl = orbit_gcClassNew(vm, AS_STRING(*className), fieldCount);
     *class = MAKE_OBJECT(impl);
     return true;

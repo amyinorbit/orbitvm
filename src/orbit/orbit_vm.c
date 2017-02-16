@@ -13,8 +13,10 @@
 
 static bool orbit_vmRun(OrbitVM*, VMTask*);
 
-void orbit_vmInit(OrbitVM* vm) {
-    OASSERT(vm != NULL, "Null instance error");
+OrbitVM* orbit_vmNew() {
+    
+    OrbitVM* vm = malloc(sizeof(OrbitVM));
+    
     vm->task = NULL;
     vm->gcHead = NULL;
     vm->allocated = 0;
@@ -27,10 +29,21 @@ void orbit_vmInit(OrbitVM* vm) {
     vm->gcStackSize = 0;
     
     orbit_registerStandardLib(vm);
+    
+    return vm;
 }
 
-void orbit_vmDeinit(OrbitVM* vm) {
+void orbit_vmDealloc(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
+    
+    // Set those as unreachable so the GC can collect them
+    vm->dispatchTable = NULL;
+    vm->classes = NULL;
+    vm->modules = NULL;
+    vm->task = NULL;
+    orbit_gcRun(vm);
+    
+    free(vm);
 }
 
 bool orbit_vmInvoke(OrbitVM* vm, const char* entry) {
