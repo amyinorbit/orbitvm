@@ -72,7 +72,7 @@ spike: $(SPIKES_DIR)/$(SPIKE).c $(STATIC_LIB)
 	@$(CXX) $(CFLAGS) $(ARCHS) $(LDFLAGS) $(SPIKES_DIR)/$(SPIKE).c -o $(SPIKES_OUT)/$(SPIKE)
 	@echo "running spike $(SPIKE)"
 	@orbitasm -c -o $(SPIKES_DIR)/demo.omf $(SPIKES_DIR)/demo.il
-	@$(SPIKES_OUT)/$(SPIKE) $(SPIKES_DIR)/demo.omf
+	@$(SPIKES_OUT)/$(SPIKE) $(SPIKES_DIR)/demo
 
 spike-%:
 	make spike SPIKE=%

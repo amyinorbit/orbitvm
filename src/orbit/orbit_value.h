@@ -238,6 +238,7 @@ struct _VMModule {
 #define IS_STRING(val)  (IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_STRING)
 #define IS_CLASS(val)   (IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_CLASS)
 #define IS_FUNCTION(val)(IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_FUNCTION)
+#define IS_MODULE(val)  (IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_MODULE)
 
 // Macros used to cast [val] to a given GC type.
 

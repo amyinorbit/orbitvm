@@ -5,9 +5,11 @@
 //  Created by Cesar Parent on 2017-01-03.
 //  Copyright © 2017 cesarparent. All rights reserved.
 //
+#include <string.h>
 #include <stdbool.h>
 #include "orbit_vm.h"
 #include "orbit_utils.h"
+#include "orbit_objfile.h"
 #include "orbit_gc.h"
 #include "orbit_stdlib.h"
 
@@ -46,8 +48,46 @@ void orbit_vmDealloc(OrbitVM* vm) {
     free(vm);
 }
 
-bool orbit_vmInvoke(OrbitVM* vm, const char* entry) {
+void orbit_vmLoadModule(OrbitVM* vm, const char* moduleName) {
     OASSERT(vm != NULL, "Null instance error");
+    OASSERT(moduleName != NULL, "Null string error");
+    
+    GCValue key = MAKE_OBJECT(orbit_gcStringNew(vm, moduleName));
+    GCValue module = VAL_NIL;
+    
+    orbit_gcMapGet(vm->modules, key, &module);
+    if(IS_MODULE(module)) { return; }
+    
+    size_t length = strlen(moduleName);
+    char path[length+5]; // len + . + omf + \0
+    
+    strncpy(path, moduleName, length);
+    strncpy(path+length, ".omf", 4);
+    path[length+4] = '\0';
+    
+    DBG("Loading module %s", path);
+    
+    FILE* in = fopen(path, "r");
+    if(!in) {
+        // TODO: error signaling
+        return;
+    }
+    
+    VMModule* moduleObj = orbit_unpackModule(vm, in);
+    fclose(in);
+    
+    if(moduleObj == NULL) {
+        // TODO: signal error to the vm.
+        return;
+    }
+    module = MAKE_OBJECT(moduleObj);
+    orbit_gcMapAdd(vm, vm->modules, key, module);
+}
+
+bool orbit_vmInvoke(OrbitVM* vm, const char* module, const char* entry) {
+    OASSERT(vm != NULL, "Null instance error");
+    
+    orbit_vmLoadModule(vm, module);
     
     GCValue signature = MAKE_OBJECT(orbit_gcStringNew(vm, entry));
     GCValue fn = VAL_NIL;

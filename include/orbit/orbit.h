@@ -9,6 +9,7 @@
 #ifndef orbit_h
 #define orbit_h
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 
@@ -23,5 +24,7 @@ enum _VMResult {
 OrbitVM* orbit_vmNew();
 
 void orbit_vmDealloc(OrbitVM* vm);
+
+bool orbit_vmInvoke(OrbitVM* vm, const char* module, const char* entry);
 
 #endif /* orbit_h */

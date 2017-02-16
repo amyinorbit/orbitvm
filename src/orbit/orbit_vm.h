@@ -47,6 +47,6 @@ static inline void orbit_gcRelease(OrbitVM* vm) {
     vm->gcStackSize--;
 }
 
-bool orbit_vmInvoke(OrbitVM* vm, const char* entry);
+void orbit_vmLoadModule(OrbitVM* vm, const char* module);
 
 #endif /* orbit_vm_h */
