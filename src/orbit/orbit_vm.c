@@ -67,7 +67,7 @@ void orbit_vmLoadModule(OrbitVM* vm, const char* moduleName) {
     
     DBG("Loading module %s", path);
     
-    FILE* in = fopen(path, "r");
+    FILE* in = fopen(path, "rb");
     if(!in) {
         // TODO: error signaling
         return;
@@ -96,7 +96,12 @@ bool orbit_vmInvoke(OrbitVM* vm, const char* module, const char* entry) {
         return false;
     }
     VMTask* task = orbit_gcTaskNew(vm, AS_FUNCTION(fn));
-    return orbit_vmRun(vm, task);
+    if(!orbit_vmRun(vm, task)) {
+        // TODO: print error details. String in fiber/VM?
+        return false;
+    } else {
+        return true;
+    }
 }
 
 // Checks that [task]'s stack as at least [effect] more slots available. If it

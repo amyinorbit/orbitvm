@@ -10,10 +10,13 @@ RUNTIME		:= orbit
 STATIC_LIB	:= $(LIBRARY).a
 DYNAMIC_LIB := $(LIBRARY).dylib
 
+TOOLS_DIR	:= /usr/bin
+PREFIX		:= 
+
 # Toolchain, change this for other platforms
-CXX			:= clang
-AR			:= ar
-STRIP		:= strip
+CXX			:= $(PREFIX)gcc
+AR			:= $(PREFIX)ar
+RANLIB		:= $(PREFIX)ranlib
 
 # Not the best, change your install dir to where you want it installed
 LIB_INSTALL := /Users/cesar/toolchains/lib/osx
@@ -34,9 +37,9 @@ TESTS_OUT	:= $(PRODUCT_OUT)/tests
 # Compiler and linker flags
 LIBS		:= orbit
 ARCHS		:= -arch x86_64 -arch i386
-CFLAGS		:= -std=c11 -Wall -Werror $(addprefix -I,$(HEADERS_DIR))
-LIBFLAGS	:= -L$(LIB_OUT) $(addprefix -l,$(LIBS))
-LDFLAGS		:= 
+CFLAGS		:= -std=c11 -Wall $(addprefix -I,$(HEADERS_DIR))
+LIBFLAGS	:= -lorbit
+LDFLAGS		:= -L$(LIB_OUT)
 
 # Object and headers lists
 SOURCES_COM := $(wildcard $(SOURCE_DIR)/compiler/*.c)
@@ -84,22 +87,22 @@ install: $(STATIC_LIB) $(DYNAMIC_LIB)
 	@cp -R $(LIB_OUT)/$(STATIC_LIB) $(LIB_INSTALL)/$(STATIC_LIB)
 	@cp -R $(LIB_OUT)/$(DYNAMIC_LIB) $(LIB_INSTALL)/$(DYNAMIC_LIB)
 
-$(COMPILER): $(OBJECTS_COM) $(STATIC_LIB)
+compiler: $(OBJECTS_COM) $(STATIC_LIB)
 	@mkdir -p $(PRODUCT_OUT)
 	@echo "linking $(COMPILER)"
 	@$(CXX) $(OBJECTS_COM) $(LDFLAGS) $(LIBFLAGS) -o $(PRODUCT_OUT)/$(COMPILER)
 
-$(RUNTIME): $(OBJECTS_RT) $(STATIC_LIB)
+runtime: $(OBJECTS_RT) $(STATIC_LIB)
 	@mkdir -p $(PRODUCT_OUT)
 	@echo "linking $(RUNTIME)"
-	@$(CXX) $(OBJECTS_RT) $(LDFLAGS) $(LIBFLAGS) -o $(PRODUCT_OUT)/$(RUNTIME)
+	@$(CXX) $(LDFLAGS) -o $(PRODUCT_OUT)/$(RUNTIME) $(OBJECTS_RT) $(LIBFLAGS) 
 
 $(STATIC_LIB): $(OBJECTS_LIB)
 	@mkdir -p $(LIB_OUT)
 	@echo "linking static library $@"
 	@rm -rf $(LIB_OUT)/$@
 	@$(AR) rc $(LIB_OUT)/$@ $(OBJECTS_LIB)
-	@ranlib $(LIB_OUT)/$@
+	@$(RANLIB) $(LIB_OUT)/$@
 
 $(DYNAMIC_LIB): $(OBJECTS_LIB)
 	@mkdir -p $(LIB_OUT)

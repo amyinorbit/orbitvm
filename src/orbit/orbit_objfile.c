@@ -139,53 +139,86 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
     OrbitPackError* errorp = &error;
     VMModule* module = orbit_gcModuleNew(vm);
     
-    // TODO: change API to include module name
-    // TODO: insert module in VM registry
-    
     // We don't want the module to get destroyed collected if the GC kicks
     // in while we're creating it.
     orbit_gcRetain(vm, (GCObject*)module);
     
-    if(!_checkSignature(in, errorp)) { goto fail; }
-    if(!_checkVersion(in, 0x01, errorp)) { goto fail; }
+    if(!_checkSignature(in, errorp)) {
+        fprintf(stderr, "error: invalid module file signature\n");
+        goto fail;
+    }
+    if(!_checkVersion(in, 0x01, errorp)) {
+        fprintf(stderr, "error: invalid module file version\n");
+        goto fail;
+    }
     
     // Read the constants in
     module->constantCount = orbit_unpack16(in, errorp);
-    if(error != PACK_NOERROR) { goto fail; }
+    if(error != PACK_NOERROR) {
+        fprintf(stderr, "error: invalid module constant count\n");
+        goto fail;
+    }
     module->constants = ALLOC_ARRAY(vm, GCValue, module->constantCount);
     
     for(uint16_t i = 0; i < module->constantCount; ++i) {
-        if(!_loadConstant(vm, in, &module->constants[i], errorp)) { goto fail; }
+        if(!_loadConstant(vm, in, &module->constants[i], errorp)) {
+            fprintf(stderr, "error: invalid module constant\n");
+            goto fail;
+        }
     }
     
     // Read the globals in
     module->globalCount = orbit_unpack16(in, errorp);
-    if(error != PACK_NOERROR) { goto fail; }
+    if(error != PACK_NOERROR) {
+        fprintf(stderr, "error: invalid module global count\n");
+        goto fail;
+    }
     module->globals = ALLOC_ARRAY(vm, VMGlobal, module->globalCount);
 
     for(uint16_t i = 0; i < module->globalCount; ++i) {
-        if(!_expect(in, OMF_VARIABLE, errorp)) { goto fail; }
-        if(!_expect(in, OMF_STRING, errorp)) { goto fail; }
-        if(!_loadString(vm, in, &module->globals[i].name, errorp)) { goto fail; }
+        if(!_expect(in, OMF_VARIABLE, errorp)) {
+            fprintf(stderr, "error: invalid module variable tag\n");
+            goto fail;
+        }
+        if(!_expect(in, OMF_STRING, errorp)) {
+            fprintf(stderr, "error: invalid module string tag\n");
+            goto fail;
+        }
+        if(!_loadString(vm, in, &module->globals[i].name, errorp)) {
+            fprintf(stderr, "error: invalid module global\n");
+            goto fail;
+        }
         module->globals[i].global = VAL_NIL;
     }
     
     // Read user types in
     uint16_t classCount = orbit_unpack16(in, errorp);
-    if(error != PACK_NOERROR) { goto fail; }
+    if(error != PACK_NOERROR) {
+        fprintf(stderr, "error: invalid module class count\n");
+        goto fail;
+    }
     for(uint8_t i = 0; i < classCount; ++i) {
         GCValue name, class;
-        if(!_loadClass(vm, in, &name, &class, errorp)) { goto fail; }
+        if(!_loadClass(vm, in, &name, &class, errorp)) {
+            goto fail;
+            fprintf(stderr, "error: invalid module class\n");
+        }
         orbit_gcMapAdd(vm, vm->classes, name, class);
     }
     
     // Read bytecode functions in
     uint16_t functionCount = orbit_unpack16(in, errorp);
-    if(error != PACK_NOERROR) { goto fail; }
+    if(error != PACK_NOERROR) {
+        fprintf(stderr, "error: invalid module function count\n");
+        goto fail;
+    }
     
     for(uint16_t i = 0; i < functionCount; ++i) {
         GCValue signature, function;
-        if(!_loadFunction(vm, in, &signature, &function, errorp)) { goto fail; }
+        if(!_loadFunction(vm, in, &signature, &function, errorp)) {
+            fprintf(stderr, "error: invalid module function\n");
+            goto fail;
+        }
         AS_FUNCTION(function)->module = module;
         orbit_gcMapAdd(vm, vm->dispatchTable, signature, function);
     }
