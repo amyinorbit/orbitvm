@@ -34,7 +34,7 @@ def printNTimes(%times, %string) {
     
 loop:
     load_local %string
-    invoke_sym "print(String)Void"
+    invoke_sym "print(String)"
     
     load_local %i
     load_const 1.0

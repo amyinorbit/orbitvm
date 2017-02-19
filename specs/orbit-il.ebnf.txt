@@ -3,42 +3,25 @@
 // Orbit-IL is closer to the VM's operating model than normal Orbit source code,
 // but still provides higher-level concepts (variable names, literal operands). 
 
-<program>       ::= <function> <program>
-                  | <>
-
-<declarations>  ::= <declaration> <declarations>
-                  | <>
-
-<declaration>   ::= "global" <identifier>
-
-<function>      ::= <signature> "{" <statements> "}"
-
+<program>       ::= (<global-decl> | <function-decl>) *
+<global-decl>   ::= "global" <identifier>
+<function-decl> ::= <signature> "{" (<statement>)* "}"
 <signature>     ::= <identifier> "(" <args> ")"
-
-<args>          ::= <variable>
-                  | <variable> "," <args>
-                  | <>
-
-<statements>    ::= <statement>
-                  | <statement> <statements>
-
+<args>          ::= <variable> ("," <variable>) *
 <statement>     ::= <opcode> <operand> <eol>
                   | "var" <variable> <eol>
                   | <label> <eol>
-
 <opcode>        ::= <identifier>
-
 <label>         ::= <identifier> ":"
-
 <operand>       ::= <number>
-                  | <index>
+                  | <label>
                   | <string>
                   | <variable>
                   | <>
-
-<number>        ::= // number
-
-<index>         ::= <integer>
-
+<label>         ::= <identifier>
 <variable>      ::= "%"<identifier>
+
+
+<number>        ::= [0-9]+(.[0-9]+)*
+<identifier>    ::= [a-zA-Z_](\w)+
 
