@@ -136,7 +136,7 @@ VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function) {
     orbit_objectInit(vm, (GCObject*)task, NULL);
     task->base.type = OBJ_TASK;
     
-    task->stack = task->sp = ALLOC_ARRAY(vm, GCValue, 512);
+    task->stack = ALLOC_ARRAY(vm, GCValue, 512);
     task->stackCapacity = 512;
     
     task->frames = ALLOC_ARRAY(vm, VMTask, 32);
@@ -146,10 +146,14 @@ VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function) {
     task->frameCount = 1;
     VMCallFrame* frame = &task->frames[0];
     
-    frame->task = task;
+    frame->task = task; // FIXME: not required? prob. not accesed
     frame->function = function;
     frame->ip = function->native.byteCode;
     frame->stackBase = task->stack;
+    
+    // Put the stack pointer where it should be, after the entry point's
+    // locals table.
+    task->sp = frame->stackBase + function->localCount;
     
     return task;
 }
