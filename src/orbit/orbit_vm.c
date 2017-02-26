@@ -159,7 +159,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
     
     VMCallFrame* frame = &task->frames[task->frameCount-1];
     
-    register VMCode instruction;
+    register VMCode instruction = CODE_halt;
     register VMFunction* fn = frame->function;
     register uint8_t* ip = frame->ip;
     register GCValue* locals = frame->stackBase;
@@ -312,36 +312,39 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             NEXT();
 
         CASE_OP(jump_if):
-        {
-            uint16_t offset= READ16();
-            if(IS_FALSE(PEEK())) NEXT();
-            ip += offset;
+            {
+                uint16_t offset= READ16();
+                GCValue condition = POP();
+                if(IS_FALSE(condition)) {
+                    NEXT();
+                }
+                ip += offset;
+            }
             NEXT();
-        }
         
         CASE_OP(jump):
-        {
-            uint16_t offset= READ16();
-            ip += offset;
+            {
+                uint16_t offset= READ16();
+                ip += offset;
+            }
             NEXT();
-        }
-            
             
         CASE_OP(rjump_if):
-        {
-            uint16_t offset;
-            offset = READ16();
-            if(IS_FALSE(PEEK())) NEXT();
-            ip -= offset;
+            {
+                uint16_t offset;
+                offset = READ16();
+                GCValue condition = POP();
+                if(IS_FALSE(condition)) NEXT();
+                ip -= offset;
+            }
             NEXT();
-        }
             
         CASE_OP(rjump):
-        {
-            uint16_t offset= READ16();
-            ip -= offset;
+            {
+                uint16_t offset= READ16();
+                ip -= offset;
+            }
             NEXT();
-        }
             
         CASE_OP(pop):
             POP();

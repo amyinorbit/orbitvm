@@ -36,17 +36,17 @@ bool sqrt_Num(OrbitVM* vm, GCValue* args) {
 
 bool print_String(OrbitVM* vm, GCValue* args) {
     printf("%.*s\n", (int)AS_STRING(args[0])->length, AS_STRING(args[0])->data);
-    return true;
+    return false;
 }
 
 bool print_Number(OrbitVM* vm, GCValue* args) {
     printf("%.9g\n", AS_NUM(args[0]));
-    return true;
+    return false;
 }
 
 bool print_Bool(OrbitVM* vm, GCValue* args) {
     printf("%s\n", IS_TRUE(args[0]) ? "true" : "false");
-    return true;
+    return false;
 }
 
 // String Library

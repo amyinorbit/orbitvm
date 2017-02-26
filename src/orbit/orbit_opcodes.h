@@ -44,9 +44,9 @@ OPCODE(or, 2, 0)            ///
 
 /**/
 
-OPCODE(jump_if, 2, 0)       /// [..., val] -> [..., val], if(val) ip += idx16
+OPCODE(jump_if, 2, -1)      /// [..., val] -> [..., val], if(val) ip += idx16
 OPCODE(jump, 2, 0)          /// [...] -> [...], if(val) ip += idx16
-OPCODE(rjump_if, 2, 0)      /// [..., val] -> [..., val], if(val) ip -= idx16
+OPCODE(rjump_if, 2, -1)     /// [..., val] -> [..., val], if(val) ip -= idx16
 OPCODE(rjump, 2, 0)         /// [...] -> [...], if(val) ip -= idx16
 OPCODE(pop, 0, -1)          /// [..., val] -> [...]
 OPCODE(swap, 0, 0)          /// [..., a, b] -> [..., b, a]
