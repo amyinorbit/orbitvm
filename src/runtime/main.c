@@ -11,7 +11,7 @@ int main(int argc, const char** argv) {
     }
     
     OrbitVM* vm = orbit_vmNew();
-    if(orbit_vmInvoke(vm, argv[1], "main")) {
+    if(!orbit_vmInvoke(vm, argv[1], "main")) {
         fprintf(stderr, "error: interpreter error\n");
     }
     orbit_vmDealloc(vm);
