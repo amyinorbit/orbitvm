@@ -38,7 +38,7 @@ TESTS_OUT	:= $(PRODUCT_OUT)/tests
 LIBS		:= orbit
 ARCHS		:= -arch x86_64 -arch i386
 CFLAGS		:= -std=c11 -Wall $(addprefix -I,$(HEADERS_DIR))
-LIBFLAGS	:= -lorbit
+LIBFLAGS	:= -WL,-Bstatic -lorbit
 LDFLAGS		:= -L$(LIB_OUT)
 
 # Object and headers lists
@@ -47,7 +47,7 @@ SOURCES_RT  := $(wildcard $(SOURCE_DIR)/runtime/*.c)
 SOURCES_LIB := $(wildcard $(SOURCE_DIR)/orbit/*.c)
 SOURCES_TEST:= $(wildcard $(SOURCE_DIR)/tests-vm/*.c)
 
-OBJECTS_COMP:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_COM))
+OBJECTS_COM := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_COM))
 OBJECTS_RT  := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_RT))
 OBJECTS_LIB := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_LIB))
 OBJECTS_TEST:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_TEST))
@@ -87,10 +87,11 @@ install: $(STATIC_LIB) $(DYNAMIC_LIB)
 	@cp -R $(LIB_OUT)/$(STATIC_LIB) $(LIB_INSTALL)/$(STATIC_LIB)
 	@cp -R $(LIB_OUT)/$(DYNAMIC_LIB) $(LIB_INSTALL)/$(DYNAMIC_LIB)
 
+compiler: CFLAGS += -I$(SOURCE_DIR)
 compiler: $(OBJECTS_COM) $(STATIC_LIB)
 	@mkdir -p $(PRODUCT_OUT)
 	@echo "linking $(COMPILER)"
-	@$(CXX) $(OBJECTS_COM) $(LDFLAGS) $(LIBFLAGS) -o $(PRODUCT_OUT)/$(COMPILER)
+	@$(CXX) $(LDFLAGS) -o $(PRODUCT_OUT)/$(COMPILER) $(OBJECTS_COM) $(LIBFLAGS) 
 
 runtime: $(OBJECTS_RT) $(STATIC_LIB)
 	@mkdir -p $(PRODUCT_OUT)

@@ -44,13 +44,70 @@ codepoint_t utf8_getCodepoint(const char* data, uint64_t length) {
     return point;
 }
 
+
+// 0x00000000 - 0x0000007F:
+//        0xxxxxxx
+//
+// 0x00000080 - 0x000007FF:
+//    110xxxxx 10xxxxxx
+//
+// 0x00000800 - 0x0000FFFF:
+//    1110xxxx 10xxxxxx 10xxxxxx
+//
+// 0x00010000 - 0x001FFFFF:
+//    11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+//
+// 0x00200000 - 0x03FFFFFF:
+//    111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+//
+// 0x04000000 - 0x7FFFFFFF:
+//    1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+int8_t utf8_writeCodepoint(codepoint_t point, char* data, uint64_t length) {
+    
+    int8_t size =  utf8_codepointSize(point);
+    if(size < 0) { return -1; }
+    if(size > length) { return -1; }
+    
+    switch(size) {
+    case 1:
+        data[0] = point & 0x0000007f;
+        return 1;
+        break;
+        
+    case 2:
+        data[0] = 0xc0 | ((point & 0x000007c0) >> 6);
+        data[1] = 0x80 | (point & 0x0000003f);
+        return 2;
+        break;
+        
+    case 3:
+        data[0] = 0xe0 | ((point & 0x0000f000) >> 12);
+        data[1] = 0x80 | ((point & 0x00000fc0) >> 6);
+        data[2] = 0x80 | (point & 0x0000003f);
+        return 3;
+        break;
+        
+    case 4:
+        data[0] = 0xf0 | ((point & 0x001c0000) >> 18);
+        data[1] = 0x80 | ((point & 0x0003f000) >> 12);
+        data[2] = 0x80 | ((point & 0x00000fc0) >> 6);
+        data[3] = 0x80 | (point & 0x0000003f);
+        return 4;
+        break;
+        
+    default:
+        break;
+    }
+    return -1;
+}
+
 int8_t utf8_codepointSize(codepoint_t point) {
-    if (point < 0) return -1;
-    if (point <= 0x7f) return 1;
-    if (point <= 0x7ff) return 2;
-    if (point <= 0xffff) return 3;
-    if (point <= 0x10ffff) return 4;
-    return 0;
+    if (point < 0) { return -1; }
+    if (point <= 0x7f) { return 1; }
+    if (point <= 0x7ff) { return 2; }
+    if (point <= 0xffff) { return 3; }
+    if (point <= 0x10ffff) { return 4; }
+    return -1;
 }
 
 bool utf8_isPrivate(codepoint_t point) {
