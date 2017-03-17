@@ -92,7 +92,7 @@ bool orbit_vmInvoke(OrbitVM* vm, const char* module, const char* entry) {
     GCValue signature = MAKE_OBJECT(orbit_gcStringNew(vm, entry));
     GCValue fn = VAL_NIL;
     if(!orbit_gcMapGet(vm->dispatchTable, signature, &fn) || !IS_FUNCTION(fn)) {
-        fprintf(stderr, "error: cannot find `main()` (entry point)\n");
+        fprintf(stderr, "error: cannot find `%s` (entry point)\n", entry);
         return false;
     }
     VMTask* task = orbit_gcTaskNew(vm, AS_FUNCTION(fn));
@@ -371,9 +371,12 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             // function object in memory. This avoids the overhead of hashmap
             // lookup with every single invocation, but does not require the
             // whole bytecode to be checked and doctored at load time.
-            GCValue callee;
-            uint16_t idx;
+            GCValue     callee;
+            //GCMap*      dispatch = vm->dispatchTable;
+            uint16_t    idx;
             
+        //CASE_OP(msgsend_sym):
+        //    dispatch = AS_OBJECT(PEEK())->class->dispatchTable
         CASE_OP(invoke_sym):
             
             idx = READ16();

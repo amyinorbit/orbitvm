@@ -69,9 +69,10 @@ GCClass* orbit_gcClassNew(OrbitVM* vm, GCString* name, uint16_t fieldCount) {
     GCClass* class = ALLOC(vm, GCClass);
     orbit_objectInit(vm, (GCObject*)class, NULL);
     class->base.type = OBJ_CLASS;
+    class->name = name;
     class->super = NULL;
     class->fieldCount = fieldCount;
-    class->name = name;
+    class->methods = orbit_gcMapNew(vm);
     
     return class;
 }

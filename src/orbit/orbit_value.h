@@ -92,6 +92,7 @@ struct _GCClass {
     GCString*       name;
     GCClass*        super;
     uint16_t        fieldCount;
+    GCMap*          methods;
 };
 
 
