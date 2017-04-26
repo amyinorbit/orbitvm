@@ -1,0 +1,27 @@
+(*
+// valid orbit operators:
+// + - / * % ^ & | < > = >= <= == += ~ >> << && || != ! ?
+*)
+
+
+
+(* Functions *)
+
+func-proto      = "func", identifier, "(", params-decl, ")", ":", type ;
+func-decl       = func-proto, "{", { statement }, "}" ;
+
+
+(* Variables *)
+
+var-decl        = "var", identifier, [ "as", type ], [ "=", expression ] ;
+var-assign      = identifier, "=", expression ;
+
+(* Expressions *)
+
+(* Basics *)
+
+type            = "Void" | primitive | compound-type | user-type ;
+primitive       = "Number" | "Boolean" | "String" ;
+compound-type   = "[" type, [ ",", <type> ], "]" ;
+
+(* Literals *)

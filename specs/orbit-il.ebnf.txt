@@ -8,7 +8,7 @@
 <function-decl> ::= <signature> "{" (<statement>)* "}"
 <signature>     ::= <identifier> "(" <args> ")"
 <args>          ::= <variable> ("," <variable>) *
-<statement>     ::= <opcode> <operand> <eol>
+<statement>     ::= <opcode> (<operand>)? <eol>
                   | "var" <variable> <eol>
                   | <label> <eol>
 <opcode>        ::= <identifier>
@@ -17,7 +17,6 @@
                   | <label>
                   | <string>
                   | <variable>
-                  | <>
 <label>         ::= <identifier>
 <variable>      ::= "%"<identifier>
 

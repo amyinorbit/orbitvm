@@ -372,15 +372,39 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             // lookup with every single invocation, but does not require the
             // whole bytecode to be checked and doctored at load time.
             GCValue     callee;
+            GCValue     class;
+            GCValue     symbol, className;
             //GCMap*      dispatch = vm->dispatchTable;
-            uint16_t    idx;
+            uint16_t    idx, classIdx;
             
-        //CASE_OP(msgsend_sym):
-        //    dispatch = AS_OBJECT(PEEK())->class->dispatchTable
+        CASE_OP(msgsend):
+            idx = READ16();
+            classIdx = READ16();
+            
+            symbol = fn->module->constants[idx];
+            className = fn->module->constants[classIdx];
+            // TODO: we need to know how many arguments are being passed, before
+            //       we know the function (so that we can find the receiver on
+            //       the stack).
+            //       If we don't know the receiver, then we have a problem, 
+            //       since we need to crawl the dispatch table. Anothe solution
+            //       would be to push the class on TOS and pop it here, but
+            //       that's added lookup that shouldn't be necessary.
+            orbit_gcMapGet(vm->classes, className, &class);
+            orbit_gcMapGet(AS_CLASS(class)->methods, symbol, &callee);
+                
+            // replace the opcode in the bytecode stream so that future calls
+            // can use the direct reference.
+            ip[-3] = CODE_invoke;
+            fn->module->constants[idx] = callee;
+            
+            // Start invocation.
+            goto do_invoke;
+            
         CASE_OP(invoke_sym):
             
             idx = READ16();
-            GCValue symbol = fn->module->constants[idx];
+            symbol = fn->module->constants[idx];
             orbit_gcMapGet(vm->dispatchTable, symbol, &callee);
             
             // replace the opcode in the bytecode stream so that future calls

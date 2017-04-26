@@ -15,9 +15,6 @@ void lexer_init(OCLexer* lexer, const char* source, uint64_t length, lexFn lex) 
     lexer->source = source;
     lexer->sourceLength = length;
     
-    lexer->line = source;
-    lexer->lineLength = 0;
-    
     lexer->currentPtr = source;
     lexer->currentChar = 0;
     
@@ -32,8 +29,8 @@ void lexer_init(OCLexer* lexer, const char* source, uint64_t length, lexFn lex) 
 
 void lexer_printLine(FILE* out, OCLexer* lexer) {
     OASSERT(lexer != NULL, "Null instance error");
-    if(!lexer->line) { return; }
-    fprintf(out, "%*.s", (int)lexer->lineLength, lexer->line);
+    //if(!lexer->line) { return; }
+    //fprintf(out, "%*.s", (int)lexer->lineLength, lexer->line);
 }
 
 codepoint_t lexer_currentChar(OCLexer* lexer) {
@@ -48,16 +45,11 @@ void lexer_nextChar(OCLexer* lexer) {
     uint64_t remaining = lexer->sourceLength - (lexer->currentPtr - lexer->source);
     lexer->currentChar = utf8_getCodepoint(lexer->currentPtr, remaining);
     
-    //DBG("remaining source: %llu", remaining);
-    //DBG("codepoint: U+%04X", lexer->currentChar);
-    
     // advance the current character pointer.
     int8_t size = utf8_codepointSize(lexer->currentChar);
     if(size > 0 && lexer->currentChar != 0) {
         lexer->currentPtr += size;
     }
-    
-    //DBG("Remaining: %s", lexer->currentPtr);
 }
 
 void lexer_next(OCLexer* lexer) {

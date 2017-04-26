@@ -33,16 +33,14 @@ struct _OCLexer {
     const char*     source;
     uint64_t        sourceLength;
     
-    /// Keep track of where our current line starts and stops - this means we
-    /// can access that directly when we want to print an error.
-    const char*     line;
-    uint64_t        lineLength;
-    
     /// Since we must handle UTF-8 source files (not every cahracter is a single
     /// byte), we can't just keep a pointer to the current character. We also
     /// have to store its unicode codepoint.
     const char*     currentPtr;
     codepoint_t     currentChar;
+    
+    uint64_t        line;
+    uint64_t        column;
     
     /// The curent token
     OCToken         currentToken;
