@@ -57,7 +57,9 @@ OPCODE(swap, 0, 0)          /// [..., a, b] -> [..., b, a]
  * in the VM's dispatch table
  */
 
-OPCODE(msgsend, 2, -1)
+#ifdef USE_MSGSEND
+OPCODE(msgsend, 2, -1)    /// Potential future opcode - class dispatch
+#endif
 OPCODE(invoke_sym, 2, -1)   /// [..., ref] -> [...], call(dispatch[ref])
 OPCODE(invoke, 2, -1)       /// [..., func] -> [...], call(func)
 OPCODE(ret_val, 0, 0)       /// [..., [frame]] -> [..., ret_val]

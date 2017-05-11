@@ -38,7 +38,7 @@ TESTS_OUT	:= $(PRODUCT_OUT)/tests
 LIBS		:= orbit
 ARCHS		:= -arch x86_64 -arch i386
 CFLAGS		:= -std=c11 -Wall $(addprefix -I,$(HEADERS_DIR))
-LIBFLAGS	:= -WL,-Bstatic -lorbit
+LIBFLAGS	:= -lorbit
 LDFLAGS		:= -L$(LIB_OUT)
 
 # Object and headers lists
