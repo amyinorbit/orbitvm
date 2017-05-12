@@ -38,7 +38,6 @@ TESTS_OUT	:= $(PRODUCT_OUT)/tests
 LIBS		:= orbit
 ARCHS		:= -arch x86_64 -arch i386
 CFLAGS		:= -std=c11 -Wall $(addprefix -I,$(HEADERS_DIR))
-LIBFLAGS	:= -lorbit
 LDFLAGS		:= -L$(LIB_OUT)
 
 # Object and headers lists
@@ -68,11 +67,10 @@ clean:
 	@rm -rf $(BUILD_DIR)
 
 spike: CFLAGS += -I$(SOURCE_DIR)
-spike: LDFLAGS += $(LIBFLAGS)
 spike: $(SPIKES_DIR)/$(SPIKE).c $(STATIC_LIB) 
 	@mkdir -p $(SPIKES_OUT)
 	@echo "compiling spike $(SPIKE)"
-	@$(CXX) $(CFLAGS) $(ARCHS) $(LDFLAGS) $(SPIKES_DIR)/$(SPIKE).c -o $(SPIKES_OUT)/$(SPIKE)
+	@$(CXX) $(SPIKES_DIR)/$(SPIKE).c $(LIB_OUT)/$(STATIC_LIB) $(CFLAGS) $(ARCHS) $(LDFLAGS) -o $(SPIKES_OUT)/$(SPIKE)
 	@echo "running spike $(SPIKE)"
 	@orbitasm -c -o $(SPIKES_DIR)/demo.omf $(SPIKES_DIR)/demo.il
 	@$(SPIKES_OUT)/$(SPIKE) $(SPIKES_DIR)/demo
@@ -91,12 +89,12 @@ compiler: CFLAGS += -I$(SOURCE_DIR)
 compiler: $(OBJECTS_COM) $(STATIC_LIB)
 	@mkdir -p $(PRODUCT_OUT)
 	@echo "linking $(COMPILER)"
-	@$(CXX) $(LDFLAGS) -o $(PRODUCT_OUT)/$(COMPILER) $(OBJECTS_COM) $(LIBFLAGS) 
+	@$(CXX) $(OBJECTS_COM) $(LIB_OUT)/$(STATIC_LIB) $(LDFLAGS) -o $(PRODUCT_OUT)/$(COMPILER)
 
 runtime: $(OBJECTS_RT) $(STATIC_LIB)
 	@mkdir -p $(PRODUCT_OUT)
 	@echo "linking $(RUNTIME)"
-	@$(CXX) $(LDFLAGS) -o $(PRODUCT_OUT)/$(RUNTIME) $(OBJECTS_RT) $(LIBFLAGS) 
+	@$(CXX) $(OBJECTS_RT) $(LIB_OUT)/$(STATIC_LIB) $(LDFLAGS) -o $(PRODUCT_OUT)/$(RUNTIME) 
 
 $(STATIC_LIB): $(OBJECTS_LIB)
 	@mkdir -p $(LIB_OUT)
@@ -111,11 +109,10 @@ $(DYNAMIC_LIB): $(OBJECTS_LIB)
 	@$(CXX) -dynamiclib $(LDFLAGS) $(ARCHS) -o $(LIB_OUT)/$@ $(OBJECTS_LIB)
 
 tests: CFLAGS += -I$(SOURCE_DIR)
-tests: LDFLAGS += $(LIBFLAGS)
 tests: $(STATIC_LIB) $(OBJECTS_TEST)
 	@mkdir -p $(TESTS_OUT)
 	@echo "linking tests"
-	@$(CXX) $(OBJECTS_TEST) $(LDFLAGS) $(LIBFLAGS) -o $(TESTS_OUT)/$(TESTS)
+	@$(CXX) $(OBJECTS_TEST) $(LIB_OUT)/$(STATIC_LIB)  $(LDFLAGS) -o $(TESTS_OUT)/$(TESTS)
 	@echo "running tests"
 	@$(TESTS_OUT)/$(TESTS)
 
