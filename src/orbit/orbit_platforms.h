@@ -2,8 +2,8 @@
 //  orbit_platforms.h
 //  OrbitVM
 //
-//  Created by Cesar Parent on 2016-11-14.
-//  Copyright © 2016 cesarparent. All rights reserved.
+//  Created by Amy Parent on 2016-11-14.
+//  Copyright © 2016 Amy Parent. All rights reserved.
 //
 #ifndef OrbitPlatforms_h
 #define OrbitPlatforms_h

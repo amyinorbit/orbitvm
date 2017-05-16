@@ -2,8 +2,8 @@
 //  orbit_opcodes.h
 //  OrbitVM
 //
-//  Created by Cesar Parent on 2016-11-13.
-//  Copyright © 2016 cesarparent. All rights reserved.
+//  Created by Amy Parent on 2016-11-13.
+//  Copyright © 2016 Amy Parent. All rights reserved.
 //
 //  Opcodes used by the Orbit VM. This include is meant to be used as an
 //  X-macro (see https://en.wikipedia.org/wiki/X_Macro ). The order of

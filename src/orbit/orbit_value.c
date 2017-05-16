@@ -2,8 +2,8 @@
 //  orbit_value.c
 //  OrbitVM
 //
-//  Created by Cesar Parent on 2016-12-26.
-//  Copyright © 2016 cesarparent. All rights reserved.
+//  Created by Amy Parent on 2016-12-26.
+//  Copyright © 2016 Amy Parent. All rights reserved.
 //
 #include <string.h>
 #include "orbit_value.h"

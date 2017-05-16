@@ -2,8 +2,8 @@
 //  tests-vm/tests-vm.c
 //  OrbitVM/Tests
 //
-//  Created by Cesar Parent on 2016-12-24.
-//  Copyright © 2016 cesarparent. All rights reserved.
+//  Created by Amy Parent on 2016-12-24.
+//  Copyright © 2016 Amy Parent. All rights reserved.
 //
 #include <stdio.h>
 #include <string.h>

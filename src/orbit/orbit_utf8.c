@@ -2,8 +2,8 @@
 //  orbit_utf8.c
 //  OrbitVM
 //
-//  Created by Cesar Parent on 2017-02-06.
-//  Copyright © 2017 cesarparent. All rights reserved.
+//  Created by Amy Parent on 2017-02-06.
+//  Copyright © 2017 Amy Parent. All rights reserved.
 //
 #include <ctype.h>
 #include "orbit_utf8.h"

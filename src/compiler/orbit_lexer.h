@@ -2,8 +2,8 @@
 //  orbit_lexer.h
 //  OrbitVM
 //
-//  Created by Cesar Parent on 2017-03-01.
-//  Copyright © 2017 cesarparent. All rights reserved.
+//  Created by Amy Parent on 2017-03-01.
+//  Copyright © 2017 Amy Parent. All rights reserved.
 //
 #ifndef orbit_lexer_h
 #define orbit_lexer_h

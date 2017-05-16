@@ -2,8 +2,8 @@
 //  orbit_vm.c
 //  OrbitVM
 //
-//  Created by Cesar Parent on 2017-01-03.
-//  Copyright © 2017 cesarparent. All rights reserved.
+//  Created by Amy Parent on 2017-01-03.
+//  Copyright © 2017 Amy Parent. All rights reserved.
 //
 #include <string.h>
 #include <stdbool.h>

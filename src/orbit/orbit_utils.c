@@ -2,8 +2,8 @@
 //  orbit_utils.c
 //  OrbitVM
 //
-//  Created by Cesar Parent on 2016-12-06.
-//  Copyright © 2016 cesarparent. All rights reserved.
+//  Created by Amy Parent on 2016-12-06.
+//  Copyright © 2016 Amy Parent. All rights reserved.
 //
 #include "orbit_utils.h"
 #include "orbit_vm.h"

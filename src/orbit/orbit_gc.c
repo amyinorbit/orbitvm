@@ -2,8 +2,8 @@
 //  orbit_gc.c
 //  OrbitVM
 //
-//  Created by Cesar Parent on 2017-01-12.
-//  Copyright © 2017 cesarparent. All rights reserved.
+//  Created by Amy Parent on 2017-01-12.
+//  Copyright © 2017 Amy Parent. All rights reserved.
 //
 #include "orbit_gc.h"
 #include "orbit_vm.h"
