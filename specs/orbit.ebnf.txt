@@ -1,27 +1,78 @@
-(*
+//
 // valid orbit operators:
 // + - / * % ^ & | < > = >= <= == += ~ >> << && || != ! ?
-*)
+//
+
+
+// Statements
+
+//
+// Expressions
+//
+
+
+block           ::= (<statement>)*
+
+// Function Calls
+func-call       ::= <identifier> <parameters>
+parameters      ::= "(" (<expression-list>)? ")"
+expression-list ::= <expression> ("," <expression>)*
+
+
+//
+// Declarations
+//
+// Functions
+
+func-decl       ::= <func-proto> "{" <block> "}"
+func-proto      ::= "func" <identifier> <arguments> ":" <type>
+arguments       ::= "(" (<argument-list>)? ")"
+argument-list   ::= <argument> ("," <argument>)*
+argument        ::= <identifier> ":" <type>
+
+// Variables
+
+var-decl        ::= "var" identifier ((":", type) | ((":", type)? "=" expression))
+var-assign      ::= identifier "=" expression
 
 
 
-(* Functions *)
 
-func-proto      = "func", identifier, "(", params-decl, ")", ":", type ;
-func-decl       = func-proto, "{", { statement }, "}" ;
-
-
-(* Variables *)
-
-var-decl        = "var", identifier, [ "as", type ], [ "=", expression ] ;
-var-assign      = identifier, "=", expression ;
-
-(* Expressions *)
 
 (* Basics *)
 
-type            = "Void" | primitive | compound-type | user-type ;
-primitive       = "Number" | "Boolean" | "String" ;
-compound-type   = "[" type, [ ",", <type> ], "]" ;
+type            ::= <primitive>
+                  | <array-type>
+                  | <dict-type>
+                  | <user-type>
+primitive       ::= "Nil"
+                  | "Number"
+                  | "Boolean"
+                  | "String"
+                  | "Any"
+array-type      ::= "[" <type> "]"
+dict-type       ::= "[" <type> ":" <type> "]"
+user-type       ::= <identifier>
 
-(* Literals *)
+
+//
+// Literals
+//
+
+(* Number Literals *)
+
+number          ::= <float-literal>
+                  | <integer-literal>
+float-literal   ::= <fractional>
+                  | <exponential>
+fractional      ::= <sign> <decimal> "." <decimal>
+exponential     ::= <sign> <decimal> "e" <sign> <decimal>
+integer-literal ::= <sign> <decimal>
+
+decimal         ::= [0-9]+
+sign            ::= "+"
+                  | "-"
+                  | <>
+                  
+string-literal = \" [^\r\n\\\"]* \"
+

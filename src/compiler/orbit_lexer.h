@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <orbit/orbit_utf8.h>
 
-// OCLexer intends to be reusable - we don't define the main lexin function
+// OCLexer intends to be reusable - we don't define the main lexing function
 // here, but instead we have a function pointer to one implemented by the user
 // (or in our case orbit_parser).
 
