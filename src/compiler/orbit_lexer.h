@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <orbit/orbit_utf8.h>
+#include "orbit_tokens.h"
 
 typedef struct _OCLexer OCLexer;
 typedef struct _OCToken OCToken;
@@ -37,6 +38,13 @@ struct _OCLexer {
     uint64_t        line;
     uint64_t        column;
     
+    /// Buffer used when lexin string literals
+    struct {
+        char*       buffer;
+        uint64_t    length;
+        uint64_t    capacity;
+    } string;
+    
     /// We keep track of where the token being built starts.
     const char*     tokenStart;
     
@@ -49,10 +57,7 @@ void lexer_init(OCLexer* lexer, const char* source, uint64_t length);
 /// Prints the line that [lexer] is currently lexing.
 void lexer_printLine(FILE* out, OCLexer* lexer);
 
-/// Moves [lexer] to the next unicode character from its source.
-void lexer_nextChar(OCLexer* lexer);
-
 /// Fetches the next token from the source.
-void lexer_next(OCLexer* lexer);
+void lexer_nextToken(OCLexer* lexer);
 
 #endif /* orbit_lexer_h_ */

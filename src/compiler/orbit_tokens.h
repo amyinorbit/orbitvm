@@ -60,18 +60,18 @@ typedef enum  {
     // Language objects
     TOKEN_INTEGER_LITERAL,
     TOKEN_FLOAT_LITERAL,
-    TOKEN_EXP_LITERAL,
+    //TOKEN_EXP_LITERAL, // later
     TOKEN_STRING_LITERAL,
     TOKEN_IDENTIFIER,
     
     // Language keywords
-    TOKEN_FUNC,
+    TOKEN_FUN,
     TOKEN_VAR,
     TOKEN_VAL,
     TOKEN_MAYBE,
     TOKEN_TYPE,
     TOKEN_RETURN,
-    TOKEN_FOREACH,
+    TOKEN_FOR,
     TOKEN_WHILE,
     TOKEN_BREAK,
     TOKEN_INIT,
@@ -86,6 +86,7 @@ typedef enum  {
     TOKEN_ANY,
     
     TOKEN_EOF,
+    TOKEN_INVALID,
     
 } OCTokenType;
 
