@@ -3,15 +3,28 @@
 // + - / * % ^ & | < > = >= <= == += ~ >> << && || != ! ?
 //
 
+program         ::= (<decl>)*
+decl            ::= <func-decl>
+                  | <var-decl>
+                  | <type-decl>
 
+//
 // Statements
+//
 
 //
 // Expressions
 //
 
-
 block           ::= (<statement>)*
+statement       ::= <func-call>
+                  | <assign>
+                  | <compound-assign>
+                  | <conditional>
+//
+// Conditionals
+//
+
 
 // Function Calls
 func-call       ::= <identifier> <parameters>
@@ -25,23 +38,29 @@ expression-list ::= <expression> ("," <expression>)*
 // Functions
 
 func-decl       ::= <func-proto> "{" <block> "}"
-func-proto      ::= "func" <identifier> <arguments> ":" <type>
-arguments       ::= "(" (<argument-list>)? ")"
-argument-list   ::= <argument> ("," <argument>)*
-argument        ::= <identifier> ":" <type>
+func-proto      ::= "func" <identifier> <parameters> "->" <type>
+parameters      ::= "(" (<parameter-list>)? ")"
+parameter-list  ::= <formal-param> ("," <formal-param>)*
+parameter       ::= <identifier> ":" <type>
 
 // Variables
 
 var-decl        ::= "var" identifier ((":", type) | ((":", type)? "=" expression))
 var-assign      ::= identifier "=" expression
 
+// Types
 
+type-decl       ::= "type" "{" <type-block> "}"
+type-block      ::= (<type-statement>)+
+type-statement  ::= <var-decl> | <type-init>
+type-init       ::= "init" <parameters> "{" <block> "}"
 
+//
+// Type System
+//
 
-
-(* Basics *)
-
-type            ::= <primitive>
+type            ::= ("maybe")? <typename>
+typename        ::= <primitive>
                   | <array-type>
                   | <dict-type>
                   | <user-type>
@@ -65,14 +84,11 @@ number          ::= <float-literal>
                   | <integer-literal>
 float-literal   ::= <fractional>
                   | <exponential>
+integer-literal ::= <sign> <decimal>
 fractional      ::= <sign> <decimal> "." <decimal>
 exponential     ::= <sign> <decimal> "e" <sign> <decimal>
-integer-literal ::= <sign> <decimal>
 
 decimal         ::= [0-9]+
-sign            ::= "+"
-                  | "-"
-                  | <>
-                  
+sign            ::= ("+" | "-")?
 string-literal = \" [^\r\n\\\"]* \"
 

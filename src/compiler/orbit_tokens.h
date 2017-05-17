@@ -10,6 +10,7 @@
 
 typedef enum  {
     // Bracket types
+    // (){}[]
     TOKEN_LPAREN,
     TOKEN_RPAREN,
     TOKEN_LBRACE,
@@ -17,40 +18,71 @@ typedef enum  {
     TOKEN_LBRACKET,
     TOKEN_RBRACKET,
     
+    // Orbit Tokens
+    // + - / * % ^ & | < > = >= <= == += ~ >> << && || != ! ?
     TOKEN_PLUS,
     TOKEN_MINUS,
-    TOKEN_STAR,
     TOKEN_SLASH,
-    TOKEN_STARSTAR,
+    TOKEN_STAR,
     TOKEN_PERCENT,
-    TOKEN_BANG,
-    TOKEN_BANGEQ,
-    TOKEN_QUESTION,
-    TOKEN_AND,
+    TOKEN_CARET,
+    TOKEN_TILDE,
     TOKEN_AMPERSAND,
-    TOKEN_OR,
     TOKEN_PIPE,
+    TOKEN_BANG,
+    TOKEN_QUESTION,
     TOKEN_LT,
     TOKEN_GT,
-    TOKEN_EQ,
-    TOKEN_EQEQ,
+    TOKEN_EQUALS,
     TOKEN_LTEQ,
     TOKEN_GTEQ,
+    TOKEN_EQEQ,
+    TOKEN_PLUSEQ,
+    TOKEN_MINUSEQ,
+    TOKEN_STAREQ,
+    TOKEN_SLASHEQ,
+    TOKEN_BANGEQ,
+    TOKEN_LTLT,
+    TOKEN_GTGT,
+    TOKEN_AMPAMP,
+    TOKEN_PIPEPIPE,
     
+    // Punctuation:
+    // :,.
     TOKEN_COLON,
     TOKEN_COMMA,
     TOKEN_DOT,
+    TOKEN_ARROW,
     
     // Language objects
-    TOKEN_NUMLIT,
-    TOKEN_STRINGLIT,
-    TOKEN_IDENT,
+    TOKEN_INTEGER_LITERAL,
+    TOKEN_FLOAT_LITERAL,
+    TOKEN_EXP_LITERAL,
+    TOKEN_STRING_LITERAL,
+    TOKEN_IDENTIFIER,
+    
+    // Language keywords
+    TOKEN_FUNC,
+    TOKEN_VAR,
+    TOKEN_VAL,
+    TOKEN_MAYBE,
+    TOKEN_TYPE,
+    TOKEN_RETURN,
+    TOKEN_FOREACH,
+    TOKEN_WHILE,
+    TOKEN_BREAK,
+    TOKEN_INIT,
+    TOKEN_FAIL,
+    TOKEN_RANGE,
     
     // Types
-    TOKEN_NUM,
+    TOKEN_NUMBER,
     TOKEN_BOOL,
     TOKEN_STRING,
     TOKEN_NIL,
+    TOKEN_ANY,
+    
+    TOKEN_END,
     
 } OCTokenType;
 

@@ -33,14 +33,9 @@ void lexer_printLine(FILE* out, OCLexer* lexer) {
     //fprintf(out, "%*.s", (int)lexer->lineLength, lexer->line);
 }
 
-codepoint_t lexer_currentChar(OCLexer* lexer) {
-    OASSERT(lexer != NULL, "Null instance error");
-    return lexer->currentChar;
-}
-
 void lexer_nextChar(OCLexer* lexer) {
     OASSERT(lexer != NULL, "Null instance error");
-    if(!lexer->currentPtr) { return; }
+    if(!lexer->currentPtr) { return 0; }
     
     uint64_t remaining = lexer->sourceLength - (lexer->currentPtr - lexer->source);
     lexer->currentChar = utf8_getCodepoint(lexer->currentPtr, remaining);
@@ -50,15 +45,12 @@ void lexer_nextChar(OCLexer* lexer) {
     if(size > 0 && lexer->currentChar != 0) {
         lexer->currentPtr += size;
     }
+    return lexer->currentChar;
 }
 
-void lexer_next(OCLexer* lexer) {
+OCToken* lexer_next(OCLexer* lexer) {
     OASSERT(lexer != NULL, "Null instance error");
-    lexer->lex(lexer);
-}
-
-OCToken* lexer_current(OCLexer* lexer) {
-    OASSERT(lexer != NULL, "Null instance error");
+    // Main lexing state machine goes here
     return &lexer->currentToken;
 }
 

@@ -12,13 +12,8 @@
 #include <stdio.h>
 #include <orbit/orbit_utf8.h>
 
-// OCLexer intends to be reusable - we don't define the main lexing function
-// here, but instead we have a function pointer to one implemented by the user
-// (or in our case orbit_parser).
-
 typedef struct _OCLexer OCLexer;
 typedef struct _OCToken OCToken;
-typedef void (*lexFn)(OCLexer* lexer);
 
 struct _OCToken {
     int             type;
@@ -44,25 +39,18 @@ struct _OCLexer {
     
     /// The curent token
     OCToken         currentToken;
-    
-    /// The lexer function used to get the next token.
-    lexFn           lex;
 };
 
-void lexer_init(OCLexer* lexer, const char* source, uint64_t length, lexFn lex);
+void lexer_init(OCLexer* lexer, const char* source, uint64_t length);
 
 /// Prints the line that [lexer] is currently lexing.
 void lexer_printLine(FILE* out, OCLexer* lexer);
 
-codepoint_t lexer_currentChar(OCLexer* lexer);
-
 /// Moves [lexer] to the next unicode character from its source.
-void lexer_nextChar(OCLexer* lexer);
+codepoint_t lexer_nextChar(OCLexer* lexer);
 
 /// Fetches the next token from the source.
-void lexer_next(OCLexer* lexer);
-
-OCToken* lexer_current(OCLexer* lexer);
+OCToken* lexer_next(OCLexer* lexer);
 
 void lexer_makeToken(OCLexer* lexer, int type, const char* start, uint64_t length);
 
