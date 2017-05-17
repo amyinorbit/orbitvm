@@ -27,7 +27,7 @@ typedef enum  {
     TOKEN_PERCENT,
     TOKEN_CARET,
     TOKEN_TILDE,
-    TOKEN_AMPERSAND,
+    TOKEN_AMP,
     TOKEN_PIPE,
     TOKEN_BANG,
     TOKEN_QUESTION,
@@ -46,6 +46,9 @@ typedef enum  {
     TOKEN_GTGT,
     TOKEN_AMPAMP,
     TOKEN_PIPEPIPE,
+    
+    TOKEN_SEMICOLON,
+    TOKEN_NEWLINE,
     
     // Punctuation:
     // :,.
@@ -82,7 +85,7 @@ typedef enum  {
     TOKEN_NIL,
     TOKEN_ANY,
     
-    TOKEN_END,
+    TOKEN_EOF,
     
 } OCTokenType;
 

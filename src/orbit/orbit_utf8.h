@@ -37,6 +37,9 @@ bool utf8_isCombining(codepoint_t point);
 // Returns whether [point] is in the Unicode Basic Multinlingual Plane.
 bool utf8_isBMP(codepoint_t point);
 
+// Returns whether [point] is considered whitespace.
+bool utf8_isWhitespace(codepoint_t point);
+
 // Returns whether [point] is a valid start of identifier character.
 // At the moment, those characters are exactly the same as in Swift.
 bool utf8_isIdentifierHead(codepoint_t point);

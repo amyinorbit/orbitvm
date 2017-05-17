@@ -124,6 +124,15 @@ bool utf8_isBMP(codepoint_t point) {
     return IN_RANGE(point, 0x000000, 0x100000) && !utf8_isPrivate(point);
 }
 
+bool utf8_isWhitespace(codepoint_t point) {
+    return point == 0x0000
+        || point == 0x0020
+        || point == 0x000d
+        || point == 0x0009
+        || point == 0x000b
+        || point == 0x000c;         
+}
+
 bool utf8_isIdentifierHead(codepoint_t point) {
     if(point < 0) { return false; }
     return (point <= 0x7f && (point == '_' || isalpha(point & 0x7f)))

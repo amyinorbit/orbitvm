@@ -20,11 +20,11 @@ int main(int argc, const char** args) {
     
     OCLexer lex;
     
-    lexer_init(&lex, source, length, NULL);
+    lexer_init(&lex, source, length);
     
     codepoint_t point;
     
-    while((point = lexer_currentChar(&lex)) > 0) {
+    while((point = lex.currentChar) > 0) {
         char utf[6];
         int8_t length = utf8_writeCodepoint(point, utf, 6);
         if(length > 0) {

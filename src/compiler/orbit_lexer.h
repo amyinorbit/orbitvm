@@ -37,6 +37,9 @@ struct _OCLexer {
     uint64_t        line;
     uint64_t        column;
     
+    /// We keep track of where the token being built starts.
+    const char*     tokenStart;
+    
     /// The curent token
     OCToken         currentToken;
 };
@@ -47,11 +50,9 @@ void lexer_init(OCLexer* lexer, const char* source, uint64_t length);
 void lexer_printLine(FILE* out, OCLexer* lexer);
 
 /// Moves [lexer] to the next unicode character from its source.
-codepoint_t lexer_nextChar(OCLexer* lexer);
+void lexer_nextChar(OCLexer* lexer);
 
 /// Fetches the next token from the source.
-OCToken* lexer_next(OCLexer* lexer);
-
-void lexer_makeToken(OCLexer* lexer, int type, const char* start, uint64_t length);
+void lexer_next(OCLexer* lexer);
 
 #endif /* orbit_lexer_h_ */
