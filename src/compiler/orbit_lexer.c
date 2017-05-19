@@ -7,18 +7,44 @@
 //
 #include <string.h>
 #include <ctype.h>
+#include <stdarg.h>
 #include <orbit/orbit_utils.h>
 #include "orbit_lexer.h"
 
-void lexer_init(OCLexer* lexer, const char* source, uint64_t length) {
+
+
+static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
     OASSERT(lexer != NULL, "Null instance error");
+    
+    fprintf(stderr, "%s:%llu:%llu: error: ",
+                     lexer->path,
+                     lexer->line,
+                     lexer->column);
+    va_list va;
+    va_start(va, fmt);
+    vfprintf(stderr, fmt, va);
+    va_end(va);
+    fprintf(stderr, "\n");
+    lexer_printLine(stderr, lexer);
+    fprintf(stderr, "\n");
+}
+
+void lexer_init(OCLexer* lexer, const char* path,
+                const char* source, uint64_t length) {
+    OASSERT(lexer != NULL, "Null instance error");
+    OASSERT(path != NULL, "Null path pointer");
     OASSERT(source != NULL, "Null source pointer");
     
+    lexer->path = path;
     lexer->source = source;
     lexer->sourceLength = length;
-    
+
+    lexer->linePtr = source;
     lexer->currentPtr = source;
     lexer->currentChar = 0;
+    
+    lexer->column = 0;
+    lexer->line = 1;
     
     lexer->string.buffer = NULL;
     lexer->string.length = 0;
@@ -33,11 +59,25 @@ void lexer_init(OCLexer* lexer, const char* source, uint64_t length) {
 
 void lexer_printLine(FILE* out, OCLexer* lexer) {
     OASSERT(lexer != NULL, "Null instance error");
+    
+    const char* linePtr = lexer->linePtr;
+    // print each character one by one
+    static char utf[6];
+    while(linePtr < lexer->source + lexer->sourceLength) {
+        uint64_t remaining = (lexer->source + lexer->sourceLength) - linePtr;
+        codepoint_t c = utf8_getCodepoint(linePtr, remaining);
+        if(c == '\0' || c == '\n') { break; }
+        int size = utf8_writeCodepoint(c, utf, 6);
+        linePtr += size;
+        utf[size] = '\0';
+        fprintf(out, "%.*s", size, utf);
+    }
+    fprintf(out, "\n");
 }
 
 static codepoint_t _nextChar(OCLexer* lexer) {
     OASSERT(lexer != NULL, "Null instance error");
-    if(!lexer->currentPtr) { return 0; }
+    if(!lexer->currentPtr) { return lexer->currentChar = '\0'; }
     
     uint64_t remaining = lexer->sourceLength - (lexer->currentPtr - lexer->source);
     lexer->currentChar = utf8_getCodepoint(lexer->currentPtr, remaining);
@@ -47,6 +87,15 @@ static codepoint_t _nextChar(OCLexer* lexer) {
     if(size > 0 && lexer->currentChar != 0) {
         lexer->currentPtr += size;
     }
+    
+    if(lexer->currentChar == '\n') {
+        lexer->line += 1;
+        lexer->column = 0;
+        lexer->linePtr = lexer->currentPtr;
+    } else {
+        lexer->column += 1;
+    }
+    
     return lexer->currentChar;
 }
 
@@ -82,7 +131,7 @@ static const struct _kw {
 } _keywords[] = {
     {"fuc",     TOKEN_FUN},
     {"var",     TOKEN_VAR},
-    {"val",     TOKEN_VAL},
+    {"const",   TOKEN_CONST},
     {"maybe",   TOKEN_MAYBE},
     {"type",    TOKEN_TYPE},
     {"return",  TOKEN_RETURN},
@@ -124,7 +173,7 @@ static void _stringReserve(OCLexer* lexer) {
 static void _stringAppend(OCLexer* lexer, codepoint_t c) {
     int8_t size = utf8_codepointSize(c);
     if(size < 0) { 
-        fprintf(stderr, "Invalid codepoint found in string: U+%X\n", c);
+        _lexerError(lexer, "Invalid codepoint found in string: U+%X\n", c);
         return;
     }
     
@@ -146,10 +195,17 @@ static void _lexString(OCLexer* lexer) {
     lexer->string.length = 0;
     _stringReserve(lexer);
     
-    while(_next(lexer) != '\0') {
+    for(;;) {
         codepoint_t c = _nextChar(lexer);
-        if(c == '"') { break; }
-        if(c == '\\') {
+        
+        if(c == '"') {
+            break;
+        }
+        else if(c == '\0') {
+            _lexerError(lexer, "unterminated string literal");
+            break;
+        }
+        else if(c == '\\') {
             c = _nextChar(lexer);
             switch(c) {
                 case '\\': _stringAppend(lexer, '\\'); break;
@@ -162,7 +218,7 @@ static void _lexString(OCLexer* lexer) {
                 case 'v':  _stringAppend(lexer, '\v'); break;
                 case '"':  _stringAppend(lexer, '\"'); break;
                 default:
-                    // TODO: signal error
+                    _lexerError(lexer, "unknown escape sequence in literal");
                     break;
             }
         } else {
@@ -194,13 +250,27 @@ static void _lexNumber(OCLexer* lexer) {
     _makeToken(lexer, type);
 }
 
+static void _eatLineComment(OCLexer* lexer) {
+    while(_next(lexer) != '\n' && _next(lexer) != '\0') {
+        _nextChar(lexer);
+    }
+}
+
+static void _updateTokenStart(OCLexer* lexer) {
+    lexer->tokenStart = lexer->currentPtr;
+    lexer->currentToken.line = lexer->line;
+    lexer->currentToken.column = lexer->column;
+}
+
 void lexer_nextToken(OCLexer* lexer) {
     OASSERT(lexer != NULL, "Null instance error");
     if(lexer->currentToken.type == TOKEN_EOF) { return; }
     
     while(_next(lexer) != '\0') {
-        lexer->tokenStart = lexer->currentPtr;
+        
+        _updateTokenStart(lexer);
         codepoint_t c = _nextChar(lexer);
+        
         switch(c) {
             // whitespace, we just loop
             case 0x0020:
@@ -263,10 +333,14 @@ void lexer_nextToken(OCLexer* lexer) {
             
             case '/':
                 if(_match(lexer, '/')) {
-                    // TODO: skip comments
+                    _eatLineComment(lexer);
                 } else {
                     _twoChars(lexer, '=', TOKEN_SLASH, TOKEN_SLASHEQ);
                 }
+                return;
+            
+            case '#':
+                _eatLineComment(lexer);
                 return;
                 
             case '"':
@@ -282,6 +356,10 @@ void lexer_nextToken(OCLexer* lexer) {
                     _lexNumber(lexer);
                 }
                 else {
+                    char point[6];
+                    int size = utf8_writeCodepoint(c, point, 6);
+                    point[size] = '\0';
+                    _lexerError(lexer, "invalid character '%.*s'", size, point);
                     _makeToken(lexer, TOKEN_INVALID);
                 }
                 return;

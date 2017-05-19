@@ -33,25 +33,13 @@ int main(int argc, const char** args) {
     source[length] = '\0';
     fclose(f);
     
-    DBG("Compiling %s (%llu bytes)", args[1], length);
-    
     OCLexer lex;
-    lexer_init(&lex, source, length);
-    
-    FILE* out = fopen("/Users/amy/Desktop/lexer.out.txt", "w");
+    lexer_init(&lex, args[1], source, length);
     
     lexer_nextToken(&lex);
     while(lex.currentToken.type != TOKEN_EOF) {
-        OCToken* tok = &lex.currentToken;
-        if(tok->type == TOKEN_NEWLINE) {
-            fprintf(out, "Token: `EOL` (%d)\n", tok->type);
-        } else {
-            fprintf(out, "Token: `%.*s` (%d)\n", tok->length, tok->start, tok->type);
-        }
         lexer_nextToken(&lex);
     }
-    fclose(out);
-    
     free(source);
     return 0;
 }

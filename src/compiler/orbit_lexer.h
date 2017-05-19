@@ -20,18 +20,24 @@ struct _OCToken {
     int             type;
     const char*     start;
     uint32_t        length;
+    uint64_t        line;
+    uint64_t        column;
 };
 
 /// A basic lexer
 struct _OCLexer {
     /// The entire program's source - this allows nicer errors than fget()-ing
     /// every time we need the next character.
+    const char*     path;
     const char*     source;
     uint64_t        sourceLength;
     
     /// Since we must handle UTF-8 source files (not every cahracter is a single
     /// byte), we can't just keep a pointer to the current character. We also
     /// have to store its unicode codepoint.
+    /// We also keep a pointer to the start of the current line, to make error
+    /// printing easier.
+    const char*     linePtr;
     const char*     currentPtr;
     codepoint_t     currentChar;
     
@@ -52,7 +58,8 @@ struct _OCLexer {
     OCToken         currentToken;
 };
 
-void lexer_init(OCLexer* lexer, const char* source, uint64_t length);
+void lexer_init(OCLexer* lexer, const char* path,
+                const char* source, uint64_t length);
 
 /// Prints the line that [lexer] is currently lexing.
 void lexer_printLine(FILE* out, OCLexer* lexer);

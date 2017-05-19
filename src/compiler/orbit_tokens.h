@@ -67,7 +67,7 @@ typedef enum  {
     // Language keywords
     TOKEN_FUN,
     TOKEN_VAR,
-    TOKEN_VAL,
+    TOKEN_CONST,
     TOKEN_MAYBE,
     TOKEN_TYPE,
     TOKEN_RETURN,
