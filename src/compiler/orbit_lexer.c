@@ -127,25 +127,26 @@ static void _twoChars(OCLexer* lexer, codepoint_t c, int match, int nomatch) {
 // A list of all the reserved orbit keywords:
 static const struct _kw {
     const char* name;
+    uint64_t    length;
     int         type;
 } _keywords[] = {
-    {"fuc",     TOKEN_FUN},
-    {"var",     TOKEN_VAR},
-    {"const",   TOKEN_CONST},
-    {"maybe",   TOKEN_MAYBE},
-    {"type",    TOKEN_TYPE},
-    {"return",  TOKEN_RETURN},
-    {"for",     TOKEN_FOR},
-    {"while",   TOKEN_WHILE},
-    {"break",   TOKEN_BREAK},
-    {"init",    TOKEN_INIT},
-    {"fail",    TOKEN_FAIL},
-    {"range",   TOKEN_RANGE},
-    {"Number",  TOKEN_NUMBER},
-    {"Bool",    TOKEN_BOOL},
-    {"String",  TOKEN_STRING},
-    {"Nil",     TOKEN_NIL},
-    {"Any",     TOKEN_ANY},
+    {"fun",     3,  TOKEN_FUN},
+    {"var",     3,  TOKEN_VAR},
+    {"const",   5,  TOKEN_CONST},
+    {"maybe",   5,  TOKEN_MAYBE},
+    {"type",    4,  TOKEN_TYPE},
+    {"return",  6,  TOKEN_RETURN},
+    {"for",     3,  TOKEN_FOR},
+    {"while",   5,  TOKEN_WHILE},
+    {"break",   5,  TOKEN_BREAK},
+    {"init",    4,  TOKEN_INIT},
+    {"fail",    4,  TOKEN_FAIL},
+    {"range",   5,  TOKEN_RANGE},
+    {"Number",  6,  TOKEN_NUMBER},
+    {"Bool",    4,  TOKEN_BOOL},
+    {"String",  6,  TOKEN_STRING},
+    {"Nil",     3,  TOKEN_NIL},
+    {"Any",     3,  TOKEN_ANY},
     {NULL, 0}
 };
 
@@ -157,7 +158,8 @@ static void _lexIdentifier(OCLexer* lexer) {
     int type = TOKEN_IDENTIFIER;
     uint32_t length = lexer->currentPtr - lexer->tokenStart;
     for(uint16_t i = 0; _keywords[i].name != NULL; ++i) {
-        if(memcmp(_keywords[i].name, lexer->tokenStart, length) == 0) {
+        if(_keywords[i].length == length &&
+           memcmp(_keywords[i].name, lexer->tokenStart, length) == 0) {
             type = _keywords[i].type;
             break;
         }
