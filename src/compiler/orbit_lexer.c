@@ -315,6 +315,14 @@ void lexer_nextToken(OCLexer* lexer) {
                 }
                 return;
             
+            case '/':
+                if(_match(lexer, '/')) {
+                    _eatLineComment(lexer);
+                } else {
+                    _twoChars(lexer, '=', TOKEN_SLASHEQ, TOKEN_SLASH);
+                }
+                return;
+            
             case '-':
                 if(_match(lexer, '>')) {
                     _makeToken(lexer, TOKEN_ARROW);
@@ -336,14 +344,6 @@ void lexer_nextToken(OCLexer* lexer) {
                     _makeToken(lexer, TOKEN_GTGT);
                 } else {
                     _twoChars(lexer, '=', TOKEN_GTEQ, TOKEN_GT);
-                }
-                return;
-            
-            case '/':
-                if(_match(lexer, '/')) {
-                    _eatLineComment(lexer);
-                } else {
-                    _twoChars(lexer, '=', TOKEN_SLASH, TOKEN_SLASHEQ);
                 }
                 return;
             

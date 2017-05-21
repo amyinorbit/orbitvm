@@ -185,8 +185,8 @@ int main(int argc, const char** args) {
     
     lexer_nextToken(&lex);
     while(lex.currentToken.type != TOKEN_EOF) {
-        recExpression(&lex, 1);
-        printf("\n");
+        recExpression(&lex, 0);
+        printf(" // %.*s [%d]\n", lex.currentToken.length, lex.currentToken.start, lex.currentToken.type);
         lexer_nextToken(&lex);
     }
     free(source);
