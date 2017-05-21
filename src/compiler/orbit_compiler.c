@@ -24,7 +24,7 @@ int main(int argc, const char** args) {
         return -1; 
     }
 
-    fseek(f, 0L, SEEK_END);
+    fseek(f, 0, SEEK_END);
     uint64_t length = ftell(f);
     fseek(f, 0, SEEK_SET);
     

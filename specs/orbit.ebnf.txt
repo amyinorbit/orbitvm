@@ -3,33 +3,62 @@
 // + - / * % ^ & | < > = >= <= == += ~ >> << && || != ! ?
 //
 
-program         ::= (<decl>)*
-decl            ::= <func-decl>
-                  | <var-decl>
-                  | <type-decl>
+program         ::= (decl)*
+decl            ::= func-decl
+                  | var-decl
+                  | type-decl
 
 //
 // Statements
 //
 
-//
-// Expressions
-//
+block           ::= (statement)*
+statement       ::= func-call
+                  | assign
+                  | compound-assign
+                  | conditional
 
-block           ::= (<statement>)*
-statement       ::= <func-call>
-                  | <assign>
-                  | <compound-assign>
-                  | <conditional>
+
+expression      ::= unary (binary-op unary) *
+unary           ::= (unary-op)? term
+term            ::= literal
+                  | variable
+                  | func-call
+                  | subscript
+                  | '(' expression ')'
+                  
+// + - / * % ^ & | < > = >= <= == += ~ >> << && || != ! ?
+binary-op       ::= '+'
+                  | '-'
+                  | '/'
+                  | '*'
+                  | '%'
+                  | '^'
+                  | '|'
+                  | '&'
+                  | '>>'
+                  | '<<'
+                  | '<'
+                  | '>'
+                  | '<='
+                  | '>='
+                  | '=='
+                  | '&&'
+                  | '||'
+                  | '!=' 
+unary-op        ::= '!'
+                  | '-'
+                  | '~'
+
 //
 // Conditionals
 //
 
 
 // Function Calls
-func-call       ::= <identifier> <parameters>
-parameters      ::= "(" (<expression-list>)? ")"
-expression-list ::= <expression> ("," <expression>)*
+func-call       ::= identifier parameters
+parameters      ::= '(' (expression-list)? ')'
+expression-list ::= expression (',' expression)*
 
 
 //
@@ -37,41 +66,41 @@ expression-list ::= <expression> ("," <expression>)*
 //
 // Functions
 
-func-decl       ::= <func-proto> "{" <block> "}"
-func-proto      ::= "func" <identifier> <parameters> "->" <type>
-parameters      ::= "(" (<parameter-list>)? ")"
-parameter-list  ::= <formal-param> ("," <formal-param>)*
-parameter       ::= <identifier> ":" <type>
+func-decl       ::= func-proto '{' block '}'
+func-proto      ::= 'func' identifier parameters '->' type
+parameters      ::= '(' (parameter-list)? ')'
+parameter-list  ::= formal-param (',' formal-param)*
+parameter       ::= identifier ':' type
 
 // Variables
 
-var-decl        ::= "var" identifier ((":", type) | ((":", type)? "=" expression))
-var-assign      ::= identifier "=" expression
+var-decl        ::= 'var' identifier ((':', type) | ((':', type)? '=' expression))
+var-assign      ::= identifier '=' expression
 
 // Types
 
-type-decl       ::= "type" "{" <type-block> "}"
-type-block      ::= (<type-statement>)+
-type-statement  ::= <var-decl> | <type-init>
-type-init       ::= "init" <parameters> "{" <block> "}"
+type-decl       ::= 'type' '{' type-block '}'
+type-block      ::= (type-statement)+
+type-statement  ::= var-decl | type-init
+type-init       ::= 'init' parameters '{' block '}'
 
 //
 // Type System
 //
 
-type            ::= ("maybe")? <typename>
-typename        ::= <primitive>
-                  | <array-type>
-                  | <dict-type>
-                  | <user-type>
-primitive       ::= "Nil"
-                  | "Number"
-                  | "Boolean"
-                  | "String"
-                  | "Any"
-array-type      ::= "[" <type> "]"
-dict-type       ::= "[" <type> ":" <type> "]"
-user-type       ::= <identifier>
+type            ::= ('maybe')? typename
+typename        ::= primitive
+                  | array-type
+                  | dict-type
+                  | user-type
+primitive       ::= 'Nil'
+                  | 'Number'
+                  | 'Boolean'
+                  | 'String'
+                  | 'Any'
+array-type      ::= '[' type ']'
+dict-type       ::= '[' type ':' type ']'
+user-type       ::= identifier
 
 
 //
@@ -80,15 +109,15 @@ user-type       ::= <identifier>
 
 (* Number Literals *)
 
-number          ::= <float-literal>
-                  | <integer-literal>
-float-literal   ::= <fractional>
-                  | <exponential>
-integer-literal ::= <sign> <decimal>
-fractional      ::= <sign> <decimal> "." <decimal>
-exponential     ::= <sign> <decimal> "e" <sign> <decimal>
+number          ::= float-literal
+                  | integer-literal
+float-literal   ::= fractional
+                  | exponential
+integer-literal ::= sign decimal
+fractional      ::= sign decimal '.' decimal
+exponential     ::= sign decimal 'e' sign decimal
 
 decimal         ::= [0-9]+
-sign            ::= ("+" | "-")?
+sign            ::= ('+' | '-')?
 string-literal = \" [^\r\n\\\"]* \"
 
