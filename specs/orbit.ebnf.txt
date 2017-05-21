@@ -1,32 +1,53 @@
-//
-// valid orbit operators:
-// + - / * % ^ & | < > = >= <= == += ~ >> << && || != ! ?
-//
+// Orbit Grammar (EBNF-ish).
+// copyright (c) 2017 Amy Parent <amy@amyparent.com>
 
 program         ::= (decl)*
-decl            ::= func-decl
+decl            ::= type-decl
                   | var-decl
-                  | type-decl
+                  | func-decl
+                  
+// Type Declarations
 
-//
+type-decl       ::= 'type' identifier type-block
+type-block      ::= '{' (var-decl)+ '}'
+
+// Variable Declarations
+
+var-decl        ::= 'var' identifier ((':', type) | ((':', type)? '=' expression))
+
+// Function Declarations
+
+func-decl       ::= func-proto '{' block '}'
+func-proto      ::= 'func' identifier parameters '->' type
+parameters      ::= '(' (parameter-list)? ')'
+parameter-list  ::= formal-param (',' formal-param)*
+parameter       ::= identifier ':' type
+
 // Statements
-//
 
-block           ::= (statement)*
-statement       ::= func-call
-                  | assign
-                  | compound-assign
-                  | conditional
+block           ::= '{' (statement)* '}'
+statement       ::= conditional
+                  | expression
 
+conditional     ::= if-statement
+                  | while-loop
+if-statement    ::= 'if' expression block ('else' statement)?
+while-loop      ::= 'while' expression block
+for-loop        ::= 'for' identifier 'in' expression block
+
+// Expressions - Variable assignments (compound or not) are expressions
 
 expression      ::= unary (binary-op unary) *
 unary           ::= (unary-op)? term
 term            ::= literal
-                  | variable
-                  | func-call
-                  | subscript
+                  | name-or-call
                   | '(' expression ')'
-
+name-or-call    ::= identifier (suffix)*
+suffix          ::= (subscript | func-call | field-access)?
+field-access    ::= '.' name-or-call                        // Orbit doesn't have member functions, but has first-order functions
+subscript       ::= identifier '[' expression ']'
+func-call       ::= '(' (expression-list)? ')'
+expression-list ::= expression (',' expression)*
 
 binary-op       ::= '+'
                   | '-'
@@ -46,48 +67,17 @@ binary-op       ::= '+'
                   | '=='
                   | '&&'
                   | '||'
-                  | '!=' 
+                  | '!='
+                  | '='
+                  | '+='
+                  | '-='
+                  | '*='
+                  | '/='
 unary-op        ::= '!'
                   | '-'
                   | '~'
 
-//
-// Conditionals
-//
-
-
-// Function Calls
-func-call       ::= identifier parameters
-parameters      ::= '(' (expression-list)? ')'
-expression-list ::= expression (',' expression)*
-
-
-//
-// Declarations
-//
-// Functions
-
-func-decl       ::= func-proto '{' block '}'
-func-proto      ::= 'func' identifier parameters '->' type
-parameters      ::= '(' (parameter-list)? ')'
-parameter-list  ::= formal-param (',' formal-param)*
-parameter       ::= identifier ':' type
-
-// Variables
-
-var-decl        ::= 'var' identifier ((':', type) | ((':', type)? '=' expression))
-var-assign      ::= identifier '=' expression
-
-// Types
-
-type-decl       ::= 'type' '{' type-block '}'
-type-block      ::= (type-statement)+
-type-statement  ::= var-decl | type-init
-type-init       ::= 'init' parameters '{' block '}'
-
-//
 // Type System
-//
 
 type            ::= ('maybe')? typename
 typename        ::= primitive
@@ -99,16 +89,12 @@ primitive       ::= 'Nil'
                   | 'Boolean'
                   | 'String'
                   | 'Any'
-array-type      ::= '[' type ']'
-dict-type       ::= '[' type ':' type ']'
+array-type      ::= 'Array' '[' type ']'
+dict-type       ::= 'Map' '[' type ':' type ']'
 user-type       ::= identifier
 
 
-//
 // Literals
-//
-
-(* Number Literals *)
 
 number          ::= float-literal
                   | integer-literal
