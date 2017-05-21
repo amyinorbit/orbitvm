@@ -301,13 +301,19 @@ void lexer_nextToken(OCLexer* lexer) {
             case '%': _makeToken(lexer, TOKEN_PERCENT);  return;
             case '?': _makeToken(lexer, TOKEN_QUESTION); return;
             
-            
-            case '*': _twoChars(lexer, '=', TOKEN_STAREQ, TOKEN_STAR);  return;
             case '+': _twoChars(lexer, '=', TOKEN_PLUSEQ, TOKEN_PLUS);  return;
             case '&': _twoChars(lexer, '&', TOKEN_AMPAMP, TOKEN_AMP);   return;
             case '|': _twoChars(lexer, '|', TOKEN_PIPEPIPE, TOKEN_PIPE);return;
             case '!': _twoChars(lexer, '=', TOKEN_BANGEQ, TOKEN_BANG);  return;
             case '=': _twoChars(lexer, '=', TOKEN_EQEQ, TOKEN_EQUALS);  return;
+            
+            case '*':
+                if(_match(lexer, '*')) {
+                    _makeToken(lexer, TOKEN_STARSTAR);
+                } else {
+                    _twoChars(lexer, '=', TOKEN_STAREQ, TOKEN_STAR);
+                }
+                return;
             
             case '-':
                 if(_match(lexer, '>')) {
