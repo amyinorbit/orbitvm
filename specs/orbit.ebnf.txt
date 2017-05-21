@@ -31,6 +31,7 @@ statement       ::= conditional
 
 conditional     ::= if-statement
                   | while-loop
+                  | for-loop
 if-statement    ::= 'if' expression block ('else' statement)?
 while-loop      ::= 'while' expression block
 for-loop        ::= 'for' identifier 'in' expression block
@@ -82,7 +83,7 @@ unary-op        ::= '!'
 type            ::= ('maybe')? typename
 typename        ::= primitive
                   | array-type
-                  | dict-type
+                  | map-type
                   | user-type
 primitive       ::= 'Nil'
                   | 'Number'
@@ -90,7 +91,7 @@ primitive       ::= 'Nil'
                   | 'String'
                   | 'Any'
 array-type      ::= 'Array' '[' type ']'
-dict-type       ::= 'Map' '[' type ':' type ']'
+map-type        ::= 'Map' '[' type ':' type ']'
 user-type       ::= identifier
 
 

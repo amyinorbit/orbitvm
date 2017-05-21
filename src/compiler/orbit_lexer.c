@@ -12,7 +12,6 @@
 #include "orbit_lexer.h"
 
 
-
 static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
     OASSERT(lexer != NULL, "Null instance error");
     
@@ -137,8 +136,11 @@ static const struct _kw {
     {"type",    4,  TOKEN_TYPE},
     {"return",  6,  TOKEN_RETURN},
     {"for",     3,  TOKEN_FOR},
+    {"in",      2,  TOKEN_BREAK},
     {"while",   5,  TOKEN_WHILE},
     {"break",   5,  TOKEN_BREAK},
+    {"if",      2,  TOKEN_BREAK},
+    {"else",    4,  TOKEN_BREAK},
     {"init",    4,  TOKEN_INIT},
     {"fail",    4,  TOKEN_FAIL},
     {"range",   5,  TOKEN_RANGE},

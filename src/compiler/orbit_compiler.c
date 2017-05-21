@@ -112,7 +112,7 @@ static void recExpression(OCLexer*, int);
 
 static void recExpression(OCLexer* lex, int minPrec) {
     // LHS
-    printf("( ");
+    //printf("( ");
     recAtom(lex);
     
     for(;;) {
@@ -123,8 +123,6 @@ static void recExpression(OCLexer* lex, int minPrec) {
         
         OCTokenType op = lex->currentToken.type;
         
-        printf("op.%d ", op);
-        
         int prec = opPrecedence(lex);
         _Direction assoc = opAssoc(lex);
         
@@ -133,9 +131,10 @@ static void recExpression(OCLexer* lex, int minPrec) {
         lexer_nextToken(lex);
         // RHS
         recExpression(lex, nextMinPrec);
+        printf("EXEC op.%d\n", op);
     }
 
-    printf(") ");
+    //printf(") ");
 }
 
 static void recAtom(OCLexer* lex) {
@@ -150,15 +149,15 @@ static void recAtom(OCLexer* lex) {
         expect(lex, TOKEN_RPAREN);
     }
     else if(have(lex, TOKEN_IDENTIFIER)) {
-        printf("%.*s ", lex->currentToken.length, lex->currentToken.start);
+        printf("push %.*s\n", lex->currentToken.length, lex->currentToken.start);
         expect(lex, TOKEN_IDENTIFIER);
     }
     else if(have(lex, TOKEN_INTEGER_LITERAL)) {
-        printf("%.*s ", lex->currentToken.length, lex->currentToken.start);
+        printf("push %.*s\n", lex->currentToken.length, lex->currentToken.start);
         expect(lex, TOKEN_INTEGER_LITERAL);
     }
     else if(have(lex, TOKEN_FLOAT_LITERAL)) {
-        printf("%.*s ", lex->currentToken.length, lex->currentToken.start);
+        printf("push %.*s\n", lex->currentToken.length, lex->currentToken.start);
         expect(lex, TOKEN_FLOAT_LITERAL);
     }
     else {
