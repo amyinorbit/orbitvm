@@ -139,8 +139,8 @@ static const struct _kw {
     {"in",      2,  TOKEN_BREAK},
     {"while",   5,  TOKEN_WHILE},
     {"break",   5,  TOKEN_BREAK},
-    {"if",      2,  TOKEN_BREAK},
-    {"else",    4,  TOKEN_BREAK},
+    {"if",      2,  TOKEN_IF},
+    {"else",    4,  TOKEN_ELSE},
     {"init",    4,  TOKEN_INIT},
     {"fail",    4,  TOKEN_FAIL},
     {"range",   5,  TOKEN_RANGE},
@@ -148,6 +148,7 @@ static const struct _kw {
     {"Bool",    4,  TOKEN_BOOL},
     {"String",  6,  TOKEN_STRING},
     {"Nil",     3,  TOKEN_NIL},
+    {"Void",    4,  TOKEN_VOID},
     {"Any",     3,  TOKEN_ANY},
     {NULL, 0}
 };
@@ -282,10 +283,11 @@ void lexer_nextToken(OCLexer* lexer) {
             case 0x0009:
             case 0x000b:
             case 0x000c:
+            case 0x000a:
                 break;
             
             // single character tokens
-            case '\n': _makeToken(lexer, TOKEN_NEWLINE); return;
+            //case '\n': _makeToken(lexer, TOKEN_NEWLINE); return;
             case ';': _makeToken(lexer, TOKEN_SEMICOLON);return;
             
             case '{': _makeToken(lexer, TOKEN_LBRACE);   return;

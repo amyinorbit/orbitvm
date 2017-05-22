@@ -20,7 +20,32 @@ typedef struct {
 
 // MARK: - Basic RD parser utilities
 
+
+
+static inline bool haveBinaryOp(OCParser* parser) {
+    return orbit_isBinaryOp(parser->lexer.currentToken.type);
+}
+
+static inline bool haveUnaryOp(OCParser* parser) {
+    return orbit_isUnaryOp(parser->lexer.currentToken.type);
+}
+
+static inline int precedence(OCParser* parser) {
+    return orbit_binaryPrecedence(parser->lexer.currentToken.type);
+}
+
+static inline bool rightAssoc(OCParser* parser) {
+    return orbit_binaryRightAssoc(parser->lexer.currentToken.type);
+}
+
+static inline OCToken current(OCParser* parser) {
+    return parser->lexer.currentToken;
+}
+
 static void compilerError(OCParser* parser, const char* fmt, ...) {
+    OASSERT(parser != NULL, "Null instance error");
+    if(parser->recovering) { return; }
+    parser->recovering = true;
     OASSERT(parser != NULL, "Null instance error");
     
     fprintf(stderr, "%s:%llu:%llu: error: ",
@@ -31,14 +56,27 @@ static void compilerError(OCParser* parser, const char* fmt, ...) {
     va_start(va, fmt);
     vfprintf(stderr, fmt, va);
     va_end(va);
-    fprintf(stderr, "\n");
+    fputc('\n', stderr);
     lexer_printLine(stderr, &parser->lexer);
-    fprintf(stderr, "\n");
+    orbit_printSquigglies(stderr, parser->lexer.currentToken.column, parser->lexer.currentToken.length);
 }
 
-static inline OCToken current(OCParser* parser) {
-    return parser->lexer.currentToken;
+static void syntaxError(OCParser* parser, OCTokenType type) {
+    OASSERT(parser != NULL, "Null instance error");
+    if(parser->recovering) { return; }
+    parser->recovering = true;
+    
+    OCToken tok  = current(parser);
+    fprintf(stderr, "%s:%llu:%llu: error: expected '%s' (found '%s')\n",
+            parser->lexer.path,
+            tok.line, tok.column,
+            orbit_tokenString(type),
+            orbit_tokenString(parser->lexer.currentToken.type));
+    lexer_printLine(stderr, &parser->lexer);
+    orbit_printSquigglies(stderr, tok.column, tok.length);
 }
+
+// MARK: - RD Basics
 
 static inline bool have(OCParser* parser, OCTokenType type) {
     return parser->lexer.currentToken.type == type;
@@ -54,12 +92,9 @@ static inline bool match(OCParser* parser, OCTokenType type) {
 
 static bool expect(OCParser* parser, OCTokenType type) {
     if(match(parser, type)) { return true; }
-    compilerError(parser, "found '%s' (expected '%s')",
-                  orbit_tokenString(parser->lexer.currentToken.type),
-                  orbit_tokenString(type));
+    syntaxError(parser, type);
     return false;
 }
-
 
 
 // The Big List: all of our recognisers. Easier to forward-declare to avoid
@@ -81,7 +116,7 @@ static void recForLoop(OCParser*);
 static void recExpression(OCParser*, int);
 static void recTerm(OCParser*);
 static void recName(OCParser*);
-static void recSuffix(OCParser*);
+//static void recSuffix(OCParser*);
 static void recSubscript(OCParser*);
 static void recFieldAccess(OCParser*);
 static void recFuncCall(OCParser*);
@@ -93,8 +128,8 @@ static void recPrimitive(OCParser*);
 static void recArrayType(OCParser*);
 static void recMapType(OCParser*);
 
-static void recNumberLiteral(OCParser*);
-static void recStringLiteral(OCParser*);
+//static void recNumberLiteral(OCParser*);
+//static void recStringLiteral(OCParser*);
 
 // MARK: - Implementation
 
@@ -113,7 +148,24 @@ static void recProgram(OCParser* parser) {
 }
 
 static void recBlock(OCParser* parser) {
-    
+    expect(parser, TOKEN_LBRACE);
+    for(;;) {
+        if(have(parser, TOKEN_VAR))
+            recVarDecl(parser);
+        else if(haveUnaryOp(parser)
+                || have(parser, TOKEN_LPAREN)
+                || have(parser, TOKEN_IDENTIFIER)
+                || have(parser, TOKEN_STRING_LITERAL)
+                || have(parser, TOKEN_INTEGER_LITERAL)
+                || have(parser, TOKEN_FLOAT_LITERAL)
+                || have(parser, TOKEN_IF)
+                || have(parser, TOKEN_WHILE)
+                || have(parser, TOKEN_FOR))
+            recStatement(parser);
+        else
+            break;
+    }
+    expect(parser, TOKEN_RBRACE);
 }
 
 static void recTypeDecl(OCParser* parser) {
@@ -155,14 +207,14 @@ static void recFuncDecl(OCParser* parser) {
     
     expect(parser, TOKEN_RPAREN);
     expect(parser, TOKEN_ARROW);
-    expect(parser, TOKEN_TYPE);
+    
+    recType(parser);
     
     recBlock(parser);
 }
 
 
 static void recParameters(OCParser* parser) {
-    
     do {
         expect(parser, TOKEN_IDENTIFIER);
         expect(parser, TOKEN_COLON);
@@ -171,11 +223,32 @@ static void recParameters(OCParser* parser) {
 }
 
 static void recStatement(OCParser* parser) {
-    
+    if(have(parser, TOKEN_IF) || have(parser, TOKEN_WHILE) || have(parser, TOKEN_FOR)) {
+        recConditional(parser);
+    }
+    else if(haveUnaryOp(parser)
+            || have(parser, TOKEN_LPAREN)
+            || have(parser, TOKEN_IDENTIFIER)
+            || have(parser, TOKEN_STRING_LITERAL)
+            || have(parser, TOKEN_INTEGER_LITERAL)
+            || have(parser, TOKEN_FLOAT_LITERAL)) {
+        recExpression(parser, 0);
+    }
+    else {
+        compilerError(parser, "expected a statement");
+    }
+    match(parser, TOKEN_NEWLINE);
 }
 
 static void recConditional(OCParser* parser) {
-    
+    if(have(parser, TOKEN_IF))
+        recIfStatement(parser);
+    else if(have(parser, TOKEN_WHILE))
+        recWhileLoop(parser);
+    else if(have(parser, TOKEN_FOR))
+        recForLoop(parser);
+    else
+        compilerError(parser, "expected an if statement or a loop");
 }
 
 static void recIfStatement(OCParser* parser) {
@@ -199,7 +272,7 @@ static void recWhileLoop(OCParser* parser) {
     recBlock(parser);
 }
 
-static void recForStatement(OCParser* parser) {
+static void recForLoop(OCParser* parser) {
     expect(parser, TOKEN_FOR);
     expect(parser, TOKEN_IDENTIFIER);
     expect(parser, TOKEN_COLON);
@@ -208,39 +281,27 @@ static void recForStatement(OCParser* parser) {
 }
 
 static void recExpression(OCParser* parser, int minPrec) {
-    
     recTerm(parser);
     for(;;) {
-        // TODO: implement precedence climbing
-    }
-    /*
-    // LHS
-    //printf("( ");
-    recAtom(lex);
-    
-    for(;;) {
-        if(have(lex, TOKEN_EOF) || have(lex, TOKEN_NEWLINE)
-            || !isBinOp(lex) || opPrecedence(lex) < minPrec) {
+        if(!haveBinaryOp(parser) || precedence(parser) < minPrec) {
             break;
         }
+        OCToken operator = current(parser);
+        int prec = precedence(parser);
+        bool right = rightAssoc(parser);
         
-        OCTokenType op = lex->currentToken.type;
-        
-        int prec = opPrecedence(lex);
-        _Direction assoc = opAssoc(lex);
-        
-        int nextMinPrec = assoc == LEFT ? prec + 1 : prec;
-        
-        lexer_nextToken(lex);
-        // RHS
-        recExpression(lex, nextMinPrec);
-        printf("EXEC op.%d\n", op);
+        int nextMinPrec = right ? prec : prec + 1;
+        lexer_nextToken(&parser->lexer);
+        recExpression(parser, nextMinPrec);
     }
-    */
 }
 
 static void recTerm(OCParser* parser) {
     // TODO: match unary operator
+    if(haveUnaryOp(parser)) {
+        lexer_nextToken(&parser->lexer);
+    }
+    
     if(match(parser, TOKEN_LPAREN)) {
         recExpression(parser, 0);
         expect(parser, TOKEN_RPAREN);
@@ -267,9 +328,9 @@ static void recName(OCParser* parser) {
     for(;;) {
         if(have(parser, TOKEN_LBRACKET))
             recSubscript(parser);
-        if(have(parser, TOKEN_DOT))
+        else if(have(parser, TOKEN_DOT))
             recFieldAccess(parser);
-        if(have(parser, TOKEN_LPAREN))
+        else if(have(parser, TOKEN_LPAREN))
             recFuncCall(parser);
         else
             break;
@@ -284,13 +345,13 @@ static void recSubscript(OCParser* parser) {
 
 static void recFieldAccess(OCParser* parser) {
     expect(parser, TOKEN_DOT);
-    recName(parser);
+    expect(parser, TOKEN_IDENTIFIER);
 }
 
 static void recFuncCall(OCParser* parser) {
-    expect(parser, TOKEN_LBRACKET);
+    expect(parser, TOKEN_LPAREN);
     recExprList(parser); // TODO: surround with proper director list
-    expect(parser, TOKEN_RBRACKET);
+    expect(parser, TOKEN_RPAREN);
 }
 
 static void recExprList(OCParser* parser) {
@@ -301,32 +362,78 @@ static void recExprList(OCParser* parser) {
 }
 
 static void recType(OCParser* parser) {
-    
+    if(match(parser, TOKEN_MAYBE)) {
+        // TODO: sema+codecheck
+    }
+    recTypename(parser);
 }
 
 static void recTypename(OCParser* parser) {
-    
+    if(have(parser, TOKEN_NUMBER)
+       || have(parser, TOKEN_BOOL)
+       || have(parser, TOKEN_STRING)
+       || have(parser, TOKEN_NIL)
+       || have(parser, TOKEN_VOID)
+       || have(parser, TOKEN_ANY)) {
+       recPrimitive(parser);
+   }
+   // TODO: change to non-ambiguous collection syntax
+   else if(have(parser, TOKEN_LBRACKET)) {
+       recArrayType(parser);
+   }
+   else if(have(parser, TOKEN_IDENTIFIER)) {
+       // TODO: user type
+       expect(parser, TOKEN_IDENTIFIER);
+   }
+   else {
+       compilerError(parser, "expected a type name");
+   }
 }
 
 static void recPrimitive(OCParser* parser) {
-    
+    if(have(parser, TOKEN_NUMBER))
+        expect(parser, TOKEN_NUMBER);
+    else if(have(parser, TOKEN_BOOL))
+        expect(parser, TOKEN_BOOL);
+    else if(have(parser, TOKEN_STRING))
+        expect(parser, TOKEN_STRING);
+    else if(have(parser, TOKEN_NIL))
+        expect(parser, TOKEN_NIL);
+    else if(have(parser, TOKEN_VOID))
+        expect(parser, TOKEN_VOID);
+    else if(have(parser, TOKEN_ANY))
+        expect(parser, TOKEN_ANY);
+    else
+        compilerError(parser, "expected a primitive type");
 }
 
 static void recArrayType(OCParser* parser) {
-    
+    expect(parser, TOKEN_LBRACKET);
+    recType(parser);
+    expect(parser, TOKEN_RBRACKET);
 }
 
 static void recMapType(OCParser* parser) {
-    
+    expect(parser, TOKEN_LBRACKET);
+    recPrimitive(parser);
+    expect(parser, TOKEN_COLON);
+    recType(parser);
+    expect(parser, TOKEN_RBRACKET);
 }
 
-static void recNumberLiteral(OCParser* parser) {
-    
-}
-
-static void recStringLiteral(OCParser* parser) {
-    
-}
+// static void recNumberLiteral(OCParser* parser) {
+//     if(have(parser, TOKEN_INTEGER_LITERAL))
+//         expect(parser, TOKEN_INTEGER_LITERAL);
+//     if(have(parser, TOKEN_FLOAT_LITERAL))
+//         expect(parser, TOKEN_FLOAT_LITERAL);
+//     else
+//         compilerError(parser, "expected a number constant");
+//
+// }
+//
+// static void recStringLiteral(OCParser* parser) {
+//     expect(parser, TOKEN_STRING_LITERAL);
+// }
 
 bool orbit_compile(OrbitVM* vm, const char* sourcePath, const char* source, uint64_t length) {
     
@@ -336,11 +443,12 @@ bool orbit_compile(OrbitVM* vm, const char* sourcePath, const char* source, uint
     lexer_init(&parser.lexer, sourcePath, source, length);
     
     lexer_nextToken(&parser.lexer);
-    while(!have(&parser, TOKEN_EOF)) {
-        OCToken tok = current(&parser);
-        printf("%20s\t'%.*s'\n", orbit_tokenName(tok.type), (int)tok.length, tok.start);
-        lexer_nextToken(&parser.lexer);
-    }
+    recProgram(&parser);
+//  while(!have(&parser, TOKEN_EOF)) {
+//         OCToken tok = current(&parser);
+//         printf("%20s\t'%.*s'\n", orbit_tokenName(tok.type), (int)tok.length, tok.start);
+//         lexer_nextToken(&parser.lexer);
+//     }
     return true;
 }
 

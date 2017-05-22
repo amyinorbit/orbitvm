@@ -45,7 +45,7 @@ term            ::= literal
                   | '(' expression ')'
 name-or-call    ::= identifier (suffix)*
 suffix          ::= (subscript | func-call | field-access)?
-field-access    ::= '.' name-or-call                        // Orbit doesn't have member functions, but has first-order functions
+field-access    ::= '.' identifier                       // Orbit doesn't have member functions, but has first-order functions
 subscript       ::= identifier '[' expression ']'
 func-call       ::= '(' (expression-list)? ')'
 expression-list ::= expression (',' expression)*

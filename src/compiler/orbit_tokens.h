@@ -87,6 +87,7 @@ typedef enum  {
     TOKEN_BOOL,
     TOKEN_STRING,
     TOKEN_NIL,
+    TOKEN_VOID,
     TOKEN_ANY,
     
     TOKEN_EOF,
