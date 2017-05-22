@@ -12,6 +12,6 @@
 #include <stdint.h>
 #include <orbit/orbit_vm.h>
 
-bool orbit_compile(OrbitVM* vm, const char* source, uint64_t length);
+bool orbit_compile(OrbitVM* vm, const char* sourcePath, const char* source, uint64_t length);
 
 #endif /* orbit_parser_h */

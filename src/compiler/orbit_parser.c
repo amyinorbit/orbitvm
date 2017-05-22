@@ -10,6 +10,7 @@
 #include "orbit_parser.h"
 #include "orbit_tokens.h"
 #include "orbit_lexer.h"
+#include "compiler_utils.h"
 
 typedef struct {
     OCLexer     lexer;
@@ -35,6 +36,10 @@ static void compilerError(OCParser* parser, const char* fmt, ...) {
     fprintf(stderr, "\n");
 }
 
+static inline OCToken current(OCParser* parser) {
+    return parser->lexer.currentToken;
+}
+
 static inline bool have(OCParser* parser, OCTokenType type) {
     return parser->lexer.currentToken.type == type;
 }
@@ -49,7 +54,9 @@ static inline bool match(OCParser* parser, OCTokenType type) {
 
 static bool expect(OCParser* parser, OCTokenType type) {
     if(match(parser, type)) { return true; }
-    compilerError(parser, "found %d (expected %d)", parser->lexer.currentToken.type, type);
+    compilerError(parser, "found '%s' (expected '%s')",
+                  orbit_tokenString(parser->lexer.currentToken.type),
+                  orbit_tokenString(type));
     return false;
 }
 
@@ -321,9 +328,19 @@ static void recStringLiteral(OCParser* parser) {
     
 }
 
-bool orbit_compile(OrbitVM* vm, const char* source, uint64_t length) {
+bool orbit_compile(OrbitVM* vm, const char* sourcePath, const char* source, uint64_t length) {
     
+    OCParser parser;
+    parser.vm = vm;
+    parser.recovering = false;
+    lexer_init(&parser.lexer, sourcePath, source, length);
     
-    return false;
+    lexer_nextToken(&parser.lexer);
+    while(!have(&parser, TOKEN_EOF)) {
+        OCToken tok = current(&parser);
+        printf("%20s\t'%.*s'\n", orbit_tokenName(tok.type), (int)tok.length, tok.start);
+        lexer_nextToken(&parser.lexer);
+    }
+    return true;
 }
 
