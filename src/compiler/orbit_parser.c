@@ -306,7 +306,7 @@ static void recExpression(OCParser* parser, int minPrec) {
         if(!haveBinaryOp(parser) || precedence(parser) < minPrec) {
             break;
         }
-        OCToken operator = current(parser);
+        //OCToken operator = current(parser);
         int prec = precedence(parser);
         bool right = rightAssoc(parser);
         
@@ -384,7 +384,6 @@ static void recExprList(OCParser* parser) {
 
 static void recType(OCParser* parser) {
     if(match(parser, TOKEN_MAYBE)) {
-        // TODO: sema+codecheck
     }
     recTypename(parser);
 }
@@ -398,9 +397,11 @@ static void recTypename(OCParser* parser) {
        || have(parser, TOKEN_ANY)) {
        recPrimitive(parser);
    }
-   // TODO: change to non-ambiguous collection syntax
-   else if(have(parser, TOKEN_LBRACKET)) {
+   else if(have(parser, TOKEN_ARRAY)) {
        recArrayType(parser);
+   }
+   else if(have(parser, TOKEN_MAP)) {
+       recMapType(parser);
    }
    else if(have(parser, TOKEN_IDENTIFIER)) {
        // TODO: user type
@@ -429,12 +430,14 @@ static void recPrimitive(OCParser* parser) {
 }
 
 static void recArrayType(OCParser* parser) {
+    expect(parser, TOKEN_ARRAY);
     expect(parser, TOKEN_LBRACKET);
     recType(parser);
     expect(parser, TOKEN_RBRACKET);
 }
 
 static void recMapType(OCParser* parser) {
+    expect(parser, TOKEN_MAP);
     expect(parser, TOKEN_LBRACKET);
     recPrimitive(parser);
     expect(parser, TOKEN_COLON);

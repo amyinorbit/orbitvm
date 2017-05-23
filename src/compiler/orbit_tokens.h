@@ -75,6 +75,7 @@ typedef enum  {
     TOKEN_FOR,
     TOKEN_WHILE,
     TOKEN_BREAK,
+    TOKEN_CONTINUE,
     TOKEN_IN,
     TOKEN_IF,
     TOKEN_ELSE,
@@ -88,6 +89,8 @@ typedef enum  {
     TOKEN_STRING,
     TOKEN_NIL,
     TOKEN_VOID,
+    TOKEN_ARRAY,
+    TOKEN_MAP,
     TOKEN_ANY,
     
     TOKEN_EOF,

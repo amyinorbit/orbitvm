@@ -145,6 +145,7 @@ static const struct _kw {
     {"in",      2,  TOKEN_BREAK},
     {"while",   5,  TOKEN_WHILE},
     {"break",   5,  TOKEN_BREAK},
+    {"continue",7,  TOKEN_CONTINUE},
     {"if",      2,  TOKEN_IF},
     {"else",    4,  TOKEN_ELSE},
     {"init",    4,  TOKEN_INIT},
@@ -155,6 +156,8 @@ static const struct _kw {
     {"String",  6,  TOKEN_STRING},
     {"Nil",     3,  TOKEN_NIL},
     {"Void",    4,  TOKEN_VOID},
+    {"Array",   5,  TOKEN_ARRAY},
+    {"Map",     3,  TOKEN_MAP},
     {"Any",     3,  TOKEN_ANY},
     {NULL, 0}
 };
