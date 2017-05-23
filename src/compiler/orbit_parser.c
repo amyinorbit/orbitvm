@@ -20,16 +20,6 @@ typedef struct {
 
 // MARK: - Basic RD parser utilities
 
-
-
-static inline bool haveBinaryOp(OCParser* parser) {
-    return orbit_isBinaryOp(parser->lexer.currentToken.type);
-}
-
-static inline bool haveUnaryOp(OCParser* parser) {
-    return orbit_isUnaryOp(parser->lexer.currentToken.type);
-}
-
 static inline int precedence(OCParser* parser) {
     return orbit_binaryPrecedence(parser->lexer.currentToken.type);
 }
@@ -90,6 +80,30 @@ static inline bool match(OCParser* parser, OCTokenType type) {
     return false;
 }
 
+// MARK: - utility functions, mainly used to avoid typing long [have()] lists
+static inline bool haveBinaryOp(OCParser* parser) {
+    return orbit_isBinaryOp(parser->lexer.currentToken.type);
+}
+
+static inline bool haveUnaryOp(OCParser* parser) {
+    return orbit_isUnaryOp(parser->lexer.currentToken.type);
+}
+
+static inline bool haveConditional(OCParser* parser) {
+    return have(parser, TOKEN_IF)
+        || have(parser, TOKEN_FOR) 
+        || have(parser, TOKEN_WHILE);
+}
+
+static inline bool haveTerm(OCParser* parser) {
+    return haveUnaryOp(parser) 
+        || have(parser, TOKEN_LPAREN)
+        || have(parser, TOKEN_IDENTIFIER)
+        || have(parser, TOKEN_STRING_LITERAL)
+        || have(parser, TOKEN_INTEGER_LITERAL)
+        || have(parser, TOKEN_FLOAT_LITERAL);
+}
+
 // Few functions to allow optional semicolons, swift-style.
 // https://stackoverflow.com/questions/17646002
 //
@@ -98,10 +112,6 @@ static inline bool implicitTerminator(OCParser* parser) {
     return parser->lexer.currentToken.startOfLine
         || have(parser, TOKEN_EOF)
         || have(parser, TOKEN_RBRACE);
-}
-
-static bool haveTerminator(OCParser* parser) {
-    return have(parser, TOKEN_SEMICOLON) || implicitTerminator(parser);
 }
 
 static bool expectTerminator(OCParser* parser) {
@@ -175,15 +185,7 @@ static void recBlock(OCParser* parser) {
     for(;;) {
         if(have(parser, TOKEN_VAR))
             recVarDecl(parser);
-        else if(haveUnaryOp(parser)
-                || have(parser, TOKEN_LPAREN)
-                || have(parser, TOKEN_IDENTIFIER)
-                || have(parser, TOKEN_STRING_LITERAL)
-                || have(parser, TOKEN_INTEGER_LITERAL)
-                || have(parser, TOKEN_FLOAT_LITERAL)
-                || have(parser, TOKEN_IF)
-                || have(parser, TOKEN_WHILE)
-                || have(parser, TOKEN_FOR))
+        else if(haveTerm(parser) || haveConditional(parser))
             recStatement(parser);
         else
             break;
@@ -247,21 +249,15 @@ static void recParameters(OCParser* parser) {
 }
 
 static void recStatement(OCParser* parser) {
-    if(have(parser, TOKEN_IF) || have(parser, TOKEN_WHILE) || have(parser, TOKEN_FOR)) {
+    if(haveConditional(parser)) {
         recConditional(parser);
     }
-    else if(haveUnaryOp(parser)
-            || have(parser, TOKEN_LPAREN)
-            || have(parser, TOKEN_IDENTIFIER)
-            || have(parser, TOKEN_STRING_LITERAL)
-            || have(parser, TOKEN_INTEGER_LITERAL)
-            || have(parser, TOKEN_FLOAT_LITERAL)) {
+    else if(haveTerm(parser)) {
         recExpression(parser, 0);
     }
     else {
         compilerError(parser, "expected a statement");
     }
-    //match(parser, TOKEN_NEWLINE);
 }
 
 static void recConditional(OCParser* parser) {
@@ -321,7 +317,6 @@ static void recExpression(OCParser* parser, int minPrec) {
 }
 
 static void recTerm(OCParser* parser) {
-    // TODO: match unary operator
     if(haveUnaryOp(parser)) {
         lexer_nextToken(&parser->lexer);
     }
@@ -374,7 +369,9 @@ static void recFieldAccess(OCParser* parser) {
 
 static void recFuncCall(OCParser* parser) {
     expect(parser, TOKEN_LPAREN);
-    recExprList(parser); // TODO: surround with proper director list
+    if(haveTerm(parser)) {
+        recExprList(parser);
+    }
     expect(parser, TOKEN_RPAREN);
 }
 
