@@ -42,6 +42,7 @@ void lexer_init(OCLexer* lexer, const char* path,
     lexer->currentPtr = source;
     lexer->currentChar = 0;
     
+    lexer->startOfLine = true;
     lexer->column = 0;
     lexer->line = 1;
     
@@ -88,6 +89,7 @@ static codepoint_t _nextChar(OCLexer* lexer) {
     }
     
     if(lexer->currentChar == '\n') {
+        lexer->startOfLine = true;
         lexer->line += 1;
         lexer->column = 0;
         lexer->linePtr = lexer->currentPtr;
@@ -105,9 +107,13 @@ static inline codepoint_t _next(OCLexer* lexer) {
 
 static void _makeToken(OCLexer* lexer, int type) {
     OASSERT(lexer != NULL, "Null instance error");
+    lexer->currentToken.startOfLine = lexer->startOfLine;
     lexer->currentToken.type = type;
     lexer->currentToken.start = lexer->tokenStart;
     lexer->currentToken.length = lexer->currentPtr - lexer->tokenStart;
+    
+    // We reset the start of line marker after a token is produced.
+    lexer->startOfLine = false;
 }
 
 static bool _match(OCLexer* lexer, codepoint_t c) {

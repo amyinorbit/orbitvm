@@ -26,8 +26,8 @@ parameter       ::= identifier ':' type
 // Statements
 
 block           ::= '{' (statement)* '}'
-statement       ::= conditional
-                  | expression
+statement       ::= (conditional | expression) terminator
+terminator      ::= ('\n' | ';')?
 
 conditional     ::= if-statement
                   | while-loop

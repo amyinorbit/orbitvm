@@ -32,9 +32,15 @@ static char* loadSource(const char* path, uint64_t* length) {
 
 int main(int argc, const char** args) {
     
-    if(argc != 2) {
-        fprintf(stderr, "Invalid format\n");
+    if(argc < 2 || argc > 3) {
+        fprintf(stderr, "usage: orbitc source_file [dump-tokens]\n");
         return -1;
+    }
+    
+    bool compile = true;
+    
+    if(argc == 3) {
+        compile = strcmp(args[2], "dump-tokens") != 0;
     }
     
     uint64_t length = 0;
@@ -43,7 +49,10 @@ int main(int argc, const char** args) {
         fprintf(stderr, "error opening `%s`\n", args[1]);
         return -1;
     }
-    orbit_compile(NULL, args[1], source, length);
+    if(compile)
+        orbit_compile(NULL, args[1], source, length);
+    else
+        orbit_dumpTokens(NULL, args[1], source, length);
     free(source);
     return 0;
 }

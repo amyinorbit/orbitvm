@@ -19,6 +19,7 @@ typedef struct _OCToken OCToken;
 struct _OCToken {
     int             type;
     const char*     start;
+    bool            startOfLine;
     uint64_t        length;
     uint64_t        line;
     uint64_t        column;
@@ -41,6 +42,7 @@ struct _OCLexer {
     const char*     currentPtr;
     codepoint_t     currentChar;
     
+    bool            startOfLine;
     uint64_t        line;
     uint64_t        column;
     

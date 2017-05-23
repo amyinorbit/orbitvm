@@ -90,6 +90,28 @@ static inline bool match(OCParser* parser, OCTokenType type) {
     return false;
 }
 
+// Few functions to allow optional semicolons, swift-style.
+// https://stackoverflow.com/questions/17646002
+//
+
+static inline bool implicitTerminator(OCParser* parser) {
+    return parser->lexer.currentToken.startOfLine
+        || have(parser, TOKEN_EOF)
+        || have(parser, TOKEN_RBRACE);
+}
+
+static bool haveTerminator(OCParser* parser) {
+    return have(parser, TOKEN_SEMICOLON) || implicitTerminator(parser);
+}
+
+static bool expectTerminator(OCParser* parser) {
+    if(match(parser, TOKEN_SEMICOLON) || implicitTerminator(parser)) {
+        return true;
+    }
+    syntaxError(parser, TOKEN_SEMICOLON);
+    return false;
+}
+
 static bool expect(OCParser* parser, OCTokenType type) {
     if(match(parser, type)) { return true; }
     syntaxError(parser, type);
@@ -143,6 +165,7 @@ static void recProgram(OCParser* parser) {
             recTypeDecl(parser);
         else
             break;
+        expectTerminator(parser);
     }
     expect(parser, TOKEN_EOF);
 }
@@ -164,6 +187,8 @@ static void recBlock(OCParser* parser) {
             recStatement(parser);
         else
             break;
+        expectTerminator(parser);
+        
     }
     expect(parser, TOKEN_RBRACE);
 }
@@ -209,7 +234,6 @@ static void recFuncDecl(OCParser* parser) {
     expect(parser, TOKEN_ARROW);
     
     recType(parser);
-    
     recBlock(parser);
 }
 
@@ -237,7 +261,7 @@ static void recStatement(OCParser* parser) {
     else {
         compilerError(parser, "expected a statement");
     }
-    match(parser, TOKEN_NEWLINE);
+    //match(parser, TOKEN_NEWLINE);
 }
 
 static void recConditional(OCParser* parser) {
@@ -434,6 +458,24 @@ static void recMapType(OCParser* parser) {
 // static void recStringLiteral(OCParser* parser) {
 //     expect(parser, TOKEN_STRING_LITERAL);
 // }
+
+void orbit_dumpTokens(OrbitVM* vm, const char* sourcePath, const char* source, uint64_t length) {
+    OCParser parser;
+    parser.vm = vm;
+    parser.recovering = false;
+    lexer_init(&parser.lexer, sourcePath, source, length);
+    
+    lexer_nextToken(&parser.lexer);
+    while(!have(&parser, TOKEN_EOF)) {
+        OCToken tok = current(&parser);
+        printf("%20s\t'%.*s'", orbit_tokenName(tok.type), (int)tok.length, tok.start);
+        if(tok.startOfLine) {
+            printf(" [line start]");
+        }
+        putchar('\n');
+        lexer_nextToken(&parser.lexer);
+    }
+}
 
 bool orbit_compile(OrbitVM* vm, const char* sourcePath, const char* source, uint64_t length) {
     
