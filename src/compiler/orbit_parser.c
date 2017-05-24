@@ -119,17 +119,36 @@ static inline bool implicitTerminator(OCParser* parser) {
 }
 
 static bool expectTerminator(OCParser* parser) {
-    if(match(parser, TOKEN_SEMICOLON) || implicitTerminator(parser)) {
+    if(parser->recovering) {
+        while(!have(parser, TOKEN_SEMICOLON) || implicitTerminator(parser)) {
+            if(have(parser, TOKEN_EOF)) { break; }
+            lexer_nextToken(&parser->lexer);
+        }
+        parser->recovering = false;
+        match(parser, TOKEN_SEMICOLON);
         return true;
+    } else {
+        if(match(parser, TOKEN_SEMICOLON) || implicitTerminator(parser)) {
+            return true;
+        }
+        syntaxError(parser, TOKEN_SEMICOLON);
+        return false;
     }
-    syntaxError(parser, TOKEN_SEMICOLON);
-    return false;
 }
 
 static bool expect(OCParser* parser, OCTokenType type) {
-    if(match(parser, type)) { return true; }
-    syntaxError(parser, type);
-    return false;
+    if(parser->recovering) {
+        while(!have(parser, type)) {
+            if(have(parser, TOKEN_EOF)) { break; }
+            lexer_nextToken(&parser->lexer);
+        }
+        parser->recovering = false;
+        return match(parser, type);
+    } else {
+        if(match(parser, type)) { return true; }
+        syntaxError(parser, type);
+        return false;
+    }
 }
 
 

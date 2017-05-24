@@ -338,8 +338,9 @@ void lexer_nextToken(OCLexer* lexer) {
                     _eatLineComment(lexer);
                 } else {
                     _twoChars(lexer, '=', TOKEN_SLASHEQ, TOKEN_SLASH);
+                    return;
                 }
-                return;
+                break;
             
             case '-':
                 if(_match(lexer, '>')) {
