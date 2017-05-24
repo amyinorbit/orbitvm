@@ -90,6 +90,8 @@ primitive       ::= 'Nil'
                   | 'Boolean'
                   | 'String'
                   | 'Any'
+func-type       ::= '(' (type-list)? ')' '->' type
+type-list       ::= type (',' type)*
 array-type      ::= 'Array' '[' type ']'
 map-type        ::= 'Map' '[' type ':' type ']'
 user-type       ::= identifier
