@@ -38,10 +38,13 @@ static void compilerError(OCParser* parser, const char* fmt, ...) {
     parser->recovering = true;
     OASSERT(parser != NULL, "Null instance error");
     
-    fprintf(stderr, "%s:%llu:%llu: error: ",
+    fprintf(stderr, "%s:%llu:%llu: ",
                      parser->lexer.path,
                      parser->lexer.currentToken.line,
                      parser->lexer.currentToken.column);
+    orbit_setConsoleColor(stderr, CLI_RED);
+    fprintf(stderr, "error: ");
+    orbit_setConsoleColor(stderr, CLI_RESET);
     va_list va;
     va_start(va, fmt);
     vfprintf(stderr, fmt, va);
@@ -58,11 +61,11 @@ static void syntaxError(OCParser* parser, OCTokenType type) {
     parser->recovering = true;
     
     OCToken tok  = current(parser);
-    fprintf(stderr, "%s:%llu:%llu: error: expected '%s' (found '%s')\n",
-            parser->lexer.path,
-            tok.line, tok.column,
-            orbit_tokenString(type),
-            orbit_tokenString(parser->lexer.currentToken.type));
+    fprintf(stderr, "%s:%llu:%llu: ", parser->lexer.path, tok.line, tok.column);
+    orbit_setConsoleColor(stderr, CLI_RED);
+    fprintf(stderr, "error: ");
+    orbit_setConsoleColor(stderr, CLI_RESET);
+    fprintf(stderr, "expected '%s'\n", orbit_tokenString(type));
     lexer_printLine(stderr, &parser->lexer);
     orbit_printSquigglies(stderr, tok.column, parser->lexer.currentToken.displayWidth);
 }
