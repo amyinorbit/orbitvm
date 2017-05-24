@@ -10,6 +10,7 @@
 #include <stdarg.h>
 #include <orbit/orbit_utils.h>
 #include "orbit_lexer.h"
+#include "wcwidth.h"
 
 
 static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
@@ -84,6 +85,7 @@ static codepoint_t _nextChar(OCLexer* lexer) {
     
     // advance the current character pointer.
     int8_t size = utf8_codepointSize(lexer->currentChar);
+    int displayWidth = mk_wcwidth(lexer->currentChar);
     if(size > 0 && lexer->currentChar != 0) {
         lexer->currentPtr += size;
     }
@@ -94,7 +96,7 @@ static codepoint_t _nextChar(OCLexer* lexer) {
         lexer->column = 0;
         lexer->linePtr = lexer->currentPtr;
     } else {
-        lexer->column += 1;
+        lexer->column += displayWidth;
     }
     
     return lexer->currentChar;
@@ -107,10 +109,12 @@ static inline codepoint_t _next(OCLexer* lexer) {
 
 static void _makeToken(OCLexer* lexer, int type) {
     OASSERT(lexer != NULL, "Null instance error");
-    lexer->currentToken.startOfLine = lexer->startOfLine;
     lexer->currentToken.type = type;
     lexer->currentToken.start = lexer->tokenStart;
     lexer->currentToken.length = lexer->currentPtr - lexer->tokenStart;
+
+    lexer->currentToken.startOfLine = lexer->startOfLine;
+    lexer->currentToken.displayWidth = lexer->column - lexer->currentToken.column;
     
     // We reset the start of line marker after a token is produced.
     lexer->startOfLine = false;
@@ -242,6 +246,7 @@ static void _lexString(OCLexer* lexer) {
     lexer->currentToken.type = TOKEN_STRING_LITERAL;
     lexer->currentToken.start = lexer->string.buffer;
     lexer->currentToken.length = lexer->string.length;
+    lexer->currentToken.displayWidth = lexer->column - lexer->currentToken.column;
 }
 
 static inline bool isDigit(codepoint_t c) {

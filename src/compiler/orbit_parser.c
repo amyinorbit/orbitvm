@@ -48,7 +48,8 @@ static void compilerError(OCParser* parser, const char* fmt, ...) {
     va_end(va);
     fputc('\n', stderr);
     lexer_printLine(stderr, &parser->lexer);
-    orbit_printSquigglies(stderr, parser->lexer.currentToken.column, parser->lexer.currentToken.length);
+    orbit_printSquigglies(stderr, parser->lexer.currentToken.column,
+                                  parser->lexer.currentToken.displayWidth);
 }
 
 static void syntaxError(OCParser* parser, OCTokenType type) {
@@ -63,7 +64,7 @@ static void syntaxError(OCParser* parser, OCTokenType type) {
             orbit_tokenString(type),
             orbit_tokenString(parser->lexer.currentToken.type));
     lexer_printLine(stderr, &parser->lexer);
-    orbit_printSquigglies(stderr, tok.column, tok.length);
+    orbit_printSquigglies(stderr, tok.column, parser->lexer.currentToken.displayWidth);
 }
 
 // MARK: - RD Basics
@@ -300,6 +301,9 @@ static void recForLoop(OCParser* parser) {
     recBlock(parser);
 }
 
+// We don't embed precedence in the grammar - instead any expression
+// is parsed using precedence-climbing
+// http://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing
 static void recExpression(OCParser* parser, int minPrec) {
     recTerm(parser);
     for(;;) {

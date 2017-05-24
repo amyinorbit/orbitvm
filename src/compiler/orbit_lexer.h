@@ -19,8 +19,11 @@ typedef struct _OCToken OCToken;
 struct _OCToken {
     int             type;
     const char*     start;
-    bool            startOfLine;
     uint64_t        length;
+    
+    bool            startOfLine;
+    
+    uint64_t        displayWidth;
     uint64_t        line;
     uint64_t        column;
 };
