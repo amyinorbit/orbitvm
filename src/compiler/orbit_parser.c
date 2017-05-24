@@ -108,6 +108,25 @@ static inline bool haveTerm(OCParser* parser) {
         || have(parser, TOKEN_FLOAT_LITERAL);
 }
 
+static inline bool havePrimitiveType(OCParser* parser) {
+    return have(parser, TOKEN_NUMBER)
+        || have(parser, TOKEN_BOOL)
+        || have(parser, TOKEN_BOOL)
+        || have(parser, TOKEN_STRING)
+        || have(parser, TOKEN_NIL)
+        || have(parser, TOKEN_VOID)
+        || have(parser, TOKEN_ANY);
+}
+
+static inline bool haveType(OCParser* parser) {
+    return havePrimitiveType(parser)
+        || have(parser, TOKEN_MAYBE)
+        || have(parser, TOKEN_LPAREN)
+        || have(parser, TOKEN_ARRAY)
+        || have(parser, TOKEN_MAP)
+        || have(parser, TOKEN_IDENTIFIER);
+}
+
 // Few functions to allow optional semicolons, swift-style.
 // https://stackoverflow.com/questions/17646002
 //
@@ -178,6 +197,7 @@ static void recFuncCall(OCParser*);
 static void recExprList(OCParser*);
 
 static void recType(OCParser*);
+static void recFuncType(OCParser*);
 static void recTypename(OCParser*);
 static void recPrimitive(OCParser*);
 static void recArrayType(OCParser*);
@@ -414,14 +434,13 @@ static void recType(OCParser* parser) {
     recTypename(parser);
 }
 
+
 static void recTypename(OCParser* parser) {
-    if(have(parser, TOKEN_NUMBER)
-       || have(parser, TOKEN_BOOL)
-       || have(parser, TOKEN_STRING)
-       || have(parser, TOKEN_NIL)
-       || have(parser, TOKEN_VOID)
-       || have(parser, TOKEN_ANY)) {
+    if(havePrimitiveType(parser)) {
        recPrimitive(parser);
+   }
+   else if(have(parser, TOKEN_LPAREN)) {
+       recFuncType(parser);
    }
    else if(have(parser, TOKEN_ARRAY)) {
        recArrayType(parser);
@@ -436,6 +455,19 @@ static void recTypename(OCParser* parser) {
    else {
        compilerError(parser, "expected a type name");
    }
+}
+
+static void recFuncType(OCParser* parser) {
+    expect(parser, TOKEN_LPAREN);
+    for(;;) {
+        if(haveType(parser))
+            recType(parser);
+        else
+            break;
+    }
+    expect(parser, TOKEN_RPAREN);
+    expect(parser, TOKEN_ARROW);
+    recType(parser);
 }
 
 static void recPrimitive(OCParser* parser) {
