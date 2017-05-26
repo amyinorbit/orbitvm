@@ -146,7 +146,7 @@ static const struct _kw {
     {"type",    4,  TOKEN_TYPE},
     {"return",  6,  TOKEN_RETURN},
     {"for",     3,  TOKEN_FOR},
-    {"in",      2,  TOKEN_BREAK},
+    {"in",      2,  TOKEN_IN},
     {"while",   5,  TOKEN_WHILE},
     {"break",   5,  TOKEN_BREAK},
     {"continue",7,  TOKEN_CONTINUE},

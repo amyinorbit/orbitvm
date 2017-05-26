@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <orbit/orbit_vm.h>
 
-void orbit_dumpTokens(OrbitVM* vm, const char* sourcePath, const char* source, uint64_t length);
+void orbit_dumpTokens(const char* sourcePath, const char* source, uint64_t length);
 
 bool orbit_compile(OrbitVM* vm, const char* sourcePath, const char* source, uint64_t length);
 

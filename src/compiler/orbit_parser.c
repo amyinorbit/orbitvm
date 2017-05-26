@@ -36,7 +36,6 @@ static void compilerError(OCParser* parser, const char* fmt, ...) {
     OASSERT(parser != NULL, "Null instance error");
     if(parser->recovering) { return; }
     parser->recovering = true;
-    OASSERT(parser != NULL, "Null instance error");
     
     fprintf(stderr, "%s:%llu:%llu: ",
                      parser->lexer.path,
@@ -338,7 +337,7 @@ static void recWhileLoop(OCParser* parser) {
 static void recForLoop(OCParser* parser) {
     expect(parser, TOKEN_FOR);
     expect(parser, TOKEN_IDENTIFIER);
-    expect(parser, TOKEN_COLON);
+    expect(parser, TOKEN_IN);
     recExpression(parser, 0);
     recBlock(parser);
 }
@@ -459,11 +458,12 @@ static void recTypename(OCParser* parser) {
 
 static void recFuncType(OCParser* parser) {
     expect(parser, TOKEN_LPAREN);
-    for(;;) {
-        if(haveType(parser))
+    
+    if(haveType(parser)) {
+        recType(parser);
+        while(match(parser, TOKEN_COMMA)) {
             recType(parser);
-        else
-            break;
+        }
     }
     expect(parser, TOKEN_RPAREN);
     expect(parser, TOKEN_ARROW);
@@ -517,21 +517,19 @@ static void recMapType(OCParser* parser) {
 //     expect(parser, TOKEN_STRING_LITERAL);
 // }
 
-void orbit_dumpTokens(OrbitVM* vm, const char* sourcePath, const char* source, uint64_t length) {
-    OCParser parser;
-    parser.vm = vm;
-    parser.recovering = false;
-    lexer_init(&parser.lexer, sourcePath, source, length);
+void orbit_dumpTokens(const char* sourcePath, const char* source, uint64_t length) {
+    OCLexer lex;
+    lexer_init(&lex, sourcePath, source, length);
     
-    lexer_nextToken(&parser.lexer);
-    while(!have(&parser, TOKEN_EOF)) {
-        OCToken tok = current(&parser);
+    lexer_nextToken(&lex);
+    while(lex.currentToken.type != TOKEN_EOF) {
+        OCToken tok = lex.currentToken;
         printf("%20s\t'%.*s'", orbit_tokenName(tok.type), (int)tok.length, tok.start);
         if(tok.startOfLine) {
             printf(" [line start]");
         }
         putchar('\n');
-        lexer_nextToken(&parser.lexer);
+        lexer_nextToken(&lex);
     }
 }
 
@@ -544,11 +542,6 @@ bool orbit_compile(OrbitVM* vm, const char* sourcePath, const char* source, uint
     
     lexer_nextToken(&parser.lexer);
     recProgram(&parser);
-//  while(!have(&parser, TOKEN_EOF)) {
-//         OCToken tok = current(&parser);
-//         printf("%20s\t'%.*s'\n", orbit_tokenName(tok.type), (int)tok.length, tok.start);
-//         lexer_nextToken(&parser.lexer);
-//     }
     return true;
 }
 
