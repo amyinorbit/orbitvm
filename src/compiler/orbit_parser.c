@@ -185,6 +185,8 @@ static void recConditional(OCParser*);
 static void recIfStatement(OCParser*);
 static void recWhileLoop(OCParser*);
 static void recForLoop(OCParser*);
+static void recFlowStatement(OCParser*);
+static void recReturnStatement(OCParser*);
 
 static void recExpression(OCParser*, int);
 static void recTerm(OCParser*);
@@ -227,7 +229,11 @@ static void recBlock(OCParser* parser) {
     for(;;) {
         if(have(parser, TOKEN_VAR))
             recVarDecl(parser);
-        else if(haveTerm(parser) || haveConditional(parser))
+        else if(haveTerm(parser)
+            || haveConditional(parser)
+            || have(parser, TOKEN_RETURN)
+            || have(parser, TOKEN_BREAK)
+            || have(parser, TOKEN_CONTINUE))
             recStatement(parser);
         else
             break;
@@ -297,6 +303,12 @@ static void recStatement(OCParser* parser) {
     else if(haveTerm(parser)) {
         recExpression(parser, 0);
     }
+    else if(have(parser, TOKEN_RETURN)) {
+        recReturnStatement(parser);
+    }
+    else if(have(parser, TOKEN_BREAK) || have(parser, TOKEN_CONTINUE)) {
+        recFlowStatement(parser);
+    }
     else {
         compilerError(parser, "expected a statement");
     }
@@ -325,6 +337,23 @@ static void recIfStatement(OCParser* parser) {
             recIfStatement(parser);
         else
             compilerError(parser, "expected block or if statement");
+    }
+}
+
+static void recFlowStatement(OCParser* parser) {
+    if(have(parser, TOKEN_BREAK))
+        expect(parser, TOKEN_BREAK);
+    else if(have(parser, TOKEN_CONTINUE))
+        expect(parser, TOKEN_CONTINUE);
+    else
+        compilerError(parser, "expected break or continue");
+        
+}
+
+static void recReturnStatement(OCParser* parser) {
+    expect(parser, TOKEN_RETURN);
+    if(haveTerm(parser)) {
+        recExpression(parser, 0);
     }
 }
 

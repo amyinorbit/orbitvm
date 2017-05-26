@@ -26,12 +26,15 @@ parameter       ::= identifier ':' type
 // Statements
 
 block           ::= '{' (statement)* '}'
-statement       ::= (conditional | expression) terminator
+statement       ::= (conditional | expression | flow-statement | return-statement) terminator
 terminator      ::= ('\n' | ';')?
 
 conditional     ::= if-statement
                   | while-loop
                   | for-loop
+flow-statement  ::= 'continue'
+                  | 'break'
+return-statement::= 'return' (expression)?
 if-statement    ::= 'if' expression block ('else' statement)?
 while-loop      ::= 'while' expression block
 for-loop        ::= 'for' identifier 'in' expression block
