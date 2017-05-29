@@ -61,8 +61,7 @@ endif
 ifeq ($(DEBUG), 1)
 CFLAGS += -DDEBUG -ggdb -g -O0
 else
-CFLAGS += -DNDEBUG -O3 -flto
-LDFLAGS += -flto
+CFLAGS += -DNDEBUG -O3
 endif
 
 .PHONY: clean install spike tests
