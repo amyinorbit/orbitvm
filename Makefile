@@ -39,7 +39,7 @@ TESTS_OUT	:= $(PRODUCT_OUT)/tests
 LIBS		:= orbit
 ARCHS		:= 
 CFLAGS		:= -std=c11 -Wall $(addprefix -I,$(HEADERS_DIR))
-LDFLAGS		:= -L$(LIB_OUT)
+LDFLAGS		:= -L$(LIB_OUT) -lm
 
 # Object and headers lists
 SOURCES_COM := $(wildcard $(SOURCE_DIR)/compiler/*.c)
