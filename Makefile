@@ -10,6 +10,7 @@ RUNTIME		:= orbit
 STATIC_LIB	:= $(LIBRARY).a
 DYNAMIC_LIB := $(LIBRARY).dylib
 
+PLATFORM	:= macOS
 TOOLS_DIR	:= /usr/bin
 PREFIX		:= 
 
@@ -36,7 +37,7 @@ TESTS_OUT	:= $(PRODUCT_OUT)/tests
 
 # Compiler and linker flags
 LIBS		:= orbit
-ARCHS		:= -arch x86_64# -arch i386
+ARCHS		:= 
 CFLAGS		:= -std=c11 -Wall $(addprefix -I,$(HEADERS_DIR))
 LDFLAGS		:= -L$(LIB_OUT)
 
@@ -50,6 +51,12 @@ OBJECTS_COM := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_COM))
 OBJECTS_RT  := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_RT))
 OBJECTS_LIB := $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_LIB))
 OBJECTS_TEST:= $(patsubst $(SOURCE_DIR)/%.c, $(OBJECTS_OUT)/%.o, $(SOURCES_TEST))
+
+ifeq ($(PLATFORM), macOS)
+ARCHS := -arch x86_64 -arch i386
+else
+
+endif
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -DDEBUG -ggdb -g -O0
