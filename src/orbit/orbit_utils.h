@@ -12,8 +12,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
-
-typedef struct _OrbitVM OrbitVM;
+#include <orbit/orbit.h>
 
 #define ALLOC(vm, type) \
     orbit_allocator(vm, NULL, sizeof(type))

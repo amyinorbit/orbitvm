@@ -49,10 +49,11 @@ int main(int argc, const char** args) {
         fprintf(stderr, "error opening `%s`\n", args[1]);
         return -1;
     }
-    if(compile)
+    if(compile) {
         orbit_compile(NULL, args[1], source, length);
-    else
-        orbit_dumpTokens(NULL, args[1], source, length);
+    } else {
+        orbit_dumpTokens(args[1], source, length);
+    }
     free(source);
     return 0;
 }

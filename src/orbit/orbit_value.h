@@ -11,9 +11,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <orbit/orbit.h>
 #include "orbit_platforms.h"
-
-typedef struct _OrbitVM     OrbitVM;
 
 typedef enum _ValueType     ValueType;
 typedef enum _GCFnType      GCFnType;

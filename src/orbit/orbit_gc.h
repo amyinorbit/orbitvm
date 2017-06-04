@@ -8,6 +8,7 @@
 #ifndef orbit_gc_h
 #define orbit_gc_h
 
+#include <orbit/orbit.h>
 #include "orbit_value.h"
 #include "orbit_vm.h"
 
