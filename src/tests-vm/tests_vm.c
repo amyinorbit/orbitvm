@@ -176,6 +176,20 @@ void string_hash(void) {
     orbit_vmDealloc(vm);
 }
 
+void string_emptyHash(void) {
+    OrbitVM* vm = orbit_vmNew();
+    GCString* a = orbit_gcStringNew(vm, "");
+    GCString* b = orbit_gcStringNew(vm, "");
+    
+    TEST_ASSERT_NOT_NULL(a);
+    TEST_ASSERT_NOT_NULL(b);
+    
+    TEST_ASSERT_EQUAL(a->hash, b->hash);
+    
+    orbit_gcRun(vm);
+    orbit_vmDealloc(vm);
+}
+
 void double_hash(void) {
     TEST_ASSERT_EQUAL(orbit_hashDouble(12345.6789), orbit_hashDouble(12345.6789));
     TEST_ASSERT_NOT_EQUAL(orbit_hashDouble(-123.456), orbit_hashDouble(123.456));
@@ -429,6 +443,7 @@ int main(void) {
     RUN_TEST(gc_savestack);
     RUN_TEST(string_create);
     RUN_TEST(string_hash);
+    RUN_TEST(string_emptyHash);
     RUN_TEST(double_hash);
     
     RUN_TEST(gcarray_new);
