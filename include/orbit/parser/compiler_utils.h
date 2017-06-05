@@ -1,6 +1,6 @@
 //
 //  compiler_utils.h
-//  OrbitVM
+//  Orbit - Parser
 //
 //  Created by Amy Parent on 2017-05-21.
 //  Copyright © 2017 Amy Parent. All rights reserved.

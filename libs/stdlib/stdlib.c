@@ -1,6 +1,6 @@
 //
-//  orbit_stdlib.c
-//  OrbitVM
+//  orbit/stdlib/stdlib.c
+//  Orbit - Standard Library
 //
 //  Created by Amy Parent on 2017-02-10.
 //  Copyright © 2017 Amy Parent. All rights reserved.

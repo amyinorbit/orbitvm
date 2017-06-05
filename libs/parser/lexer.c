@@ -1,6 +1,6 @@
 //
-//  orbit_lexer.c
-//  OrbitVM
+//  orbit/parser/lexer.c
+//  Orbit - Parser
 //
 //  Created by Amy Parent on 2017-03-01.
 //  Copyright © 2017 Amy Parent. All rights reserved.

@@ -1,6 +1,6 @@
 //
-//  orbit_vm.h
-//  OrbitVM
+//  orbit/runtime/vm.h
+//  Orbit - Runtime
 //
 //  Created by Amy Parent on 2017-01-03.
 //  Copyright © 2017 Amy Parent. All rights reserved.

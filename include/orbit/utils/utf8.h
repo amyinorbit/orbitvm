@@ -1,6 +1,6 @@
 //
-//  orbit_utf8.h
-//  OrbitVM
+//  orbit/utils/utf8.h
+//  Orbit - Utils
 //
 //  Created by Amy Parent on 2017-02-06.
 //  Copyright © 2017 Amy Parent. All rights reserved.

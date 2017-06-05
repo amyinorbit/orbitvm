@@ -1,6 +1,6 @@
 //
-//  orbit_opcodes.h
-//  OrbitVM
+//  orbit/runtime/opcodes.h
+//  Orbit - Runtime
 //
 //  Created by Amy Parent on 2016-11-13.
 //  Copyright © 2016-2017 Amy Parent. All rights reserved.

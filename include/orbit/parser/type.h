@@ -1,6 +1,6 @@
 //
-//  orbit_type.h
-//  OrbitVM
+//  orbit/parser/type.h
+//  Orbit - Parser
 //
 //  Created by Amy Parent on 2017-05-26.
 //  Copyright © 2017 Amy Parent. All rights reserved.

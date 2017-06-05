@@ -1,6 +1,6 @@
 //
-//  orbit_gc.c
-//  OrbitVM
+//  orbit/runtime/gc.c
+//  Orbit - Runtime
 //
 //  Created by Amy Parent on 2017-01-12.
 //  Copyright © 2017 Amy Parent. All rights reserved.

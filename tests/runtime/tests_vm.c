@@ -1,6 +1,6 @@
 //
 //  tests-vm/tests-vm.c
-//  OrbitVM/Tests
+//  Orbit - /Tests
 //
 //  Created by Amy Parent on 2016-12-24.
 //  Copyright © 2016 Amy Parent. All rights reserved.
