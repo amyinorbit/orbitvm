@@ -35,8 +35,7 @@ The next steps are:
  * [ ] **rework project structure and build system**
  * [x] define complete Orbit grammar
  * [x] implement Recursive-descent parser
- * [-] describe Orbit type system
- * [ ]
+ * [x] describe Orbit type system
  * [ ] provide AST walker API:
      * [ ] implement OMF backend (source to orbit module file)
      * [ ] implement direct codegen backend (source to VM, REPL)
