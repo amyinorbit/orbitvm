@@ -4,5 +4,5 @@
 mkdir -p build
 cd build
 cmake .. -G Ninja
-cmake --build .
+cmake --build . --target install
 
