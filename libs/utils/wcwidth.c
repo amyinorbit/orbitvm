@@ -61,7 +61,7 @@
  * Latest version: http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
  */
 
-#include "wcwidth.h"
+#include <orbit/utils/wcwidth.h>
 
 struct interval {
   int32_t first;

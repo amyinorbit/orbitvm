@@ -6,11 +6,11 @@
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
 #include <stdarg.h>
-#include <utils/orbit_assert.h>
-#include "orbit_parser.h"
-#include "orbit_tokens.h"
-#include "orbit_lexer.h"
-#include "compiler_utils.h"
+#include <orbit/utils/orbit_assert.h>
+#include <orbit/parser/orbit_parser.h>
+#include <orbit/parser/orbit_tokens.h>
+#include <orbit/parser/orbit_lexer.h>
+#include <orbit/parser/compiler_utils.h>
 
 typedef struct {
     OCLexer     lexer;

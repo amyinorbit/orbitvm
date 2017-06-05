@@ -8,8 +8,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include "orbit_lexer.h"
-#include "wcwidth.h"
+#include <orbit/parser/orbit_lexer.h>
+#include <orbit/utils/wcwidth.h>
 
 
 static void _lexerError(OCLexer* lexer, const char* fmt, ...) {

@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <parser/orbit_parser.h>
+#include <orbit/parser/orbit_parser.h>
 
 static char* loadSource(const char* path, uint64_t* length) {
     FILE* f = fopen(path, "r");

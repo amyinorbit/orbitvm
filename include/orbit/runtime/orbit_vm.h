@@ -10,9 +10,9 @@
 
 #include <stdint.h>
 #include <orbit/orbit.h>
-#include <utils/orbit_assert.h>
-#include "orbit_rtutils.h"
-#include "orbit_value.h"
+#include <orbit/utils/orbit_assert.h>
+#include <orbit/runtime/orbit_rtutils.h>
+#include <orbit/runtime/orbit_value.h>
 
 // We use the X-Macro to define the opcode enum
 #define OPCODE(code, idx, stack) CODE_##code,

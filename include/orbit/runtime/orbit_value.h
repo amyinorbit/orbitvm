@@ -12,7 +12,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <orbit/orbit.h>
-#include <utils/orbit_platforms.h>
+#include <orbit/utils/orbit_platforms.h>
 
 typedef enum _ValueType     ValueType;
 typedef enum _GCFnType      GCFnType;

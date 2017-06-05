@@ -7,11 +7,11 @@
 //
 #include <string.h>
 #include <math.h>
-#include <runtime/orbit_value.h>
-#include <runtime/orbit_vm.h>
-#include <utils/orbit_platforms.h>
-#include <utils/orbit_utf8.h>
-#include "orbit_stdlib.h"
+#include <orbit/runtime/orbit_value.h>
+#include <orbit/runtime/orbit_vm.h>
+#include <orbit/utils/orbit_platforms.h>
+#include <orbit/utils/orbit_utf8.h>
+#include <orbit/stdlib/orbit_stdlib.h>
 
 #define REGISTER_FN(name, arity) orbit_registerFn(vm, #name, &(name), (arity))
 

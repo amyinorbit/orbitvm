@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include "orbit_tokens.h"
+#include <orbit/parser/orbit_tokens.h>
 
 typedef enum {
     CLI_RESET,

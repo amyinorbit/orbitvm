@@ -5,7 +5,7 @@
 //  Created by Amy Parent on 2017-05-21.
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
-#include "compiler_utils.h"
+#include <orbit/parser/compiler_utils.h>
 
 static const char* _ansiCodes[] = {
     [CLI_RESET]     = "\033[0m",

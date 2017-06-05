@@ -5,7 +5,7 @@
 //  Created by Amy Parent on 2017-01-12.
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
-#include "orbit_pack.h"
+#include <orbit/utils/orbit_pack.h>
 
 #define IEEE754_BITS 64
 #define IEEE754_EXPBITS 11

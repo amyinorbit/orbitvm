@@ -62,7 +62,7 @@
 #ifndef wcwidth_h
 #define wcwidth_h
 #include <stdint.h>
-#include <utils/orbit_utf8.h>
+#include <orbit/utils/orbit_utf8.h>
 
 /* The following two functions define the column width of an ISO 10646
  * character as follows:
