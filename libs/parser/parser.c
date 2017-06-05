@@ -6,10 +6,10 @@
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
 #include <stdarg.h>
-#include <orbit/utils/orbit_assert.h>
-#include <orbit/parser/orbit_parser.h>
-#include <orbit/parser/orbit_tokens.h>
-#include <orbit/parser/orbit_lexer.h>
+#include <orbit/utils/assert.h>
+#include <orbit/parser/parser.h>
+#include <orbit/parser/tokens.h>
+#include <orbit/parser/lexer.h>
 #include <orbit/parser/compiler_utils.h>
 
 typedef struct {

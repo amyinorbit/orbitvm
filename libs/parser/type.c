@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <orbit/parser/orbit_type.h>
+#include <orbit/parser/type.h>
 
 #define TYPE_DEFAULT_CAPACITY (64)
 

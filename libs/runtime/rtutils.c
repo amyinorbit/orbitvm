@@ -5,10 +5,10 @@
 //  Created by Amy Parent on 2016-12-06.
 //  Copyright © 2016-2017 Amy Parent. All rights reserved.
 //
-#include <orbit/utils/orbit_assert.h>
-#include <orbit/runtime/orbit_rtutils.h>
-#include <orbit/runtime/orbit_vm.h>
-#include <orbit/runtime/orbit_gc.h>
+#include <orbit/utils/assert.h>
+#include <orbit/runtime/rtutils.h>
+#include <orbit/runtime/vm.h>
+#include <orbit/runtime/gc.h>
 
 void* orbit_allocator(OrbitVM* vm, void* ptr, size_t newSize) {
     OASSERT(vm != NULL, "Null instance error");

@@ -6,10 +6,10 @@
 //  Copyright © 2016-2017 Amy Parent. All rights reserved.
 //
 #include <string.h>
-#include <orbit/utils/orbit_assert.h>
-#include <orbit/runtime/orbit_value.h>
-#include <orbit/runtime/orbit_rtutils.h>
-#include <orbit/runtime/orbit_vm.h>
+#include <orbit/utils/assert.h>
+#include <orbit/runtime/value.h>
+#include <orbit/runtime/rtutils.h>
+#include <orbit/runtime/vm.h>
 
 // Initialises [object] as an instance of [class]. [class] can be NULL if the
 // object being initialized is a class itself.

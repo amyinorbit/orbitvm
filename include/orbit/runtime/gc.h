@@ -9,8 +9,8 @@
 #define orbit_gc_h
 
 #include <orbit/orbit.h>
-#include <orbit/runtime/orbit_value.h>
-#include <orbit/runtime/orbit_vm.h>
+#include <orbit/runtime/value.h>
+#include <orbit/runtime/vm.h>
 
 void orbit_gcRun(OrbitVM* vm);
 

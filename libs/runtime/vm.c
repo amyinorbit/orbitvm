@@ -7,9 +7,9 @@
 //
 #include <string.h>
 #include <stdbool.h>
-#include <orbit/runtime/orbit_vm.h>
-#include <orbit/runtime/orbit_objfile.h>
-#include <orbit/runtime/orbit_gc.h>
+#include <orbit/runtime/vm.h>
+#include <orbit/runtime/objfile.h>
+#include <orbit/runtime/gc.h>
 
 static bool orbit_vmRun(OrbitVM*, VMTask*);
 
@@ -172,7 +172,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
 #ifdef ORBIT_FAST_INTERPRET
     #define OPCODE(code, _, __) &&code_##code,
     static void* dispatch[] = {
-    #include <orbit/runtime/orbit_opcodes.h>
+    #include <orbit/runtime/opcodes.h>
     };
     #undef OPCODE
     #define CASE_OP(code) code_##code

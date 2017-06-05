@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <orbit/stdlib/orbit_stdlib.h>
+#include <orbit/stdlib/stdlib.h>
 #include <orbit/orbit.h>
 
 int main(int argc, const char** argv) {

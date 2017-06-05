@@ -5,9 +5,9 @@
 //  Created by Amy Parent on 2017-01-12.
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
-#include <orbit/utils/orbit_assert.h>
-#include <orbit/runtime/orbit_gc.h>
-#include <orbit/runtime/orbit_vm.h>
+#include <orbit/utils/assert.h>
+#include <orbit/runtime/gc.h>
+#include <orbit/runtime/vm.h>
 
 #ifdef DEBUG_GC
 #define GCDBG(fmt, ...) DBG(fmt, ##__VA_ARGS__)

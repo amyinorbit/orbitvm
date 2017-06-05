@@ -6,7 +6,7 @@
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
 #include <ctype.h>
-#include <orbit/utils/orbit_utf8.h>
+#include <orbit/utils/utf8.h>
 
 #define IN_RANGE(val, lower, upper) ((val) >= (lower) && (val) <= (upper))
 
