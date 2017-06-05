@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib/orbit_stdlib.h>
 #include <orbit/orbit.h>
 
 int main(int argc, const char** argv) {
@@ -11,6 +12,7 @@ int main(int argc, const char** argv) {
     }
     
     OrbitVM* vm = orbit_vmNew();
+    orbit_registerStandardLib(vm);
     if(!orbit_vmInvoke(vm, argv[1], "main")) {
         fprintf(stderr, "error: interpreter error\n");
     }
