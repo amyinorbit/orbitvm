@@ -10,7 +10,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <orbit/orbit_utf8.h>
+#include <utils/orbit_assert.h>
+#include <utils/orbit_utf8.h>
 #include "orbit_tokens.h"
 
 typedef struct _OCLexer OCLexer;

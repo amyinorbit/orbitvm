@@ -1,12 +1,12 @@
 //
 //  orbit_ast.h
-//  OrbitVM
+//  Orbit - Parser
 //
 //  Created by Amy Parent on 2017-05-24.
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
 #ifndef orbit_ast_h
-#define orbit_adt_h
+#define orbit_ast_h
 
 typedef struct _OCAstNode OCAstNode;
 typedef enum {
@@ -32,4 +32,4 @@ typedef struct _OCAstNode {
     };
 };
 
-#endif /* orbit_adt_h */
+#endif /* orbit_ast_h */

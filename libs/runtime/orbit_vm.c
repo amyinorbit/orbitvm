@@ -8,10 +8,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include "orbit_vm.h"
-#include "orbit_utils.h"
 #include "orbit_objfile.h"
 #include "orbit_gc.h"
-#include "orbit_stdlib.h"
 
 static bool orbit_vmRun(OrbitVM*, VMTask*);
 
@@ -30,7 +28,7 @@ OrbitVM* orbit_vmNew() {
     
     vm->gcStackSize = 0;
     
-    orbit_registerStandardLib(vm);
+    //orbit_registerStandardLib(vm);
     
     return vm;
 }

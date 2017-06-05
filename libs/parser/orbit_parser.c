@@ -6,7 +6,7 @@
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
 #include <stdarg.h>
-#include <orbit/orbit_utils.h>
+#include <utils/orbit_assert.h>
 #include "orbit_parser.h"
 #include "orbit_tokens.h"
 #include "orbit_lexer.h"
@@ -15,7 +15,6 @@
 typedef struct {
     OCLexer     lexer;
     bool        recovering;
-    OrbitVM*    vm;
 } OCParser;
 
 // MARK: - Basic RD parser utilities
@@ -562,10 +561,9 @@ void orbit_dumpTokens(const char* sourcePath, const char* source, uint64_t lengt
     }
 }
 
-bool orbit_compile(OrbitVM* vm, const char* sourcePath, const char* source, uint64_t length) {
+bool orbit_compile(const char* sourcePath, const char* source, uint64_t length) {
     
     OCParser parser;
-    parser.vm = vm;
     parser.recovering = false;
     lexer_init(&parser.lexer, sourcePath, source, length);
     

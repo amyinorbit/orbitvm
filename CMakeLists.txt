@@ -3,7 +3,7 @@ project(Orbit VERSION 0.1 LANGUAGES C)
 
 enable_testing()
 
-include_directories(PRIVATE src)
+include_directories(PRIVATE libs)
 include_directories(PUBLIC include)
 
 #set(CMAKE_BINARY_DIR "./products")

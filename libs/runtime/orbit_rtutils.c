@@ -5,7 +5,8 @@
 //  Created by Amy Parent on 2016-12-06.
 //  Copyright © 2016-2017 Amy Parent. All rights reserved.
 //
-#include "orbit_utils.h"
+#include <utils/orbit_assert.h>
+#include "orbit_rtutils.h"
 #include "orbit_vm.h"
 #include "orbit_gc.h"
 

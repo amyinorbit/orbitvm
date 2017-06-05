@@ -7,7 +7,6 @@
 //
 #include <ctype.h>
 #include "orbit_utf8.h"
-#include "orbit_utils.h"
 
 #define IN_RANGE(val, lower, upper) ((val) >= (lower) && (val) <= (upper))
 

@@ -11,8 +11,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <utils/orbit_platforms.h>
 #include "orbit_value.h"
-#include "orbit_platforms.h"
 
 // Object Files are binary files that contain the bytecode and user type info
 // compiled from an orbit source file. 

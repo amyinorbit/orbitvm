@@ -7,10 +7,11 @@
 //
 #include <stdlib.h>
 #include <string.h>
+#include <utils/orbit_assert.h>
+#include <utils/orbit_pack.h>
+#include "orbit_rtutils.h"
 #include "orbit_objfile.h"
 #include "orbit_vm.h"
-#include "orbit_pack.h"
-#include "orbit_utils.h"
 
 static bool _expect(FILE* in, OMFTag expected, OrbitPackError* error) {
     uint8_t tag = orbit_unpack8(in, error);

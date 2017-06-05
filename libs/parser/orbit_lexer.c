@@ -8,7 +8,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <orbit/orbit_utils.h>
 #include "orbit_lexer.h"
 #include "wcwidth.h"
 

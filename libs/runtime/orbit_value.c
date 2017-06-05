@@ -6,8 +6,9 @@
 //  Copyright © 2016-2017 Amy Parent. All rights reserved.
 //
 #include <string.h>
+#include <utils/orbit_assert.h>
 #include "orbit_value.h"
-#include "orbit_utils.h"
+#include "orbit_rtutils.h"
 #include "orbit_vm.h"
 
 // Initialises [object] as an instance of [class]. [class] can be NULL if the
