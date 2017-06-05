@@ -3,7 +3,7 @@
 //  OrbitVM
 //
 //  Created by Amy Parent on 2016-12-06.
-//  Copyright © 2016 Amy Parent. All rights reserved.
+//  Copyright © 2016-2017 Amy Parent. All rights reserved.
 //
 #include "orbit_utils.h"
 #include "orbit_vm.h"

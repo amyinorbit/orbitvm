@@ -3,7 +3,7 @@
 //  OrbitVM
 //
 //  Created by Amy Parent on 2016-11-13.
-//  Copyright © 2016 Amy Parent. All rights reserved.
+//  Copyright © 2016-2017 Amy Parent. All rights reserved.
 //
 //  Opcodes used by the Orbit VM. This include is meant to be used as an
 //  X-macro (see https://en.wikipedia.org/wiki/X_Macro ). The order of

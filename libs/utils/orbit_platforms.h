@@ -1,12 +1,12 @@
 //
 //  orbit_platforms.h
-//  OrbitVM
+//  Orbit - Utils
 //
 //  Created by Amy Parent on 2016-11-14.
-//  Copyright © 2016 Amy Parent. All rights reserved.
+//  Copyright © 2016-2017 Amy Parent. All rights reserved.
 //
-#ifndef OrbitPlatforms_h
-#define OrbitPlatforms_h
+#ifndef orbit_platforms_h
+#define orbit_platforms_h
 
 #ifdef _WIN32
 #define ORBIT_PLATFORM "Windows"
@@ -37,4 +37,4 @@
 #define ORBIT_FLEXIBLE_ARRRAY_MEMB  0
 #endif
 
-#endif /* OrbitPlatforms_h */
+#endif /* orbit_platforms_h */
