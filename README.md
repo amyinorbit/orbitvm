@@ -32,7 +32,8 @@ can generate Orbit Module Files, and OrbitVM can load them and run their
 bytecode.
 
 The next steps are:
- * [ ] **rework project structure and build system**
+ * [x] rework project structure and build system
+ * [ ] organise files/modules according to new project layout
  * [x] define complete Orbit grammar
  * [x] implement Recursive-descent parser
  * [x] describe Orbit type system
