@@ -31,21 +31,20 @@ and call foreign functions (defined from the C API). The garbage collector
 can generate Orbit Module Files, and OrbitVM can load them and run their 
 bytecode.
 
-The immediate next steps are:
+The next steps are:
+ * [ ] **rework project structure and build system**
+ * [x] define complete Orbit grammar
+ * [x] implement Recursive-descent parser
+ * [-] describe Orbit type system
+ * [ ]
+ * [ ] provide AST walker API:
+     * [ ] implement OMF backend (source to orbit module file)
+     * [ ] implement direct codegen backend (source to VM, REPL)
 
  * [ ] improve module loading and registration in the VM
  * [ ] add dependency import system
  * [ ] improve UTF-8 support and string library
  * [ ] implement a basic standard library
  * [ ] improve runtime error printing, and provide some error handling
-
-Once this is done, the next main step will be the compiler:
-
- * [ ] define complete Orbit grammar
- * [ ] describe Orbit type system
- * [ ] implement Recursive-descent parser
- * [ ] provide AST walker API:
-     * [ ] implement OMF backend (source to orbit module file)
-     * [ ] implement direct codegen backend (source to VM, REPL)
 
    [1]: http://www.throwtheswitch.org/unity/
