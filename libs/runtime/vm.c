@@ -165,6 +165,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
 #define PUSH(value) (*(task->sp++) = (value))
 #define PEEK() (*(task->sp - 1))
 #define POP() (*(--task->sp))
+#define DROP() (--task->sp)
     
 #define READ8() (*(ip++))
 #define READ16() (ip += 2, (uint16_t)((ip[-2] << 8) | ip[-1]))
@@ -345,7 +346,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             NEXT();
             
         CASE_OP(pop):
-            POP();
+            DROP();
             NEXT();
             
         CASE_OP(swap):
