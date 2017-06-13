@@ -280,9 +280,10 @@ static void recFuncDecl(OCParser* parser) {
     }
     
     expect(parser, TOKEN_RPAREN);
-    expect(parser, TOKEN_ARROW);
     
-    recType(parser);
+    if(match(parser, TOKEN_ARROW)) {
+        recType(parser);
+    }
     recBlock(parser);
 }
 
