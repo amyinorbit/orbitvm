@@ -189,7 +189,7 @@ static void _stringReserve(OCLexer* lexer) {
 
 static void _stringAppend(OCLexer* lexer, codepoint_t c) {
     int8_t size = utf8_codepointSize(c);
-    if(size < 0) { 
+    if(size < 0) {
         _lexerError(lexer, "Invalid codepoint found in string: U+%X\n", c);
         return;
     }
@@ -207,7 +207,7 @@ static void _lexString(OCLexer* lexer) {
     lexer->tokenStart += 1;
     
     // String literals cannot be tokenised by solely pointing into the source
-    // string, since there's the potential for 
+    // string, since there's the potential for
     lexer->string.buffer = NULL;
     lexer->string.length = 0;
     _stringReserve(lexer);

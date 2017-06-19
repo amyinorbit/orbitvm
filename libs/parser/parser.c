@@ -93,12 +93,12 @@ static inline bool haveUnaryOp(OCParser* parser) {
 
 static inline bool haveConditional(OCParser* parser) {
     return have(parser, TOKEN_IF)
-        || have(parser, TOKEN_FOR) 
+        || have(parser, TOKEN_FOR)
         || have(parser, TOKEN_WHILE);
 }
 
 static inline bool haveTerm(OCParser* parser) {
-    return haveUnaryOp(parser) 
+    return haveUnaryOp(parser)
         || have(parser, TOKEN_LPAREN)
         || have(parser, TOKEN_IDENTIFIER)
         || have(parser, TOKEN_STRING_LITERAL)
@@ -137,13 +137,14 @@ static inline bool implicitTerminator(OCParser* parser) {
 
 static bool expectTerminator(OCParser* parser) {
     if(parser->recovering) {
-        while(!have(parser, TOKEN_SEMICOLON) || implicitTerminator(parser)) {
-            if(have(parser, TOKEN_EOF)) { break; }
+        while(!have(parser, TOKEN_SEMICOLON) && !have(parser, TOKEN_EOF) && !implicitTerminator(parser)) {
             lexer_nextToken(&parser->lexer);
         }
+        if(have(parser, TOKEN_EOF)) {
+            return false;
+        }
         parser->recovering = false;
-        match(parser, TOKEN_SEMICOLON);
-        return true;
+        return have(parser, TOKEN_SEMICOLON) ? match(parser, TOKEN_SEMICOLON) : true;
     } else {
         if(match(parser, TOKEN_SEMICOLON) || implicitTerminator(parser)) {
             return true;
@@ -155,9 +156,11 @@ static bool expectTerminator(OCParser* parser) {
 
 static bool expect(OCParser* parser, OCTokenType type) {
     if(parser->recovering) {
-        while(!have(parser, type)) {
-            if(have(parser, TOKEN_EOF)) { break; }
+        while(!have(parser, type) && !have(parser, TOKEN_EOF)) {
             lexer_nextToken(&parser->lexer);
+        }
+        if(have(parser, TOKEN_EOF)) {
+            return false;
         }
         parser->recovering = false;
         return match(parser, type);
@@ -232,7 +235,8 @@ static void recBlock(OCParser* parser) {
             || haveConditional(parser)
             || have(parser, TOKEN_RETURN)
             || have(parser, TOKEN_BREAK)
-            || have(parser, TOKEN_CONTINUE))
+            || have(parser, TOKEN_CONTINUE)
+            || have(parser, TOKEN_LBRACE))
             recStatement(parser);
         else
             break;
@@ -308,6 +312,9 @@ static void recStatement(OCParser* parser) {
     }
     else if(have(parser, TOKEN_BREAK) || have(parser, TOKEN_CONTINUE)) {
         recFlowStatement(parser);
+    }
+    else if(have(parser, TOKEN_LBRACE)) {
+        recBlock(parser);
     }
     else {
         compilerError(parser, "expected a statement");
@@ -572,4 +579,3 @@ bool orbit_compile(const char* sourcePath, const char* source, uint64_t length) 
     recProgram(&parser);
     return true;
 }
-
