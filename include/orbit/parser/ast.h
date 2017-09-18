@@ -17,6 +17,7 @@ typedef enum _ASTNodeType ASTNodeType;
 enum _ASTNodeType {
     
     // Statements + Blocks
+    AST_MODULE,
     AST_BLOCK,
     AST_CONDITIONAL,
     AST_LOOP,
@@ -40,6 +41,14 @@ struct _ASTNode {
     ASTNode*    parent;
     ASTNodeType type;
 };
+
+/// The Tree representation of a module (one orbit file)
+typedef struct _ASTModule {
+    const char* symbol;
+    
+    uint16_t    declarationCount;
+    ASTNode*    declarations[ORBIT_FLEXIBLE_ARRAY_MEMB]
+} ASTModule;
 
 /// A list of other nodes, used for code blocks.
 typedef struct _ASTBlock {
@@ -69,7 +78,7 @@ typedef struct _ASTLoop {
 typedef struct _ASTFuncDecl {
     ASTNode     base;
     
-    OCToken     name;
+    OCToken     symbol;
     OCToken     returnType;
     ASTBlock*   body;
     
@@ -80,7 +89,7 @@ typedef struct _ASTFuncDecl {
 typedef struct _ASTVarDecl {
     ASTNode     base;
     
-    OCToken     name;
+    OCToken     symbol;
     // TODO: move to the compiler-side type system
     OCToken     typeAnnotation;
 } ASTVarDecl;
@@ -88,14 +97,14 @@ typedef struct _ASTVarDecl {
 typedef struct _ASTParamDecl {
     ASTNode     base;
     
-    OCToken     name;
+    OCToken     symbol;
     OCToken     typeAnnotation;
 } ASTParamDecl;
 
 typedef struct _ASTStructDecl {
     ASTNode     base;
     
-    OCToken     name;
+    OCToken     symbol;
     ASTNode*    constructor;
     ASTNode*    destructor;
     
@@ -121,7 +130,7 @@ typedef struct _ASTBinaryOp {
 typedef struct _ASTFuncCall {
     ASTNode     base;
     
-    OCToken     reference;
+    OCToken     symbol;
     uint8_t     paramCount;
     ASTNode*    params[ORBIT_FLEXIBLE_ARRAY_MEMB];
 } ASTFuncCall;
@@ -129,13 +138,13 @@ typedef struct _ASTFuncCall {
 typedef struct _ASTSubscript {
     ASTNode     base;
     
-    OCToken     reference;
+    OCToken     symbol;
     ASTNode*    expression;
 } ASTSubscript;
 
 typedef struct _ASTLiteral {
     ASTNode     base;
-    OCToken     token;
+    OCToken     symbol;
 } ASTLiteral;
 
 #endif /* orbit_ast_h_ */
