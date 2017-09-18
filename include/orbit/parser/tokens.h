@@ -8,6 +8,8 @@
 #ifndef orbit_tokens_h
 #define orbit_tokens_h
 
+typedef struct _OCToken OCToken;
+
 typedef enum  {
     // Bracket types
     // (){}[]
@@ -97,5 +99,16 @@ typedef enum  {
     TOKEN_INVALID,
     
 } OCTokenType;
+
+struct _OCToken {
+    int             type;
+    const char*     start;
+    uint64_t        length;
+    bool            startOfLine;
+    
+    uint64_t        displayWidth;
+    uint64_t        line;
+    uint64_t        column;
+};
 
 #endif /* orbit_tokens_h_ */

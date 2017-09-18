@@ -15,19 +15,7 @@
 #include <orbit/utils/utf8.h>
 
 typedef struct _OCLexer OCLexer;
-typedef struct _OCToken OCToken;
 
-struct _OCToken {
-    int             type;
-    const char*     start;
-    uint64_t        length;
-    
-    bool            startOfLine;
-    
-    uint64_t        displayWidth;
-    uint64_t        line;
-    uint64_t        column;
-};
 
 /// A basic lexer
 struct _OCLexer {
