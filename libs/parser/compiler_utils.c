@@ -104,6 +104,7 @@ static const OCTokenData _tokenData[] = {
     [TOKEN_BOOL] = {"bool_kw", "Bool", false, false},
     [TOKEN_STRING] = {"string_kw", "String", false, false},
     [TOKEN_NIL] = {"nil_Kw", "Nil", false, false},
+    [TOKEN_VOID] = {"void_kw", "Void", false, false},
     [TOKEN_ANY] = {"any_kw", "Any", false, false},
     [TOKEN_EOF] = {"end_of_file", "end of file", false, false},
     [TOKEN_INVALID] = {"invalid", "invalid token", false, false},

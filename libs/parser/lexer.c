@@ -300,7 +300,6 @@ void lexer_nextToken(OCLexer* lexer) {
                 break;
             
             // single character tokens
-            //case '\n': _makeToken(lexer, TOKEN_NEWLINE); return;
             case ';': _makeToken(lexer, TOKEN_SEMICOLON);return;
             
             case '{': _makeToken(lexer, TOKEN_LBRACE);   return;
@@ -367,7 +366,7 @@ void lexer_nextToken(OCLexer* lexer) {
             
             case '#':
                 _eatLineComment(lexer);
-                return;
+                break;
                 
             case '"':
                 _lexString(lexer);

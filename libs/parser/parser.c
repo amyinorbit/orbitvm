@@ -430,25 +430,18 @@ static void recType(OCParser* parser) {
 
 
 static void recTypename(OCParser* parser) {
-    if(havePrimitiveType(parser)) {
-       recPrimitive(parser);
-   }
-   else if(have(parser, TOKEN_LPAREN)) {
-       recFuncType(parser);
-   }
-   else if(have(parser, TOKEN_ARRAY)) {
-       recArrayType(parser);
-   }
-   else if(have(parser, TOKEN_MAP)) {
-       recMapType(parser);
-   }
-   else if(have(parser, TOKEN_IDENTIFIER)) {
-       // TODO: user type
-       expect(parser, TOKEN_IDENTIFIER);
-   }
-   else {
-       compilerError(parser, "expected a type name");
-   }
+    if(havePrimitiveType(parser))
+        recPrimitive(parser);
+    else if(have(parser, TOKEN_LPAREN))
+        recFuncType(parser);
+    else if(have(parser, TOKEN_ARRAY))
+        recArrayType(parser);
+    else if(have(parser, TOKEN_MAP))
+        recMapType(parser);
+    else if(have(parser, TOKEN_IDENTIFIER))
+        expect(parser, TOKEN_IDENTIFIER);
+    else
+        compilerError(parser, "expected a type name");
 }
 
 static void recFuncType(OCParser* parser) {
