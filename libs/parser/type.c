@@ -112,15 +112,16 @@ static int64_t typeIndex(OCType* type) {
     return -1;
 }
 
-// Not sure whether the linked-list model is the best for what we're trying to do.
+// Not sure whether the linked-list model is the best for what we're trying
 // Currently, types can have:
 //  - a child type: either a type argument (for generic types), or a param list
 //  - a sibling/next: the next item in a type (params) list.
 //  - a return type. That's pretty obvious.
 //
-// Because of that model, the type table can contain weird, half-baked types. For example:
+// Because of that model, the type table can contain weird, half-baked types.
+// For example:
 //
-// function doStuff(arg1: String, arg2: String, arg3: Number) -> Void 
+// fun doStuff(arg1: String, arg2: String, arg3: Number) -> Void 
 //
 // would be translated as:
 //
@@ -136,11 +137,12 @@ static int64_t typeIndex(OCType* type) {
 //  String -> Number
 //  Number
 //
-// Though that means we can reuse `String->String` in a function that takes two string
-// params, it's also a tad weird to have all that in the table. Since the compiler runs
-// offline, or in the worst case once before running, it might be cleaner, if a bit less
-// efficient, to malloc the list table in each type, and have only valid, actual types
-// be in the table. A param list can still point to those.
+// Though that means we can reuse `String->String` in a function that takes two
+// string params, it's also a tad weird to have all that in the table. Since
+// the compiler runs offline, or in the worst case once before running, it
+// might be cleaner, if a bit less efficient, to malloc the list table in each
+// type, and have only valid, actual types be in the table. A param list can
+// still point to those.
 OCType* _install(OCType* type) {
     if(type == NULL) { return NULL; }
     int64_t idx = typeIndex(type);
