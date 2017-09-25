@@ -127,16 +127,16 @@ struct _AST {
 
 void ast_destroy(AST* tree);
 
-AST* ast_makeBinary(const OCToken* operator, AST* lhs, AST* rhs);
+AST* ast_makeBinaryExpr(const OCToken* operator, AST* lhs, AST* rhs);
 
-AST* ast_makeUnary(const OCToken* operator, AST* rhs);
+AST* ast_makeUnaryExpr(const OCToken* operator, AST* rhs);
 
-AST* ast_makeCall(const OCToken* symbol, int argCount, ...);
+AST* ast_makeCallExpr(const OCToken* symbol, int argCount, ...);
 
-AST* ast_makeVariable(const OCToken* symbol);
+AST* ast_makeVariableExpr(const OCToken* symbol);
 
-AST* ast_makeConstant(const OCToken* symbol);
+AST* ast_makeConstantExpr(const OCToken* symbol);
 
-AST* ast_makeTypExpr(const OCToken* token);
+AST* ast_makeTypExpr(const OCToken* symbol);
 
 #endif /* orbit_ast_h_ */
