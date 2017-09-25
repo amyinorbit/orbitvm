@@ -8,6 +8,8 @@
 #ifndef orbit_tokens_h
 #define orbit_tokens_h
 
+#include <stdbool.h>
+
 typedef struct _OCToken OCToken;
 
 typedef enum  {

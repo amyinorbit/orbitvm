@@ -8,143 +8,135 @@
 #ifndef orbit_ast_h
 #define orbit_ast_h
 
+#include <stdarg.h>
 #include <orbit/parser/tokens.h>
 #include <orbit/utils/platforms.h>
 
-typedef struct _ASTNode ASTNode;
-typedef enum _ASTNodeType ASTNodeType;
+typedef struct _AST AST;
+typedef enum _ASTType ASTType;
 
-enum _ASTNodeType {
-    
-    // Statements + Blocks
-    AST_MODULE,
-    AST_BLOCK,
+enum _ASTType {
     AST_CONDITIONAL,
-    AST_LOOP,
-    
-    // Declarations
-    AST_FUNC_DECL,
-    AST_VAR_DECL,
-    AST_PARAM_DECL,
-    AST_STRUCT_DECL,
-    
-    // Used for expressions
-    AST_LITERAL,
-    AST_UNARY,
-    AST_BINARY,
-    AST_CALL,
-    AST_SUBSCRIPT,
+    AST_FOR_IN,
+    AST_WHILE,
+    AST_DECL_MODULE,
+    AST_DECL_FUNC,
+    AST_DECL_VAR,
+    AST_DECL_PARAM,
+    AST_DECL_STRUCT,
+    AST_EXPR_UNARY,
+    AST_EXPR_BINARY,
+    AST_EXPR_CALL, // Also does subscripts. Uh. maybe
+    AST_EXPR_CONSTANT,
+    AST_EXPR_VARIABLE,
+    AST_EXPR_TYPE,
 };
 
-/// Base type for all Syntax Tree nodes, used as parent "class"
-struct _ASTNode {
-    ASTNode*    parent;
-    ASTNodeType type;
+struct _AST {
+    ASTType         type;
+    AST*            next;
+    
+    union {
+        
+        // --------------------------------------------------------------------
+        // Statements
+        // --------------------------------------------------------------------
+        struct {
+            AST*        condition;
+            AST*        ifBody;
+            AST*        elseBody;
+        } conditionalStmt;
+        
+        struct {
+            AST*        variable;
+            AST*        collection;
+            AST*        body;
+        } forInLoop;
+        
+        struct {
+            AST*        condition;
+            AST*        body;
+        } whileLoop;
+        
+        // --------------------------------------------------------------------
+        // Declarations
+        // --------------------------------------------------------------------
+        struct {
+            char*       symbol;
+            AST*        body;
+        } moduleDecl;
+        
+        struct {
+            OCToken*    symbol;
+            AST*        returnType;
+            AST*        params;
+            AST*        body;
+        } funcDecl;
+        
+        struct {
+            OCToken*    symbol;
+            AST*        typeAnnotation;
+        } varDecl;
+        
+        struct {
+            OCToken*    symbol;
+            AST*        typeAnnotation;
+        } paramDecl;
+        
+        struct {
+            OCToken*    symbol;
+            AST*        constructor;
+            AST*        destructor;
+            AST*        fields;
+        } structDecl;
+        
+        // --------------------------------------------------------------------
+        // Expressions
+        // --------------------------------------------------------------------
+        struct  {
+            OCToken*    operator;
+            AST*        rhs;
+        } unaryExpr;
+        
+        struct {
+            OCToken*    operator;
+            AST*        lhs;
+            AST*        rhs;
+        } binaryExpr;
+        
+        struct {
+            OCToken*    symbol;
+            AST*        params;
+        } callExpr;
+        
+        struct {
+            OCToken*    symbol;
+        } constantExpr;
+        
+        struct {
+            OCToken*    symbol;
+        } variableExpr;
+        
+        struct {
+            OCToken*    symbol; // TODO: Replace with smth better (multi-token types)
+        } typeExpr;
+    };
 };
 
-/// The Tree representation of a module (one orbit file)
-typedef struct _ASTModule {
-    const char* symbol;
-    
-    uint16_t    declarationCount;
-    ASTNode*    declarations[ORBIT_FLEXIBLE_ARRAY_MEMB]
-} ASTModule;
+#define AST_IS_TYPE(node, type) (((AST*)node)->type == type)
 
-/// A list of other nodes, used for code blocks.
-typedef struct _ASTBlock {
-    uint16_t    statementCount;
-    ASTNode*    statements[ORBIT_FLEXIBLE_ARRAY_MEMB];
-} ASTBlock;
+void ast_destroy(AST* tree);
 
-/// Used for if/else statements, links to the expression, the if and else blocks.
-typedef struct _ASTConditional {
-    ASTNode     base;
-    
-    ASTNode*    statement;
-    ASTNode*    ifBlock;
-    ASTNode*    elseBlock;
-} ASTConditional;
+AST* ast_makeBinary(const OCToken* operator, AST* lhs, AST* rhs);
 
-/// TODO: split into a node for each loop type, + for-in loop support
-typedef struct _ASTLoop {
-    ASTNode     base;
-    
-    ASTNode*    statement;
-    ASTNode*    block;
-} ASTLoop;
+AST* ast_makeUnary(const OCToken* operator, AST* rhs);
 
-/// Node representing a function declaration. Points to the signature (params, return)
-/// and the function's code block.
-typedef struct _ASTFuncDecl {
-    ASTNode     base;
-    
-    OCToken     symbol;
-    OCToken     returnType;
-    ASTBlock*   body;
-    
-    uint8_t     paramCount;
-    ASTNode*    params[ORBIT_FLEXIBLE_ARRAY_MEMB]
-} ASTFuncDecl;
+AST* ast_makeCall(const OCToken* symbol, int argCount, ...);
 
-typedef struct _ASTVarDecl {
-    ASTNode     base;
-    
-    OCToken     symbol;
-    // TODO: move to the compiler-side type system
-    OCToken     typeAnnotation;
-} ASTVarDecl;
+AST* ast_makeVariable(const OCToken* symbol);
 
-typedef struct _ASTParamDecl {
-    ASTNode     base;
-    
-    OCToken     symbol;
-    OCToken     typeAnnotation;
-} ASTParamDecl;
+AST* ast_makeConstant(const OCToken* symbol);
 
-typedef struct _ASTStructDecl {
-    ASTNode     base;
-    
-    OCToken     symbol;
-    ASTNode*    constructor;
-    ASTNode*    destructor;
-    
-    uint16_t    fieldCount;
-    ASTNode*    fields[ORBIT_FLEXIBLE_ARRAY_MEMB];
-} ASTStructDecl;
-
-typedef struct _ASTUnaryOp {
-    ASTNode     base;
-    
-    OCToken     operator;
-    ASTNode*    expression;
-} ASTUnaryOp;
-
-typedef struct _ASTBinaryOp {
-    ASTNode     base;
-    
-    OCToken     operator;
-    ASTNode*    left;
-    ASTNode*    right;
-} ASTBinaryOp;
-
-typedef struct _ASTFuncCall {
-    ASTNode     base;
-    
-    OCToken     symbol;
-    uint8_t     paramCount;
-    ASTNode*    params[ORBIT_FLEXIBLE_ARRAY_MEMB];
-} ASTFuncCall;
-
-typedef struct _ASTSubscript {
-    ASTNode     base;
-    
-    OCToken     symbol;
-    ASTNode*    expression;
-} ASTSubscript;
-
-typedef struct _ASTLiteral {
-    ASTNode     base;
-    OCToken     symbol;
-} ASTLiteral;
+AST* ast_makeTypExpr(const OCToken* token);
 
 #endif /* orbit_ast_h_ */
