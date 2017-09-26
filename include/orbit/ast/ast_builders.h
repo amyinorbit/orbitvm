@@ -11,6 +11,21 @@
 #include <stdio.h>
 #include <orbit/ast/ast.h>
 
+/// Helper functions and types used to simplify list/block building
+
+typedef struct _ASTListBuilder ASTListBuilder;
+
+struct _ASTListBuilder {
+    AST*    list;
+    AST**   next;
+};
+
+void ast_listStart(ASTListBuilder* builder);
+void ast_listAdd(ASTListBuilder* builder, AST* item);
+AST* ast_listClose(ASTListBuilder* builder);
+
+/// AST Node builders
+
 AST* ast_makeConditional(AST* condition, AST* ifBody, AST* elseBody);
 AST* ast_makeForInLoop(const OCToken* var, AST* collection, AST* body);
 AST* ast_makeWhileLoop(AST* condition, AST* body);

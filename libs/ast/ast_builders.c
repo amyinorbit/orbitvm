@@ -7,7 +7,24 @@
 //
 #include <stdlib.h>
 #include <string.h>
-#include <orbit/ast/ast.h>
+#include <orbit/ast/ast_builders.h>
+
+void ast_listStart(ASTListBuilder* builder) {
+    builder->list = ast_makeNode(AST_LIST);
+    builder->next = &builder->list->list.head;
+    *(builder->next) = NULL;
+}
+
+void ast_listAdd(ASTListBuilder* builder, AST* item) {
+    *(builder->next) = item;
+    builder->next = &item->next;
+}
+
+AST* ast_listClose(ASTListBuilder* builder) {
+    *(builder->next) = NULL;
+    return builder->list;
+}
+
 
 static OCToken ast_copyToken(const OCToken* token) {
     OCToken copy = *token;
