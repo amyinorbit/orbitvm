@@ -56,6 +56,19 @@ static void ast_printNode(FILE* out, const char* prefix, AST* ast, int depth) {
         ast_printNode(out, "body:", ast->whileLoop.body, depth+1);
         break;
     
+    case AST_BREAK:
+        fprintf(out, "break");
+        break;
+        
+    case AST_CONTINUE:
+        fprintf(out, "continue");
+        break;
+        
+    case AST_RETURN:
+        fprintf(out, "return");
+        ast_printNode(out, "value:", ast->returnStmt.returnValue, depth+1);
+        break;
+    
     // DECLARATIONS
     case AST_DECL_MODULE:
         fprintf(out, "module-decl `%s`", ast->moduleDecl.symbol);

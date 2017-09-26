@@ -33,6 +33,16 @@ void ast_destroy(AST* ast) {
             ast_destroy(ast->whileLoop.condition);
             ast_destroy(ast->whileLoop.body);
             break;
+            
+        case AST_BREAK:
+            break;
+            
+        case AST_CONTINUE:
+            break;
+            
+        case AST_RETURN:
+            ast_destroy(ast->returnStmt.returnValue);
+            break;
         
         // DECLARATIONS
         case AST_DECL_MODULE:
@@ -138,6 +148,20 @@ AST* ast_makeWhileLoop(AST* condition, AST* body) {
     AST* ast = ast_makeNode(AST_WHILE);
     ast->whileLoop.condition = condition;
     ast->whileLoop.body = body;
+    return ast;
+}
+
+AST* ast_makeBreak() {
+    return ast_makeNode(AST_BREAK);
+}
+
+AST* ast_makeContinue() {
+    return ast_makeNode(AST_CONTINUE);
+}
+
+AST* ast_makeReturn(AST* returned) {
+    AST* ast = ast_makeNode(AST_RETURN);
+    ast->returnStmt.returnValue = returned;
     return ast;
 }
 

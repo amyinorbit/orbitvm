@@ -358,10 +358,10 @@ static AST* recIfStatement(OCParser* parser) {
 
 static AST* recFlowStatement(OCParser* parser) {
     // TODO: create AST node for flow breakers
-    if(have(parser, TOKEN_BREAK))
-        expect(parser, TOKEN_BREAK);
-    else if(have(parser, TOKEN_CONTINUE))
-        expect(parser, TOKEN_CONTINUE);
+    if(match(parser, TOKEN_BREAK))
+        return ast_makeBreak();
+    else if(match(parser, TOKEN_CONTINUE))
+        return ast_makeContinue();
     else
         compilerError(parser, "expected break or continue");
     return NULL;
@@ -369,12 +369,12 @@ static AST* recFlowStatement(OCParser* parser) {
 }
 
 static AST* recReturnStatement(OCParser* parser) {
-    // TODO: create AST node for flow breakers
+    AST* returnValue = NULL;
     expect(parser, TOKEN_RETURN);
     if(haveTerm(parser)) {
-        recExpression(parser, 0);
+        returnValue = recExpression(parser, 0);
     }
-    return NULL;
+    return ast_makeReturn(returnValue);
 }
 
 static AST* recWhileLoop(OCParser* parser) {

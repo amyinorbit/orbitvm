@@ -21,6 +21,9 @@ enum _ASTType {
     AST_CONDITIONAL,
     AST_FOR_IN,
     AST_WHILE,
+    AST_BREAK,
+    AST_CONTINUE,
+    AST_RETURN,
     
     AST_DECL_MODULE,
     AST_DECL_FUNC,
@@ -74,6 +77,10 @@ struct _AST {
             AST*        condition;
             AST*        body;
         } whileLoop;
+        
+        struct {
+            AST*        returnValue;
+        } returnStmt;
         
         // --------------------------------------------------------------------
         // Declarations
@@ -166,6 +173,9 @@ AST* ast_makeNode(ASTType type);
 AST* ast_makeConditional(AST* condition, AST* ifBody, AST* elseBody);
 AST* ast_makeForInLoop(const OCToken* var, AST* collection, AST* body);
 AST* ast_makeWhileLoop(AST* condition, AST* body);
+AST* ast_makeBreak();
+AST* ast_makeContinue();
+AST* ast_makeReturn(AST* returned);
 
 AST* ast_makeStructDecl(const OCToken* symbol, AST* constructor, AST* destructor, AST* fields);
 AST* ast_makeVarDecl(const OCToken* symbol, AST* typeAnnotation);
