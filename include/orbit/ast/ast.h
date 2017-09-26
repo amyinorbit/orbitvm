@@ -8,7 +8,7 @@
 #ifndef orbit_ast_h
 #define orbit_ast_h
 
-#include <stdarg.h>
+#include <stdio.h>
 #include <orbit/parser/tokens.h>
 #include <orbit/utils/platforms.h>
 
@@ -17,6 +17,7 @@ typedef enum _ASTType ASTType;
 
 // Tag enum for AST nodes
 enum _ASTType {
+    AST_LIST,
     AST_CONDITIONAL,
     AST_FOR_IN,
     AST_WHILE,
@@ -29,7 +30,7 @@ enum _ASTType {
     AST_EXPR_BINARY,
     AST_EXPR_CALL, // Also does subscripts. Uh. maybe
     AST_EXPR_CONSTANT,
-    AST_EXPR_VARIABLE,
+    AST_EXPR_NAME,
     AST_EXPR_TYPE,
 };
 
@@ -42,6 +43,10 @@ struct _AST {
     
     union {
         
+        struct {
+            AST*        head;
+        } list;
+        
         // --------------------------------------------------------------------
         // Statements
         // --------------------------------------------------------------------
@@ -52,7 +57,7 @@ struct _AST {
         } conditionalStmt;
         
         struct {
-            AST*        variable;
+            OCToken*    variable;
             AST*        collection;
             AST*        body;
         } forInLoop;
@@ -107,9 +112,10 @@ struct _AST {
             AST*        lhs;
             AST*        rhs;
         } binaryExpr;
-        
+
+        // TODO: add subscript node in AST
         struct {
-            OCToken*    symbol;
+            AST*        symbol;
             AST*        params;
         } callExpr;
         
@@ -119,7 +125,7 @@ struct _AST {
         
         struct {
             OCToken*    symbol;
-        } variableExpr;
+        } nameExpr;
         
         struct {
             OCToken*    symbol; // TODO: Replace with smth better (multi-token types)
@@ -129,20 +135,23 @@ struct _AST {
 
 #define AST_IS_TYPE(node, type) (((AST*)node)->type == type)
 
-void ast_print(AST* ast);
-
+void ast_print(FILE* out, AST* ast);
 void ast_destroy(AST* ast);
+AST* ast_makeNode(ASTType type);
+
+AST* ast_makeConditional(AST* condition, AST* ifBody, AST* elseBody);
+AST* ast_makeForInLoop(const OCToken* var, AST* collection, AST* body);
+AST* ast_makeWhileLoop(AST* condition, AST* body);
+
+AST* ast_makeStructDecl(const OCToken* symbol, AST* constructor, AST* destructor, AST* fields);
+AST* ast_makeVarDecl(const OCToken* symbol, AST* typeAnnotation);
+AST* ast_makeFuncDecl(const OCToken* symbol, AST* returnType, AST* params, AST* body);
 
 AST* ast_makeBinaryExpr(const OCToken* operator, AST* lhs, AST* rhs);
-
 AST* ast_makeUnaryExpr(const OCToken* operator, AST* rhs);
-
-AST* ast_makeCallExpr(const OCToken* symbol, int argCount, ...);
-
-AST* ast_makeVariableExpr(const OCToken* symbol);
-
+AST* ast_makeCallExpr(AST* symbol, AST* params);
+AST* ast_makeNameExpr(const OCToken* symbol);
 AST* ast_makeConstantExpr(const OCToken* symbol);
-
-AST* ast_makeTypExpr(const OCToken* symbol);
+AST* ast_makeTypeExpr(const OCToken* symbol);
 
 #endif /* orbit_ast_h_ */

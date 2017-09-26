@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <orbit/ast/ast.h>
 #include <orbit/parser/parser.h>
 
 static char* loadSource(const char* path, uint64_t* length) {
@@ -46,7 +47,8 @@ int main(int argc, const char** args) {
     }
     
     if(argc == 2) {
-        orbit_compile(args[1], source, length);
+        AST* ast = orbit_parse(args[1], source, length);
+        ast_destroy(ast);
     }
     else {
         if(strcmp(args[2], "-dump-tokens") == 0) {
@@ -54,6 +56,9 @@ int main(int argc, const char** args) {
         }
         else if(strcmp(args[2], "-dump-ast") == 0) {
             // TODO: dump AST
+            AST* ast = orbit_parse(args[1], source, length);
+            ast_print(stdout, ast);
+            ast_destroy(ast);
         }
     }
     

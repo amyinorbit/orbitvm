@@ -8,6 +8,7 @@
 #ifndef orbit_tokens_h
 #define orbit_tokens_h
 
+#include <stdint.h>
 #include <stdbool.h>
 
 typedef struct _OCToken OCToken;

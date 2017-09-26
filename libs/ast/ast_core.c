@@ -14,6 +14,10 @@ void ast_destroy(AST* ast) {
     
     switch(ast->type) {
         // STATEMENTS
+        case AST_LIST:
+            ast_destroy(ast->list.head);
+            break;
+        
         case AST_CONDITIONAL:
             ast_destroy(ast->conditionalStmt.condition);
             ast_destroy(ast->conditionalStmt.ifBody);
@@ -21,7 +25,7 @@ void ast_destroy(AST* ast) {
             break;
         
         case AST_FOR_IN:
-            ast_destroy(ast->forInLoop.variable);
+            free(ast->forInLoop.variable);
             ast_destroy(ast->forInLoop.collection);
             ast_destroy(ast->forInLoop.body);
             break;
@@ -74,7 +78,7 @@ void ast_destroy(AST* ast) {
             break;
         
         case AST_EXPR_CALL:
-            free(ast->callExpr.symbol);
+            ast_destroy(ast->callExpr.symbol);
             ast_destroy(ast->callExpr.params);
             break;
         
@@ -82,8 +86,8 @@ void ast_destroy(AST* ast) {
             free(ast->constantExpr.symbol);
             break;
         
-        case AST_EXPR_VARIABLE:
-            free(ast->variableExpr.symbol);
+        case AST_EXPR_NAME:
+            free(ast->nameExpr.symbol);
             break;
         
         case AST_EXPR_TYPE:
@@ -95,7 +99,7 @@ void ast_destroy(AST* ast) {
     free(ast);
 }
 
-static AST* ast_makeNode(ASTType type) {
+AST* ast_makeNode(ASTType type) {
     AST* ast = malloc(sizeof (AST));
     memset(ast, 0, sizeof (AST));
     
@@ -110,6 +114,55 @@ static OCToken* ast_copyToken(const OCToken* token) {
     return copy;
 }
 
+AST* ast_makeConditional(AST* condition, AST* ifBody, AST* elseBody) {
+    AST* ast = ast_makeNode(AST_CONDITIONAL);
+    ast->conditionalStmt.condition = condition;
+    ast->conditionalStmt.ifBody = ifBody;
+    ast->conditionalStmt.elseBody = elseBody;
+    return ast;
+}
+
+AST* ast_makeForInLoop(const OCToken* var, AST* collection, AST* body) {
+    AST* ast = ast_makeNode(AST_FOR_IN);
+    ast->forInLoop.variable = ast_copyToken(var);
+    ast->forInLoop.collection = collection;
+    ast->forInLoop.body = body;
+    return ast;
+}
+
+AST* ast_makeWhileLoop(AST* condition, AST* body) {
+    AST* ast = ast_makeNode(AST_WHILE);
+    ast->whileLoop.condition = condition;
+    ast->whileLoop.body = body;
+    return ast;
+}
+
+AST* ast_makeVarDecl(const OCToken* symbol, AST* typeAnnotation) {
+    AST* ast = ast_makeNode(AST_DECL_VAR);
+    ast->varDecl.symbol = ast_copyToken(symbol);
+    ast->varDecl.typeAnnotation = typeAnnotation;
+    return ast;
+}
+
+AST* ast_makeFuncDecl(const OCToken* symbol, AST* returnType, AST* params, AST* body) {
+    AST* ast = ast_makeNode(AST_DECL_FUNC);
+    ast->funcDecl.symbol = ast_copyToken(symbol);
+    ast->funcDecl.returnType = returnType;
+    ast->funcDecl.params = params;
+    ast->funcDecl.body = body;
+    return ast;
+}
+
+AST* ast_makeStructDecl(const OCToken* symbol, AST* constructor, AST* destructor, AST* fields) {
+    AST* ast = ast_makeNode(AST_DECL_STRUCT);
+    
+    ast->structDecl.symbol = ast_copyToken(symbol);
+    ast->structDecl.constructor = constructor;
+    ast->structDecl.destructor = destructor;
+    ast->structDecl.fields = fields;
+    
+    return ast;
+}
 
 AST* ast_makeBinaryExpr(const OCToken* operator, AST* lhs, AST* rhs) {
     AST* ast = ast_makeNode(AST_EXPR_BINARY);
@@ -123,38 +176,21 @@ AST* ast_makeBinaryExpr(const OCToken* operator, AST* lhs, AST* rhs) {
 
 AST* ast_makeUnaryExpr(const OCToken* operator, AST* rhs) {
     AST* ast = ast_makeNode(AST_EXPR_UNARY);
-    
     ast->unaryExpr.operator = ast_copyToken(operator);
     ast->unaryExpr.rhs = rhs;
-    
     return ast;
 }
 
-AST* ast_makeCallExpr(const OCToken* symbol, int argCount, ...) {
+AST* ast_makeCallExpr(AST* symbol, AST* params) {
     AST* ast = ast_makeNode(AST_EXPR_CALL);
-    ast->callExpr.symbol = ast_copyToken(symbol);
-    ast->callExpr.params = NULL;
-    
-    AST** argTail = &ast->callExpr.params;
-    
-    va_list args;
-    va_start(args, argCount);
-    
-    for(uint8_t i = 0; i < argCount; ++i) {
-        AST* arg = va_arg(args, AST*);
-        arg->next = NULL;
-        *argTail = arg;
-        argTail = &arg->next;
-    }
-    
-    va_end(args);
-    
+    ast->callExpr.symbol = symbol;
+    ast->callExpr.params = params;
     return ast;
 }
 
-AST* ast_makeVariableExpr(const OCToken* symbol) {
-    AST* ast = ast_makeNode(AST_EXPR_VARIABLE);
-    ast->variableExpr.symbol = ast_copyToken(symbol);
+AST* ast_makeNameExpr(const OCToken* symbol) {
+    AST* ast = ast_makeNode(AST_EXPR_NAME);
+    ast->nameExpr.symbol = ast_copyToken(symbol);
     return ast;
 }
 
@@ -164,7 +200,7 @@ AST* ast_makeConstantExpr(const OCToken* symbol) {
     return ast;
 }
 
-AST* ast_makeTypExpr(const OCToken* symbol) {
+AST* ast_makeTypeExpr(const OCToken* symbol) {
     AST* ast = ast_makeNode(AST_EXPR_TYPE);
     ast->typeExpr.symbol = ast_copyToken(symbol);
     return ast;

@@ -170,281 +170,378 @@ static bool expect(OCParser* parser, OCTokenType type) {
 
 // MARK: - Recognizer implementations
 
-static void recProgram(OCParser* parser) {
+static AST* recProgram(OCParser* parser) {
+    
+    AST* program = ast_makeNode(AST_LIST);
+    AST* current = NULL;
+    AST** next = &program->list.head;
+    
     for(;;) {
         if(have(parser, TOKEN_VAR))
-            recVarDecl(parser);
-        else if(have(parser, TOKEN_FUN))
-            recFuncDecl(parser);
+            current = recVarDecl(parser);
+        else if(have(parser, TOKEN_FUN)) 
+            current =recFuncDecl(parser);
         else if(have(parser, TOKEN_TYPE))
-            recTypeDecl(parser);
+            current = recTypeDecl(parser);
         else
             break;
         expectTerminator(parser);
+        
+        *next = current;
+        next = &current->next;
     }
     expect(parser, TOKEN_EOF);
+    
+    return program;
 }
 
-static void recBlock(OCParser* parser) {
+static AST* recBlock(OCParser* parser) {
+    
+    AST* block = ast_makeNode(AST_LIST);
+    AST* current = NULL;
+    AST** next = &block->list.head;
+    
     expect(parser, TOKEN_LBRACE);
     for(;;) {
         if(have(parser, TOKEN_VAR))
-            recVarDecl(parser);
+            current = recVarDecl(parser);
         else if(haveTerm(parser)
             || haveConditional(parser)
             || have(parser, TOKEN_RETURN)
             || have(parser, TOKEN_BREAK)
             || have(parser, TOKEN_CONTINUE)
             || have(parser, TOKEN_LBRACE))
-            recStatement(parser);
+            current = recStatement(parser);
         else
             break;
         expectTerminator(parser);
         
+        *next = current;
+        next = &current->next;
     }
     expect(parser, TOKEN_RBRACE);
+    return block;
 }
 
-static void recTypeDecl(OCParser* parser) {
+static AST* recTypeDecl(OCParser* parser) {
     expect(parser, TOKEN_TYPE);
+    
+    OCToken symbol = current(parser);
     expect(parser, TOKEN_IDENTIFIER);
+    
     expect(parser, TOKEN_LBRACE);
     
+    AST* fields = ast_makeNode(AST_LIST);
+    AST* current = NULL;
+    AST** next = &fields->list.head;
+    
     do {
-        recVarDecl(parser);
+        current = recVarDecl(parser);
+        *next = current;
+        next = &current->next;
     } while(have(parser, TOKEN_VAR));
     
     expect(parser, TOKEN_RBRACE);
+    return ast_makeStructDecl(&symbol, NULL, NULL, fields);
 }
 
 // 'var' identifier ((':', type) | ((':', type)? '=' expression))
-static void recVarDecl(OCParser* parser) {
+static AST* recVarDecl(OCParser* parser) {
     expect(parser, TOKEN_VAR);
+    
+    OCToken symbol = current(parser);
     expect(parser, TOKEN_IDENTIFIER);
+    AST* typeAnnotation = NULL;
     
     if(match(parser, TOKEN_COLON)) {
-        recType(parser);
+        typeAnnotation = recType(parser);
     }
     
+    AST* decl = ast_makeVarDecl(&symbol, typeAnnotation);
+    
+    OCToken operator = parser->lexer.currentToken;
     if(match(parser, TOKEN_EQUALS)) {
-        recExpression(parser, 0);
+        AST* rhs = recExpression(parser, 0);
+        return ast_makeBinaryExpr(&operator, decl, rhs);
     }
+    return decl;
 }
 
 // func-proto '{' block '}'
 // 'func' identifier parameters '->' type
-static void recFuncDecl(OCParser* parser) {
+static AST* recFuncDecl(OCParser* parser) {
     expect(parser, TOKEN_FUN);
+    
+    OCToken symbol = current(parser);
     expect(parser, TOKEN_IDENTIFIER);
     expect(parser, TOKEN_LPAREN);
     
+    AST* params = NULL;
     if(have(parser, TOKEN_IDENTIFIER)) {
-        recParameters(parser);
+        params = recParameters(parser);
     }
-    
     expect(parser, TOKEN_RPAREN);
     
+    AST* returnType = NULL;
     if(match(parser, TOKEN_ARROW)) {
-        recType(parser);
+        returnType = recType(parser);
     }
-    recBlock(parser);
+    AST* body = recBlock(parser);
+    
+    return ast_makeFuncDecl(&symbol, returnType, params, body);
 }
 
 
-static void recParameters(OCParser* parser) {
+static AST* recParameters(OCParser* parser) {
+    
+    AST* params = ast_makeNode(AST_LIST);
+    AST** next = &params->list.head;
+    
     do {
+        OCToken symbol = current(parser);
         expect(parser, TOKEN_IDENTIFIER);
         expect(parser, TOKEN_COLON);
-        recType(parser);
+        
+        AST* type = recType(parser);
+        AST* decl = ast_makeVarDecl(&symbol, type);
+        
+        *next = decl;
+        next = &decl->next;
     } while(match(parser, TOKEN_COMMA));
+    return params;
 }
 
-static void recStatement(OCParser* parser) {
-    if(haveConditional(parser)) {
-        recConditional(parser);
-    }
-    else if(haveTerm(parser)) {
-        recExpression(parser, 0);
-    }
-    else if(have(parser, TOKEN_RETURN)) {
-        recReturnStatement(parser);
-    }
-    else if(have(parser, TOKEN_BREAK) || have(parser, TOKEN_CONTINUE)) {
-        recFlowStatement(parser);
-    }
-    else if(have(parser, TOKEN_LBRACE)) {
-        recBlock(parser);
-    }
-    else {
+static AST* recStatement(OCParser* parser) {
+    if(haveConditional(parser))
+        return recConditional(parser);
+    else if(haveTerm(parser))
+        return recExpression(parser, 0);
+    else if(have(parser, TOKEN_RETURN))
+        return recReturnStatement(parser);
+    else if(have(parser, TOKEN_BREAK) || have(parser, TOKEN_CONTINUE))
+        return recFlowStatement(parser);
+    else if(have(parser, TOKEN_LBRACE))
+        return recBlock(parser);
+    else
         compilerError(parser, "expected a statement");
-    }
+    return NULL;
 }
 
-static void recConditional(OCParser* parser) {
+static AST* recConditional(OCParser* parser) {
     if(have(parser, TOKEN_IF))
-        recIfStatement(parser);
+        return recIfStatement(parser);
     else if(have(parser, TOKEN_WHILE))
-        recWhileLoop(parser);
+        return recWhileLoop(parser);
     else if(have(parser, TOKEN_FOR))
-        recForLoop(parser);
+        return recForLoop(parser);
     else
         compilerError(parser, "expected an if statement or a loop");
+    return NULL;
 }
 
-static void recIfStatement(OCParser* parser) {
+static AST* recIfStatement(OCParser* parser) {
     expect(parser, TOKEN_IF);
-    recExpression(parser, 0);
-    recBlock(parser);
+    AST* condition = recExpression(parser, 0);
+    AST* ifBody = recBlock(parser);
+    AST* elseBody = NULL;
     
     if(match(parser, TOKEN_ELSE)) {
         if(have(parser, TOKEN_LBRACE))
-            recBlock(parser);
+            elseBody = recBlock(parser);
         else if(have(parser, TOKEN_IF))
-            recIfStatement(parser);
+            elseBody = recIfStatement(parser);
         else
             compilerError(parser, "expected block or if statement");
     }
+    return ast_makeConditional(condition, ifBody, elseBody);
 }
 
-static void recFlowStatement(OCParser* parser) {
+static AST* recFlowStatement(OCParser* parser) {
+    // TODO: create AST node for flow breakers
     if(have(parser, TOKEN_BREAK))
         expect(parser, TOKEN_BREAK);
     else if(have(parser, TOKEN_CONTINUE))
         expect(parser, TOKEN_CONTINUE);
     else
         compilerError(parser, "expected break or continue");
+    return NULL;
         
 }
 
-static void recReturnStatement(OCParser* parser) {
+static AST* recReturnStatement(OCParser* parser) {
+    // TODO: create AST node for flow breakers
     expect(parser, TOKEN_RETURN);
     if(haveTerm(parser)) {
         recExpression(parser, 0);
     }
+    return NULL;
 }
 
-static void recWhileLoop(OCParser* parser) {
+static AST* recWhileLoop(OCParser* parser) {
     expect(parser, TOKEN_WHILE);
-    recExpression(parser, 0);
-    recBlock(parser);
+    AST* condition = recExpression(parser, 0);
+    AST* body = recBlock(parser);
+    return ast_makeWhileLoop(condition, body);
 }
 
-static void recForLoop(OCParser* parser) {
+static AST* recForLoop(OCParser* parser) {
     expect(parser, TOKEN_FOR);
+    
+    OCToken var = current(parser);
     expect(parser, TOKEN_IDENTIFIER);
     expect(parser, TOKEN_IN);
-    recExpression(parser, 0);
-    recBlock(parser);
+    AST* collection = recExpression(parser, 0);
+    AST* body = recBlock(parser);
+    return ast_makeForInLoop(&var, collection, body);
 }
 
 // We don't embed precedence in the grammar - instead any expression
 // is parsed using precedence-climbing
 // http://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing
-static void recExpression(OCParser* parser, int minPrec) {
-    recTerm(parser);
+static AST* recExpression(OCParser* parser, int minPrec) {
+    AST* expr = recTerm(parser);
     for(;;) {
         if(!haveBinaryOp(parser) || precedence(parser) < minPrec) {
             break;
         }
-        //OCToken operator = current(parser);
+        
+        OCToken operator = current(parser);
         int prec = precedence(parser);
         bool right = rightAssoc(parser);
         
         int nextMinPrec = right ? prec : prec + 1;
         lexer_nextToken(&parser->lexer);
-        recExpression(parser, nextMinPrec);
+        AST* rhs = recExpression(parser, nextMinPrec);
+        expr = ast_makeBinaryExpr(&operator, expr, rhs);
     }
+    return expr;
 }
 
-static void recTerm(OCParser* parser) {
+static AST* recTerm(OCParser* parser) {
+    AST* term = NULL;
+    OCToken operator;
+    bool unary = false;
+    
     if(haveUnaryOp(parser)) {
+        operator = current(parser);
+        unary = true;
         lexer_nextToken(&parser->lexer);
     }
     
+    OCToken symbol = current(parser);
+    
     if(match(parser, TOKEN_LPAREN)) {
-        recExpression(parser, 0);
+        term = recExpression(parser, 0);
         expect(parser, TOKEN_RPAREN);
     }
     else if(have(parser, TOKEN_IDENTIFIER)) {
-        recName(parser);
+        term = recName(parser);
     }
     else if(have(parser, TOKEN_STRING_LITERAL)) {
+        term = ast_makeConstantExpr(&symbol);
         expect(parser, TOKEN_STRING_LITERAL);
     }
     else if(have(parser, TOKEN_INTEGER_LITERAL)) {
+        term = ast_makeConstantExpr(&symbol);
         expect(parser, TOKEN_INTEGER_LITERAL);
     }
     else if(have(parser, TOKEN_FLOAT_LITERAL)) {
+        term = ast_makeConstantExpr(&symbol);
         expect(parser, TOKEN_FLOAT_LITERAL);
     }
     else {
         compilerError(parser, "expected an expression term");
     }
+    
+    return unary ? ast_makeUnaryExpr(&operator, term) : term;
 }
 
-static void recName(OCParser* parser) {
+static AST* recName(OCParser* parser) {
+    OCToken symbol = current(parser);
+    AST* name = ast_makeNameExpr(&symbol);
     expect(parser, TOKEN_IDENTIFIER);
     for(;;) {
-        if(have(parser, TOKEN_LBRACKET))
-            recSubscript(parser);
-        else if(have(parser, TOKEN_DOT))
-            recFieldAccess(parser);
-        else if(have(parser, TOKEN_LPAREN))
-            recFuncCall(parser);
-        else
+        OCToken operator = current(parser);
+        if(have(parser, TOKEN_LBRACKET)) {
+            /*AST* rhs = */recSubscript(parser);
+        }
+        else if(have(parser, TOKEN_DOT)) {
+            AST* rhs = recFieldAccess(parser);
+            name = ast_makeBinaryExpr(&operator, name, rhs);
+        }
+        else if(have(parser, TOKEN_LPAREN)) {
+            AST* params = recFuncCall(parser);
+            name = ast_makeCallExpr(name, params);
+        }
+        else {
             break;
+        }
     }
+    return name;
 }
 
-static void recSubscript(OCParser* parser) {
+static AST* recSubscript(OCParser* parser) {
     expect(parser, TOKEN_LBRACKET);
-    recExpression(parser, 0);
+    AST* subscript = recExpression(parser, 0);
     expect(parser, TOKEN_RBRACKET);
+    return subscript;
 }
 
-static void recFieldAccess(OCParser* parser) {
+static AST* recFieldAccess(OCParser* parser) {
     expect(parser, TOKEN_DOT);
+    OCToken symbol = current(parser);
     expect(parser, TOKEN_IDENTIFIER);
+    return ast_makeNameExpr(&symbol);
 }
 
-static void recFuncCall(OCParser* parser) {
+static AST* recFuncCall(OCParser* parser) {
+    AST* paramList = NULL;
     expect(parser, TOKEN_LPAREN);
     if(haveTerm(parser)) {
-        recExprList(parser);
+        paramList = recExprList(parser);
     }
     expect(parser, TOKEN_RPAREN);
+    return paramList;
 }
 
-static void recExprList(OCParser* parser) {
-    recExpression(parser, 0);
+static AST* recExprList(OCParser* parser) {
+    AST* list = ast_makeNode(AST_LIST);
+    AST* current = recExpression(parser, 0);
+    list->list.head = current;
+    AST** next = &current->next;
+    
     while(match(parser, TOKEN_COMMA)) {
-        recExpression(parser, 0);
+        current = recExpression(parser, 0);
+        *next = current;
+        next = &current->next;
     }
+    return list;
 }
 
-static void recType(OCParser* parser) {
+static AST* recType(OCParser* parser) {
     if(match(parser, TOKEN_MAYBE)) {
     }
-    recTypename(parser);
+    return recTypename(parser);
 }
 
 
-static void recTypename(OCParser* parser) {
+static AST* recTypename(OCParser* parser) {
     if(havePrimitiveType(parser))
-        recPrimitive(parser);
+        return recPrimitive(parser);
     else if(have(parser, TOKEN_LPAREN))
-        recFuncType(parser);
+        return recFuncType(parser);
     else if(have(parser, TOKEN_ARRAY))
-        recArrayType(parser);
+        return recArrayType(parser);
     else if(have(parser, TOKEN_MAP))
-        recMapType(parser);
+        return recMapType(parser);
     else if(have(parser, TOKEN_IDENTIFIER))
-        expect(parser, TOKEN_IDENTIFIER);
+        expect(parser, TOKEN_IDENTIFIER); // TODO: custom type names
     else
         compilerError(parser, "expected a type name");
+    return NULL;
 }
 
-static void recFuncType(OCParser* parser) {
+static AST* recFuncType(OCParser* parser) {
     expect(parser, TOKEN_LPAREN);
     
     if(haveType(parser)) {
@@ -456,9 +553,11 @@ static void recFuncType(OCParser* parser) {
     expect(parser, TOKEN_RPAREN);
     expect(parser, TOKEN_ARROW);
     recType(parser);
+    return NULL;
 }
 
-static void recPrimitive(OCParser* parser) {
+static AST* recPrimitive(OCParser* parser) {
+    OCToken symbol = current(parser);
     if(have(parser, TOKEN_NUMBER))
         expect(parser, TOKEN_NUMBER);
     else if(have(parser, TOKEN_BOOL))
@@ -473,22 +572,25 @@ static void recPrimitive(OCParser* parser) {
         expect(parser, TOKEN_ANY);
     else
         compilerError(parser, "expected a primitive type");
+    return ast_makeTypeExpr(&symbol);
 }
 
-static void recArrayType(OCParser* parser) {
+static AST* recArrayType(OCParser* parser) {
     expect(parser, TOKEN_ARRAY);
     expect(parser, TOKEN_LBRACKET);
     recType(parser);
     expect(parser, TOKEN_RBRACKET);
+    return NULL;
 }
 
-static void recMapType(OCParser* parser) {
+static AST* recMapType(OCParser* parser) {
     expect(parser, TOKEN_MAP);
     expect(parser, TOKEN_LBRACKET);
     recPrimitive(parser);
     expect(parser, TOKEN_COLON);
     recType(parser);
     expect(parser, TOKEN_RBRACKET);
+    return NULL;
 }
 
 void orbit_dumpTokens(const char* sourcePath, const char* source, uint64_t length) {
@@ -507,13 +609,13 @@ void orbit_dumpTokens(const char* sourcePath, const char* source, uint64_t lengt
     }
 }
 
-bool orbit_compile(const char* sourcePath, const char* source, uint64_t length) {
+AST* orbit_parse(const char* sourcePath, const char* source, uint64_t length) {
     
     OCParser parser;
     parser.recovering = false;
     lexer_init(&parser.lexer, sourcePath, source, length);
     
     lexer_nextToken(&parser.lexer);
-    recProgram(&parser);
-    return true;
+    AST* ast = recProgram(&parser);
+    return ast;
 }

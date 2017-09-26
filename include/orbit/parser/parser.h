@@ -10,9 +10,10 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <orbit/ast/ast.h>
 
 void orbit_dumpTokens(const char* sourcePath, const char* source, uint64_t length);
 
-bool orbit_compile(const char* sourcePath, const char* source, uint64_t length);
+AST* orbit_parse(const char* sourcePath, const char* source, uint64_t length);
 
 #endif /* orbit_parser_h */
