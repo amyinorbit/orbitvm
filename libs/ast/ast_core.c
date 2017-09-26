@@ -7,7 +7,7 @@
 //
 #include <stdlib.h>
 #include <string.h>
-#include <orbit/parser/ast.h>
+#include <orbit/ast/ast.h>
 
 void ast_destroy(AST* ast) {
     if(ast == NULL) { return; }

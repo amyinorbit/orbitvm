@@ -34,14 +34,8 @@ static char* loadSource(const char* path, uint64_t* length) {
 int main(int argc, const char** args) {
     
     if(argc < 2 || argc > 3) {
-        fprintf(stderr, "usage: orbitc source_file [dump-tokens]\n");
+        fprintf(stderr, "usage: orbitc source_file [-dump-tokens] [-dump-ast]\n");
         return -1;
-    }
-    
-    bool compile = true;
-    
-    if(argc == 3) {
-        compile = strcmp(args[2], "dump-tokens") != 0;
     }
     
     uint64_t length = 0;
@@ -50,11 +44,19 @@ int main(int argc, const char** args) {
         fprintf(stderr, "error opening `%s`\n", args[1]);
         return -1;
     }
-    if(compile) {
+    
+    if(argc == 2) {
         orbit_compile(args[1], source, length);
-    } else {
-        orbit_dumpTokens(args[1], source, length);
     }
+    else {
+        if(strcmp(args[2], "-dump-tokens") == 0) {
+            orbit_dumpTokens(args[1], source, length);
+        }
+        else if(strcmp(args[2], "-dump-ast") == 0) {
+            // TODO: dump AST
+        }
+    }
+    
     free(source);
     return 0;
 }

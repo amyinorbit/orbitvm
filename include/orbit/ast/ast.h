@@ -15,6 +15,7 @@
 typedef struct _AST AST;
 typedef enum _ASTType ASTType;
 
+// Tag enum for AST nodes
 enum _ASTType {
     AST_CONDITIONAL,
     AST_FOR_IN,
@@ -32,6 +33,9 @@ enum _ASTType {
     AST_EXPR_TYPE,
 };
 
+// The TUD (Tagged Union of Doom). Represents all possible nodes in an orbit
+// AST. AST::next is used to represent "same level" collections (for example,
+// a list of parameters, or a list of expressions.
 struct _AST {
     ASTType         type;
     AST*            next;
@@ -125,7 +129,9 @@ struct _AST {
 
 #define AST_IS_TYPE(node, type) (((AST*)node)->type == type)
 
-void ast_destroy(AST* tree);
+void ast_print(AST* ast);
+
+void ast_destroy(AST* ast);
 
 AST* ast_makeBinaryExpr(const OCToken* operator, AST* lhs, AST* rhs);
 
