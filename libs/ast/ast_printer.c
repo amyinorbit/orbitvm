@@ -39,8 +39,8 @@ static void ast_printNode(FILE* out, const char* prefix, AST* ast, int depth) {
     case AST_CONDITIONAL:
         fprintf(out, "conditional");
         ast_printNode(out, "condition:", ast->conditionalStmt.condition, depth+1);
-        ast_printNode(out, "if-body:", ast->conditionalStmt.condition, depth+1);
-        ast_printNode(out, "else-body:", ast->conditionalStmt.condition, depth+1);
+        ast_printNode(out, "if-body:", ast->conditionalStmt.ifBody, depth+1);
+        ast_printNode(out, "else-body:", ast->conditionalStmt.elseBody, depth+1);
         break;
     
     case AST_FOR_IN:
