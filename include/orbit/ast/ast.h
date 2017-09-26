@@ -25,7 +25,6 @@ enum _ASTType {
     AST_DECL_MODULE,
     AST_DECL_FUNC,
     AST_DECL_VAR,
-    AST_DECL_PARAM,
     AST_DECL_STRUCT,
     
     AST_EXPR_UNARY,
@@ -95,11 +94,6 @@ struct _AST {
             OCToken     symbol;
             AST*        typeAnnotation;
         } varDecl;
-        
-        struct {
-            OCToken     symbol;
-            AST*        typeAnnotation;
-        } paramDecl;
         
         struct {
             OCToken     symbol;

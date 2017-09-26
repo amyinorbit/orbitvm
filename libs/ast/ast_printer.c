@@ -76,12 +76,6 @@ static void ast_printNode(FILE* out, const char* prefix, AST* ast, int depth) {
         ast_printNode(out, "type:", ast->varDecl.typeAnnotation, depth+1);
         break;
     
-    case AST_DECL_PARAM:
-        fprintf(out, "param-decl ");
-        ast_printToken(out, ast->paramDecl.symbol);
-        ast_printNode(out, "type:", ast->paramDecl.typeAnnotation, depth+1);
-        break;
-    
     case AST_DECL_STRUCT:
         fprintf(out, "usertype-decl");
         ast_printToken(out, ast->structDecl.symbol);

@@ -49,10 +49,6 @@ void ast_destroy(AST* ast) {
             ast_destroy(ast->varDecl.typeAnnotation);
             break;
         
-        case AST_DECL_PARAM:
-            ast_destroy(ast->paramDecl.typeAnnotation);
-            break;
-        
         case AST_DECL_STRUCT:
             ast_destroy(ast->structDecl.constructor);
             ast_destroy(ast->structDecl.destructor);
