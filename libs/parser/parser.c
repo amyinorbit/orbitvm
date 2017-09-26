@@ -463,7 +463,8 @@ static AST* recName(OCParser* parser) {
     for(;;) {
         OCToken operator = current(parser);
         if(have(parser, TOKEN_LBRACKET)) {
-            /*AST* rhs = */recSubscript(parser);
+            AST* rhs = recSubscript(parser);
+            name = ast_makeSubscriptExpr(name, rhs);
         }
         else if(have(parser, TOKEN_DOT)) {
             AST* rhs = recFieldAccess(parser);

@@ -82,6 +82,11 @@ void ast_destroy(AST* ast) {
             ast_destroy(ast->callExpr.params);
             break;
         
+        case AST_EXPR_SUBSCRIPT:
+            ast_destroy(ast->subscriptExpr.symbol);
+            ast_destroy(ast->subscriptExpr.subscript);
+            break;
+        
         case AST_EXPR_CONSTANT:
             free(ast->constantExpr.symbol);
             break;
@@ -185,6 +190,13 @@ AST* ast_makeCallExpr(AST* symbol, AST* params) {
     AST* ast = ast_makeNode(AST_EXPR_CALL);
     ast->callExpr.symbol = symbol;
     ast->callExpr.params = params;
+    return ast;
+}
+
+AST* ast_makeSubscriptExpr(AST* symbol, AST* subscript) {
+    AST* ast = ast_makeNode(AST_EXPR_SUBSCRIPT);
+    ast->subscriptExpr.symbol = symbol;
+    ast->subscriptExpr.subscript = subscript;
     return ast;
 }
 

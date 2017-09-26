@@ -107,6 +107,12 @@ static void ast_printNode(FILE* out, const char* prefix, AST* ast, int depth) {
         ast_printNode(out, "symbol:", ast->callExpr.symbol, depth+1);
         ast_printNode(out, "params:", ast->callExpr.params, depth+1);
         break;
+        
+    case AST_EXPR_SUBSCRIPT:
+        fprintf(out, "subscript ");
+        ast_printNode(out, "symbol:", ast->subscriptExpr.symbol, depth+1);
+        ast_printNode(out, "subscript:", ast->subscriptExpr.subscript, depth+1);
+        break;
     
     case AST_EXPR_CONSTANT:
         fprintf(out, "constant ");

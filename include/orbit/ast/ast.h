@@ -28,7 +28,8 @@ enum _ASTType {
     AST_DECL_STRUCT,
     AST_EXPR_UNARY,
     AST_EXPR_BINARY,
-    AST_EXPR_CALL, // Also does subscripts. Uh. maybe
+    AST_EXPR_CALL,
+    AST_EXPR_SUBSCRIPT,
     AST_EXPR_CONSTANT,
     AST_EXPR_NAME,
     AST_EXPR_TYPE,
@@ -112,12 +113,16 @@ struct _AST {
             AST*        lhs;
             AST*        rhs;
         } binaryExpr;
-
-        // TODO: add subscript node in AST
+        
         struct {
             AST*        symbol;
             AST*        params;
         } callExpr;
+        
+        struct {
+            AST*        symbol;
+            AST*        subscript;
+        } subscriptExpr;
         
         struct {
             OCToken*    symbol;
@@ -150,6 +155,7 @@ AST* ast_makeFuncDecl(const OCToken* symbol, AST* returnType, AST* params, AST* 
 AST* ast_makeBinaryExpr(const OCToken* operator, AST* lhs, AST* rhs);
 AST* ast_makeUnaryExpr(const OCToken* operator, AST* rhs);
 AST* ast_makeCallExpr(AST* symbol, AST* params);
+AST* ast_makeSubscriptExpr(AST* symbol, AST* subscript);
 AST* ast_makeNameExpr(const OCToken* symbol);
 AST* ast_makeConstantExpr(const OCToken* symbol);
 AST* ast_makeTypeExpr(const OCToken* symbol);
