@@ -1,6 +1,6 @@
 //
-//  orbit/parser/ast.c
-//  Orbit - Parser
+//  orbit/ast/ast.c
+//  Orbit - AST
 //
 //  Created by Amy Parent on 2017-09-16.
 //  Copyright © 2017 Amy Parent. All rights reserved.
