@@ -7,6 +7,7 @@
 //
 #include <stdarg.h>
 #include <orbit/utils/assert.h>
+#include <orbit/ast/ast_builders.h>
 #include <orbit/parser/parser.h>
 #include <orbit/parser/tokens.h>
 #include <orbit/parser/lexer.h>
