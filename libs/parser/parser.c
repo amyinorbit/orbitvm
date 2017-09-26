@@ -521,6 +521,7 @@ static AST* recExprList(OCParser* parser) {
 
 static AST* recType(OCParser* parser) {
     if(match(parser, TOKEN_MAYBE)) {
+        //TODO: recognise optionals
     }
     return recTypename(parser);
 }
@@ -535,8 +536,11 @@ static AST* recTypename(OCParser* parser) {
         return recArrayType(parser);
     else if(have(parser, TOKEN_MAP))
         return recMapType(parser);
-    else if(have(parser, TOKEN_IDENTIFIER))
-        expect(parser, TOKEN_IDENTIFIER); // TODO: custom type names
+    else if(have(parser, TOKEN_IDENTIFIER)) {
+        OCToken symbol = current(parser);
+        expect(parser, TOKEN_IDENTIFIER);
+        return ast_makeTypeExpr(&symbol);
+    }
     else
         compilerError(parser, "expected a type name");
     return NULL;
@@ -545,16 +549,25 @@ static AST* recTypename(OCParser* parser) {
 static AST* recFuncType(OCParser* parser) {
     expect(parser, TOKEN_LPAREN);
     
+    AST* params = ast_makeNode(AST_LIST);
+    AST* current = NULL;
+    AST** next = &params->list.head;
+    
     if(haveType(parser)) {
-        recType(parser);
+        current = recType(parser);
+        *next = current;
+        next = &current->next;
+        
         while(match(parser, TOKEN_COMMA)) {
-            recType(parser);
+            current = recType(parser);
+            *next = current;
+            next = &current->next;
         }
     }
     expect(parser, TOKEN_RPAREN);
     expect(parser, TOKEN_ARROW);
-    recType(parser);
-    return NULL;
+    AST* returnType = recType(parser);
+    return ast_makeFuncType(returnType, params);
 }
 
 static AST* recPrimitive(OCParser* parser) {
@@ -579,19 +592,21 @@ static AST* recPrimitive(OCParser* parser) {
 static AST* recArrayType(OCParser* parser) {
     expect(parser, TOKEN_ARRAY);
     expect(parser, TOKEN_LBRACKET);
-    recType(parser);
+    AST* elementType = recType(parser);
     expect(parser, TOKEN_RBRACKET);
-    return NULL;
+    
+    return ast_makeArrayType(elementType);
 }
 
 static AST* recMapType(OCParser* parser) {
     expect(parser, TOKEN_MAP);
     expect(parser, TOKEN_LBRACKET);
-    recPrimitive(parser);
+    AST* keyType = recPrimitive(parser);
     expect(parser, TOKEN_COLON);
-    recType(parser);
+    AST* elementType = recType(parser);
     expect(parser, TOKEN_RBRACKET);
-    return NULL;
+    
+    return ast_makeMapType(keyType, elementType);
 }
 
 void orbit_dumpTokens(const char* sourcePath, const char* source, uint64_t length) {

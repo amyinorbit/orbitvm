@@ -25,7 +25,6 @@ void ast_destroy(AST* ast) {
             break;
         
         case AST_FOR_IN:
-            free(ast->forInLoop.variable);
             ast_destroy(ast->forInLoop.collection);
             ast_destroy(ast->forInLoop.body);
             break;
@@ -37,29 +36,24 @@ void ast_destroy(AST* ast) {
         
         // DECLARATIONS
         case AST_DECL_MODULE:
-            free(ast->moduleDecl.symbol);
             ast_destroy(ast->moduleDecl.body);
             break;
         
         case AST_DECL_FUNC:
-            free(ast->funcDecl.symbol);
             ast_destroy(ast->funcDecl.returnType);
             ast_destroy(ast->funcDecl.params);
             ast_destroy(ast->funcDecl.body);
             break;
         
         case AST_DECL_VAR:
-            free(ast->varDecl.symbol);
             ast_destroy(ast->varDecl.typeAnnotation);
             break;
         
         case AST_DECL_PARAM:
-            free(ast->paramDecl.symbol);
             ast_destroy(ast->paramDecl.typeAnnotation);
             break;
         
         case AST_DECL_STRUCT:
-            free(ast->structDecl.symbol);
             ast_destroy(ast->structDecl.constructor);
             ast_destroy(ast->structDecl.destructor);
             ast_destroy(ast->structDecl.fields);
@@ -67,12 +61,10 @@ void ast_destroy(AST* ast) {
             
         // EXPRESSIONS
         case AST_EXPR_UNARY:
-            free(ast->unaryExpr.operator);
             ast_destroy(ast->unaryExpr.rhs);
             break;
         
         case AST_EXPR_BINARY:
-            free(ast->binaryExpr.operator);
             ast_destroy(ast->binaryExpr.lhs);
             ast_destroy(ast->binaryExpr.rhs);
             break;
@@ -88,15 +80,26 @@ void ast_destroy(AST* ast) {
             break;
         
         case AST_EXPR_CONSTANT:
-            free(ast->constantExpr.symbol);
             break;
         
         case AST_EXPR_NAME:
-            free(ast->nameExpr.symbol);
             break;
         
-        case AST_EXPR_TYPE:
-            free(ast->typeExpr.symbol);
+        case AST_TYPEEXPR_SIMPLE:
+            break;
+            
+        case AST_TYPEEXPR_FUNC:
+            ast_destroy(ast->funcType.returnType);
+            ast_destroy(ast->funcType.params);
+            break;
+            
+        case AST_TYPEEXPR_ARRAY:
+            ast_destroy(ast->arrayType.elementType);
+            break;
+            
+        case AST_TYPEEXPR_MAP:
+            ast_destroy(ast->mapType.keyType);
+            ast_destroy(ast->mapType.elementType);
             break;
     }
     
@@ -113,9 +116,9 @@ AST* ast_makeNode(ASTType type) {
     return ast;
 }
 
-static OCToken* ast_copyToken(const OCToken* token) {
-    OCToken* copy = malloc(sizeof (OCToken));
-    *copy = *token;
+static OCToken ast_copyToken(const OCToken* token) {
+    OCToken copy = *token;
+    // TODO: deep copy of pointed-to string?
     return copy;
 }
 
@@ -213,7 +216,27 @@ AST* ast_makeConstantExpr(const OCToken* symbol) {
 }
 
 AST* ast_makeTypeExpr(const OCToken* symbol) {
-    AST* ast = ast_makeNode(AST_EXPR_TYPE);
-    ast->typeExpr.symbol = ast_copyToken(symbol);
+    AST* ast = ast_makeNode(AST_TYPEEXPR_SIMPLE);
+    ast->simpleType.symbol = ast_copyToken(symbol);
+    return ast;
+}
+
+AST* ast_makeFuncType(AST* returnType, AST* params) {
+    AST* ast = ast_makeNode(AST_TYPEEXPR_FUNC);
+    ast->funcType.returnType = returnType;
+    ast->funcType.params = params;
+    return ast;
+}
+
+AST* ast_makeArrayType(AST* elementType) {
+    AST* ast = ast_makeNode(AST_TYPEEXPR_ARRAY);
+    ast->arrayType.elementType = elementType;
+    return ast;
+}
+
+AST* ast_makeMapType(AST* keyType, AST* elementType) {
+    AST* ast = ast_makeNode(AST_TYPEEXPR_MAP);
+    ast->mapType.keyType = keyType;
+    ast->mapType.elementType = elementType;
     return ast;
 }

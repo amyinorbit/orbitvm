@@ -21,18 +21,26 @@ enum _ASTType {
     AST_CONDITIONAL,
     AST_FOR_IN,
     AST_WHILE,
+    
     AST_DECL_MODULE,
     AST_DECL_FUNC,
     AST_DECL_VAR,
     AST_DECL_PARAM,
     AST_DECL_STRUCT,
+    
     AST_EXPR_UNARY,
     AST_EXPR_BINARY,
     AST_EXPR_CALL,
     AST_EXPR_SUBSCRIPT,
     AST_EXPR_CONSTANT,
     AST_EXPR_NAME,
-    AST_EXPR_TYPE,
+    //AST_EXPR_TYPE,
+    
+    
+    AST_TYPEEXPR_SIMPLE,
+    AST_TYPEEXPR_ARRAY,
+    AST_TYPEEXPR_MAP,
+    AST_TYPEEXPR_FUNC,
 };
 
 // The TUD (Tagged Union of Doom). Represents all possible nodes in an orbit
@@ -58,7 +66,7 @@ struct _AST {
         } conditionalStmt;
         
         struct {
-            OCToken*    variable;
+            OCToken     variable;
             AST*        collection;
             AST*        body;
         } forInLoop;
@@ -77,24 +85,24 @@ struct _AST {
         } moduleDecl;
         
         struct {
-            OCToken*    symbol;
+            OCToken     symbol;
             AST*        returnType;
             AST*        params;
             AST*        body;
         } funcDecl;
         
         struct {
-            OCToken*    symbol;
+            OCToken     symbol;
             AST*        typeAnnotation;
         } varDecl;
         
         struct {
-            OCToken*    symbol;
+            OCToken     symbol;
             AST*        typeAnnotation;
         } paramDecl;
         
         struct {
-            OCToken*    symbol;
+            OCToken     symbol;
             AST*        constructor;
             AST*        destructor;
             AST*        fields;
@@ -104,12 +112,12 @@ struct _AST {
         // Expressions
         // --------------------------------------------------------------------
         struct  {
-            OCToken*    operator;
+            OCToken     operator;
             AST*        rhs;
         } unaryExpr;
         
         struct {
-            OCToken*    operator;
+            OCToken     operator;
             AST*        lhs;
             AST*        rhs;
         } binaryExpr;
@@ -125,16 +133,33 @@ struct _AST {
         } subscriptExpr;
         
         struct {
-            OCToken*    symbol;
+            OCToken     symbol;
         } constantExpr;
         
         struct {
-            OCToken*    symbol;
+            OCToken     symbol;
         } nameExpr;
         
+        // Type Expressions (necessary for a non-trivial type system)
+        
         struct {
-            OCToken*    symbol; // TODO: Replace with smth better (multi-token types)
-        } typeExpr;
+            OCToken     symbol;
+        } simpleType;
+        
+        struct {
+            AST*        elementType;
+        } arrayType;
+        
+        struct {
+            AST*        keyType;
+            AST*        elementType;
+        } mapType;
+        
+        struct {
+            AST*        returnType;
+            AST*        params;
+        } funcType;
+        
     };
 };
 
@@ -158,6 +183,10 @@ AST* ast_makeCallExpr(AST* symbol, AST* params);
 AST* ast_makeSubscriptExpr(AST* symbol, AST* subscript);
 AST* ast_makeNameExpr(const OCToken* symbol);
 AST* ast_makeConstantExpr(const OCToken* symbol);
+
 AST* ast_makeTypeExpr(const OCToken* symbol);
+AST* ast_makeFuncType(AST* returnType, AST* params);
+AST* ast_makeArrayType(AST* elementType);
+AST* ast_makeMapType(AST* keyType, AST* elementType);
 
 #endif /* orbit_ast_h_ */

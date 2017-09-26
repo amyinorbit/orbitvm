@@ -16,10 +16,10 @@ static void ast_printReturn(FILE* out, int depth) {
     fputs("|", out);
 }
 
-static void ast_printToken(FILE* out, OCToken* token) {
+static void ast_printToken(FILE* out, OCToken token) {
     fputs("`", out);
-    const char* current = token->start;
-    for(uint64_t i = 0; i < token->length; ++i) {
+    const char* current = token.start;
+    for(uint64_t i = 0; i < token.length; ++i) {
         fputc(*(current++), out);
     }
     fputs("`", out);
@@ -124,9 +124,26 @@ static void ast_printNode(FILE* out, const char* prefix, AST* ast, int depth) {
         ast_printToken(out, ast->nameExpr.symbol);
         break;
     
-    case AST_EXPR_TYPE:
-        fprintf(out, "type-expr ");
-        ast_printToken(out, ast->typeExpr.symbol);
+    case AST_TYPEEXPR_SIMPLE:
+        fprintf(out, "type ");
+        ast_printToken(out, ast->simpleType.symbol);
+        break;
+        
+    case AST_TYPEEXPR_FUNC:
+        fprintf(out, "func-type");
+        ast_printNode(out, "returns:", ast->funcType.returnType, depth+1);
+        ast_printNode(out, "params:", ast->funcType.params, depth+1);
+        break;
+        
+    case AST_TYPEEXPR_ARRAY:
+        fprintf(out, "array-type");
+        ast_printNode(out, "elements:", ast->arrayType.elementType, depth+1);
+        break;
+        
+    case AST_TYPEEXPR_MAP:
+        fprintf(out, "map-type");
+        ast_printNode(out, "keys:", ast->mapType.keyType, depth+1);
+        ast_printNode(out, "elements:", ast->mapType.elementType, depth+1);
         break;
     }
     
