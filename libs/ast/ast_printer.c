@@ -13,13 +13,13 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last);
 static void ast_printList(FILE* out, const char* name, AST* list, int depth, bool last);
 
 static void ast_printReturn(FILE* out, int depth, bool last) {
-    
     static bool indents[256] = {false};
-    
-    indents[depth] = !last;
-    
     fputs("\n", out);
-    for(int i = 0; i < depth; ++i) {
+    if(depth <= 0) { return; }
+
+    
+    indents[depth-1] = !last;
+    for(int i = 0; i < depth-1; ++i) {
         fputc(((i >= 256 || indents[i]) ? '|' : ' '), out);
         fputc(' ', out);
     }
