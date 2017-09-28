@@ -60,7 +60,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_CONDITIONAL:
         fputs("IfStmt", out);
         ast_printNode(out, ast->conditionalStmt.condition, depth+1, false);
-        ast_printList(out, "Block", ast->conditionalStmt.ifBody, depth+1, ast->conditionalStmt.ifBody == NULL);
+        ast_printList(out, "Block", ast->conditionalStmt.ifBody, depth+1, ast->conditionalStmt.elseBody == NULL);
         ast_printList(out, "Block", ast->conditionalStmt.elseBody, depth+1, true);
         break;
     
