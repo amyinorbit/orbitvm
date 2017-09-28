@@ -187,7 +187,7 @@ static AST* recProgram(OCParser* parser) {
         expectTerminator(parser);
     }
     expect(parser, TOKEN_EOF);
-    return ast_listClose(&program);
+    return ast_makeModuleDecl("TranslationUnit", ast_listClose(&program));
 }
 
 static AST* recBlock(OCParser* parser) {

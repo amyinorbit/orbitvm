@@ -86,7 +86,7 @@ struct _AST {
         // Declarations
         // --------------------------------------------------------------------
         struct {
-            char*       symbol;
+            const char* symbol;
             AST*        body;
         } moduleDecl;
         

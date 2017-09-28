@@ -31,6 +31,11 @@ static OCToken ast_copyToken(const OCToken* token) {
     return copy;
 }
 
+// static char* ast_copyString(const char* string, size_t length) {
+//     char* copy = calloc(sizeof(char), length + 1);
+//     mcmcpy(copy, string)
+// }
+
 AST* ast_makeConditional(AST* condition, AST* ifBody, AST* elseBody) {
     AST* ast = ast_makeNode(AST_CONDITIONAL);
     ast->conditionalStmt.condition = condition;
@@ -65,6 +70,13 @@ AST* ast_makeContinue() {
 AST* ast_makeReturn(AST* returned) {
     AST* ast = ast_makeNode(AST_RETURN);
     ast->returnStmt.returnValue = returned;
+    return ast;
+}
+
+AST* ast_makeModuleDecl(const char* symbol, AST* body) {
+    AST* ast = ast_makeNode(AST_DECL_MODULE);
+    ast->moduleDecl.symbol = symbol;
+    ast->moduleDecl.body = body;
     return ast;
 }
 

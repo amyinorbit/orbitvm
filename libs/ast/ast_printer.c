@@ -92,8 +92,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     
     // DECLARATIONS
     case AST_DECL_MODULE:
-        fprintf(out, "ModuleDecl `%s`", ast->moduleDecl.symbol);
-        ast_printList(out, "Block", ast->moduleDecl.body, depth+1, true);
+        fprintf(out, "ModuleDecl '%s'", ast->moduleDecl.symbol);
+        ast_printList(out, "DeclarationList", ast->moduleDecl.body, depth+1, true);
         break;
     
     case AST_DECL_FUNC:

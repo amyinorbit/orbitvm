@@ -33,6 +33,7 @@ AST* ast_makeBreak();
 AST* ast_makeContinue();
 AST* ast_makeReturn(AST* returned);
 
+AST* ast_makeModuleDecl(const char* symbol, AST* body);
 AST* ast_makeStructDecl(const OCToken* symbol, AST* constructor, AST* destructor, AST* fields);
 AST* ast_makeVarDecl(const OCToken* symbol, AST* typeAnnotation);
 AST* ast_makeFuncDecl(const OCToken* symbol, AST* returnType, AST* params, AST* body);
