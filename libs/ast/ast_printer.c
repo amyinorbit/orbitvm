@@ -60,7 +60,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_CONDITIONAL:
         fputs("IfStmt", out);
         ast_printNode(out, ast->conditionalStmt.condition, depth+1, false);
-        ast_printList(out, "Block", ast->conditionalStmt.ifBody, depth+1, false);
+        ast_printList(out, "Block", ast->conditionalStmt.ifBody, depth+1, ast->conditionalStmt.ifBody == NULL);
         ast_printList(out, "Block", ast->conditionalStmt.elseBody, depth+1, true);
         break;
     
@@ -68,7 +68,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         fputs("ForInStmt", out);
         ast_printToken(out, ast->forInLoop.variable);
         ast_printNode(out, ast->forInLoop.collection, depth+1, false);
-        ast_printList(out, "Block", ast->forInLoop.body, depth+2, true);
+        ast_printList(out, "Block", ast->forInLoop.body, depth+1, true);
         break;
     
     case AST_WHILE:
@@ -134,7 +134,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     
     case AST_EXPR_CALL:
         fputs("CallExpr", out);
-        ast_printNode(out, ast->callExpr.symbol, depth+1, false);
+        ast_printNode(out, ast->callExpr.symbol, depth+1, ast->callExpr.params == NULL);
         ast_printList(out, "CallParamList", ast->callExpr.params, depth+1, true);
         break;
         
@@ -161,7 +161,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         
     case AST_TYPEEXPR_FUNC:
         fputs("FuncTypeExpr", out);
-        ast_printNode(out, ast->funcType.returnType, depth+1, false);
+        ast_printNode(out, ast->funcType.returnType, depth+1, ast->funcType.params == NULL);
         ast_printList(out, "ParamList", ast->funcType.params, depth+1, true);
         break;
         
