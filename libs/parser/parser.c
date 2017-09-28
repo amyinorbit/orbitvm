@@ -7,6 +7,7 @@
 //
 #include <stdarg.h>
 #include <orbit/utils/assert.h>
+#include <orbit/console/console.h>
 #include <orbit/ast/ast_builders.h>
 #include <orbit/parser/parser.h>
 #include <orbit/parser/tokens.h>
@@ -38,17 +39,17 @@ static void compilerError(OCParser* parser, const char* fmt, ...) {
                      parser->lexer.path,
                      parser->lexer.currentToken.line,
                      parser->lexer.currentToken.column);
-    orbit_setConsoleColor(stderr, CLI_RED);
+    console_setColor(stderr, CLI_RED);
     fprintf(stderr, "error: ");
-    orbit_setConsoleColor(stderr, CLI_RESET);
+    console_setColor(stderr, CLI_RESET);
     va_list va;
     va_start(va, fmt);
     vfprintf(stderr, fmt, va);
     va_end(va);
     fputc('\n', stderr);
     lexer_printLine(stderr, &parser->lexer);
-    orbit_printSquigglies(stderr, parser->lexer.currentToken.column,
-                                  parser->lexer.currentToken.displayWidth);
+    console_printUnderlines(stderr, parser->lexer.currentToken.column,
+                                    parser->lexer.currentToken.displayWidth);
 }
 
 static void syntaxError(OCParser* parser, OCTokenType type) {
@@ -58,12 +59,12 @@ static void syntaxError(OCParser* parser, OCTokenType type) {
     
     OCToken tok  = current(parser);
     fprintf(stderr, "%s:%llu:%llu: ", parser->lexer.path, tok.line, tok.column);
-    orbit_setConsoleColor(stderr, CLI_RED);
+    console_setColor(stderr, CLI_RED);
     fprintf(stderr, "error: ");
-    orbit_setConsoleColor(stderr, CLI_RESET);
+    console_setColor(stderr, CLI_RESET);
     fprintf(stderr, "expected '%s'\n", orbit_tokenString(type));
     lexer_printLine(stderr, &parser->lexer);
-    orbit_printSquigglies(stderr, tok.column, parser->lexer.currentToken.displayWidth);
+    console_printUnderlines(stderr, tok.column, parser->lexer.currentToken.displayWidth);
 }
 
 // MARK: - RD Basics

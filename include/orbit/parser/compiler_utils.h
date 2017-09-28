@@ -13,18 +13,6 @@
 #include <stdio.h>
 #include <orbit/parser/tokens.h>
 
-typedef enum {
-    CLI_RESET,
-    CLI_GREEN,
-    CLI_RED,
-    CLI_MAGENTA,
-    CLI_BADCOLOR,
-} CLIColor;
-
-void orbit_setConsoleColor(FILE*out, CLIColor color);
-
-void orbit_printSquigglies(FILE* out, uint64_t start, uint64_t length);
-
 const char* orbit_tokenName(OCTokenType token);
 const char* orbit_tokenString(OCTokenType token);
 

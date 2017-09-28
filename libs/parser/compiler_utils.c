@@ -7,33 +7,6 @@
 //
 #include <orbit/parser/compiler_utils.h>
 
-static const char* _ansiCodes[] = {
-    [CLI_RESET]     = "\033[0m",
-    [CLI_GREEN]     = "\033[32m",
-    [CLI_RED]       = "\033[31m",
-    [CLI_MAGENTA]   = "\033[35m",
-    [CLI_BADCOLOR]  = "",
-};
-
-void orbit_setConsoleColor(FILE* out, CLIColor color) {
-    // TODO: implement windows equivalent
-    if(color > CLI_BADCOLOR) { return; }
-    fprintf(out, "%s", _ansiCodes[color]);
-}
-
-void orbit_printSquigglies(FILE* out, uint64_t column, uint64_t length) {
-    for(uint64_t i = 0; i < column; ++i) {
-        fputc(' ', out);
-    }
-    orbit_setConsoleColor(out, CLI_GREEN);
-    fputc('^', out);
-    for(uint64_t i = 0; i < length-1; ++i) {
-        fputc('~', out);
-    }
-    orbit_setConsoleColor(out, CLI_RESET);
-    fputc('\n', out);
-}
-
 typedef struct {
     const char* name;
     const char* string;
