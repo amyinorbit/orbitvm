@@ -10,9 +10,8 @@
 #include <orbit/ast/ast_builders.h>
 
 void ast_listStart(ASTListBuilder* builder) {
-    builder->list = ast_makeNode(AST_LIST);
-    builder->next = &builder->list->list.head;
-    *(builder->next) = NULL;
+    builder->head = NULL;
+    builder->next = &builder->head;
 }
 
 void ast_listAdd(ASTListBuilder* builder, AST* item) {
@@ -22,7 +21,7 @@ void ast_listAdd(ASTListBuilder* builder, AST* item) {
 
 AST* ast_listClose(ASTListBuilder* builder) {
     *(builder->next) = NULL;
-    return builder->list;
+    return builder->head;
 }
 
 

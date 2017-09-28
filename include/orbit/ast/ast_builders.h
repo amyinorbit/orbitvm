@@ -16,7 +16,7 @@
 typedef struct _ASTListBuilder ASTListBuilder;
 
 struct _ASTListBuilder {
-    AST*    list;
+    AST*    head;
     AST**   next;
 };
 
