@@ -9,10 +9,19 @@
 #include <stdbool.h>
 #include <orbit/ast/ast.h>
 
+static void ast_printNode(FILE* out, AST* ast, int depth, bool last);
+static void ast_printList(FILE* out, const char* name, AST* list, int depth, bool last);
+
 static void ast_printReturn(FILE* out, int depth, bool last) {
+    
+    static bool indents[256] = {false};
+    
+    indents[depth] = !last;
+    
     fputs("\n", out);
     for(int i = 0; i < depth; ++i) {
-        fputs("  ", out);
+        fputc(((i >= 256 || indents[i]) ? '|' : ' '), out);
+        fputc(' ', out);
     }
     fputs((last ? "`-" : "|-"), out);
 }
@@ -24,6 +33,18 @@ static void ast_printToken(FILE* out, OCToken token) {
         fputc(*(current++), out);
     }
     fputs("'", out);
+}
+
+static void ast_printList(FILE* out, const char* name, AST* list, int depth, bool last) {
+    if(list == NULL) { return; }
+    ast_printReturn(out, depth, last);
+    fprintf(out, "%s", name);
+    
+    AST* item = list;
+    while(item != NULL) {
+        ast_printNode(out, item, depth+1, item->next == NULL);
+        item = item->next;
+    }
 }
 
 static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
@@ -39,21 +60,21 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_CONDITIONAL:
         fputs("IfStmt", out);
         ast_printNode(out, ast->conditionalStmt.condition, depth+1, false);
-        ast_printNode(out, ast->conditionalStmt.ifBody, depth+1, false);
-        ast_printNode(out, ast->conditionalStmt.elseBody, depth+1, true);
+        ast_printList(out, "Block", ast->conditionalStmt.ifBody, depth+1, false);
+        ast_printList(out, "Block", ast->conditionalStmt.elseBody, depth+1, true);
         break;
     
     case AST_FOR_IN:
         fputs("ForInStmt", out);
         ast_printToken(out, ast->forInLoop.variable);
         ast_printNode(out, ast->forInLoop.collection, depth+1, false);
-        ast_printNode(out, ast->forInLoop.body, depth+1, true);
+        ast_printList(out, "Block", ast->forInLoop.body, depth+2, true);
         break;
     
     case AST_WHILE:
         fputs("WhileStmt", out);
         ast_printNode(out, ast->whileLoop.condition, depth+1, false);
-        ast_printNode(out, ast->whileLoop.body, depth+1, true);
+        ast_printList(out, "Block", ast->whileLoop.body, depth+1, true);
         break;
     
     case AST_BREAK:
@@ -72,29 +93,29 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     // DECLARATIONS
     case AST_DECL_MODULE:
         fprintf(out, "ModuleDecl `%s`", ast->moduleDecl.symbol);
-        ast_printNode(out, ast->moduleDecl.body, depth+1, true);
+        ast_printList(out, "Block", ast->moduleDecl.body, depth+1, true);
         break;
     
     case AST_DECL_FUNC:
-        fputs("FuncDecl", out);
+        fputs("FuncDecl ", out);
         ast_printToken(out, ast->funcDecl.symbol);
         ast_printNode(out, ast->funcDecl.params, depth+1, false);
         ast_printNode(out, ast->funcDecl.returnType, depth+1, false);
-        ast_printNode(out, ast->funcDecl.body, depth+1, true);
+        ast_printList(out, "Block", ast->funcDecl.body, depth+1, true);
         break;
     
     case AST_DECL_VAR:
-        fputs("VarDecl", out);
+        fputs("VarDecl ", out);
         ast_printToken(out, ast->varDecl.symbol);
         ast_printNode(out, ast->varDecl.typeAnnotation, depth+1, true);
         break;
     
     case AST_DECL_STRUCT:
-        fputs("CompoundTypeDecl", out);
+        fputs("CompoundTypeDecl ", out);
         ast_printToken(out, ast->structDecl.symbol);
         ast_printNode(out, ast->structDecl.constructor, depth+1, false);
         ast_printNode(out, ast->structDecl.destructor, depth+1, false);
-        ast_printNode(out, ast->structDecl.fields, depth+1, true);
+        ast_printList(out, "CompoundMemberList", ast->structDecl.fields, depth+1, true);
         break;
         
     // EXPRESSIONS
@@ -114,7 +135,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_EXPR_CALL:
         fputs("CallExpr", out);
         ast_printNode(out, ast->callExpr.symbol, depth+1, false);
-        ast_printNode(out, ast->callExpr.params, depth+1, true);
+        ast_printList(out, "CallParamList", ast->callExpr.params, depth+1, true);
         break;
         
     case AST_EXPR_SUBSCRIPT:
@@ -134,14 +155,14 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         break;
     
     case AST_TYPEEXPR_SIMPLE:
-        fputs("TypeExpr", out);
+        fputs("TypeExpr ", out);
         ast_printToken(out, ast->simpleType.symbol);
         break;
         
     case AST_TYPEEXPR_FUNC:
         fputs("FuncTypeExpr", out);
         ast_printNode(out, ast->funcType.returnType, depth+1, false);
-        ast_printNode(out, ast->funcType.params, depth+1, true);
+        ast_printList(out, "ParamList", ast->funcType.params, depth+1, true);
         break;
         
     case AST_TYPEEXPR_ARRAY:
@@ -156,10 +177,15 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         break;
     }
     
-    ast_printNode(out, ast->next, depth, false);
+    //ast_printNode(out, ast->next, depth, false);
 }
 
 void ast_print(FILE* out, AST* ast) {
-    ast_printNode(out, ast, 0, false);
+    if(ast == NULL) { return; }
+    if(ast->next) {
+        ast_printList(out, "List", ast, 0, true);
+    } else {
+        ast_printNode(out, ast, 0, true);
+    }
     fputs("\n\n", out);
 }
