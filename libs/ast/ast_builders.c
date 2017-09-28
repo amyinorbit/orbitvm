@@ -15,6 +15,7 @@ void ast_listStart(ASTListBuilder* builder) {
 }
 
 void ast_listAdd(ASTListBuilder* builder, AST* item) {
+    if(item == NULL) { return; }
     *(builder->next) = item;
     builder->next = &item->next;
 }
