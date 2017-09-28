@@ -117,7 +117,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_GREEN);
         fputs("FuncDecl ", out);
         ast_printToken(out, ast->funcDecl.symbol);
-        ast_printNode(out, ast->funcDecl.params, depth+1, false);
+        ast_printList(out, "ParamDeclList", ast->funcDecl.params, depth+1, false);
         ast_printNode(out, ast->funcDecl.returnType, depth+1, false);
         ast_printList(out, "Block", ast->funcDecl.body, depth+1, true);
         break;
