@@ -17,7 +17,6 @@ typedef enum _ASTType ASTType;
 
 // Tag enum for AST nodes
 enum _ASTType {
-    AST_LIST,
     AST_CONDITIONAL,
     AST_FOR_IN,
     AST_WHILE,

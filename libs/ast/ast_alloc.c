@@ -14,10 +14,6 @@ void ast_destroy(AST* ast) {
     
     switch(ast->type) {
         // STATEMENTS
-        case AST_LIST:
-            ast_destroy(ast->list.head);
-            break;
-        
         case AST_CONDITIONAL:
             ast_destroy(ast->conditionalStmt.condition);
             ast_destroy(ast->conditionalStmt.ifBody);
