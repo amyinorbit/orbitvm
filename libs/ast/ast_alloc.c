@@ -82,6 +82,9 @@ void ast_destroy(AST* ast) {
             break;
         
         case AST_EXPR_CONSTANT:
+        case AST_EXPR_CONSTANT_INTEGER:
+        case AST_EXPR_CONSTANT_FLOAT:
+        case AST_EXPR_CONSTANT_STRING:
             break;
         
         case AST_EXPR_NAME:

@@ -43,7 +43,7 @@ AST* ast_makeUnaryExpr(const OCToken* operator, AST* rhs);
 AST* ast_makeCallExpr(AST* symbol, AST* params);
 AST* ast_makeSubscriptExpr(AST* symbol, AST* subscript);
 AST* ast_makeNameExpr(const OCToken* symbol);
-AST* ast_makeConstantExpr(const OCToken* symbol);
+AST* ast_makeConstantExpr(const OCToken* symbol, ASTType type);
 
 AST* ast_makeTypeExpr(const OCToken* symbol);
 AST* ast_makeFuncType(AST* returnType, AST* params);

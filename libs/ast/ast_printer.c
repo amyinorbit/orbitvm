@@ -163,6 +163,24 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         ast_printNode(out, ast->subscriptExpr.subscript, depth+1, true);
         break;
     
+    case AST_EXPR_CONSTANT_INTEGER:
+        console_setColor(out, CLI_YELLOW);
+        fputs("IntegerLiteralExpr ", out);
+        ast_printToken(out, ast->constantExpr.symbol);
+        break;
+        
+    case AST_EXPR_CONSTANT_FLOAT:
+        console_setColor(out, CLI_YELLOW);
+        fputs("FloatLiteralExpr ", out);
+        ast_printToken(out, ast->constantExpr.symbol);
+        break;
+        
+    case AST_EXPR_CONSTANT_STRING:
+        console_setColor(out, CLI_YELLOW);
+        fputs("StringLiteralExpr ", out);
+        ast_printToken(out, ast->constantExpr.symbol);
+        break;
+        
     case AST_EXPR_CONSTANT:
         console_setColor(out, CLI_YELLOW);
         fputs("ConstantExpr ", out);

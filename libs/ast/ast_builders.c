@@ -145,8 +145,8 @@ AST* ast_makeNameExpr(const OCToken* symbol) {
     return ast;
 }
 
-AST* ast_makeConstantExpr(const OCToken* symbol) {
-    AST* ast = ast_makeNode(AST_EXPR_CONSTANT);
+AST* ast_makeConstantExpr(const OCToken* symbol, ASTType type) {
+    AST* ast = ast_makeNode(type);
     ast->constantExpr.symbol = ast_copyToken(symbol);
     return ast;
 }

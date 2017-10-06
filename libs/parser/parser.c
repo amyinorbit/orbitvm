@@ -441,11 +441,11 @@ static AST* recTerm(OCParser* parser) {
     else if(have(parser, TOKEN_IDENTIFIER))
         term = recName(parser);
     else if(match(parser, TOKEN_STRING_LITERAL))
-        term = ast_makeConstantExpr(&symbol);
+        term = ast_makeConstantExpr(&symbol, AST_EXPR_CONSTANT_STRING);
     else if(match(parser, TOKEN_INTEGER_LITERAL))
-        term = ast_makeConstantExpr(&symbol);
+        term = ast_makeConstantExpr(&symbol, AST_EXPR_CONSTANT_INTEGER);
     else if(match(parser, TOKEN_FLOAT_LITERAL))
-        term = ast_makeConstantExpr(&symbol);
+        term = ast_makeConstantExpr(&symbol, AST_EXPR_CONSTANT_FLOAT);
     else
         compilerError(parser, "expected an expression term");
     
