@@ -135,14 +135,14 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         
     // EXPRESSIONS
     case AST_EXPR_UNARY:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("UnaryOperatorExpr ", out);
         ast_printToken(out, ast->unaryExpr.operator);
         ast_printNode(out, ast->unaryExpr.rhs, depth+1, true);
         break;
     
     case AST_EXPR_BINARY:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("BinaryOperatorExpr ", out);
         ast_printToken(out, ast->binaryExpr.operator);
         ast_printNode(out, ast->binaryExpr.lhs, depth+1, false);
@@ -150,70 +150,70 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         break;
     
     case AST_EXPR_CALL:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("CallExpr", out);
         ast_printNode(out, ast->callExpr.symbol, depth+1, ast->callExpr.params == NULL);
         ast_printList(out, "CallParamList", ast->callExpr.params, depth+1, true);
         break;
         
     case AST_EXPR_SUBSCRIPT:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("SubscriptExpr", out);
         ast_printNode(out, ast->subscriptExpr.symbol, depth+1, false);
         ast_printNode(out, ast->subscriptExpr.subscript, depth+1, true);
         break;
     
     case AST_EXPR_CONSTANT_INTEGER:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("IntegerLiteralExpr ", out);
         ast_printToken(out, ast->constantExpr.symbol);
         break;
         
     case AST_EXPR_CONSTANT_FLOAT:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("FloatLiteralExpr ", out);
         ast_printToken(out, ast->constantExpr.symbol);
         break;
         
     case AST_EXPR_CONSTANT_STRING:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("StringLiteralExpr ", out);
         ast_printToken(out, ast->constantExpr.symbol);
         break;
         
     case AST_EXPR_CONSTANT:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("ConstantExpr ", out);
         ast_printToken(out, ast->constantExpr.symbol);
         break;
     
     case AST_EXPR_NAME:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("NameRefExpr ", out);
         ast_printToken(out, ast->nameExpr.symbol);
         break;
     
     case AST_TYPEEXPR_SIMPLE:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("TypeExpr ", out);
         ast_printToken(out, ast->simpleType.symbol);
         break;
         
     case AST_TYPEEXPR_FUNC:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("FuncTypeExpr", out);
         ast_printNode(out, ast->funcType.returnType, depth+1, ast->funcType.params == NULL);
         ast_printList(out, "ParamList", ast->funcType.params, depth+1, true);
         break;
         
     case AST_TYPEEXPR_ARRAY:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("ArrayTypeExpr", out);
         ast_printNode(out, ast->arrayType.elementType, depth+1, false);
         break;
         
     case AST_TYPEEXPR_MAP:
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_MAGENTA);
         fputs("MapTypeExpr", out);
         ast_printNode(out, ast->mapType.keyType, depth+1, false);
         ast_printNode(out, ast->mapType.elementType, depth+1, true);
