@@ -15,11 +15,11 @@ typedef struct {
 } OCTokenData;
 
 static const OCTokenData _tokenData[] = {
-    [TOKEN_LPAREN] = {"l_paren", "(", false, false},
+    [TOKEN_LPAREN] = {"l_paren", "(", true, false},
     [TOKEN_RPAREN] = {"r_paren", ")", false, false},
     [TOKEN_LBRACE] = {"l_brace", "{", false, false},
     [TOKEN_RBRACE] = {"r_brace", "}", false, false},
-    [TOKEN_LBRACKET] = {"l_bracket", "[", false, false},
+    [TOKEN_LBRACKET] = {"l_bracket", "[", true, false},
     [TOKEN_RBRACKET] = {"r_bracket", "]", false, false},
     [TOKEN_PLUS] = {"plus", "+", true, false},
     [TOKEN_MINUS] = {"plus", "-", true, true},
@@ -52,7 +52,7 @@ static const OCTokenData _tokenData[] = {
     [TOKEN_NEWLINE] = {"newline", "\\n", false, false},
     [TOKEN_COLON] = {"colon", ":", false, false},
     [TOKEN_COMMA] = {"comma", ",", false, false},
-    [TOKEN_DOT] = {"dot", ".", false, false},
+    [TOKEN_DOT] = {"dot", ".", true, false},
     [TOKEN_ARROW] = {"arrow", "->", false, false},
     [TOKEN_INTEGER_LITERAL] = {"integer_constant", "integer constant", false, false},
     [TOKEN_FLOAT_LITERAL] = {"float_constant", "floating-point constant", false, false},
@@ -109,6 +109,9 @@ typedef struct {
 } OCOperator;
 
 static OCOperator opTable[] = {
+    {TOKEN_DOT,         110,    false},
+    {TOKEN_LBRACKET,    110,    false},
+    {TOKEN_LPAREN,      110,    false},
     {TOKEN_STARSTAR,    100,    true},
     {TOKEN_STAR,        90,     false},
     {TOKEN_SLASH,       90,     false},

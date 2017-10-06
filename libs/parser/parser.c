@@ -382,6 +382,7 @@ static AST* recForLoop(OCParser* parser) {
 static AST* recExpression(OCParser* parser, int minPrec) {
     AST* expr = recTerm(parser);
     for(;;) {
+        
         if(!haveBinaryOp(parser) || precedence(parser) < minPrec) {
             break;
         }
@@ -392,8 +393,30 @@ static AST* recExpression(OCParser* parser, int minPrec) {
         
         int nextMinPrec = right ? prec : prec + 1;
         lexer_nextToken(&parser->lexer);
-        AST* rhs = recExpression(parser, nextMinPrec);
-        expr = ast_makeBinaryExpr(&operator, expr, rhs);
+        
+        AST* rhs = NULL;
+        
+        switch(operator.type) {
+            case TOKEN_LPAREN:
+            rhs = recFuncCall(parser);
+            expr = ast_makeCallExpr(expr, rhs);
+            break;
+            
+        case TOKEN_LBRACKET:
+            rhs = recSubscript(parser);
+            expr = ast_makeSubscriptExpr(expr, rhs);
+            break;
+            
+        case TOKEN_DOT:
+            rhs = recFieldAccess(parser);
+            expr = ast_makeBinaryExpr(&operator, expr, rhs);
+            break;
+            
+        default:
+            rhs = recExpression(parser, nextMinPrec);
+            expr = ast_makeBinaryExpr(&operator, expr, rhs);
+            break;
+        }
     }
     return expr;
 }
@@ -433,36 +456,17 @@ static AST* recName(OCParser* parser) {
     OCToken symbol = current(parser);
     AST* name = ast_makeNameExpr(&symbol);
     expect(parser, TOKEN_IDENTIFIER);
-    for(;;) {
-        OCToken operator = current(parser);
-        if(have(parser, TOKEN_LBRACKET)) {
-            AST* rhs = recSubscript(parser);
-            name = ast_makeSubscriptExpr(name, rhs);
-        }
-        else if(have(parser, TOKEN_DOT)) {
-            AST* rhs = recFieldAccess(parser);
-            name = ast_makeBinaryExpr(&operator, name, rhs);
-        }
-        else if(have(parser, TOKEN_LPAREN)) {
-            AST* params = recFuncCall(parser);
-            name = ast_makeCallExpr(name, params);
-        }
-        else {
-            break;
-        }
-    }
     return name;
 }
 
 static AST* recSubscript(OCParser* parser) {
-    expect(parser, TOKEN_LBRACKET);
     AST* subscript = recExpression(parser, 0);
     expect(parser, TOKEN_RBRACKET);
     return subscript;
 }
 
 static AST* recFieldAccess(OCParser* parser) {
-    expect(parser, TOKEN_DOT);
+    //expect(parser, TOKEN_DOT);
     OCToken symbol = current(parser);
     expect(parser, TOKEN_IDENTIFIER);
     return ast_makeNameExpr(&symbol);
@@ -470,7 +474,6 @@ static AST* recFieldAccess(OCParser* parser) {
 
 static AST* recFuncCall(OCParser* parser) {
     AST* paramList = NULL;
-    expect(parser, TOKEN_LPAREN);
     if(haveTerm(parser)) {
         paramList = recExprList(parser);
     }

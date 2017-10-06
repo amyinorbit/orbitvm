@@ -1,0 +1,7 @@
+// Allows call, subscript and member access on the result of an expression
+
+var dispatchTable : Array[(String)->Number]
+
+fun main() {
+    var test = dispatchTable[0]("Some Test") + 123
+}
