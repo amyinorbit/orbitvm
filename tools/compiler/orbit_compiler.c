@@ -55,7 +55,6 @@ int main(int argc, const char** args) {
             orbit_dumpTokens(args[1], source, length);
         }
         else if(strcmp(args[2], "-dump-ast") == 0) {
-            // TODO: dump AST
             AST* ast = orbit_parse(args[1], source, length);
             ast_print(stdout, ast);
             ast_destroy(ast);

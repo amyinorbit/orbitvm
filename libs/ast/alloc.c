@@ -9,10 +9,42 @@
 #include <string.h>
 #include <orbit/ast/ast.h>
 
+const uint32_t ASTStmtMask      = AST_CONDITIONAL
+                                | AST_FOR_IN
+                                | AST_WHILE
+                                | AST_BREAK
+                                | AST_CONTINUE
+                                | AST_RETURN;
+
+const uint32_t ASTDeclMask      = AST_DECL_MODULE
+                                | AST_DECL_FUNC
+                                | AST_DECL_VAR
+                                | AST_DECL_STRUCT;
+
+const uint32_t ASTExprMask      = AST_EXPR_UNARY
+                                | AST_EXPR_BINARY
+                                | AST_EXPR_CALL
+                                | AST_EXPR_SUBSCRIPT
+                                | AST_EXPR_CONSTANT
+                                | AST_EXPR_CONSTANT_INTEGER
+                                | AST_EXPR_CONSTANT_FLOAT
+                                | AST_EXPR_CONSTANT_STRING
+                                | AST_EXPR_NAME;
+
+const uint32_t ASTTypeExprMask  = AST_TYPEEXPR_SIMPLE
+                                | AST_TYPEEXPR_ARRAY
+                                | AST_TYPEEXPR_MAP
+                                | AST_TYPEEXPR_FUNC;
+
+const uint32_t ASTAllMask       = ASTStmtMask
+                                | ASTDeclMask
+                                | ASTExprMask
+                                | ASTTypeExprMask;
+
 void ast_destroy(AST* ast) {
     if(ast == NULL) { return; }
     
-    switch(ast->type) {
+    switch(ast->kind) {
         // STATEMENTS
         case AST_CONDITIONAL:
             ast_destroy(ast->conditionalStmt.condition);
@@ -112,11 +144,12 @@ void ast_destroy(AST* ast) {
     free(ast);
 }
 
-AST* ast_makeNode(ASTType type) {
+AST* ast_makeNode(ASTType kind) {
     AST* ast = malloc(sizeof (AST));
     memset(ast, 0, sizeof (AST));
     
-    ast->type = type;
+    ast->kind = kind;
     ast->next = NULL;
+    ast->type = NULL;
     return ast;
 }

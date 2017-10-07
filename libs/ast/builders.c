@@ -7,7 +7,7 @@
 //
 #include <stdlib.h>
 #include <string.h>
-#include <orbit/ast/ast_builders.h>
+#include <orbit/ast/builders.h>
 
 void ast_listStart(ASTListBuilder* builder) {
     builder->head = NULL;

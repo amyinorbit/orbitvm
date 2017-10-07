@@ -61,7 +61,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     
     console_setColor(out, CLI_BOLD);
     
-    switch(ast->type) {
+    switch(ast->kind) {
     case AST_CONDITIONAL:
         console_setColor(out, CLI_MAGENTA);
         fputs("IfStmt", out);
