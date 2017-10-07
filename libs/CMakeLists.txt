@@ -1,4 +1,5 @@
 add_subdirectory(ast)
+add_subdirectory(type)
 add_subdirectory(console)
 add_subdirectory(parser)
 add_subdirectory(utils)
