@@ -31,7 +31,7 @@ const uint32_t ASTExprMask      = AST_EXPR_UNARY
                                 | AST_EXPR_CONSTANT_STRING
                                 | AST_EXPR_NAME;
 
-const uint32_t ASTTypeExprMask  = AST_TYPEEXPR_SIMPLE
+const uint32_t ASTKindExprMask  = AST_TYPEEXPR_SIMPLE
                                 | AST_TYPEEXPR_ARRAY
                                 | AST_TYPEEXPR_MAP
                                 | AST_TYPEEXPR_FUNC;
@@ -39,7 +39,7 @@ const uint32_t ASTTypeExprMask  = AST_TYPEEXPR_SIMPLE
 const uint32_t ASTAllMask       = ASTStmtMask
                                 | ASTDeclMask
                                 | ASTExprMask
-                                | ASTTypeExprMask;
+                                | ASTKindExprMask;
 
 void ast_destroy(AST* ast) {
     if(ast == NULL) { return; }
@@ -144,7 +144,7 @@ void ast_destroy(AST* ast) {
     free(ast);
 }
 
-AST* ast_makeNode(ASTType kind) {
+AST* ast_makeNode(ASTKind kind) {
     AST* ast = malloc(sizeof (AST));
     memset(ast, 0, sizeof (AST));
     

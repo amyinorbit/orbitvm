@@ -7,7 +7,7 @@
 //
 #include <orbit/ast/traversal.h>
 
-void ast_traverse(AST* ast, ASTType filter, ASTCallback callback) {
+void ast_traverse(AST* ast, ASTKind filter, ASTCallback callback) {
     
     if(ast == NULL) { return; }
     if(ast->kind & filter) {
