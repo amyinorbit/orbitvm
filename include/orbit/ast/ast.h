@@ -15,10 +15,10 @@
 #include <orbit/type/type.h>
 
 typedef struct _AST AST;
-typedef enum _ASTType ASTType;
+typedef enum _ASTKind ASTKind;
 
 // Tag enum for AST nodes
-enum _ASTType {
+enum _ASTKind {
     AST_CONDITIONAL             = 1 << 0,
     AST_FOR_IN                  = 1 << 1,
     AST_WHILE                   = 1 << 2,
@@ -51,18 +51,18 @@ extern const uint32_t ASTAllMask;
 extern const uint32_t ASTStmtMask;
 extern const uint32_t ASTDeclMask;
 extern const uint32_t ASTExprMask;
-extern const uint32_t ASTTypeExprMask;
+extern const uint32_t ASTKindExprMask;
 
 #define AST_IS_STMT(ast) ((ast) != NULL && ((ast).type & ASTStmtMask) != 0)
 #define AST_IS_DECL(ast) ((ast) != NULL && ((ast).type & ASTDeclMask) != 0)
 #define AST_IS_EXPR(ast) ((ast) != NULL && ((ast).type & ASTExprMask) != 0)
-#define AST_IS_TYPEEXPR(ast) ((ast) != NULL && ((ast).type & ASTTypeExprMask) != 0)
+#define AST_IS_TYPEEXPR(ast) ((ast) != NULL && ((ast).type & ASTKindExprMask) != 0)
 
 // The TUD (Tagged Union of Doom). Represents all possible nodes in an orbit
 // AST. AST::next is used to represent "same level" collections (for example,
 // a list of parameters, or a list of expressions.
 struct _AST {
-    ASTType         kind;
+    ASTKind         kind;
     AST*            next;
     Type*           type;
     
@@ -180,6 +180,6 @@ struct _AST {
 
 void ast_print(FILE* out, AST* ast);
 void ast_destroy(AST* ast);
-AST* ast_makeNode(ASTType type);
+AST* ast_makeNode(ASTKind kind);
 
 #endif /* orbit_ast_h_ */
