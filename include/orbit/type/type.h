@@ -25,11 +25,13 @@ enum _TypeKind {
     TYPE_ARRAY  = 1 << 5,
     TYPE_MAP    = 1 << 6,
     TYPE_USER   = 1 << 7,
-    TYPE_ANY    = 0xffffffff,
+    TYPE_ANY    = 0xffffffff ,
 };
 
+/// The internal representation (in the compiler anyway) of an Orbit type.
 struct _Type {
     TypeKind        kind;
+    bool            isConst;
     Type*           next;
     
     union {
@@ -54,12 +56,13 @@ struct _Type {
     };
 };
 
+/// Checks whether [typeA] and [typeB] are strictly the same type (no aliases).
 bool type_strictEquals(Type* typeA, Type* typeB);
 
+/// Prints a string representation of [type] to [out].
 void type_print(FILE* out, Type* type);
 
-Type* type_make(TypeKind kind);
-
+Type* type_make(TypeKind kind, bool isConst);
 void type_destroy(Type* type);
 
 #endif /* orbit_type_h */
