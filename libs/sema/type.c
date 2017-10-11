@@ -36,7 +36,7 @@ static Type* sema_extractFuncType(AST* ast) {
     Type* returnType = sema_extractType(ast->funcType.returnType);
     Type* paramList = NULL;
     Type** next = &paramList;
-    AST* param = ast->funcDecl.params;
+    AST* param = ast->funcType.params;
     
     while(param != NULL) {
         Type* t = sema_extractType(param);
@@ -101,9 +101,12 @@ void sema_extractLiteralTypes(AST* ast, void* data) {
     case AST_EXPR_CONSTANT_INTEGER:
     case AST_EXPR_CONSTANT_FLOAT:
         ast->type = type_make(TYPE_NUMBER, true);
+        break;
     case AST_EXPR_CONSTANT_STRING:
         ast->type = type_make(TYPE_STRING, true);
-        default: break;
+        break;
+    default:
+        break;
     }
 }
 

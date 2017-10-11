@@ -66,7 +66,7 @@ void ast_traverse(AST* ast, ASTKind filter, void* userData, ASTCallback callback
         break;
     
     case AST_EXPR_BINARY:
-        ast_traverse(ast->binaryExpr.rhs, filter, userData, callback);
+        ast_traverse(ast->binaryExpr.lhs, filter, userData, callback);
         ast_traverse(ast->binaryExpr.rhs, filter, userData, callback);
         break;
     
