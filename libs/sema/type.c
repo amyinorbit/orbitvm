@@ -17,6 +17,8 @@ static Type* sema_extractSimpleType(OCToken token) {
         return type_make(TYPE_NIL, false);
     case TOKEN_ANY:
         return type_make(TYPE_ANY, false);
+    case TOKEN_BOOL:
+        return type_make(TYPE_BOOL, false);
     case TOKEN_NUMBER:
         return type_make(TYPE_NUMBER, false);
     case TOKEN_STRING:

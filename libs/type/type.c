@@ -27,6 +27,10 @@ void type_print(FILE* out, Type* type) {
         fputs("Void", out);
         break;
         
+    case TYPE_BOOL:
+        fputs("Bool", out);
+        break;
+        
     case TYPE_NUMBER:
         fputs("Number", out);
         break;
@@ -89,6 +93,7 @@ Type* type_copy(Type* type) {
     switch(type->kind) {
     case TYPE_NIL:
     case TYPE_VOID:
+    case TYPE_BOOL:
     case TYPE_NUMBER:
     case TYPE_STRING:
     case TYPE_ANY:
@@ -122,6 +127,7 @@ void type_destroy(Type* type) {
     switch(type->kind) {
     case TYPE_NIL:
     case TYPE_VOID:
+    case TYPE_BOOL:
     case TYPE_NUMBER:
     case TYPE_STRING:
     case TYPE_ANY:

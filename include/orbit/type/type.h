@@ -19,12 +19,13 @@ typedef struct _Type Type;
 enum _TypeKind {
     TYPE_NIL    = 1 << 0,
     TYPE_VOID   = 1 << 1,
-    TYPE_NUMBER = 1 << 2,
-    TYPE_STRING = 1 << 3,
-    TYPE_FUNC   = 1 << 4,
-    TYPE_ARRAY  = 1 << 5,
-    TYPE_MAP    = 1 << 6,
-    TYPE_USER   = 1 << 7,
+    TYPE_BOOL   = 1 << 2,
+    TYPE_NUMBER = 1 << 3,
+    TYPE_STRING = 1 << 4,
+    TYPE_FUNC   = 1 << 5,
+    TYPE_ARRAY  = 1 << 6,
+    TYPE_MAP    = 1 << 7,
+    TYPE_USER   = 1 << 8,
     TYPE_ANY    = 0xffffffff ,
 };
 
