@@ -225,6 +225,7 @@ static AST* recTypeDecl(OCParser* parser) {
     expect(parser, TOKEN_LBRACE);
     do {
         ast_listAdd(&fields, recVarDecl(parser));
+        expectTerminator(parser);
     } while(have(parser, TOKEN_VAR));
     expect(parser, TOKEN_RBRACE);
     return ast_makeStructDecl(&symbol, NULL, NULL, ast_listClose(&fields));
