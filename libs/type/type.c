@@ -81,6 +81,42 @@ Type* type_make(TypeKind kind, bool isConst) {
     return t;
 }
 
+Type* type_copy(Type* type) {
+    if(type == NULL) { return NULL; }
+    
+    Type* copy = type_make(type->kind, type->isConst);
+    
+    switch(type->kind) {
+    case TYPE_NIL:
+    case TYPE_VOID:
+    case TYPE_NUMBER:
+    case TYPE_STRING:
+    case TYPE_ANY:
+        break;
+        
+    case TYPE_FUNC:
+        copy->function.params = type_copy(type->function.params);
+        copy->function.returnType = type_copy(type->function.returnType);
+        break;
+        
+    case TYPE_ARRAY:
+        copy->array.valueType = type_copy(type->array.valueType);
+        break;
+        
+    case TYPE_MAP:
+        copy->map.keyType = type_copy(type->map.keyType);
+        copy->map.valueType = type_copy(type->map.valueType);
+        break;
+        
+    case TYPE_USER:
+        copy->user.members = type_copy(type->user.members);
+        break;
+    }
+    
+    copy->next = type_copy(type->next);
+    return copy;
+}
+
 void type_destroy(Type* type) {
     if(type == NULL) { return; }
     switch(type->kind) {
@@ -109,4 +145,31 @@ void type_destroy(Type* type) {
         type_destroy(type->user.members);
         break;
     }
+    type_destroy(type->next);
+    free(type);
+}
+
+Type* type_makeArray(Type* elementType) {
+    Type* type = type_make(TYPE_ARRAY, false);
+    type->array.valueType = elementType;
+    return type;
+}
+
+Type* type_makeMap(Type* keyType, Type* elementType) {
+    Type* type = type_make(TYPE_MAP, false);
+    type->map.keyType = keyType;
+    type->map.valueType = elementType;
+    return type;
+}
+
+Type* type_makeFunction(Type* returnType, Type* paramTypes) {
+    Type* type = type_make(TYPE_FUNC, false);
+    type->function.returnType = returnType;
+    type->function.params = paramTypes;
+    return type;
+}
+
+Type* type_makeUserType(OCToken* symbol) {
+    Type* type = type_make(TYPE_USER, false);
+    return type;
 }

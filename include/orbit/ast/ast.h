@@ -42,9 +42,12 @@ enum _ASTKind {
     AST_EXPR_NAME,
     
     AST_TYPEEXPR_SIMPLE         = 1 << 18,
-    AST_TYPEEXPR_ARRAY          = 1 << 19,
-    AST_TYPEEXPR_MAP            = 1 << 20,
-    AST_TYPEEXPR_FUNC           = 1 << 21,
+    /*AST_TYPEEXPR_NUMBER         = 1 << 19,
+    AST_TYPEEXPR_STRING         = 1 << 20,
+    AST_TYPEEXPR_ANY            = 1 << 21,*/
+    AST_TYPEEXPR_ARRAY          = 1 << 22,
+    AST_TYPEEXPR_MAP            = 1 << 23,
+    AST_TYPEEXPR_FUNC           = 1 << 24,
 };
 
 extern const uint32_t ASTAllMask;

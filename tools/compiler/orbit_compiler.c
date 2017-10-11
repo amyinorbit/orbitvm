@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <orbit/ast/ast.h>
 #include <orbit/parser/parser.h>
+#include <orbit/sema/type.h>
 
 static char* loadSource(const char* path, uint64_t* length) {
     FILE* f = fopen(path, "r");
@@ -56,6 +57,7 @@ int main(int argc, const char** args) {
         }
         else if(strcmp(args[2], "-dump-ast") == 0) {
             AST* ast = orbit_parse(args[1], source, length);
+            sema_runTypeAnalysis(ast);
             ast_print(stdout, ast);
             ast_destroy(ast);
         }

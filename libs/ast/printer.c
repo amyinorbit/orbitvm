@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <orbit/console/console.h>
 #include <orbit/ast/ast.h>
+#include <orbit/type/type.h>
 
 static void ast_printNode(FILE* out, AST* ast, int depth, bool last);
 static void ast_printList(FILE* out, const char* name, AST* list, int depth, bool last);
@@ -112,8 +113,10 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_GREEN);
         fputs("FuncDecl ", out);
         ast_printToken(out, ast->funcDecl.symbol);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW);
+        type_print(out, ast->type);
         ast_printList(out, "ParamDeclList", ast->funcDecl.params, depth+1, false);
-        ast_printNode(out, ast->funcDecl.returnType, depth+1, false);
         ast_printList(out, "Block", ast->funcDecl.body, depth+1, true);
         break;
     
@@ -121,7 +124,9 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_GREEN);
         fputs("VarDecl ", out);
         ast_printToken(out, ast->varDecl.symbol);
-        ast_printNode(out, ast->varDecl.typeAnnotation, depth+1, true);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW);
+        type_print(out, ast->type);
         break;
     
     case AST_DECL_STRUCT:

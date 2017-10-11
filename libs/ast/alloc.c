@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <orbit/ast/ast.h>
+#include <orbit/type/type.h>
 
 const uint32_t ASTStmtMask      = AST_CONDITIONAL
                                 | AST_FOR_IN
@@ -140,6 +141,7 @@ void ast_destroy(AST* ast) {
             break;
     }
     
+    type_destroy(ast->type);
     ast_destroy(ast->next);
     free(ast);
 }

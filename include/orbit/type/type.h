@@ -63,6 +63,7 @@ bool type_strictEquals(Type* typeA, Type* typeB);
 void type_print(FILE* out, Type* type);
 
 Type* type_make(TypeKind kind, bool isConst);
+Type* type_copy(Type* type);
 void type_destroy(Type* type);
 
 #endif /* orbit_type_h */
