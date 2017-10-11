@@ -114,7 +114,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         fputs("FuncDecl ", out);
         ast_printToken(out, ast->funcDecl.symbol);
         fputs(": ", out);
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         type_print(out, ast->type);
         ast_printList(out, "ParamDeclList", ast->funcDecl.params, depth+1, false);
         ast_printList(out, "Block", ast->funcDecl.body, depth+1, true);
@@ -125,7 +125,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         fputs("VarDecl ", out);
         ast_printToken(out, ast->varDecl.symbol);
         fputs(": ", out);
-        console_setColor(out, CLI_YELLOW);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         type_print(out, ast->type);
         break;
     
@@ -143,6 +143,9 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_MAGENTA);
         fputs("UnaryOperatorExpr ", out);
         ast_printToken(out, ast->unaryExpr.operator);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        type_print(out, ast->type);
         ast_printNode(out, ast->unaryExpr.rhs, depth+1, true);
         break;
     
@@ -150,6 +153,9 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_MAGENTA);
         fputs("BinaryOperatorExpr ", out);
         ast_printToken(out, ast->binaryExpr.operator);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        type_print(out, ast->type);
         ast_printNode(out, ast->binaryExpr.lhs, depth+1, false);
         ast_printNode(out, ast->binaryExpr.rhs, depth+1, true);
         break;
@@ -172,24 +178,36 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_MAGENTA);
         fputs("IntegerLiteralExpr ", out);
         ast_printToken(out, ast->constantExpr.symbol);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        type_print(out, ast->type);
         break;
         
     case AST_EXPR_CONSTANT_FLOAT:
         console_setColor(out, CLI_MAGENTA);
         fputs("FloatLiteralExpr ", out);
         ast_printToken(out, ast->constantExpr.symbol);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        type_print(out, ast->type);
         break;
         
     case AST_EXPR_CONSTANT_STRING:
         console_setColor(out, CLI_MAGENTA);
         fputs("StringLiteralExpr ", out);
         ast_printToken(out, ast->constantExpr.symbol);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        type_print(out, ast->type);
         break;
         
     case AST_EXPR_CONSTANT:
         console_setColor(out, CLI_MAGENTA);
         fputs("ConstantExpr ", out);
         ast_printToken(out, ast->constantExpr.symbol);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        type_print(out, ast->type);
         break;
     
     case AST_EXPR_NAME:
