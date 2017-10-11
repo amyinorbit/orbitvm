@@ -57,7 +57,7 @@ void ast_traverse(AST* ast, ASTKind filter, void* userData, ASTCallback callback
     case AST_DECL_STRUCT:
         ast_traverse(ast->structDecl.constructor, filter, userData, callback);
         ast_traverse(ast->structDecl.destructor, filter, userData, callback);
-        ast_traverse(ast->structDecl.constructor, filter, userData, callback);
+        ast_traverse(ast->structDecl.fields, filter, userData, callback);
         break;
         
     // EXPRESSIONS
