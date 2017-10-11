@@ -66,12 +66,12 @@ Type* sema_extractType(AST* ast) {
     return NULL;
 }
 
-void sema_extractVariableTypes(AST* ast, ASTKind filter) {
+void sema_extractVariableTypes(AST* ast, void* data) {
     if(ast->varDecl.typeAnnotation == NULL) { return; }
     ast->type = sema_extractType(ast->varDecl.typeAnnotation);
 }
 
-void sema_extractFunctionTypes(AST* ast, ASTKind filter) {
+void sema_extractFunctionTypes(AST* ast, void* data) {
     Type* returnType = NULL;
     if(ast->funcDecl.returnType == NULL) {
         returnType = type_make(TYPE_VOID, false);
@@ -94,7 +94,7 @@ void sema_extractFunctionTypes(AST* ast, ASTKind filter) {
     ast->type = type_makeFunction(returnType, paramList);
 }
 
-void sema_extractLiteralTypes(AST* ast, ASTKind filter) {
+void sema_extractLiteralTypes(AST* ast, void* data) {
     switch(ast->kind) {
     case AST_EXPR_CONSTANT_INTEGER:
     case AST_EXPR_CONSTANT_FLOAT:
@@ -105,32 +105,32 @@ void sema_extractLiteralTypes(AST* ast, ASTKind filter) {
     }
 }
 
-void sema_extractCallTypes(AST* ast, ASTKind filter) {
+void sema_extractCallTypes(AST* ast, void* data) {
     // TODO: implementation
 }
 
-void sema_extractNameTypes(AST* ast, ASTKind filter) {
+void sema_extractNameTypes(AST* ast, void* data) {
     // TODO: implementation
 }
 
-void sema_extractUnaryTypes(AST* ast, ASTKind filter) {
+void sema_extractUnaryTypes(AST* ast, void* data) {
     // TODO: implementation
 }
 
-void sema_extractBinaryTypes(AST* ast, ASTKind filter) {
+void sema_extractBinaryTypes(AST* ast, void* data) {
    // TODO: implementation 
 }
 
-void sema_inferVariableTypes(AST* ast, ASTKind filter) {
+void sema_inferVariableTypes(AST* ast, void* data) {
     // TODO: implementation
 }
 
 void sema_runTypeAnalysis(AST* ast) {
     ast_traverse(ast,
                  AST_EXPR_CONSTANT_INTEGER | AST_EXPR_CONSTANT_FLOAT | AST_EXPR_CONSTANT_STRING,
-                 &sema_extractLiteralTypes);
-    ast_traverse(ast, AST_DECL_VAR, &sema_extractVariableTypes);
-    ast_traverse(ast, AST_DECL_FUNC, &sema_extractFunctionTypes);
+                 NULL, &sema_extractLiteralTypes);
+    ast_traverse(ast, AST_DECL_VAR, NULL,  &sema_extractVariableTypes);
+    ast_traverse(ast, AST_DECL_FUNC, NULL, &sema_extractFunctionTypes);
 }
 
 

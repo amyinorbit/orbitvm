@@ -14,9 +14,9 @@
 
 Type* sema_extractType(AST* ast);
 
-void sema_extractVariableTypes(AST* ast, ASTKind filter);
-void sema_extractFunctionTypes(AST* ast, ASTKind filter);
-void sema_extractLiteralTypes(AST* ast, ASTKind filter);
+void sema_extractVariableTypes(AST* ast, void* data);
+void sema_extractFunctionTypes(AST* ast, void* data);
+void sema_extractLiteralTypes(AST* ast, void* data);
 
 void sema_runTypeAnalysis(AST* ast);
 
