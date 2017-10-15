@@ -4,3 +4,5 @@ target_link_libraries(OrbitSema OrbitAST)
 target_link_libraries(OrbitSema OrbitType)
 target_link_libraries(OrbitSema OrbitConsole)
 target_link_libraries(OrbitSema OrbitUtils)
+
+install(TARGETS OrbitSema DESTINATION lib)
