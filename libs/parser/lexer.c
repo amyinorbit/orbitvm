@@ -8,6 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <orbit/console/console.h>
 #include <orbit/parser/lexer.h>
 #include <orbit/utils/wcwidth.h>
 
@@ -24,7 +25,7 @@ static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
     vfprintf(stderr, fmt, va);
     va_end(va);
     fprintf(stderr, "\n");
-    lexer_printLine(stderr, lexer);
+    console_printTokenLine(stderr, lexer->currentToken, CLI_RESET);
     fprintf(stderr, "\n");
 }
 
@@ -48,24 +49,7 @@ void lexer_init(OCLexer* lexer, OCSource source) {
     lexer->currentToken.kind = 0;
     lexer->currentToken.sourceLoc.start = NULL;
     lexer->currentToken.sourceLoc.length = 0;
-}
-
-void lexer_printLine(FILE* out, OCLexer* lexer) {
-    OASSERT(lexer != NULL, "Null instance error");
-    
-    const char* linePtr = lexer->linePtr;
-    // print each character one by one
-    static char utf[6];
-    while(linePtr < lexer->source.bytes + lexer->source.length) {
-        uint64_t remaining = (lexer->source.bytes + lexer->source.length) - linePtr;
-        codepoint_t c = utf8_getCodepoint(linePtr, remaining);
-        if(c == '\0' || c == '\n') { break; }
-        int size = utf8_writeCodepoint(c, utf, 6);
-        linePtr += size;
-        utf[size] = '\0';
-        fprintf(out, "%.*s", size, utf);
-    }
-    fprintf(out, "\n");
+    lexer->currentToken.source = &(lexer->source);
 }
 
 static codepoint_t _nextChar(OCLexer* lexer) {
@@ -271,6 +255,7 @@ static void _updateTokenStart(OCLexer* lexer) {
     lexer->tokenStart = lexer->currentPtr;
     lexer->currentToken.sourceLoc.line = lexer->line;
     lexer->currentToken.sourceLoc.column = lexer->column;
+    lexer->currentToken.source = &(lexer->source);
 }
 
 void lexer_nextToken(OCLexer* lexer) {

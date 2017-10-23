@@ -10,6 +10,8 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <orbit/source/source.h>
+#include <orbit/source/tokens.h>
 
 typedef enum {
     CLI_RESET,
@@ -24,6 +26,9 @@ typedef enum {
 } CLIColor;
 
 void console_setColor(FILE* out, CLIColor color);
-void console_printUnderlines(FILE* out, uint64_t start, uint64_t length);
+
+void console_printToken(FILE* out, OCToken token, CLIColor color);
+void console_printTokenLine(FILE* out, OCToken token, CLIColor color);
+void console_printUnderlines(FILE* out, OCSourceLoc loc, CLIColor color);
 
 #endif /* orbit_ast_console_h */

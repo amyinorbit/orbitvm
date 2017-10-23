@@ -11,10 +11,13 @@
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
 OCSource source_readFromPath(const char* path) {
-    
     FILE* f = fopen(path, "r");
     if(!f) {
-        // TODO: Crash Here
+        OCSource source;
+        source.path = path;
+        source.length = 0;
+        source.bytes = NULL;
+        return source;
     }
     OCSource source = source_readFromFile(f);
     source.path = path;

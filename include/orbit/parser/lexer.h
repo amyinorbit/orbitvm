@@ -53,9 +53,6 @@ struct _OCLexer {
 
 void lexer_init(OCLexer* lexer, OCSource source);
 
-/// Prints the line that [lexer] is currently lexing.
-void lexer_printLine(FILE* out, OCLexer* lexer);
-
 /// Fetches the next token from the source.
 void lexer_nextToken(OCLexer* lexer);
 

@@ -31,9 +31,8 @@ void compilerError(OCParser* parser, const char* fmt, ...) {
     vfprintf(stderr, fmt, va);
     va_end(va);
     fputc('\n', stderr);
-    lexer_printLine(stderr, &parser->lexer);
-    console_printUnderlines(stderr, parser->lexer.currentToken.sourceLoc.column,
-                                    parser->lexer.currentToken.sourceLoc.displayWidth);
+    console_printTokenLine(stderr, current(parser), CLI_RESET);
+    console_printUnderlines(stderr, parser->lexer.currentToken.sourceLoc, CLI_GREEN);
 }
 
 void syntaxError(OCParser* parser, OCTokenKind kind) {
@@ -49,9 +48,8 @@ void syntaxError(OCParser* parser, OCTokenKind kind) {
     fprintf(stderr, "error: ");
     console_setColor(stderr, CLI_RESET);
     fprintf(stderr, "expected '%s'\n", source_tokenString(kind));
-    lexer_printLine(stderr, &parser->lexer);
-    console_printUnderlines(stderr, tok.sourceLoc.column,
-                                    current(parser).sourceLoc.displayWidth);
+    console_printTokenLine(stderr, current(parser), CLI_RESET);
+    console_printUnderlines(stderr, tok.sourceLoc, CLI_GREEN);
 }
 
 // MARK: - RD Basics

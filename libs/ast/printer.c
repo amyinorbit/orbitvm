@@ -30,7 +30,6 @@ static void ast_printReturn(FILE* out, int depth, bool last) {
 }
 
 static void ast_printToken(FILE* out, OCToken token) {
-    
     console_setColor(out, CLI_RESET);
     fputs("'", out);
     fprintf(out, "%.*s", (int)token.sourceLoc.length, token.sourceLoc.start);
