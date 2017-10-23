@@ -36,7 +36,7 @@ static void compilerError(OCParser* parser, const char* fmt, ...) {
     parser->recovering = true;
     
     fprintf(stderr, "%s:%llu:%llu: ",
-                     parser->lexer.path,
+                     parser->lexer.source.path,
                      parser->lexer.currentToken.line,
                      parser->lexer.currentToken.column);
     console_setColor(stderr, CLI_RED);
@@ -58,7 +58,7 @@ static void syntaxError(OCParser* parser, OCTokenType type) {
     parser->recovering = true;
     
     OCToken tok  = current(parser);
-    fprintf(stderr, "%s:%llu:%llu: ", parser->lexer.path, tok.line, tok.column);
+    fprintf(stderr, "%s:%llu:%llu: ", parser->lexer.source.path, tok.line, tok.column);
     console_setColor(stderr, CLI_RED);
     fprintf(stderr, "error: ");
     console_setColor(stderr, CLI_RESET);
@@ -579,9 +579,9 @@ static AST* recMapType(OCParser* parser) {
     return ast_makeMapType(keyType, elementType);
 }
 
-void orbit_dumpTokens(const char* sourcePath, const char* source, uint64_t length) {
+void orbit_dumpTokens(OCSource source) {
     OCLexer lex;
-    lexer_init(&lex, sourcePath, source, length);
+    lexer_init(&lex, source);
     
     lexer_nextToken(&lex);
     while(lex.currentToken.type != TOKEN_EOF) {
@@ -595,11 +595,11 @@ void orbit_dumpTokens(const char* sourcePath, const char* source, uint64_t lengt
     }
 }
 
-AST* orbit_parse(const char* sourcePath, const char* source, uint64_t length) {
+AST* orbit_parse(OCSource source) {
     
     OCParser parser;
     parser.recovering = false;
-    lexer_init(&parser.lexer, sourcePath, source, length);
+    lexer_init(&parser.lexer, source);
     
     lexer_nextToken(&parser.lexer);
     AST* ast = recProgram(&parser);

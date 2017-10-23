@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <orbit/source/source.h>
 #include <orbit/parser/tokens.h>
 #include <orbit/utils/assert.h>
 #include <orbit/utils/utf8.h>
@@ -21,9 +22,7 @@ typedef struct _OCLexer OCLexer;
 struct _OCLexer {
     /// The entire program's source - this allows nicer errors than fget()-ing
     /// every time we need the next character.
-    const char*     path;
-    const char*     source;
-    uint64_t        sourceLength;
+    OCSource        source;
     
     /// Since we must handle UTF-8 source files (not every cahracter is a single
     /// byte), we can't just keep a pointer to the current character. We also
@@ -52,8 +51,7 @@ struct _OCLexer {
     OCToken         currentToken;
 };
 
-void lexer_init(OCLexer* lexer, const char* path,
-                const char* source, uint64_t length);
+void lexer_init(OCLexer* lexer, OCSource source);
 
 /// Prints the line that [lexer] is currently lexing.
 void lexer_printLine(FILE* out, OCLexer* lexer);

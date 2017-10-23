@@ -11,9 +11,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <orbit/ast/ast.h>
+#include <orbit/source/source.h>
 
-void orbit_dumpTokens(const char* sourcePath, const char* source, uint64_t length);
+void orbit_dumpTokens(OCSource);
 
-AST* orbit_parse(const char* sourcePath, const char* source, uint64_t length);
+AST* orbit_parse(OCSource source);
 
 #endif /* orbit_parser_h */

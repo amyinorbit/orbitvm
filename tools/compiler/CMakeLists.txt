@@ -1,5 +1,6 @@
 file(GLOB SRC_FILES *.c)
 add_executable(orbitc ${SRC_FILES})
+target_link_libraries(orbitc OrbitSource)
 target_link_libraries(orbitc OrbitParser)
 target_link_libraries(orbitc OrbitSema)
 install(TARGETS orbitc DESTINATION bin)

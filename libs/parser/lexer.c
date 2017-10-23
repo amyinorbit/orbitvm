@@ -16,7 +16,7 @@ static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
     OASSERT(lexer != NULL, "Null instance error");
     
     fprintf(stderr, "%s:%llu:%llu: error: ",
-                     lexer->path,
+                     lexer->source.path,
                      lexer->line,
                      lexer->column);
     va_list va;
@@ -28,18 +28,13 @@ static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
     fprintf(stderr, "\n");
 }
 
-void lexer_init(OCLexer* lexer, const char* path,
-                const char* source, uint64_t length) {
+void lexer_init(OCLexer* lexer, OCSource source) {
     OASSERT(lexer != NULL, "Null instance error");
-    OASSERT(path != NULL, "Null path pointer");
-    OASSERT(source != NULL, "Null source pointer");
     
-    lexer->path = path;
     lexer->source = source;
-    lexer->sourceLength = length;
 
-    lexer->linePtr = source;
-    lexer->currentPtr = source;
+    lexer->linePtr = source.bytes;
+    lexer->currentPtr = source.bytes;
     lexer->currentChar = 0;
     
     lexer->startOfLine = true;
@@ -53,8 +48,6 @@ void lexer_init(OCLexer* lexer, const char* path,
     lexer->currentToken.type = 0;
     lexer->currentToken.start = NULL;
     lexer->currentToken.length = 0;
-    
-    //_nextChar(lexer);
 }
 
 void lexer_printLine(FILE* out, OCLexer* lexer) {
@@ -63,8 +56,8 @@ void lexer_printLine(FILE* out, OCLexer* lexer) {
     const char* linePtr = lexer->linePtr;
     // print each character one by one
     static char utf[6];
-    while(linePtr < lexer->source + lexer->sourceLength) {
-        uint64_t remaining = (lexer->source + lexer->sourceLength) - linePtr;
+    while(linePtr < lexer->source.bytes + lexer->source.length) {
+        uint64_t remaining = (lexer->source.bytes + lexer->source.length) - linePtr;
         codepoint_t c = utf8_getCodepoint(linePtr, remaining);
         if(c == '\0' || c == '\n') { break; }
         int size = utf8_writeCodepoint(c, utf, 6);
@@ -79,7 +72,7 @@ static codepoint_t _nextChar(OCLexer* lexer) {
     OASSERT(lexer != NULL, "Null instance error");
     if(!lexer->currentPtr) { return lexer->currentChar = '\0'; }
     
-    uint64_t remaining = lexer->sourceLength - (lexer->currentPtr - lexer->source);
+    uint64_t remaining = lexer->source.length - (lexer->currentPtr - lexer->source.bytes);
     lexer->currentChar = utf8_getCodepoint(lexer->currentPtr, remaining);
     
     // advance the current character pointer.
@@ -102,7 +95,7 @@ static codepoint_t _nextChar(OCLexer* lexer) {
 }
 
 static inline codepoint_t _next(OCLexer* lexer) {
-    uint64_t remaining = lexer->sourceLength - (lexer->currentPtr - lexer->source);
+    uint64_t remaining = lexer->source.length - (lexer->currentPtr - lexer->source.bytes);
     return utf8_getCodepoint(lexer->currentPtr, remaining);
 }
 
