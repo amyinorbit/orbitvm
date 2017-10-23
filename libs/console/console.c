@@ -26,14 +26,11 @@ void console_setColor(FILE* out, CLIColor color) {
     fprintf(out, "%s", _ansiCodes[color]);
 }
 
-void console_printToken(FILE* out, OCToken token, CLIColor color) {
-    console_setColor(out, color);
+void console_printToken(FILE* out, OCToken token) {
     fprintf(out, "%.*s", (int)token.sourceLoc.length, token.sourceLoc.start);
-    console_setColor(out, CLI_RESET);
 }
 
-void console_printTokenLine(FILE* out, OCToken token, CLIColor color) {
-    console_setColor(out, color);
+void console_printTokenLine(FILE* out, OCToken token) {
     const char* line = token.sourceLoc.start;
     
     // Backtrack until the beginning of the line...
@@ -54,7 +51,6 @@ void console_printTokenLine(FILE* out, OCToken token, CLIColor color) {
         fprintf(out, "%.*s", size, utf);
     }
     fprintf(out, "\n");
-    console_setColor(out, CLI_RESET);
 }
 
 void console_printUnderlines(FILE* out, OCSourceLoc loc, CLIColor color) {

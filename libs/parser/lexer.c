@@ -25,7 +25,7 @@ static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
     vfprintf(stderr, fmt, va);
     va_end(va);
     fprintf(stderr, "\n");
-    console_printTokenLine(stderr, lexer->currentToken, CLI_RESET);
+    console_printTokenLine(stderr, lexer->currentToken);
     fprintf(stderr, "\n");
 }
 

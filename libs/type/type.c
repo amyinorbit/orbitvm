@@ -7,6 +7,7 @@
 //
 #include <stdlib.h>
 #include <string.h>
+#include <orbit/console/console.h>
 #include <orbit/utils/memory.h>
 #include <orbit/type/type.h>
 
@@ -66,6 +67,7 @@ void type_print(FILE* out, Type* type) {
         break;
         
     case TYPE_USER:
+        console_printToken(out, type->user.symbol);
         break;
     }
     

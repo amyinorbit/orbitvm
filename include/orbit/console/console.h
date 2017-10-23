@@ -27,8 +27,8 @@ typedef enum {
 
 void console_setColor(FILE* out, CLIColor color);
 
-void console_printToken(FILE* out, OCToken token, CLIColor color);
-void console_printTokenLine(FILE* out, OCToken token, CLIColor color);
+void console_printToken(FILE* out, OCToken token);
+void console_printTokenLine(FILE* out, OCToken token);
 void console_printUnderlines(FILE* out, OCSourceLoc loc, CLIColor color);
 
 #endif /* orbit_ast_console_h */

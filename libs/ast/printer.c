@@ -29,13 +29,6 @@ static void ast_printReturn(FILE* out, int depth, bool last) {
     console_setColor(out, CLI_RESET);
 }
 
-static void ast_printToken(FILE* out, OCToken token) {
-    console_setColor(out, CLI_RESET);
-    fputs("'", out);
-    fprintf(out, "%.*s", (int)token.sourceLoc.length, token.sourceLoc.start);
-    fputs("'", out);
-}
-
 static void ast_printList(FILE* out, const char* name, AST* list, int depth, bool last) {
     if(list == NULL) { return; }
     ast_printReturn(out, depth, last);
@@ -70,7 +63,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_FOR_IN:
         console_setColor(out, CLI_MAGENTA);
         fputs("ForInStmt", out);
-        ast_printToken(out, ast->forInLoop.variable);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->forInLoop.variable);
         ast_printNode(out, ast->forInLoop.collection, depth+1, false);
         ast_printList(out, "Block", ast->forInLoop.body, depth+1, true);
         break;
@@ -108,7 +102,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_DECL_FUNC:
         console_setColor(out, CLI_GREEN);
         fputs("FuncDecl ", out);
-        ast_printToken(out, ast->funcDecl.symbol);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->funcDecl.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         type_print(out, ast->type);
@@ -119,7 +114,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_DECL_VAR:
         console_setColor(out, CLI_GREEN);
         fputs("VarDecl ", out);
-        ast_printToken(out, ast->varDecl.symbol);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->varDecl.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         type_print(out, ast->type);
@@ -128,7 +124,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_DECL_STRUCT:
         console_setColor(out, CLI_GREEN);
         fputs("CompoundTypeDecl ", out);
-        ast_printToken(out, ast->structDecl.symbol);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->structDecl.symbol);
         ast_printNode(out, ast->structDecl.constructor, depth+1, false);
         ast_printNode(out, ast->structDecl.destructor, depth+1, false);
         ast_printList(out, "CompoundMemberList", ast->structDecl.fields, depth+1, true);
@@ -138,7 +135,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_EXPR_UNARY:
         console_setColor(out, CLI_MAGENTA);
         fputs("UnaryOperatorExpr ", out);
-        ast_printToken(out, ast->unaryExpr.operator);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->unaryExpr.operator);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         type_print(out, ast->type);
@@ -148,7 +146,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_EXPR_BINARY:
         console_setColor(out, CLI_MAGENTA);
         fputs("BinaryOperatorExpr ", out);
-        ast_printToken(out, ast->binaryExpr.operator);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->binaryExpr.operator);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         type_print(out, ast->type);
@@ -173,7 +172,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_EXPR_CONSTANT_INTEGER:
         console_setColor(out, CLI_MAGENTA);
         fputs("IntegerLiteralExpr ", out);
-        ast_printToken(out, ast->constantExpr.symbol);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         type_print(out, ast->type);
@@ -182,7 +182,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_EXPR_CONSTANT_FLOAT:
         console_setColor(out, CLI_MAGENTA);
         fputs("FloatLiteralExpr ", out);
-        ast_printToken(out, ast->constantExpr.symbol);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         type_print(out, ast->type);
@@ -191,7 +192,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_EXPR_CONSTANT_STRING:
         console_setColor(out, CLI_MAGENTA);
         fputs("StringLiteralExpr ", out);
-        ast_printToken(out, ast->constantExpr.symbol);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         type_print(out, ast->type);
@@ -200,7 +202,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_EXPR_CONSTANT:
         console_setColor(out, CLI_MAGENTA);
         fputs("ConstantExpr ", out);
-        ast_printToken(out, ast->constantExpr.symbol);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         type_print(out, ast->type);
@@ -209,13 +212,15 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_EXPR_NAME:
         console_setColor(out, CLI_MAGENTA);
         fputs("NameRefExpr ", out);
-        ast_printToken(out, ast->nameExpr.symbol);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->nameExpr.symbol);
         break;
     
     case AST_TYPEEXPR_SIMPLE:
         console_setColor(out, CLI_MAGENTA);
         fputs("TypeExpr ", out);
-        ast_printToken(out, ast->simpleType.symbol);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->simpleType.symbol);
         break;
         
     case AST_TYPEEXPR_FUNC:
