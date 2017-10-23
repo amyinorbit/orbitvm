@@ -19,6 +19,7 @@ static void ast_printReturn(FILE* out, int depth, bool last) {
     fputs("\n", out);
     if(depth <= 0) { return; }
     
+    console_setColor(out, CLI_RESET);
     console_setColor(out, CLI_BLUE);
     indents[depth-1] = !last;
     for(int i = 0; i < depth-1; ++i) {
