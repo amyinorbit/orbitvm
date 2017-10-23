@@ -1,3 +1,4 @@
+add_subdirectory(source)
 add_subdirectory(ast)
 add_subdirectory(type)
 add_subdirectory(console)

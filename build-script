@@ -111,7 +111,7 @@ if __name__ == "__main__":
     
     parser.add_argument("-g", "--generator",
         help="the build system to generate files for",
-        default="Ninja",
+        default="Unix Makefiles",
         dest="generator")
 
     parser.add_argument("-c", "--config",
