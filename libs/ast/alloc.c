@@ -7,6 +7,7 @@
 //
 #include <stdlib.h>
 #include <string.h>
+#include <orbit/utils/memory.h>
 #include <orbit/ast/ast.h>
 #include <orbit/type/type.h>
 
@@ -147,7 +148,7 @@ void ast_destroy(AST* ast) {
 }
 
 AST* ast_makeNode(ASTKind kind) {
-    AST* ast = malloc(sizeof (AST));
+    AST* ast = orbit_alloc(sizeof (AST));
     memset(ast, 0, sizeof (AST));
     
     ast->kind = kind;

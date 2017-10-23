@@ -14,26 +14,6 @@
 #include <orbit/parser/parser.h>
 #include <orbit/sema/type.h>
 
-// static char* loadSource(const char* path, uint64_t* length) {
-//     FILE* f = fopen(path, "r");
-//     if(!f) {
-//         *length = 0;
-//         return NULL;
-//     }
-//
-//     fseek(f, 0, SEEK_END);
-//     uint64_t len = ftell(f);
-//     fseek(f, 0, SEEK_SET);
-//
-//     char* source = malloc((len+1) * sizeof(char));
-//     fread(source, sizeof(char), len, f);
-//     source[len] = '\0';
-//     fclose(f);
-//
-//     *length = len;
-//     return source;
-// }
-
 int main(int argc, const char** args) {
     
     if(argc < 2 || argc > 3) {

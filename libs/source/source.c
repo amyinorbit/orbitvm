@@ -6,6 +6,7 @@
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
 #include <stdlib.h>
+#include <orbit/utils/memory.h>
 #include <orbit/source/source.h>
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
@@ -28,8 +29,7 @@ OCSource source_readFromFile(FILE* file) {
     uint64_t length = ftell(file);
     fseek(file, 0, SEEK_SET);
     
-    // TODO: replace with crash-on-fail malloc from utils
-    char* bytes = malloc((length+1) * sizeof(char));
+    char* bytes = orbit_alloc((length+1) * sizeof(char));
     fread(bytes, sizeof(char), length, file);
     bytes[length] = '\0';
     fclose(file);

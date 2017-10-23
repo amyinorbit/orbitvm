@@ -33,10 +33,7 @@ static void ast_printToken(FILE* out, OCToken token) {
     
     console_setColor(out, CLI_RESET);
     fputs("'", out);
-    const char* current = token.sourceLoc.start;
-    for(uint64_t i = 0; i < token.sourceLoc.length; ++i) {
-        fputc(*(current++), out);
-    }
+    fprintf(out, "%.*s", (int)token.sourceLoc.length, token.sourceLoc.start);
     fputs("'", out);
 }
 

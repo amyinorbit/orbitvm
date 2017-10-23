@@ -7,6 +7,7 @@
 //
 #include <stdlib.h>
 #include <string.h>
+#include <orbit/utils/memory.h>
 #include <orbit/type/type.h>
 
 bool type_strictEquals(Type* typeA, Type* typeB) {
@@ -75,8 +76,7 @@ void type_print(FILE* out, Type* type) {
 }
 
 Type* type_make(TypeKind kind, bool isConst) {
-    // TODO: Maybe let's not malloc everytime. Some sort of pool system maybe?
-    Type* t = malloc(sizeof (Type));
+    Type* t = orbit_alloc(sizeof (Type));
     memset(t, 0, sizeof (Type));
     
     t->kind = kind;
