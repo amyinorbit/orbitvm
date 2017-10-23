@@ -17,12 +17,12 @@ typedef struct _OCSourceLoc OCSourceLoc;
 
 struct _OCSource {
     const char*     path;
-    const char*     bytes;
+    char*           bytes;
     uint64_t        length;
 };
 
 struct _OCSourceLoc {
-    const char*     start;
+    char*           start;
     uint64_t        line;
     uint64_t        column;
 
@@ -30,7 +30,6 @@ struct _OCSourceLoc {
     uint64_t        displayWidth;
     bool            startOfLine;
 };
-
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
 OCSource source_readFromPath(const char* path);

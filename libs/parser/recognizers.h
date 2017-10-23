@@ -8,11 +8,7 @@
 #ifndef orbit_parser_recognizers_h
 #define orbit_parser_recognizers_h
 #include <orbit/ast/ast.h>
-
-typedef struct {
-    OCLexer     lexer;
-    bool        recovering;
-} OCParser;
+#include "recursive_descent.h"
 
 static AST* recBlock(OCParser*);
 static AST* recTypeDecl(OCParser*);

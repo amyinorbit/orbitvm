@@ -43,5 +43,8 @@ OCSource source_readFromFile(FILE* file) {
 
 /// Deallocates the memory used to store the bytes in [source].
 void source_close(OCSource* source) {
-    
+    free(source->bytes);
+    source->bytes = NULL;
+    source->path = "";
+    source->length = 0;
 }
