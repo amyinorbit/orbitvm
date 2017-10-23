@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <orbit/source/source.h>
-#include <orbit/parser/tokens.h>
+#include <orbit/source/tokens.h>
 #include <orbit/utils/assert.h>
 #include <orbit/utils/utf8.h>
 

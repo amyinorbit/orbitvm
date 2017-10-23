@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <orbit/parser/tokens.h>
+#include <orbit/source/tokens.h>
 #include <orbit/utils/platforms.h>
 #include <orbit/type/type.h>
 

@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include <orbit/parser/tokens.h>
+#include <orbit/source/tokens.h>
 #include <orbit/utils/platforms.h>
 
 typedef enum _TypeKind TypeKind;

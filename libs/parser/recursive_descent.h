@@ -8,8 +8,8 @@
 #ifndef orbit_parser_recdescent_h
 #define orbit_parser_recdescent_h
 
-#include <orbit/parser/compiler_utils.h>
-#include <orbit/parser/tokens.h>
+//#include <orbit/parser/compiler_utils.h>
+#include <orbit/source/tokens.h>
 
 typedef struct {
     OCLexer     lexer;
@@ -17,11 +17,11 @@ typedef struct {
 } OCParser;
 
 static inline int precedence(OCParser* parser) {
-    return orbit_binaryPrecedence(parser->lexer.currentToken.type);
+    return source_binaryPrecedence(parser->lexer.currentToken.kind);
 }
 
 static inline bool rightAssoc(OCParser* parser) {
-    return orbit_binaryRightAssoc(parser->lexer.currentToken.type);
+    return source_binaryRightAssoc(parser->lexer.currentToken.kind);
 }
 
 static inline OCToken current(OCParser* parser) {
@@ -30,11 +30,11 @@ static inline OCToken current(OCParser* parser) {
 
 void compilerError(OCParser* parser, const char* fmt, ...);
 
-void syntaxError(OCParser* parser, OCTokenType type);
+void syntaxError(OCParser* parser, OCTokenKind kind);
 
-bool have(OCParser* parser, OCTokenType type);
+bool have(OCParser* parser, OCTokenKind kind);
 
-bool match(OCParser* parser, OCTokenType type);
+bool match(OCParser* parser, OCTokenKind kind);
 
 // MARK: - utility functions, mainly used to avoid typing long [have()] lists
 bool haveBinaryOp(OCParser* parser);
@@ -53,6 +53,6 @@ bool implicitTerminator(OCParser* parser);
 
 bool expectTerminator(OCParser* parser);
 
-bool expect(OCParser* parser, OCTokenType type);
+bool expect(OCParser* parser, OCTokenKind kind);
 
 #endif /* orbit_parser_recdescent_h */

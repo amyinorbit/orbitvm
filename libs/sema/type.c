@@ -5,14 +5,14 @@
 //  Created by Amy Parent on 2017-10-10.
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
-#include <orbit/parser/tokens.h>
+#include <orbit/source/tokens.h>
 #include <orbit/sema/type.h>
 #include <orbit/type/type.h>
 #include <orbit/type/builders.h>
 #include <orbit/ast/traversal.h>
 
 static Type* sema_extractSimpleType(OCToken token) {
-    switch(token.type) {
+    switch(token.kind) {
     case TOKEN_NIL:
         return type_make(TYPE_NIL, false);
     case TOKEN_ANY:

@@ -21,8 +21,8 @@ void compilerError(OCParser* parser, const char* fmt, ...) {
     
     fprintf(stderr, "%s:%llu:%llu: ",
                      parser->lexer.source.path,
-                     parser->lexer.currentToken.line,
-                     parser->lexer.currentToken.column);
+                     parser->lexer.currentToken.sourceLoc.line,
+                     parser->lexer.currentToken.sourceLoc.column);
     console_setColor(stderr, CLI_RED);
     fprintf(stderr, "error: ");
     console_setColor(stderr, CLI_RESET);
@@ -32,33 +32,36 @@ void compilerError(OCParser* parser, const char* fmt, ...) {
     va_end(va);
     fputc('\n', stderr);
     lexer_printLine(stderr, &parser->lexer);
-    console_printUnderlines(stderr, parser->lexer.currentToken.column,
-                                    parser->lexer.currentToken.displayWidth);
+    console_printUnderlines(stderr, parser->lexer.currentToken.sourceLoc.column,
+                                    parser->lexer.currentToken.sourceLoc.displayWidth);
 }
 
-void syntaxError(OCParser* parser, OCTokenType type) {
+void syntaxError(OCParser* parser, OCTokenKind kind) {
     OASSERT(parser != NULL, "Null instance error");
     if(parser->recovering) { return; }
     parser->recovering = true;
     
     OCToken tok  = current(parser);
-    fprintf(stderr, "%s:%llu:%llu: ", parser->lexer.source.path, tok.line, tok.column);
+    fprintf(stderr, "%s:%llu:%llu: ", parser->lexer.source.path,
+                                      tok.sourceLoc.line,
+                                      tok.sourceLoc.column);
     console_setColor(stderr, CLI_RED);
     fprintf(stderr, "error: ");
     console_setColor(stderr, CLI_RESET);
-    fprintf(stderr, "expected '%s'\n", orbit_tokenString(type));
+    fprintf(stderr, "expected '%s'\n", source_tokenString(kind));
     lexer_printLine(stderr, &parser->lexer);
-    console_printUnderlines(stderr, tok.column, parser->lexer.currentToken.displayWidth);
+    console_printUnderlines(stderr, tok.sourceLoc.column,
+                                    current(parser).sourceLoc.displayWidth);
 }
 
 // MARK: - RD Basics
 
-bool have(OCParser* parser, OCTokenType type) {
-    return parser->lexer.currentToken.type == type;
+bool have(OCParser* parser, OCTokenKind kind) {
+    return current(parser).kind == kind;
 }
 
-bool match(OCParser* parser, OCTokenType type) {
-    if(have(parser, type)) {
+bool match(OCParser* parser, OCTokenKind kind) {
+    if(have(parser, kind)) {
         lexer_nextToken(&parser->lexer);
         return true;
     }
@@ -67,11 +70,11 @@ bool match(OCParser* parser, OCTokenType type) {
 
 // MARK: - utility functions, mainly used to avoid typing long [have()] lists
 bool haveBinaryOp(OCParser* parser) {
-    return orbit_isBinaryOp(parser->lexer.currentToken.type);
+    return source_isBinaryOp(current(parser).kind);
 }
 
 bool haveUnaryOp(OCParser* parser) {
-    return orbit_isUnaryOp(parser->lexer.currentToken.type);
+    return source_isUnaryOp(current(parser).kind);
 }
 
 bool haveConditional(OCParser* parser) {
@@ -113,7 +116,7 @@ bool haveType(OCParser* parser) {
 //
 
 bool implicitTerminator(OCParser* parser) {
-    return parser->lexer.currentToken.startOfLine
+    return parser->lexer.currentToken.sourceLoc.startOfLine
         || have(parser, TOKEN_EOF)
         || have(parser, TOKEN_RBRACE);
 }
@@ -137,19 +140,19 @@ bool expectTerminator(OCParser* parser) {
     }
 }
 
-bool expect(OCParser* parser, OCTokenType type) {
+bool expect(OCParser* parser, OCTokenKind kind) {
     if(parser->recovering) {
-        while(!have(parser, type) && !have(parser, TOKEN_EOF)) {
+        while(!have(parser, kind) && !have(parser, TOKEN_EOF)) {
             lexer_nextToken(&parser->lexer);
         }
         if(have(parser, TOKEN_EOF)) {
             return false;
         }
         parser->recovering = false;
-        return match(parser, type);
+        return match(parser, kind);
     } else {
-        if(match(parser, type)) { return true; }
-        syntaxError(parser, type);
+        if(match(parser, kind)) { return true; }
+        syntaxError(parser, kind);
         return false;
     }
 }

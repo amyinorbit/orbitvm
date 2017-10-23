@@ -45,9 +45,9 @@ void lexer_init(OCLexer* lexer, OCSource source) {
     lexer->string.length = 0;
     lexer->string.capacity = 0;
     
-    lexer->currentToken.type = 0;
-    lexer->currentToken.start = NULL;
-    lexer->currentToken.length = 0;
+    lexer->currentToken.kind = 0;
+    lexer->currentToken.sourceLoc.start = NULL;
+    lexer->currentToken.sourceLoc.length = 0;
 }
 
 void lexer_printLine(FILE* out, OCLexer* lexer) {
@@ -101,12 +101,12 @@ static inline codepoint_t _next(OCLexer* lexer) {
 
 static void _makeToken(OCLexer* lexer, int type) {
     OASSERT(lexer != NULL, "Null instance error");
-    lexer->currentToken.type = type;
-    lexer->currentToken.start = lexer->tokenStart;
-    lexer->currentToken.length = lexer->currentPtr - lexer->tokenStart;
+    lexer->currentToken.kind = type;
+    lexer->currentToken.sourceLoc.start = lexer->tokenStart;
+    lexer->currentToken.sourceLoc.length = lexer->currentPtr - lexer->tokenStart;
 
-    lexer->currentToken.startOfLine = lexer->startOfLine;
-    lexer->currentToken.displayWidth = lexer->column - lexer->currentToken.column;
+    lexer->currentToken.sourceLoc.startOfLine = lexer->startOfLine;
+    lexer->currentToken.sourceLoc.displayWidth = lexer->column - lexer->currentToken.sourceLoc.column;
     
     // We reset the start of line marker after a token is produced.
     lexer->startOfLine = false;
@@ -235,10 +235,10 @@ static void _lexString(OCLexer* lexer) {
             _stringAppend(lexer, c);
         }
     }
-    lexer->currentToken.type = TOKEN_STRING_LITERAL;
-    lexer->currentToken.start = lexer->string.buffer;
-    lexer->currentToken.length = lexer->string.length;
-    lexer->currentToken.displayWidth = lexer->column - lexer->currentToken.column;
+    lexer->currentToken.kind = TOKEN_STRING_LITERAL;
+    lexer->currentToken.sourceLoc.start = lexer->string.buffer;
+    lexer->currentToken.sourceLoc.length = lexer->string.length;
+    lexer->currentToken.sourceLoc.displayWidth = lexer->column - lexer->currentToken.sourceLoc.column;
 }
 
 static inline bool isDigit(codepoint_t c) {
@@ -269,13 +269,13 @@ static void _eatLineComment(OCLexer* lexer) {
 
 static void _updateTokenStart(OCLexer* lexer) {
     lexer->tokenStart = lexer->currentPtr;
-    lexer->currentToken.line = lexer->line;
-    lexer->currentToken.column = lexer->column;
+    lexer->currentToken.sourceLoc.line = lexer->line;
+    lexer->currentToken.sourceLoc.column = lexer->column;
 }
 
 void lexer_nextToken(OCLexer* lexer) {
     OASSERT(lexer != NULL, "Null instance error");
-    if(lexer->currentToken.type == TOKEN_EOF) { return; }
+    if(lexer->currentToken.kind == TOKEN_EOF) { return; }
     
     while(_next(lexer) != '\0') {
         
@@ -383,7 +383,7 @@ void lexer_nextToken(OCLexer* lexer) {
                 return;
         }
     }
-    lexer->currentToken.type = TOKEN_EOF;
-    lexer->currentToken.length = 0;
-    lexer->currentToken.start = NULL;
+    lexer->currentToken.kind = TOKEN_EOF;
+    lexer->currentToken.sourceLoc.length = 0;
+    lexer->currentToken.sourceLoc.start = NULL;
 }

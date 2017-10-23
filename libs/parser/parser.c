@@ -9,9 +9,7 @@
 #include <orbit/console/console.h>
 #include <orbit/ast/builders.h>
 #include <orbit/parser/parser.h>
-#include <orbit/parser/tokens.h>
 #include <orbit/parser/lexer.h>
-#include <orbit/parser/compiler_utils.h>
 
 #include "recursive_descent.h"
 #include "recognizers.h"
@@ -243,7 +241,7 @@ static AST* recExpression(OCParser* parser, int minPrec) {
         
         AST* rhs = NULL;
         
-        switch(operator.type) {
+        switch(operator.kind) {
             case TOKEN_LPAREN:
             rhs = recFuncCall(parser);
             expr = ast_makeCallExpr(expr, rhs);
@@ -430,10 +428,12 @@ void orbit_dumpTokens(OCSource source) {
     lexer_init(&lex, source);
     
     lexer_nextToken(&lex);
-    while(lex.currentToken.type != TOKEN_EOF) {
+    while(lex.currentToken.kind != TOKEN_EOF) {
         OCToken tok = lex.currentToken;
-        printf("%20s\t'%.*s'", orbit_tokenName(tok.type), (int)tok.length, tok.start);
-        if(tok.startOfLine) {
+        printf("%20s\t'%.*s'", source_tokenName(tok.kind),
+                               (int)tok.sourceLoc.length,
+                               tok.sourceLoc.start);
+        if(tok.sourceLoc.startOfLine) {
             printf(" [line start]");
         }
         putchar('\n');

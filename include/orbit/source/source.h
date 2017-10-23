@@ -22,7 +22,7 @@ struct _OCSource {
 };
 
 struct _OCSourceLoc {
-    char*           start;
+    const char*     start;
     uint64_t        line;
     uint64_t        column;
 

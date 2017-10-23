@@ -111,21 +111,21 @@ static const OCTokenData _tokenData[] = {
     [TOKEN_INVALID] = {"invalid", "invalid token", false, false},
 };
 
-const char* orbit_tokenName(OCTokenKind token) {
+const char* source_tokenName(OCTokenKind token) {
     if(token > TOKEN_INVALID) { token = TOKEN_INVALID; }
     return _tokenData[token].name;
 }
-const char* orbit_tokenString(OCTokenKind token) {
+const char* source_tokenString(OCTokenKind token) {
     if(token > TOKEN_INVALID) { token = TOKEN_INVALID; }
     return _tokenData[token].string;
 }
 
-bool orbit_isBinaryOp(OCTokenKind token) {
+bool source_isBinaryOp(OCTokenKind token) {
     if(token > TOKEN_INVALID) { return false; }
     return _tokenData[token].isBinaryOp;
 }
 
-bool orbit_isUnaryOp(OCTokenKind token) {
+bool source_isUnaryOp(OCTokenKind token) {
     if(token > TOKEN_INVALID) { return false; }
     return _tokenData[token].isUnaryOp;
 }
@@ -167,16 +167,16 @@ static OCOperator opTable[] = {
     {TOKEN_INVALID,     -1,     false},
 };
 
-int orbit_binaryPrecedence(OCTokenKind token) {
-    if(!orbit_isBinaryOp(token)) { return -1; }
+int source_binaryPrecedence(OCTokenKind token) {
+    if(!source_isBinaryOp(token)) { return -1; }
     for(int i = 0; opTable[i].kind != TOKEN_INVALID; ++i) {
         if(opTable[i].kind == token) { return opTable[i].precedence; }
     }
     return -1;
 }
 
-int orbit_binaryRightAssoc(OCTokenKind token) {
-    if(!orbit_isBinaryOp(token)) { return false; }
+int source_binaryRightAssoc(OCTokenKind token) {
+    if(!source_isBinaryOp(token)) { return false; }
     for(int i = 0; opTable[i].kind != TOKEN_INVALID; ++i) {
         if(opTable[i].kind == token) { return opTable[i].rightAssoc; }
     }
