@@ -220,9 +220,13 @@ static void _lexString(OCLexer* lexer) {
         }
     }
     lexer->currentToken.kind = TOKEN_STRING_LITERAL;
+    lexer->currentToken.sourceLoc.startOfLine = lexer->startOfLine;
     lexer->currentToken.sourceLoc.start = lexer->string.buffer;
     lexer->currentToken.sourceLoc.length = lexer->string.length;
     lexer->currentToken.sourceLoc.displayWidth = lexer->column - lexer->currentToken.sourceLoc.column;
+    
+    // We reset the start of line marker after a token is produced.
+    lexer->startOfLine = false;
 }
 
 static inline bool isDigit(codepoint_t c) {

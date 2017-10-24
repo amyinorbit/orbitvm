@@ -1,0 +1,12 @@
+// Lines starting with string literals should not happen all that often (probably wasted
+// expressions result) but should parse normally nonetheless, Sema can then throw a warning about
+// the unused result.
+
+fun getName() -> String {
+    return "Jane Doe"
+}
+
+fun main() {
+    getName() + ", Hello!"
+    "Hello, " + getName()
+}
