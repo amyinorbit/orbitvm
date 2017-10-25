@@ -38,10 +38,7 @@ const uint32_t ASTKindExprMask  = AST_TYPEEXPR_SIMPLE
                                 | AST_TYPEEXPR_MAP
                                 | AST_TYPEEXPR_FUNC;
 
-const uint32_t ASTAllMask       = ASTStmtMask
-                                | ASTDeclMask
-                                | ASTExprMask
-                                | ASTKindExprMask;
+const uint32_t ASTAllMask       = 0xffffffff;
 
 void ast_destroy(AST* ast) {
     if(ast == NULL) { return; }
