@@ -5,18 +5,20 @@ objects sprinkled upon.
 
 ## Building
 
-At the moment, you can build both static and dynamic libraries for the Orbit
-VM and type system:
+Building Orbit's different modules requires a C compiler (GCC or Clang), CMake
+and some build system (GNU Make, Ninja, Xcode, VS...)
 
 ````bash
-$ make liborbit.a
-$ make liborbit.dylib
-````
+$ mkdir build
+$ cd build
+$ cmake ..
+$ cd ..
 
-You can also build the unit tests (based on [Unity][1]):
+# build the project
+$ cmake --build build --target all
 
-````bash
-$ make tests
+# or install the binaries and libraries
+$ cmake --build build --target install
 ````
 
 Building has only been tested on macOS (Apple LLVM/clang) so far, but should
@@ -33,11 +35,11 @@ bytecode.
 
 The next steps are:
  * [x] rework project structure and build system
- * [ ] organise files/modules according to new project layout
+ * [x] organise files/modules according to new project layout
  * [x] define complete Orbit grammar
  * [x] implement Recursive-descent parser
  * [x] describe Orbit type system
- * [ ] provide AST walker API:
+ * [x] provide AST walker API:
      * [ ] implement OMF backend (source to orbit module file)
      * [ ] implement direct codegen backend (source to VM, REPL)
 
