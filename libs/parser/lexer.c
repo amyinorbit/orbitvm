@@ -8,6 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <inttypes.h>
 #include <orbit/console/console.h>
 #include <orbit/parser/lexer.h>
 #include <orbit/utils/wcwidth.h>
@@ -16,7 +17,7 @@
 static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
     OASSERT(lexer != NULL, "Null instance error");
     
-    fprintf(stderr, "%s:%llu:%llu: error: ",
+    fprintf(stderr, "%s:%"PRIu64":%"PRIu64": error: ",
                      lexer->source.path,
                      lexer->line,
                      lexer->column);

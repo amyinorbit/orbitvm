@@ -7,6 +7,7 @@
 //
 #include <stdio.h>
 #include <stdarg.h>
+#include <inttypes.h>
 #include <orbit/console/console.h>
 #include <orbit/parser/lexer.h>
 #include "recursive_descent.h"
@@ -19,7 +20,7 @@ void compilerError(OCParser* parser, const char* fmt, ...) {
     if(parser->recovering) { return; }
     parser->recovering = true;
     
-    fprintf(stderr, "%s:%llu:%llu: ",
+    fprintf(stderr, "%s:%"PRIu64":%"PRIu64": ",
                      parser->lexer.source.path,
                      parser->lexer.currentToken.sourceLoc.line,
                      parser->lexer.currentToken.sourceLoc.column);
@@ -41,9 +42,10 @@ void syntaxError(OCParser* parser, OCTokenKind kind) {
     parser->recovering = true;
     
     OCToken tok  = current(parser);
-    fprintf(stderr, "%s:%llu:%llu: ", parser->lexer.source.path,
-                                      tok.sourceLoc.line,
-                                      tok.sourceLoc.column);
+    fprintf(stderr, "%s:%"PRIu64":%"PRIu64": ",
+                    parser->lexer.source.path,
+                    tok.sourceLoc.line,
+                    tok.sourceLoc.column);
     console_setColor(stderr, CLI_RED);
     fprintf(stderr, "error: ");
     console_setColor(stderr, CLI_RESET);
