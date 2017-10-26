@@ -20,38 +20,52 @@ void compilerError(OCParser* parser, const char* fmt, ...) {
     if(parser->recovering) { return; }
     parser->recovering = true;
     
-    fprintf(stderr, "%s:%"PRIu64":%"PRIu64": ",
-                     parser->lexer.source.path,
-                     parser->lexer.currentToken.sourceLoc.line,
-                     parser->lexer.currentToken.sourceLoc.column);
+    OCToken tok  = current(parser);
+    
+    console_setColor(stderr, CLI_BOLD);
+    console_setColor(stderr, CLI_BLUE);
+    fputs("----- ", stderr);
     console_setColor(stderr, CLI_RED);
-    fprintf(stderr, "error: ");
+    fputs("SYNTAX ERROR", stderr);
+    console_setColor(stderr, CLI_BLUE);
+    
+    fprintf(stderr, " in %s\n", parser->lexer.source.path);
+            
     console_setColor(stderr, CLI_RESET);
+    console_printTokenLine(stderr, current(parser));
+    console_printUnderlines(stderr, tok.sourceLoc, CLI_RED);
+    
+    console_setColor(stderr, CLI_BOLD);
     va_list va;
     va_start(va, fmt);
     vfprintf(stderr, fmt, va);
     va_end(va);
     fputc('\n', stderr);
-    console_printTokenLine(stderr, current(parser));
-    console_printUnderlines(stderr, parser->lexer.currentToken.sourceLoc, CLI_GREEN);
 }
 
 void syntaxError(OCParser* parser, OCTokenKind kind) {
     OASSERT(parser != NULL, "Null instance error");
     if(parser->recovering) { return; }
     parser->recovering = true;
-    
     OCToken tok  = current(parser);
-    fprintf(stderr, "%s:%"PRIu64":%"PRIu64": ",
-                    parser->lexer.source.path,
-                    tok.sourceLoc.line,
-                    tok.sourceLoc.column);
+    
+    console_setColor(stderr, CLI_BOLD);
+    console_setColor(stderr, CLI_BLUE);
+    fputs("----- ", stderr);
     console_setColor(stderr, CLI_RED);
-    fprintf(stderr, "error: ");
+    fputs("SYNTAX ERROR", stderr);
+    console_setColor(stderr, CLI_BLUE);
+    
+    fprintf(stderr, " in %s\n", parser->lexer.source.path);
+            
     console_setColor(stderr, CLI_RESET);
-    fprintf(stderr, "expected '%s'\n", source_tokenString(kind));
     console_printTokenLine(stderr, current(parser));
-    console_printUnderlines(stderr, tok.sourceLoc, CLI_GREEN);
+    console_printUnderlines(stderr, tok.sourceLoc, CLI_RED);
+    
+    console_setColor(stderr, CLI_BOLD);
+    fprintf(stderr, "'%s' was expected, but '%s' was found instead\n\n",
+            source_tokenString(kind),
+            source_tokenString(tok.kind));
 }
 
 // MARK: - RD Basics

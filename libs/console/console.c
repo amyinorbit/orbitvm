@@ -5,6 +5,7 @@
 //  Created by Amy Parent on 2017-09-28.
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
+#include <inttypes.h>
 #include <orbit/console/console.h>
 #include <orbit/utils/utf8.h>
 
@@ -41,6 +42,7 @@ void console_printTokenLine(FILE* out, OCToken token) {
     
     // ...then print the line itself.
     char utf[6];
+    fprintf(out, "%"PRIu64"|", token.sourceLoc.line);
     while(line < token.source->bytes + token.source->length) {
         uint64_t remaining = (token.source->bytes + token.source->length) - line;
         codepoint_t c = utf8_getCodepoint(line, remaining);
@@ -54,7 +56,8 @@ void console_printTokenLine(FILE* out, OCToken token) {
 }
 
 void console_printUnderlines(FILE* out, OCSourceLoc loc, CLIColor color) {
-    for(uint64_t i = 0; i < loc.column; ++i) {
+    uint8_t offset = 2 + loc.line / 10;
+    for(uint64_t i = 0; i < loc.column + offset; ++i) {
         fputc(' ', out);
     }
     console_setColor(out, color);
