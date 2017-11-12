@@ -25,11 +25,16 @@ struct _OCSourceLoc {
     const char*     start;
     uint64_t        line;
     uint64_t        column;
-
+    
+    // TODO:    move out of sourceLoc - this should be part of token.
+    //          If SourceLoc is as small as it possible, it can be passed more easily between
+    //          places, and included for example in AST nodes for better diagnostics.
     uint64_t        length;
     uint64_t        displayWidth;
     bool            startOfLine;
 };
+
+// TODO:    provide a SourceRange structure.
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
 OCSource source_readFromPath(const char* path);
