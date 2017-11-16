@@ -14,5 +14,5 @@ set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
 install(DIRECTORY include/orbit DESTINATION include)
 add_subdirectory(libs)
-add_subdirectory(tools)
+add_subdirectory(bin)
 add_subdirectory(tests)
