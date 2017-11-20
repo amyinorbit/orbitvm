@@ -18,7 +18,7 @@ static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
     OASSERT(lexer != NULL, "Null instance error");
     
     fprintf(stderr, "%s:%"PRIu64":%"PRIu64": error: ",
-                     lexer->source.path,
+                     lexer->source->path,
                      lexer->line,
                      lexer->column);
     va_list va;
@@ -30,13 +30,13 @@ static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
     fprintf(stderr, "\n");
 }
 
-void lexer_init(OCLexer* lexer, OCSource source) {
+void lexer_init(OCLexer* lexer, OCSource* source) {
     OASSERT(lexer != NULL, "Null instance error");
     
     lexer->source = source;
 
-    lexer->linePtr = source.bytes;
-    lexer->currentPtr = source.bytes;
+    lexer->linePtr = source->bytes;
+    lexer->currentPtr = source->bytes;
     lexer->currentChar = 0;
     
     lexer->startOfLine = true;
@@ -48,21 +48,21 @@ void lexer_init(OCLexer* lexer, OCSource source) {
     lexer->string.capacity = 0;
     
     lexer->currentToken.kind = 0;
-    lexer->currentToken.sourceLoc.start = NULL;
-    lexer->currentToken.sourceLoc.length = 0;
-    lexer->currentToken.source = &(lexer->source);
+    lexer->currentToken.sourceLoc.offset = 0;
+    lexer->currentToken.length = 0;
+    lexer->currentToken.source = lexer->source;
 }
 
 static codepoint_t _nextChar(OCLexer* lexer) {
     OASSERT(lexer != NULL, "Null instance error");
     if(!lexer->currentPtr) { return lexer->currentChar = '\0'; }
     
-    uint64_t remaining = lexer->source.length - (lexer->currentPtr - lexer->source.bytes);
+    uint64_t remaining = lexer->source->length - (lexer->currentPtr - lexer->source->bytes);
     lexer->currentChar = utf8_getCodepoint(lexer->currentPtr, remaining);
     
     // advance the current character pointer.
     int8_t size = utf8_codepointSize(lexer->currentChar);
-    int displayWidth = mk_wcwidth(lexer->currentChar);
+    int displayLength = mk_wcwidth(lexer->currentChar);
     if(size > 0 && lexer->currentChar != 0) {
         lexer->currentPtr += size;
     }
@@ -73,25 +73,25 @@ static codepoint_t _nextChar(OCLexer* lexer) {
         lexer->column = 0;
         lexer->linePtr = lexer->currentPtr;
     } else {
-        lexer->column += displayWidth;
+        lexer->column += displayLength;
     }
     
     return lexer->currentChar;
 }
 
 static inline codepoint_t _next(OCLexer* lexer) {
-    uint64_t remaining = lexer->source.length - (lexer->currentPtr - lexer->source.bytes);
+    uint64_t remaining = lexer->source->length - (lexer->currentPtr - lexer->source->bytes);
     return utf8_getCodepoint(lexer->currentPtr, remaining);
 }
 
 static void _makeToken(OCLexer* lexer, int type) {
     OASSERT(lexer != NULL, "Null instance error");
     lexer->currentToken.kind = type;
-    lexer->currentToken.sourceLoc.start = lexer->tokenStart;
-    lexer->currentToken.sourceLoc.length = lexer->currentPtr - lexer->tokenStart;
+    lexer->currentToken.sourceLoc.offset = lexer->tokenStart - lexer->source->bytes;
+    lexer->currentToken.length = lexer->currentPtr - lexer->tokenStart;
 
-    lexer->currentToken.sourceLoc.startOfLine = lexer->startOfLine;
-    lexer->currentToken.sourceLoc.displayWidth = lexer->column - lexer->currentToken.sourceLoc.column;
+    lexer->currentToken.isStartOfLine = lexer->startOfLine;
+    lexer->currentToken.displayLength = lexer->column - lexer->currentToken.sourceLoc.column;
     
     // We reset the start of line marker after a token is produced.
     lexer->startOfLine = false;
@@ -182,7 +182,7 @@ static void _stringAppend(OCLexer* lexer, codepoint_t c) {
 }
 
 static void _lexString(OCLexer* lexer) {
-    lexer->tokenStart += 1;
+    //lexer->tokenStart += 1; Not necessary, we want to keep track of the quote in the token
     
     // String literals cannot be tokenised by solely pointing into the source
     // string, since there's the potential for
@@ -221,10 +221,17 @@ static void _lexString(OCLexer* lexer) {
         }
     }
     lexer->currentToken.kind = TOKEN_STRING_LITERAL;
-    lexer->currentToken.sourceLoc.startOfLine = lexer->startOfLine;
-    lexer->currentToken.sourceLoc.start = lexer->string.buffer;
-    lexer->currentToken.sourceLoc.length = lexer->string.length;
-    lexer->currentToken.sourceLoc.displayWidth = lexer->column - lexer->currentToken.sourceLoc.column;
+    lexer->currentToken.isStartOfLine = lexer->startOfLine;
+    
+    lexer->currentToken.sourceLoc.offset = lexer->tokenStart - lexer->source->bytes;
+    lexer->currentToken.length = lexer->currentPtr - lexer->tokenStart;
+    lexer->currentToken.displayLength = lexer->column - lexer->currentToken.sourceLoc.column;
+    
+    // Store the parsed string literal
+    lexer->currentToken.parsedStringLiteral.data = lexer->string.buffer;
+    lexer->currentToken.parsedStringLiteral.length = lexer->string.length;
+    
+    lexer->currentToken.displayLength = lexer->column - lexer->currentToken.sourceLoc.column;
     
     // We reset the start of line marker after a token is produced.
     lexer->startOfLine = false;
@@ -260,7 +267,7 @@ static void _updateTokenStart(OCLexer* lexer) {
     lexer->tokenStart = lexer->currentPtr;
     lexer->currentToken.sourceLoc.line = lexer->line;
     lexer->currentToken.sourceLoc.column = lexer->column;
-    lexer->currentToken.source = &(lexer->source);
+    lexer->currentToken.source = lexer->source;
 }
 
 void lexer_nextToken(OCLexer* lexer) {
@@ -374,6 +381,6 @@ void lexer_nextToken(OCLexer* lexer) {
         }
     }
     lexer->currentToken.kind = TOKEN_EOF;
-    lexer->currentToken.sourceLoc.length = 0;
-    lexer->currentToken.sourceLoc.start = NULL;
+    lexer->currentToken.length = 0;
+    lexer->currentToken.sourceLoc.offset = 0;
 }

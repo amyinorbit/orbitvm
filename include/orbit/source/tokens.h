@@ -104,10 +104,20 @@ typedef enum  {
     
 } OCTokenKind;
 
+
 struct _OCToken {
     OCTokenKind     kind;
-    OCSource*       source;
+    const OCSource* source;
     OCSourceLoc     sourceLoc;
+    
+    struct {
+        uint64_t    length;
+        char*       data;
+    }               parsedStringLiteral;
+    
+    uint32_t        length;
+    uint32_t        displayLength;
+    bool            isStartOfLine;
 };
 
 const char* source_tokenName(OCTokenKind token);

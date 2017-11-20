@@ -28,11 +28,12 @@ void console_setColor(FILE* out, CLIColor color) {
 }
 
 void console_printToken(FILE* out, OCToken token) {
-    fprintf(out, "%.*s", (int)token.sourceLoc.length, token.sourceLoc.start);
+    const char* bytes = token.source->bytes + token.sourceLoc.offset;
+    fprintf(out, "%.*s", (int)token.length, bytes);
 }
 
 void console_printTokenLine(FILE* out, OCToken token) {
-    const char* line = token.sourceLoc.start;
+    const char* line = token.source->bytes + token.sourceLoc.offset;
     
     // Backtrack until the beginning of the line...
     while(*line != '\n'&& line != token.source->bytes) {
@@ -42,7 +43,7 @@ void console_printTokenLine(FILE* out, OCToken token) {
     
     // ...then print the line itself.
     char utf[6];
-    fprintf(out, "%"PRIu64"|", token.sourceLoc.line);
+    fprintf(out, "%"PRIu32"|", token.sourceLoc.line);
     while(line < token.source->bytes + token.source->length) {
         uint64_t remaining = (token.source->bytes + token.source->length) - line;
         codepoint_t c = utf8_getCodepoint(line, remaining);
@@ -55,14 +56,14 @@ void console_printTokenLine(FILE* out, OCToken token) {
     fprintf(out, "\n");
 }
 
-void console_printUnderlines(FILE* out, OCSourceLoc loc, CLIColor color) {
-    uint8_t offset = 2 + loc.line / 10;
-    for(uint64_t i = 0; i < loc.column + offset; ++i) {
+void console_printUnderlines(FILE* out, OCToken tok, CLIColor color) {
+    uint8_t offset = 2 + tok.sourceLoc.line / 10;
+    for(uint64_t i = 0; i < tok.sourceLoc.column + offset; ++i) {
         fputc(' ', out);
     }
     console_setColor(out, color);
     fputc('^', out);
-    for(uint64_t i = 0; i < loc.displayWidth-1; ++i) {
+    for(uint64_t i = 0; i < tok.displayLength-1; ++i) {
         fputc('~', out);
     }
     console_setColor(out, CLI_RESET);

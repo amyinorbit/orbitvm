@@ -29,6 +29,6 @@ void console_setColor(FILE* out, CLIColor color);
 
 void console_printToken(FILE* out, OCToken token);
 void console_printTokenLine(FILE* out, OCToken token);
-void console_printUnderlines(FILE* out, OCSourceLoc loc, CLIColor color);
+void console_printUnderlines(FILE* out, OCToken tok, CLIColor color);
 
 #endif /* orbit_ast_console_h */

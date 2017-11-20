@@ -24,15 +24,15 @@ int main(int argc, const char** args) {
     OCSource source = source_readFromPath(args[1]);
     
     if(argc == 2) {
-        AST* ast = orbit_parse(source);
+        AST* ast = orbit_parse(&source);
         ast_destroy(ast);
     }
     else {
         if(strcmp(args[2], "-dump-tokens") == 0) {
-            orbit_dumpTokens(source);
+            orbit_dumpTokens(&source);
         }
         else if(strcmp(args[2], "-dump-ast") == 0) {
-            AST* ast = orbit_parse(source);
+            AST* ast = orbit_parse(&source);
             sema_runTypeAnalysis(ast);
             ast_print(stdout, ast);
             ast_destroy(ast);

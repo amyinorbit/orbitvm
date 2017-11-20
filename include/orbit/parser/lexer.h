@@ -22,7 +22,7 @@ typedef struct _OCLexer OCLexer;
 struct _OCLexer {
     /// The entire program's source - this allows nicer errors than fget()-ing
     /// every time we need the next character.
-    OCSource        source;
+    OCSource*       source;
     
     /// Since we must handle UTF-8 source files (not every cahracter is a single
     /// byte), we can't just keep a pointer to the current character. We also
@@ -51,7 +51,7 @@ struct _OCLexer {
     OCToken         currentToken;
 };
 
-void lexer_init(OCLexer* lexer, OCSource source);
+void lexer_init(OCLexer* lexer, OCSource* source);
 
 /// Fetches the next token from the source.
 void lexer_nextToken(OCLexer* lexer);

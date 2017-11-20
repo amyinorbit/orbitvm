@@ -423,17 +423,18 @@ static AST* recMapType(OCParser* parser) {
     return ast_makeMapType(keyType, elementType);
 }
 
-void orbit_dumpTokens(OCSource source) {
+void orbit_dumpTokens(OCSource* source) {
     OCLexer lex;
     lexer_init(&lex, source);
     
     lexer_nextToken(&lex);
     while(lex.currentToken.kind != TOKEN_EOF) {
         OCToken tok = lex.currentToken;
+        const char* bytes = source->bytes + tok.sourceLoc.offset;
         printf("%20s\t'%.*s'", source_tokenName(tok.kind),
-                               (int)tok.sourceLoc.length,
-                               tok.sourceLoc.start);
-        if(tok.sourceLoc.startOfLine) {
+                               (int)tok.length,
+                               bytes);
+        if(tok.isStartOfLine) {
             printf(" [line start]");
         }
         putchar('\n');
@@ -441,7 +442,7 @@ void orbit_dumpTokens(OCSource source) {
     }
 }
 
-AST* orbit_parse(OCSource source) {
+AST* orbit_parse(OCSource* source) {
     
     OCParser parser;
     parser.recovering = false;

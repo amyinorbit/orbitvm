@@ -29,11 +29,11 @@ void compilerError(OCParser* parser, const char* fmt, ...) {
     fputs("SYNTAX ERROR", stderr);
     console_setColor(stderr, CLI_BLUE);
     
-    fprintf(stderr, " in %s\n", parser->lexer.source.path);
+    fprintf(stderr, " in %s\n", parser->lexer.source->path);
             
     console_setColor(stderr, CLI_RESET);
     console_printTokenLine(stderr, current(parser));
-    console_printUnderlines(stderr, tok.sourceLoc, CLI_RED);
+    console_printUnderlines(stderr, tok, CLI_RED);
     
     console_setColor(stderr, CLI_BOLD);
     va_list va;
@@ -56,11 +56,11 @@ void syntaxError(OCParser* parser, OCTokenKind kind) {
     fputs("SYNTAX ERROR", stderr);
     console_setColor(stderr, CLI_BLUE);
     
-    fprintf(stderr, " in %s\n", parser->lexer.source.path);
+    fprintf(stderr, " in %s\n", parser->lexer.source->path);
             
     console_setColor(stderr, CLI_RESET);
     console_printTokenLine(stderr, current(parser));
-    console_printUnderlines(stderr, tok.sourceLoc, CLI_RED);
+    console_printUnderlines(stderr, tok, CLI_RED);
     
     console_setColor(stderr, CLI_BOLD);
     fprintf(stderr, "'%s' was expected, but '%s' was found instead\n\n",
@@ -130,7 +130,7 @@ bool haveType(OCParser* parser) {
 //
 
 bool implicitTerminator(OCParser* parser) {
-    return parser->lexer.currentToken.sourceLoc.startOfLine
+    return parser->lexer.currentToken.isStartOfLine
         || have(parser, TOKEN_EOF)
         || have(parser, TOKEN_RBRACE);
 }

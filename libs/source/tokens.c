@@ -11,7 +11,7 @@
 #include <orbit/utils/utf8.h>
 
 void source_printTokenLine(FILE* out, const OCToken token) {
-    const char* line = token.sourceLoc.start;
+    const char* line = token.source->bytes + token.sourceLoc.offset;
     
     // Backtrack until the beginning of the line...
     while(*line != '\n'&& line != token.source->bytes) {
@@ -52,7 +52,7 @@ static const OCTokenData _tokenData[] = {
     [TOKEN_SLASH] = {"slash", "/", true, false},
     [TOKEN_STAR] = {"star", "*", true, false},
     [TOKEN_STARSTAR] = {"starstar", "**", true, false},
-    [TOKEN_PERCENT] = {"percent", "%", true, false},
+    [TOKEN_PERCENT] = {"percent", "%%", true, false},
     [TOKEN_CARET] = {"caret", "^", true, false},
     [TOKEN_TILDE] = {"tilde", "~", false, true},
     [TOKEN_AMP] = {"amp", "&", true, false},
