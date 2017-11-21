@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <orbit/source/tokens.h>
 #include <orbit/utils/platforms.h>
+#include <orbit/utils/memory.h>
 #include <orbit/type/type.h>
 
 typedef struct _AST AST;
@@ -65,6 +66,7 @@ extern const uint32_t ASTKindExprMask;
 // AST. AST::next is used to represent "same level" collections (for example,
 // a list of parameters, or a list of expressions.
 struct _AST {
+    ORCObject       super;
     ASTKind         kind;
     AST*            next;
     Type*           type;
@@ -182,7 +184,7 @@ struct _AST {
 };
 
 void ast_print(FILE* out, AST* ast);
-void ast_destroy(AST* ast);
+void ast_destroy(void* ref);
 AST* ast_makeNode(ASTKind kind);
 
 #endif /* orbit_ast_h_ */

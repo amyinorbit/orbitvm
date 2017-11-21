@@ -8,6 +8,7 @@
 #ifndef orbit_utils_memory_h
 #define orbit_utils_memory_h
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdnoreturn.h>
@@ -40,6 +41,7 @@ void orbit_dealloc(void* memory);
 /// Initialises the object at [ref] with a [retainCount] of 0 and [destructor]. [ref] must
 /// point to a valid ORCObject. [ref] is returned for convenience.
 static inline ORCObject* orbit_rcInit(ORCObject* ref, ORCDestructor destructor) {
+    if(ref == NULL) { return NULL; }
     ref->retainCount = 0;
     ref->destructor = destructor;
     return ref;
@@ -48,6 +50,7 @@ static inline ORCObject* orbit_rcInit(ORCObject* ref, ORCDestructor destructor) 
 /// Adds one to the [ref]'s retain count, 'owning' the object pointed to. [ref] must point to a
 /// valid ORCObject.
 static inline void* orbit_rcRetain(ORCObject* ref) {
+    if(ref == NULL) { return NULL; }
     ref->retainCount += 1;
     return ref;
 }
@@ -55,8 +58,10 @@ static inline void* orbit_rcRetain(ORCObject* ref) {
 /// Give up ownership of the object pointed to by [ref] by dropping its retain count by 1. If
 /// the object is not owned by anything anymore, it is immediately deallocated.
 static inline void orbit_rcRelease(ORCObject* ref) {
-    if(--ref->retainCount) { return; }
-    ref->destructor(ref);
+    if(ref == NULL) { return; }
+    ref->retainCount -= 1;
+    if(ref->retainCount) { return; }
+    if(ref->destructor) { ref->destructor(ref); }
     orbit_dealloc(ref);
 }
 

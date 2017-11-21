@@ -7,6 +7,7 @@
 //
 #include <stdlib.h>
 #include <string.h>
+#include <orbit/utils/memory.h>
 #include <orbit/ast/builders.h>
 
 void ast_listStart(ASTListBuilder* builder) {
@@ -16,6 +17,7 @@ void ast_listStart(ASTListBuilder* builder) {
 
 void ast_listAdd(ASTListBuilder* builder, AST* item) {
     if(item == NULL) { return; }
+    if(builder->head != NULL) { ORCRETAIN(item); }
     *(builder->next) = item;
     builder->next = &item->next;
 }
@@ -39,24 +41,24 @@ static OCToken ast_copyToken(const OCToken* token) {
 
 AST* ast_makeConditional(AST* condition, AST* ifBody, AST* elseBody) {
     AST* ast = ast_makeNode(AST_CONDITIONAL);
-    ast->conditionalStmt.condition = condition;
-    ast->conditionalStmt.ifBody = ifBody;
-    ast->conditionalStmt.elseBody = elseBody;
+    ast->conditionalStmt.condition = ORCRETAIN(condition);
+    ast->conditionalStmt.ifBody = ORCRETAIN(ifBody);
+    ast->conditionalStmt.elseBody = ORCRETAIN(elseBody);
     return ast;
 }
 
 AST* ast_makeForInLoop(const OCToken* var, AST* collection, AST* body) {
     AST* ast = ast_makeNode(AST_FOR_IN);
     ast->forInLoop.variable = ast_copyToken(var);
-    ast->forInLoop.collection = collection;
-    ast->forInLoop.body = body;
+    ast->forInLoop.collection = ORCRETAIN(collection);
+    ast->forInLoop.body = ORCRETAIN(body);
     return ast;
 }
 
 AST* ast_makeWhileLoop(AST* condition, AST* body) {
     AST* ast = ast_makeNode(AST_WHILE);
-    ast->whileLoop.condition = condition;
-    ast->whileLoop.body = body;
+    ast->whileLoop.condition = ORCRETAIN(condition);
+    ast->whileLoop.body = ORCRETAIN(body);
     return ast;
 }
 
@@ -70,30 +72,30 @@ AST* ast_makeContinue() {
 
 AST* ast_makeReturn(AST* returned) {
     AST* ast = ast_makeNode(AST_RETURN);
-    ast->returnStmt.returnValue = returned;
+    ast->returnStmt.returnValue = ORCRETAIN(returned);
     return ast;
 }
 
 AST* ast_makeModuleDecl(const char* symbol, AST* body) {
     AST* ast = ast_makeNode(AST_DECL_MODULE);
     ast->moduleDecl.symbol = symbol;
-    ast->moduleDecl.body = body;
+    ast->moduleDecl.body = ORCRETAIN(body);
     return ast;
 }
 
 AST* ast_makeVarDecl(const OCToken* symbol, AST* typeAnnotation) {
     AST* ast = ast_makeNode(AST_DECL_VAR);
     ast->varDecl.symbol = ast_copyToken(symbol);
-    ast->varDecl.typeAnnotation = typeAnnotation;
+    ast->varDecl.typeAnnotation = ORCRETAIN(typeAnnotation);
     return ast;
 }
 
 AST* ast_makeFuncDecl(const OCToken* symbol, AST* returnType, AST* params, AST* body) {
     AST* ast = ast_makeNode(AST_DECL_FUNC);
     ast->funcDecl.symbol = ast_copyToken(symbol);
-    ast->funcDecl.returnType = returnType;
-    ast->funcDecl.params = params;
-    ast->funcDecl.body = body;
+    ast->funcDecl.returnType = ORCRETAIN(returnType);
+    ast->funcDecl.params = ORCRETAIN(params);
+    ast->funcDecl.body = ORCRETAIN(body);
     return ast;
 }
 
@@ -101,9 +103,9 @@ AST* ast_makeStructDecl(const OCToken* symbol, AST* constructor, AST* destructor
     AST* ast = ast_makeNode(AST_DECL_STRUCT);
     
     ast->structDecl.symbol = ast_copyToken(symbol);
-    ast->structDecl.constructor = constructor;
-    ast->structDecl.destructor = destructor;
-    ast->structDecl.fields = fields;
+    ast->structDecl.constructor = ORCRETAIN(constructor);
+    ast->structDecl.destructor = ORCRETAIN(destructor);
+    ast->structDecl.fields = ORCRETAIN(fields);
     
     return ast;
 }
@@ -112,8 +114,8 @@ AST* ast_makeBinaryExpr(const OCToken* operator, AST* lhs, AST* rhs) {
     AST* ast = ast_makeNode(AST_EXPR_BINARY);
     
     ast->binaryExpr.operator = ast_copyToken(operator);
-    ast->binaryExpr.lhs = lhs;
-    ast->binaryExpr.rhs = rhs;
+    ast->binaryExpr.lhs = ORCRETAIN(lhs);
+    ast->binaryExpr.rhs = ORCRETAIN(rhs);
     
     return ast;
 }
@@ -121,21 +123,21 @@ AST* ast_makeBinaryExpr(const OCToken* operator, AST* lhs, AST* rhs) {
 AST* ast_makeUnaryExpr(const OCToken* operator, AST* rhs) {
     AST* ast = ast_makeNode(AST_EXPR_UNARY);
     ast->unaryExpr.operator = ast_copyToken(operator);
-    ast->unaryExpr.rhs = rhs;
+    ast->unaryExpr.rhs = ORCRETAIN(rhs);
     return ast;
 }
 
 AST* ast_makeCallExpr(AST* symbol, AST* params) {
     AST* ast = ast_makeNode(AST_EXPR_CALL);
-    ast->callExpr.symbol = symbol;
-    ast->callExpr.params = params;
+    ast->callExpr.symbol = ORCRETAIN(symbol);
+    ast->callExpr.params = ORCRETAIN(params);
     return ast;
 }
 
 AST* ast_makeSubscriptExpr(AST* symbol, AST* subscript) {
     AST* ast = ast_makeNode(AST_EXPR_SUBSCRIPT);
-    ast->subscriptExpr.symbol = symbol;
-    ast->subscriptExpr.subscript = subscript;
+    ast->subscriptExpr.symbol = ORCRETAIN(symbol);
+    ast->subscriptExpr.subscript = ORCRETAIN(subscript);
     return ast;
 }
 
@@ -159,20 +161,20 @@ AST* ast_makeTypeExpr(const OCToken* symbol) {
 
 AST* ast_makeFuncType(AST* returnType, AST* params) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_FUNC);
-    ast->funcType.returnType = returnType;
-    ast->funcType.params = params;
+    ast->funcType.returnType = ORCRETAIN(returnType);
+    ast->funcType.params = ORCRETAIN(params);
     return ast;
 }
 
 AST* ast_makeArrayType(AST* elementType) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_ARRAY);
-    ast->arrayType.elementType = elementType;
+    ast->arrayType.elementType = ORCRETAIN(elementType);
     return ast;
 }
 
 AST* ast_makeMapType(AST* keyType, AST* elementType) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_MAP);
-    ast->mapType.keyType = keyType;
-    ast->mapType.elementType = elementType;
+    ast->mapType.keyType = ORCRETAIN(keyType);
+    ast->mapType.elementType = ORCRETAIN(elementType);
     return ast;
 }

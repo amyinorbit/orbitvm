@@ -6,10 +6,11 @@
 //  Copyright © 2017 Amy Parent. All rights reserved.
 //
 #include <orbit/source/tokens.h>
-#include <orbit/sema/type.h>
+#include <orbit/utils/memory.h>
 #include <orbit/type/type.h>
 #include <orbit/type/builders.h>
 #include <orbit/ast/traversal.h>
+#include <orbit/sema/type.h>
 
 static Type* sema_extractSimpleType(OCToken token) {
     switch(token.kind) {

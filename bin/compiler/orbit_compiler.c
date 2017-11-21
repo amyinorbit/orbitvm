@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <orbit/utils/memory.h>
 #include <orbit/ast/ast.h>
 #include <orbit/source/source.h>
 #include <orbit/parser/parser.h>
@@ -24,18 +25,18 @@ int main(int argc, const char** args) {
     OCSource source = source_readFromPath(args[1]);
     
     if(argc == 2) {
-        AST* ast = orbit_parse(&source);
-        ast_destroy(ast);
+        AST* ast = ORCRETAIN(orbit_parse(&source));
+        ORCRELEASE(ast);
     }
     else {
         if(strcmp(args[2], "-dump-tokens") == 0) {
             orbit_dumpTokens(&source);
         }
         else if(strcmp(args[2], "-dump-ast") == 0) {
-            AST* ast = orbit_parse(&source);
+            AST* ast = ORCRETAIN(orbit_parse(&source));
             sema_runTypeAnalysis(ast);
             ast_print(stdout, ast);
-            ast_destroy(ast);
+            ORCRELEASE(ast);
         }
     }
     

@@ -40,25 +40,26 @@ const uint32_t ASTKindExprMask  = AST_TYPEEXPR_SIMPLE
 
 const uint32_t ASTAllMask       = 0xffffffff;
 
-void ast_destroy(AST* ast) {
-    if(ast == NULL) { return; }
+void ast_destroy(void* ref) {
+    if(ref == NULL) { return; }
+    AST* ast = (AST*)ref;
     
     switch(ast->kind) {
         // STATEMENTS
         case AST_CONDITIONAL:
-            ast_destroy(ast->conditionalStmt.condition);
-            ast_destroy(ast->conditionalStmt.ifBody);
-            ast_destroy(ast->conditionalStmt.elseBody);
+            ORCRELEASE(ast->conditionalStmt.condition);
+            ORCRELEASE(ast->conditionalStmt.ifBody);
+            ORCRELEASE(ast->conditionalStmt.elseBody);
             break;
         
         case AST_FOR_IN:
-            ast_destroy(ast->forInLoop.collection);
-            ast_destroy(ast->forInLoop.body);
+            ORCRELEASE(ast->forInLoop.collection);
+            ORCRELEASE(ast->forInLoop.body);
             break;
         
         case AST_WHILE:
-            ast_destroy(ast->whileLoop.condition);
-            ast_destroy(ast->whileLoop.body);
+            ORCRELEASE(ast->whileLoop.condition);
+            ORCRELEASE(ast->whileLoop.body);
             break;
             
         case AST_BREAK:
@@ -68,48 +69,48 @@ void ast_destroy(AST* ast) {
             break;
             
         case AST_RETURN:
-            ast_destroy(ast->returnStmt.returnValue);
+            ORCRELEASE(ast->returnStmt.returnValue);
             break;
         
         // DECLARATIONS
         case AST_DECL_MODULE:
-            ast_destroy(ast->moduleDecl.body);
+            ORCRELEASE(ast->moduleDecl.body);
             break;
         
         case AST_DECL_FUNC:
-            ast_destroy(ast->funcDecl.returnType);
-            ast_destroy(ast->funcDecl.params);
-            ast_destroy(ast->funcDecl.body);
+            ORCRELEASE(ast->funcDecl.returnType);
+            ORCRELEASE(ast->funcDecl.params);
+            ORCRELEASE(ast->funcDecl.body);
             break;
         
         case AST_DECL_VAR:
-            ast_destroy(ast->varDecl.typeAnnotation);
+            ORCRELEASE(ast->varDecl.typeAnnotation);
             break;
         
         case AST_DECL_STRUCT:
-            ast_destroy(ast->structDecl.constructor);
-            ast_destroy(ast->structDecl.destructor);
-            ast_destroy(ast->structDecl.fields);
+            ORCRELEASE(ast->structDecl.constructor);
+            ORCRELEASE(ast->structDecl.destructor);
+            ORCRELEASE(ast->structDecl.fields);
             break;
             
         // EXPRESSIONS
         case AST_EXPR_UNARY:
-            ast_destroy(ast->unaryExpr.rhs);
+            ORCRELEASE(ast->unaryExpr.rhs);
             break;
         
         case AST_EXPR_BINARY:
-            ast_destroy(ast->binaryExpr.lhs);
-            ast_destroy(ast->binaryExpr.rhs);
+            ORCRELEASE(ast->binaryExpr.lhs);
+            ORCRELEASE(ast->binaryExpr.rhs);
             break;
         
         case AST_EXPR_CALL:
-            ast_destroy(ast->callExpr.symbol);
-            ast_destroy(ast->callExpr.params);
+            ORCRELEASE(ast->callExpr.symbol);
+            ORCRELEASE(ast->callExpr.params);
             break;
         
         case AST_EXPR_SUBSCRIPT:
-            ast_destroy(ast->subscriptExpr.symbol);
-            ast_destroy(ast->subscriptExpr.subscript);
+            ORCRELEASE(ast->subscriptExpr.symbol);
+            ORCRELEASE(ast->subscriptExpr.subscript);
             break;
         
         case AST_EXPR_CONSTANT:
@@ -125,28 +126,29 @@ void ast_destroy(AST* ast) {
             break;
             
         case AST_TYPEEXPR_FUNC:
-            ast_destroy(ast->funcType.returnType);
-            ast_destroy(ast->funcType.params);
+            ORCRELEASE(ast->funcType.returnType);
+            ORCRELEASE(ast->funcType.params);
             break;
             
         case AST_TYPEEXPR_ARRAY:
-            ast_destroy(ast->arrayType.elementType);
+            ORCRELEASE(ast->arrayType.elementType);
             break;
             
         case AST_TYPEEXPR_MAP:
-            ast_destroy(ast->mapType.keyType);
-            ast_destroy(ast->mapType.elementType);
+            ORCRELEASE(ast->mapType.keyType);
+            ORCRELEASE(ast->mapType.elementType);
             break;
     }
     
     type_destroy(ast->type);
-    ast_destroy(ast->next);
-    free(ast);
+    ORCRELEASE(ast->next);
+    //free(ast);
 }
 
 AST* ast_makeNode(ASTKind kind) {
     AST* ast = orbit_alloc(sizeof (AST));
     memset(ast, 0, sizeof (AST));
+    ORCINIT(ast, &ast_destroy);
     
     ast->kind = kind;
     ast->next = NULL;
