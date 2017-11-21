@@ -43,9 +43,7 @@ void lexer_init(OCLexer* lexer, OCSource* source) {
     lexer->column = 0;
     lexer->line = 1;
     
-    lexer->string.buffer = NULL;
-    lexer->string.length = 0;
-    lexer->string.capacity = 0;
+    lexer->string = NULL;
     
     lexer->currentToken.kind = 0;
     lexer->currentToken.sourceLoc.offset = 0;
@@ -93,6 +91,7 @@ static void _makeToken(OCLexer* lexer, int type) {
     lexer->currentToken.isStartOfLine = lexer->startOfLine;
     lexer->currentToken.displayLength = lexer->column - lexer->currentToken.sourceLoc.column;
     
+    lexer->currentToken.parsedStringLiteral = NULL;
     // We reset the start of line marker after a token is produced.
     lexer->startOfLine = false;
 }
@@ -160,35 +159,12 @@ static void _lexIdentifier(OCLexer* lexer) {
     _makeToken(lexer, type);
 }
 
-static void _stringReserve(OCLexer* lexer) {
-    if(lexer->string.capacity <= 0) { lexer->string.capacity = 32; }
-    lexer->string.buffer = realloc(lexer->string.buffer, lexer->string.capacity);
-}
-
-static void _stringAppend(OCLexer* lexer, codepoint_t c) {
-    int8_t size = utf8_codepointSize(c);
-    if(size < 0) {
-        _lexerError(lexer, "Invalid codepoint found in string: U+%X\n", c);
-        return;
-    }
-    
-    if(lexer->string.length + size >= lexer->string.capacity) {
-        lexer->string.capacity *= 2;
-        _stringReserve(lexer);
-    }
-    utf8_writeCodepoint(c, &lexer->string.buffer[lexer->string.length],
-                           lexer->string.capacity - lexer->string.length);
-    lexer->string.length += size;
-}
-
 static void _lexString(OCLexer* lexer) {
     //lexer->tokenStart += 1; Not necessary, we want to keep track of the quote in the token
     
     // String literals cannot be tokenised by solely pointing into the source
     // string, since there's the potential for
-    lexer->string.buffer = NULL;
-    lexer->string.length = 0;
-    _stringReserve(lexer);
+    lexer->string = ORCRETAIN(orbit_utfStringNewWithCapacity(64));
     
     for(;;) {
         codepoint_t c = _nextChar(lexer);
@@ -203,21 +179,21 @@ static void _lexString(OCLexer* lexer) {
         else if(c == '\\') {
             c = _nextChar(lexer);
             switch(c) {
-                case '\\': _stringAppend(lexer, '\\'); break;
-                case 'a':  _stringAppend(lexer, '\a'); break;
-                case 'b':  _stringAppend(lexer, '\b'); break;
-                case 'f':  _stringAppend(lexer, '\f'); break;
-                case 'n':  _stringAppend(lexer, '\n'); break;
-                case 'r':  _stringAppend(lexer, '\r'); break;
-                case 't':  _stringAppend(lexer, '\t'); break;
-                case 'v':  _stringAppend(lexer, '\v'); break;
-                case '"':  _stringAppend(lexer, '\"'); break;
+                case '\\': orbit_utfStringAppend(lexer->string, '\\'); break;
+                case 'a':  orbit_utfStringAppend(lexer->string, '\a'); break;
+                case 'b':  orbit_utfStringAppend(lexer->string, '\b'); break;
+                case 'f':  orbit_utfStringAppend(lexer->string, '\f'); break;
+                case 'n':  orbit_utfStringAppend(lexer->string, '\n'); break;
+                case 'r':  orbit_utfStringAppend(lexer->string, '\r'); break;
+                case 't':  orbit_utfStringAppend(lexer->string, '\t'); break;
+                case 'v':  orbit_utfStringAppend(lexer->string, '\v'); break;
+                case '"':  orbit_utfStringAppend(lexer->string, '\"'); break;
                 default:
                     _lexerError(lexer, "unknown escape sequence in literal");
                     break;
             }
         } else {
-            _stringAppend(lexer, c);
+            orbit_utfStringAppend(lexer->string, c);
         }
     }
     lexer->currentToken.kind = TOKEN_STRING_LITERAL;
@@ -226,15 +202,13 @@ static void _lexString(OCLexer* lexer) {
     lexer->currentToken.sourceLoc.offset = lexer->tokenStart - lexer->source->bytes;
     lexer->currentToken.length = lexer->currentPtr - lexer->tokenStart;
     lexer->currentToken.displayLength = lexer->column - lexer->currentToken.sourceLoc.column;
-    
-    // Store the parsed string literal
-    lexer->currentToken.parsedStringLiteral.data = lexer->string.buffer;
-    lexer->currentToken.parsedStringLiteral.length = lexer->string.length;
-    
-    lexer->currentToken.displayLength = lexer->column - lexer->currentToken.sourceLoc.column;
-    
     // We reset the start of line marker after a token is produced.
     lexer->startOfLine = false;
+    
+    // Store the parsed string literal
+    lexer->currentToken.parsedStringLiteral = ORCRETAIN(lexer->string);
+    ORCRELEASE(lexer->string);
+    lexer->string = NULL;
 }
 
 static inline bool isDigit(codepoint_t c) {

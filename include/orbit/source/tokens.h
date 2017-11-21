@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <orbit/utils/string.h>
 #include <orbit/source/source.h>
 
 typedef struct _OCToken OCToken;
@@ -110,14 +111,11 @@ struct _OCToken {
     const OCSource* source;
     OCSourceLoc     sourceLoc;
     
-    struct {
-        uint64_t    length;
-        char*       data;
-    }               parsedStringLiteral;
-    
     uint32_t        length;
     uint32_t        displayLength;
     bool            isStartOfLine;
+    
+    UTFString*      parsedStringLiteral;
 };
 
 const char* source_tokenName(OCTokenKind token);

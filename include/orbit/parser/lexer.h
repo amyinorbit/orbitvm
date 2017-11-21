@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <orbit/source/source.h>
 #include <orbit/source/tokens.h>
+#include <orbit/utils/string.h>
 #include <orbit/utils/assert.h>
 #include <orbit/utils/utf8.h>
 
@@ -38,11 +39,7 @@ struct _OCLexer {
     uint64_t        column;
     
     /// Buffer used when lexin string literals
-    struct {
-        char*       buffer;
-        uint64_t    length;
-        uint64_t    capacity;
-    } string;
+    UTFString*      string;
     
     /// We keep track of where the token being built starts.
     const char*     tokenStart;

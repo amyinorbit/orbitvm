@@ -116,7 +116,9 @@ void ast_destroy(void* ref) {
         case AST_EXPR_CONSTANT:
         case AST_EXPR_CONSTANT_INTEGER:
         case AST_EXPR_CONSTANT_FLOAT:
+            break;
         case AST_EXPR_CONSTANT_STRING:
+            ORCRELEASE(ast->constantExpr.symbol.parsedStringLiteral);
             break;
         
         case AST_EXPR_NAME:
