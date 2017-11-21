@@ -206,7 +206,7 @@ static void _lexString(OCLexer* lexer) {
     lexer->startOfLine = false;
     
     // Store the parsed string literal
-    lexer->currentToken.parsedStringLiteral = ORCRETAIN(lexer->string);
+    lexer->currentToken.parsedStringLiteral = ORCRETAIN(orbit_utfStringConstCopy(lexer->string));
     ORCRELEASE(lexer->string);
     lexer->string = NULL;
 }

@@ -29,10 +29,6 @@
 void* orbit_allocator(OrbitVM* vm, void* ptr, size_t newSize);
 
 // Hash functions
-    
-// Computes the FNV-1a hash of [string].
-// This is O(n) complexity and should be used lightly. 
-uint32_t orbit_hashString(const char* string, size_t length);
 
 // Computes the hash code of [number].
 uint32_t orbit_hashDouble(double number);

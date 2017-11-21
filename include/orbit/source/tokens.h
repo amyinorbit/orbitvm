@@ -115,7 +115,7 @@ struct _OCToken {
     uint32_t        displayLength;
     bool            isStartOfLine;
     
-    UTFString*      parsedStringLiteral;
+    UTFConstString* parsedStringLiteral;
 };
 
 const char* source_tokenName(OCTokenKind token);
