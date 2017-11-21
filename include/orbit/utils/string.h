@@ -38,7 +38,7 @@ uint32_t orbit_hashString(const char* string, size_t length);
 UTFString* orbit_utfStringNew(const char* cString, size_t length);
 UTFString* orbit_utfStringNewWithCapacity(uint64_t capacity);
 
-UTFString* orbit_utfStringAppend(UTFString* string, codepoint_t point);
+void orbit_utfStringAppend(UTFString** string, codepoint_t point);
 UTFConstString* orbit_utfStringConstCopy(UTFString* string);
 
 #endif /* orbit_utils_string_h */

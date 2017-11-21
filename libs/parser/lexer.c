@@ -179,32 +179,25 @@ static void _lexString(OCLexer* lexer) {
         else if(c == '\\') {
             c = _nextChar(lexer);
             switch(c) {
-                case '\\': orbit_utfStringAppend(lexer->string, '\\'); break;
-                case 'a':  orbit_utfStringAppend(lexer->string, '\a'); break;
-                case 'b':  orbit_utfStringAppend(lexer->string, '\b'); break;
-                case 'f':  orbit_utfStringAppend(lexer->string, '\f'); break;
-                case 'n':  orbit_utfStringAppend(lexer->string, '\n'); break;
-                case 'r':  orbit_utfStringAppend(lexer->string, '\r'); break;
-                case 't':  orbit_utfStringAppend(lexer->string, '\t'); break;
-                case 'v':  orbit_utfStringAppend(lexer->string, '\v'); break;
-                case '"':  orbit_utfStringAppend(lexer->string, '\"'); break;
+                case '\\': orbit_utfStringAppend(&lexer->string, '\\'); break;
+                case 'a':  orbit_utfStringAppend(&lexer->string, '\a'); break;
+                case 'b':  orbit_utfStringAppend(&lexer->string, '\b'); break;
+                case 'f':  orbit_utfStringAppend(&lexer->string, '\f'); break;
+                case 'n':  orbit_utfStringAppend(&lexer->string, '\n'); break;
+                case 'r':  orbit_utfStringAppend(&lexer->string, '\r'); break;
+                case 't':  orbit_utfStringAppend(&lexer->string, '\t'); break;
+                case 'v':  orbit_utfStringAppend(&lexer->string, '\v'); break;
+                case '"':  orbit_utfStringAppend(&lexer->string, '\"'); break;
                 default:
                     _lexerError(lexer, "unknown escape sequence in literal");
                     break;
             }
         } else {
-            orbit_utfStringAppend(lexer->string, c);
+            orbit_utfStringAppend(&lexer->string, c);
         }
     }
-    lexer->currentToken.kind = TOKEN_STRING_LITERAL;
-    lexer->currentToken.isStartOfLine = lexer->startOfLine;
     
-    lexer->currentToken.sourceLoc.offset = lexer->tokenStart - lexer->source->bytes;
-    lexer->currentToken.length = lexer->currentPtr - lexer->tokenStart;
-    lexer->currentToken.displayLength = lexer->column - lexer->currentToken.sourceLoc.column;
-    // We reset the start of line marker after a token is produced.
-    lexer->startOfLine = false;
-    
+    _makeToken(lexer, TOKEN_STRING_LITERAL);
     // Store the parsed string literal
     lexer->currentToken.parsedStringLiteral = ORCRETAIN(orbit_utfStringConstCopy(lexer->string));
     ORCRELEASE(lexer->string);

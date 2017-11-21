@@ -52,18 +52,21 @@ static UTFString* _stringReserve(UTFString* string, size_t newChars) {
     return string;
 }
 
-UTFString* orbit_utfStringAppend(UTFString* string, codepoint_t c) {
+void orbit_utfStringAppend(UTFString** string, codepoint_t c) {
     OASSERT(string != NULL, "Null instance error");
+    OASSERT(*string != NULL, "Null instance error");
+    
+    UTFString* str = *string;
     
     int8_t size = utf8_codepointSize(c);
-    if(size < 0) { return string; }
+    if(size < 0) { return; }
     
-    string = _stringReserve(string, size);
-    utf8_writeCodepoint(c, &string->data[string->length],
-                           string->capacity - string->length);
-    string->length += size;
-    string->data[string->length] = '\0';
-    return string;
+    str = _stringReserve(str, size);
+    utf8_writeCodepoint(c, &str->data[str->length],
+                           str->capacity - str->length);
+    str->length += size;
+    str->data[str->length] = '\0';
+    *string = str;
 }
 
 UTFConstString* orbit_utfStringConstCopy(UTFString* string) {
