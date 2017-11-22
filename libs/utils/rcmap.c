@@ -124,6 +124,8 @@ void orbit_rcMapRemove(ORCMap* map, UTFConstString* key) {
     ORCMapEntry* slot = _rcMapFindSlot(map, key);
     if(slot->key == NULL) { return; }
     
+    ORCRELEASE(slot->key);
+    ORCRELEASE(slot->value);
     slot->key = NULL;
     slot->value = (void*)tombstone;
     map->size -= 1;
