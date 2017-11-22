@@ -28,17 +28,17 @@ struct _UTFString {
     ORCObject       super;
     uint64_t        length;
     uint64_t        capacity;
-    char            data[ORBIT_FLEXIBLE_ARRAY_MEMB];
+    char*           data;
 };
 
 // Computes the FNV-1a hash of [string].
 // This is O(n) complexity and should be used lightly.
 uint32_t orbit_hashString(const char* string, size_t length);
 
-UTFString* orbit_utfStringNew(const char* cString, size_t length);
-UTFString* orbit_utfStringNewWithCapacity(uint64_t capacity);
+UTFString* orbit_utfStringInit(UTFString* string, const char* cString, size_t length);
+UTFString* orbit_utfStringInitWithCapacity(UTFString* string, uint64_t capacity);
 
-void orbit_utfStringAppend(UTFString** string, codepoint_t point);
+void orbit_utfStringAppend(UTFString* string, codepoint_t point);
 UTFConstString* orbit_utfStringConstCopy(UTFString* string);
 
 #endif /* orbit_utils_string_h */

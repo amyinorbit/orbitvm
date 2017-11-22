@@ -18,7 +18,7 @@
 // when we grow/shrink the map.
 static const char* tombstone = "ORCMAP_TOMBSTONE";
 
-void _rcMapDestructor(void* ref) {
+void orbit_rcMapDeinit(void* ref) {
     ORCMap* map = (ORCMap*)ref;
     for(uint64_t i = 0; i < map->capacity; ++i) {
         ORCRELEASE(map->data[i].key);
@@ -26,9 +26,11 @@ void _rcMapDestructor(void* ref) {
     }
 }
 
-ORCMap* orbit_rcMapNew() {
-    ORCMap* map = orbit_alloc(sizeof(ORCMap) + ORCMAP_DEFAULT_CAPACITY * sizeof(ORCMapEntry));
-    ORCINIT(map, &_rcMapDestructor);
+ORCMap* orbit_rcMapInit(ORCMap* map) {
+    OASSERT(map != NULL, "Null instance error");
+    ORCINIT(map, &orbit_rcMapDeinit);
+    
+    map->data = ORBIT_ALLOC_ARRAY(ORCMapEntry, ORCMAP_DEFAULT_CAPACITY);
     map->size = 0;
     map->capacity = ORCMAP_DEFAULT_CAPACITY;
     
@@ -38,31 +40,6 @@ ORCMap* orbit_rcMapNew() {
     }
     return map;
 }
-/*
-    GCMapEntry* insert = NULL;
-    uint32_t index = orbit_valueHash(key) & map->mask;
-    uint32_t start = index;
-    
-    do {
-        if(IS_NIL(map->data[index].key)) {
-            if(IS_FALSE(map->data[index].value)) {
-                // Empty slot, we're done, the key is not in the map.
-                return &map->data[index];
-            } else {
-                // Tombstone, so we need to keep searching. Keep a pointer
-                // to the tombstone so that this can be returned for insertion.
-                if(insert == NULL) insert = &map->data[index];
-            }
-        } else {
-            if(orbit_gcMapComp(key, map->data[index].key)) {
-                return &map->data[index];
-            }
-        }
-        index = (index + 1) & map->mask;
-    } while(index != start);
-    
-    return insert;
-*/
 
 static inline bool _rcMapCompare(UTFConstString* a, UTFConstString* b) {
     OASSERT(a != NULL, "Null reference error");
@@ -80,7 +57,7 @@ static ORCMapEntry* _rcMapFindSlot(ORCMap* map, UTFConstString* key) {
     
     do {
         if(map->data[index].key == NULL) {
-            if(map->data[index].value == &tombstone) {
+            if(map->data[index].value == tombstone) {
                 if(insert == NULL) { insert = &map->data[index]; }
             } else {
                 return &map->data[index];
@@ -97,15 +74,39 @@ static ORCMapEntry* _rcMapFindSlot(ORCMap* map, UTFConstString* key) {
     return insert;
 }
 
-//static ORCMap* _rcMapReserve(ORCMap* map)
-
-void orbit_rcMapInsert(ORCMap** ref, UTFConstString* key, void* item) {
-    OASSERT(ref != NULL, "Null instance error");
-    ORCMap* map = *ref;
+static void _rcMapGrow(ORCMap* map) {
     OASSERT(map != NULL, "Null instance error");
+    uint64_t oldCapacity = map->capacity;
+    ORCMapEntry* oldData = map->data;
+    
+    if(map->capacity == 0) {
+        map->capacity = ORCMAP_DEFAULT_CAPACITY;
+    } else {
+        map->capacity = map->capacity << 1;
+    }
+    
+    map->data = ORBIT_ALLOC_ARRAY(ORCMapEntry, map->capacity);
+    map->size = 0;
+    
+    for(uint64_t i = 0; i < map->capacity; ++i) {
+        map->data[i].key = NULL;
+        map->data[i].value = NULL;
+    }
+    
+    for(uint64_t i = 0; i < oldCapacity; ++i) {
+        if(oldData[i].key == NULL) { continue; }
+        orbit_rcMapInsert(map, oldData[i].key, oldData[i].value);
+        ORCRELEASE(oldData[i].value);
+    }
+}
+
+void orbit_rcMapInsert(ORCMap* map, UTFConstString* key, void* item) {
+    OASSERT(map != NULL, "Null instance error");
+    OASSERT(key != NULL, "Null key error");
     
     if(map->size > ORCMAP_GROWTH_THRESHOLD * map->capacity) {
         // GROW MAP
+        _rcMapGrow(map);
     }
     
     ORCMapEntry* entry = _rcMapFindSlot(map, key);
@@ -114,17 +115,24 @@ void orbit_rcMapInsert(ORCMap** ref, UTFConstString* key, void* item) {
     }
     entry->key = ORCRETAIN(key);
     entry->value = ORCRETAIN(item);
-    
-    *ref = map;
 }
 
-void orbit_rcMapRemove(ORCMap** ref, UTFConstString* key) {
-    OASSERT(ref != NULL, "Null instance error");
-    ORCMap* map = *ref;
+void orbit_rcMapRemove(ORCMap* map, UTFConstString* key) {
     OASSERT(map != NULL, "Null instance error");
+    OASSERT(key != NULL, "Null key error");
     
+    ORCMapEntry* slot = _rcMapFindSlot(map, key);
+    if(slot->key == NULL) { return; }
+    
+    slot->key = NULL;
+    slot->value = (void*)tombstone;
+    map->size -= 1;
 }
 
 void* orbit_rcMapGet(ORCMap* map, UTFConstString* key) {
-    return NULL;
+    OASSERT(map != NULL, "Null instance error");
+    OASSERT(key != NULL, "Null key error");
+    
+    ORCMapEntry* slot = _rcMapFindSlot(map, key);
+    return slot->key ? slot->value : NULL;
 }

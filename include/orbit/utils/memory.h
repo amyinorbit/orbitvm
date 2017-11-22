@@ -30,6 +30,11 @@ struct _ORCObject {
 #define ORCRELEASE(ref) (orbit_rcRelease((ORCObject*)(ref)))
 #define ORCINIT(ref, destructor) ((__typeof__(ref))orbit_rcInit((ORCObject*)(ref), (destructor)))
 
+#define ORBIT_ALLOC(type) (orbit_alloc(sizeof (type)))
+#define ORBIT_ALLOC_FLEX(type, arrayType, count) (orbit_alloc(sizeof(type) + ((count) * sizeof(arrayType))))
+#define ORBIT_ALLOC_ARRAY(type, count) (orbit_allocMulti(sizeof (type), (count)))
+#define ORBIT_REALLOC_ARRAY(ptr, type, count) (orbit_realloc((ptr), sizeof (type) * (count)))
+
 void* orbit_alloc(size_t size);
 
 void* orbit_allocMulti(size_t size, size_t count);

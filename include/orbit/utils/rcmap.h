@@ -24,13 +24,14 @@ struct _ORCMapEntry {
 struct _ORCMap {
     uint64_t        size;
     uint64_t        capacity;
-    ORCMapEntry     data[ORBIT_FLEXIBLE_ARRAY_MEMB];
+    ORCMapEntry*    data;
 };
 
-ORCMap* orbit_rcMapNew();
+void orbit_rcMapDeinit(void* ref);
+ORCMap* orbit_rcMapInit(ORCMap* map);
 
-void orbit_rcMapInsert(ORCMap** map, UTFConstString* key, void* item);
-void orbit_rcMapRemove(ORCMap** map, UTFConstString* key);
+void orbit_rcMapInsert(ORCMap* map, UTFConstString* key, void* item);
+void orbit_rcMapRemove(ORCMap* map, UTFConstString* key);
 void* orbit_rcMapGet(ORCMap* map, UTFConstString* key);
 
 

@@ -164,7 +164,7 @@ static void _lexString(OCLexer* lexer) {
     
     // String literals cannot be tokenised by solely pointing into the source
     // string, since there's the potential for
-    lexer->string = ORCRETAIN(orbit_utfStringNewWithCapacity(64));
+    lexer->string = ORCRETAIN(orbit_utfStringInitWithCapacity(ORBIT_ALLOC(UTFString), 64));
     
     for(;;) {
         codepoint_t c = _nextChar(lexer);
@@ -179,21 +179,21 @@ static void _lexString(OCLexer* lexer) {
         else if(c == '\\') {
             c = _nextChar(lexer);
             switch(c) {
-                case '\\': orbit_utfStringAppend(&lexer->string, '\\'); break;
-                case 'a':  orbit_utfStringAppend(&lexer->string, '\a'); break;
-                case 'b':  orbit_utfStringAppend(&lexer->string, '\b'); break;
-                case 'f':  orbit_utfStringAppend(&lexer->string, '\f'); break;
-                case 'n':  orbit_utfStringAppend(&lexer->string, '\n'); break;
-                case 'r':  orbit_utfStringAppend(&lexer->string, '\r'); break;
-                case 't':  orbit_utfStringAppend(&lexer->string, '\t'); break;
-                case 'v':  orbit_utfStringAppend(&lexer->string, '\v'); break;
-                case '"':  orbit_utfStringAppend(&lexer->string, '\"'); break;
+                case '\\': orbit_utfStringAppend(lexer->string, '\\'); break;
+                case 'a':  orbit_utfStringAppend(lexer->string, '\a'); break;
+                case 'b':  orbit_utfStringAppend(lexer->string, '\b'); break;
+                case 'f':  orbit_utfStringAppend(lexer->string, '\f'); break;
+                case 'n':  orbit_utfStringAppend(lexer->string, '\n'); break;
+                case 'r':  orbit_utfStringAppend(lexer->string, '\r'); break;
+                case 't':  orbit_utfStringAppend(lexer->string, '\t'); break;
+                case 'v':  orbit_utfStringAppend(lexer->string, '\v'); break;
+                case '"':  orbit_utfStringAppend(lexer->string, '\"'); break;
                 default:
                     _lexerError(lexer, "unknown escape sequence in literal");
                     break;
             }
         } else {
-            orbit_utfStringAppend(&lexer->string, c);
+            orbit_utfStringAppend(lexer->string, c);
         }
     }
     
