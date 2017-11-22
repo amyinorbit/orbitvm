@@ -17,7 +17,7 @@ void orbit_rcArrayDestructor(void* ref) {
 }
 
 ORCArray* orbit_rcArrayNew(uint64_t capacity) {
-    ORCArray* array = orbit_alloc(sizeof(ORCArray) + capacity);
+    ORCArray* array = orbit_alloc(sizeof(ORCArray) + capacity * sizeof(void*));
     ORCINIT(array, &orbit_rcArrayDestructor);
     array->size = 0;
     array->capacity = capacity;
