@@ -155,26 +155,30 @@ AST* ast_makeConstantExpr(const OCToken* symbol, ASTKind kind) {
 
 AST* ast_makeTypeExpr(const OCToken* symbol) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_ANY);
-    ast->simpleType.symbol = ast_copyToken(symbol);
+    ast->typeExpr.canonicalType = ast;
+    ast->typeExpr.simpleType.symbol = ast_copyToken(symbol);
     return ast;
 }
 
 AST* ast_makeFuncType(AST* returnType, AST* params) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_FUNC);
-    ast->funcType.returnType = ORCRETAIN(returnType);
-    ast->funcType.params = ORCRETAIN(params);
+    ast->typeExpr.canonicalType = ast;
+    ast->typeExpr.funcType.returnType = ORCRETAIN(returnType);
+    ast->typeExpr.funcType.params = ORCRETAIN(params);
     return ast;
 }
 
 AST* ast_makeArrayType(AST* elementType) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_ARRAY);
-    ast->arrayType.elementType = ORCRETAIN(elementType);
+    ast->typeExpr.canonicalType = ast;
+    ast->typeExpr.arrayType.elementType = ORCRETAIN(elementType);
     return ast;
 }
 
 AST* ast_makeMapType(AST* keyType, AST* elementType) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_MAP);
-    ast->mapType.keyType = ORCRETAIN(keyType);
-    ast->mapType.elementType = ORCRETAIN(elementType);
+    ast->typeExpr.canonicalType = ast;
+    ast->typeExpr.mapType.keyType = ORCRETAIN(keyType);
+    ast->typeExpr.mapType.elementType = ORCRETAIN(elementType);
     return ast;
 }

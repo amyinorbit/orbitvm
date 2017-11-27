@@ -33,7 +33,7 @@ const uint32_t ASTExprMask      = AST_EXPR_UNARY
                                 | AST_EXPR_CONSTANT_STRING
                                 | AST_EXPR_NAME;
 
-const uint32_t ASTKindExprMask  = AST_TYPEEXPR_NIL
+const uint32_t ASTTypeExprMask  = AST_TYPEEXPR_NIL
                                 | AST_TYPEEXPR_VOID
                                 | AST_TYPEEXPR_BOOL
                                 | AST_TYPEEXPR_NUMBER
@@ -137,27 +137,26 @@ void ast_destroy(void* ref) {
         case AST_TYPEEXPR_STRING:
         case AST_TYPEEXPR_USER:
         case AST_TYPEEXPR_ANY:
-            ORCRELEASE(ast->simpleType.symbol.parsedStringLiteral);
+            ORCRELEASE(ast->typeExpr.simpleType.symbol.parsedStringLiteral);
             break;
             
         case AST_TYPEEXPR_FUNC:
-            ORCRELEASE(ast->funcType.returnType);
-            ORCRELEASE(ast->funcType.params);
+            ORCRELEASE(ast->typeExpr.funcType.returnType);
+            ORCRELEASE(ast->typeExpr.funcType.params);
             break;
             
         case AST_TYPEEXPR_ARRAY:
-            ORCRELEASE(ast->arrayType.elementType);
+            ORCRELEASE(ast->typeExpr.arrayType.elementType);
             break;
             
         case AST_TYPEEXPR_MAP:
-            ORCRELEASE(ast->mapType.keyType);
-            ORCRELEASE(ast->mapType.elementType);
+            ORCRELEASE(ast->typeExpr.mapType.keyType);
+            ORCRELEASE(ast->typeExpr.mapType.elementType);
             break;
     }
-    
-    type_destroy(ast->type);
+
+    ORCRELEASE(ast->type);
     ORCRELEASE(ast->next);
-    //free(ast);
 }
 
 AST* ast_makeNode(ASTKind kind) {

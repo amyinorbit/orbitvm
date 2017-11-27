@@ -13,9 +13,10 @@
 #include <orbit/source/tokens.h>
 #include <orbit/utils/platforms.h>
 #include <orbit/utils/memory.h>
-#include <orbit/type/type.h>
 
 typedef struct _AST AST;
+typedef struct _ASTType ASTType;
+typedef enum _ASTTypeFlags ASTTypeFlags;
 typedef enum _ASTKind ASTKind;
 
 // Tag enum for AST nodes
@@ -58,12 +59,42 @@ extern const uint32_t ASTAllMask;
 extern const uint32_t ASTStmtMask;
 extern const uint32_t ASTDeclMask;
 extern const uint32_t ASTExprMask;
-extern const uint32_t ASTKindExprMask;
+extern const uint32_t ASTTypeExprMask;
 
 #define AST_IS_STMT(ast) ((ast) != NULL && ((ast).type & ASTStmtMask) != 0)
 #define AST_IS_DECL(ast) ((ast) != NULL && ((ast).type & ASTDeclMask) != 0)
 #define AST_IS_EXPR(ast) ((ast) != NULL && ((ast).type & ASTExprMask) != 0)
-#define AST_IS_TYPEEXPR(ast) ((ast) != NULL && ((ast).type & ASTKindExprMask) != 0)
+#define AST_IS_TYPEEXPR(ast) ((ast) != NULL && ((ast).type & ASTTypeExprMask) != 0)
+
+enum _ASTTypeFlags {
+    TYPE_CONST      = 1 << 0,
+    TYPE_OPTIONAL   = 1 << 1
+};
+
+struct _ASTType {
+    AST*            canonicalType;
+    ASTTypeFlags    flags;
+    
+    union {
+        struct {
+            OCToken     symbol;
+        } simpleType;
+    
+        struct {
+            AST*        elementType;
+        } arrayType;
+    
+        struct {
+            AST*        keyType;
+            AST*        elementType;
+        } mapType;
+    
+        struct {
+            AST*        returnType;
+            AST*        params;
+        } funcType;
+    };
+};
 
 // The TUD (Tagged Union of Doom). Represents all possible nodes in an orbit
 // AST. AST::next is used to represent "same level" collections (for example,
@@ -72,7 +103,7 @@ struct _AST {
     ORCObject       super;
     ASTKind         kind;
     AST*            next;
-    Type*           type;
+    AST*            type;
     
     union {
         
@@ -165,23 +196,7 @@ struct _AST {
         
         // Type Expressions (necessary for a non-trivial type system)
         
-        struct {
-            OCToken     symbol;
-        } simpleType;
-        
-        struct {
-            AST*        elementType;
-        } arrayType;
-        
-        struct {
-            AST*        keyType;
-            AST*        elementType;
-        } mapType;
-        
-        struct {
-            AST*        returnType;
-            AST*        params;
-        } funcType;
+        ASTType         typeExpr;
         
     };
 };

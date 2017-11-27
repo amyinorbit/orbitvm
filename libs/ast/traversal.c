@@ -95,17 +95,17 @@ void ast_traverse(AST* ast, ASTKind filter, void* userData, ASTCallback callback
         break;
         
     case AST_TYPEEXPR_FUNC:
-        ast_traverse(ast->funcType.returnType, filter, userData, callback);
-        ast_traverse(ast->funcType.params, filter, userData, callback);
+        ast_traverse(ast->typeExpr.funcType.returnType, filter, userData, callback);
+        ast_traverse(ast->typeExpr.funcType.params, filter, userData, callback);
         break;
         
     case AST_TYPEEXPR_ARRAY:
-        ast_traverse(ast->arrayType.elementType, filter, userData, callback);
+        ast_traverse(ast->typeExpr.arrayType.elementType, filter, userData, callback);
         break;
         
     case AST_TYPEEXPR_MAP:
-        ast_traverse(ast->mapType.keyType, filter, userData, callback);
-        ast_traverse(ast->mapType.elementType, filter, userData, callback);
+        ast_traverse(ast->typeExpr.mapType.keyType, filter, userData, callback);
+        ast_traverse(ast->typeExpr.mapType.elementType, filter, userData, callback);
         break;
     }
     ast_traverse(ast->next, filter, userData, callback);

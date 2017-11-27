@@ -9,7 +9,6 @@
 #include <stdbool.h>
 #include <orbit/console/console.h>
 #include <orbit/ast/ast.h>
-#include <orbit/type/type.h>
 
 static void ast_printNode(FILE* out, AST* ast, int depth, bool last);
 static void ast_printList(FILE* out, const char* name, AST* list, int depth, bool last);
@@ -43,6 +42,52 @@ static void ast_printList(FILE* out, const char* name, AST* list, int depth, boo
     while(item != NULL) {
         ast_printNode(out, item, depth+1, item->next == NULL);
         item = item->next;
+    }
+}
+
+static void ast_printType(FILE* out, AST* ast) {
+    if(ast == NULL) { return; }
+    if((ast->kind & ASTTypeExprMask) == 0) { return; }
+    
+    switch(ast->kind) {
+    case AST_TYPEEXPR_NIL:      fputs("Nil", out);      break;
+    case AST_TYPEEXPR_VOID:     fputs("Void", out);     break;
+    case AST_TYPEEXPR_BOOL:     fputs("Bool", out);     break;
+    case AST_TYPEEXPR_NUMBER:   fputs("Number", out);   break;
+    case AST_TYPEEXPR_STRING:   fputs("String", out);   break;
+    case AST_TYPEEXPR_ANY:      fputs("Any", out);      break;
+    case AST_TYPEEXPR_USER:
+        console_printToken(out, ast->typeExpr.simpleType.symbol);
+        break;
+        
+    case AST_TYPEEXPR_FUNC:
+        fputs("(", out);
+        ast_printType(out, ast->typeExpr.funcType.params);
+        fputs(") -> ", out);
+        ast_printType(out, ast->typeExpr.funcType.returnType);
+        break;
+        
+    case AST_TYPEEXPR_ARRAY:
+        fputs("Array[", out);
+        ast_printType(out, ast->typeExpr.arrayType.elementType);
+        fputs("]", out);
+        break;
+        
+    case AST_TYPEEXPR_MAP:
+        fputs("Map[", out);
+        ast_printType(out, ast->typeExpr.mapType.keyType);
+        fputs(":", out);
+        ast_printType(out, ast->typeExpr.mapType.elementType);
+        fputs("]", out);
+        break;
+        
+    default:
+        break;
+    }
+    
+    if(ast->next) {
+        fputs(", ", out);
+        ast_printType(out, ast->next);
     }
 }
 
@@ -107,7 +152,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_printToken(out, ast->funcDecl.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
-        type_print(out, ast->type);
+        ast_printType(out, ast->type);
         ast_printList(out, "ParamDeclList", ast->funcDecl.params, depth+1, false);
         ast_printList(out, "Block", ast->funcDecl.body, depth+1, true);
         break;
@@ -119,7 +164,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_printToken(out, ast->varDecl.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
-        type_print(out, ast->type);
+        ast_printType(out, ast->type);
         break;
     
     case AST_DECL_STRUCT:
@@ -140,7 +185,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_printToken(out, ast->unaryExpr.operator);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
-        type_print(out, ast->type);
+        ast_printType(out, ast->type);
         ast_printNode(out, ast->unaryExpr.rhs, depth+1, true);
         break;
     
@@ -151,7 +196,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_printToken(out, ast->binaryExpr.operator);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
-        type_print(out, ast->type);
+        ast_printType(out, ast->type);
         ast_printNode(out, ast->binaryExpr.lhs, depth+1, false);
         ast_printNode(out, ast->binaryExpr.rhs, depth+1, true);
         break;
@@ -177,7 +222,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
-        type_print(out, ast->type);
+        ast_printType(out, ast->type);
         break;
         
     case AST_EXPR_CONSTANT_FLOAT:
@@ -187,7 +232,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
-        type_print(out, ast->type);
+        ast_printType(out, ast->type);
         break;
         
     case AST_EXPR_CONSTANT_STRING:
@@ -197,7 +242,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
-        type_print(out, ast->type);
+        ast_printType(out, ast->type);
         break;
         
     case AST_EXPR_CONSTANT:
@@ -207,7 +252,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
-        type_print(out, ast->type);
+        ast_printType(out, ast->type);
         break;
     
     case AST_EXPR_NAME:
@@ -224,30 +269,10 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     case AST_TYPEEXPR_STRING:
     case AST_TYPEEXPR_USER:
     case AST_TYPEEXPR_ANY:
-        console_setColor(out, CLI_MAGENTA);
-        fputs("TypeExpr ", out);
-        console_setColor(out, CLI_RESET);
-        console_printToken(out, ast->simpleType.symbol);
-        break;
-        
     case AST_TYPEEXPR_FUNC:
-        console_setColor(out, CLI_MAGENTA);
-        fputs("FuncTypeExpr", out);
-        ast_printNode(out, ast->funcType.returnType, depth+1, ast->funcType.params == NULL);
-        ast_printList(out, "ParamList", ast->funcType.params, depth+1, true);
-        break;
-        
     case AST_TYPEEXPR_ARRAY:
-        console_setColor(out, CLI_MAGENTA);
-        fputs("ArrayTypeExpr", out);
-        ast_printNode(out, ast->arrayType.elementType, depth+1, false);
-        break;
-        
     case AST_TYPEEXPR_MAP:
-        console_setColor(out, CLI_MAGENTA);
-        fputs("MapTypeExpr", out);
-        ast_printNode(out, ast->mapType.keyType, depth+1, false);
-        ast_printNode(out, ast->mapType.elementType, depth+1, true);
+        ast_printType(out, ast);
         break;
     }
     console_setColor(out, CLI_RESET);
