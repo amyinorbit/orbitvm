@@ -217,7 +217,13 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_printToken(out, ast->nameExpr.symbol);
         break;
     
-    case AST_TYPEEXPR_SIMPLE:
+    case AST_TYPEEXPR_NIL:
+    case AST_TYPEEXPR_VOID:
+    case AST_TYPEEXPR_BOOL:
+    case AST_TYPEEXPR_NUMBER:
+    case AST_TYPEEXPR_STRING:
+    case AST_TYPEEXPR_USER:
+    case AST_TYPEEXPR_ANY:
         console_setColor(out, CLI_MAGENTA);
         fputs("TypeExpr ", out);
         console_setColor(out, CLI_RESET);

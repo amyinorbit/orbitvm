@@ -154,7 +154,7 @@ AST* ast_makeConstantExpr(const OCToken* symbol, ASTKind kind) {
 }
 
 AST* ast_makeTypeExpr(const OCToken* symbol) {
-    AST* ast = ast_makeNode(AST_TYPEEXPR_SIMPLE);
+    AST* ast = ast_makeNode(AST_TYPEEXPR_ANY);
     ast->simpleType.symbol = ast_copyToken(symbol);
     return ast;
 }

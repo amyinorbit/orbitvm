@@ -53,7 +53,13 @@ Type* sema_extractType(AST* ast) {
     if(ast == NULL) { return NULL; }
     
     switch(ast->kind) {
-    case AST_TYPEEXPR_SIMPLE:
+    case AST_TYPEEXPR_NIL:
+    case AST_TYPEEXPR_VOID:
+    case AST_TYPEEXPR_BOOL:
+    case AST_TYPEEXPR_NUMBER:
+    case AST_TYPEEXPR_STRING:
+    case AST_TYPEEXPR_USER:
+    case AST_TYPEEXPR_ANY:
         return sema_extractSimpleType(ast->simpleType.symbol);
     case AST_TYPEEXPR_ARRAY:
         return type_makeArray(sema_extractType(ast->arrayType.elementType));

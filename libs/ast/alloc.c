@@ -33,7 +33,13 @@ const uint32_t ASTExprMask      = AST_EXPR_UNARY
                                 | AST_EXPR_CONSTANT_STRING
                                 | AST_EXPR_NAME;
 
-const uint32_t ASTKindExprMask  = AST_TYPEEXPR_SIMPLE
+const uint32_t ASTKindExprMask  = AST_TYPEEXPR_NIL
+                                | AST_TYPEEXPR_VOID
+                                | AST_TYPEEXPR_BOOL
+                                | AST_TYPEEXPR_NUMBER
+                                | AST_TYPEEXPR_STRING
+                                | AST_TYPEEXPR_USER
+                                | AST_TYPEEXPR_ANY
                                 | AST_TYPEEXPR_ARRAY
                                 | AST_TYPEEXPR_MAP
                                 | AST_TYPEEXPR_FUNC;
@@ -124,7 +130,14 @@ void ast_destroy(void* ref) {
         case AST_EXPR_NAME:
             break;
         
-        case AST_TYPEEXPR_SIMPLE:
+        case AST_TYPEEXPR_NIL:
+        case AST_TYPEEXPR_VOID:
+        case AST_TYPEEXPR_BOOL:
+        case AST_TYPEEXPR_NUMBER:
+        case AST_TYPEEXPR_STRING:
+        case AST_TYPEEXPR_USER:
+        case AST_TYPEEXPR_ANY:
+            ORCRELEASE(ast->simpleType.symbol.parsedStringLiteral);
             break;
             
         case AST_TYPEEXPR_FUNC:
