@@ -160,6 +160,13 @@ AST* ast_makeTypeExpr(const OCToken* symbol) {
     return ast;
 }
 
+AST* ast_makePrimitiveType(ASTKind kind, const OCToken* symbol) {
+    AST* ast = ast_makeNode(kind);
+    ast->typeExpr.canonicalType = ast;
+    ast->typeExpr.simpleType.symbol = ast_copyToken(symbol);
+    return ast;
+}
+
 AST* ast_makeFuncType(AST* returnType, AST* params) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_FUNC);
     ast->typeExpr.canonicalType = ast;
