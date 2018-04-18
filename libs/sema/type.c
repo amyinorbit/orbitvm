@@ -7,110 +7,77 @@
 //
 #include <orbit/source/tokens.h>
 #include <orbit/utils/memory.h>
-#include <orbit/type/type.h>
-#include <orbit/type/builders.h>
+#include <orbit/ast/ast.h>
 #include <orbit/ast/traversal.h>
 #include <orbit/sema/type.h>
 
-static Type* sema_extractSimpleType(OCToken token) {
-    switch(token.kind) {
-    case TOKEN_NIL:
-        return type_make(TYPE_NIL, false);
-    case TOKEN_ANY:
-        return type_make(TYPE_ANY, false);
-    case TOKEN_BOOL:
-        return type_make(TYPE_BOOL, false);
-    case TOKEN_NUMBER:
-        return type_make(TYPE_NUMBER, false);
-    case TOKEN_STRING:
-        return type_make(TYPE_STRING, false);
-    case TOKEN_VOID:
-        return type_make(TYPE_VOID, false);
-    default:
-        // TODO: throw error, invalid token
-        break;
-    }
-    return NULL;
-}
 
-static Type* sema_extractFuncType(AST* ast) {
-    Type* returnType = sema_extractType(ast->funcType.returnType);
-    Type* paramList = NULL;
-    Type** next = &paramList;
-    AST* param = ast->funcType.params;
-    
-    while(param != NULL) {
-        Type* t = sema_extractType(param);
-        *next = t;
-        next = &(t->next);
-        param = param->next;
-    }
-    
-    return type_makeFunction(returnType, paramList);
-}
+/*
+Type Analysis strategy
 
-Type* sema_extractType(AST* ast) {
-    if(ast == NULL) { return NULL; }
+1. Go through type declarations, add to canonical type table.
+2. Go through everything that can be typed easily (literals)
+
+x. scoped analysis. build symbol tables, from global to nested scopes
+
+*/
+
+bool sema_typeEquals(AST* a, AST* b) {
+    if(a == b) { return true; }
+    if(a == NULL || b == NULL) { return false; }
+    if(!(a->kind & ASTTypeExprMask) || !(b->kind & ASTTypeExprMask)) { return false; }
+    // TODO: refine, define and implement special `Any` semantics.
     
-    switch(ast->kind) {
-    case AST_TYPEEXPR_NIL:
-    case AST_TYPEEXPR_VOID:
-    case AST_TYPEEXPR_BOOL:
-    case AST_TYPEEXPR_NUMBER:
-    case AST_TYPEEXPR_STRING:
-    case AST_TYPEEXPR_USER:
+    a = a->typeExpr.canonicalType;
+    b = b->typeExpr.canonicalType;
+    if(a->kind != b->kind) { return false; }
+    
+    switch(a->kind) {
     case AST_TYPEEXPR_ANY:
-        return sema_extractSimpleType(ast->simpleType.symbol);
+    case AST_TYPEEXPR_BOOL:
+    case AST_TYPEEXPR_STRING:
+    case AST_TYPEEXPR_NUMBER:
+        return true;
+        
     case AST_TYPEEXPR_ARRAY:
-        return type_makeArray(sema_extractType(ast->arrayType.elementType));
+        return sema_typeEquals(a->typeExpr.arrayType.elementType,
+                               b->typeExpr.arrayType.elementType);
     case AST_TYPEEXPR_MAP:
-        return type_makeMap(sema_extractType(ast->mapType.keyType),
-                            sema_extractType(ast->mapType.elementType));
+        return sema_typeEquals(a->typeExpr.mapType.elementType, b->typeExpr.mapType.elementType)
+            && sema_typeEquals(a->typeExpr.mapType.keyType, b->typeExpr.mapType.keyType);
     case AST_TYPEEXPR_FUNC:
-        return sema_extractFuncType(ast);
+        if(!sema_typeEquals(a->typeExpr.funcType.returnType, b->typeExpr.funcType.returnType)) {
+            return false;
+        }
+        // TODO: compare argument list
+        break;
+        
+    case AST_TYPEEXPR_USER:
+        // TODO: compare token name
+        break;
     default:
-        // TODO: Throw error here
         break;
     }
+    
     return NULL;
 }
 
 void sema_extractVariableTypes(AST* ast, void* data) {
-    if(ast->varDecl.typeAnnotation == NULL) { return; }
-    ast->type = sema_extractType(ast->varDecl.typeAnnotation);
+    
 }
 
 void sema_extractFunctionTypes(AST* ast, void* data) {
-    Type* returnType = NULL;
-    if(ast->funcDecl.returnType == NULL) {
-        returnType = type_make(TYPE_VOID, false);
-    } else {
-        returnType = sema_extractType(ast->funcDecl.returnType);
-    }
     
-    AST* param = ast->funcDecl.params;
-    Type* paramList = NULL;
-    Type** next = &paramList;
-    
-    while(param != NULL) {
-        Type* t = type_copy(param->type);
-        if(t != NULL) {
-            *next = t;
-            next = &(t->next);
-        }
-        param = param->next;
-    }
-    ast->type = type_makeFunction(returnType, paramList);
 }
 
 void sema_extractLiteralTypes(AST* ast, void* data) {
     switch(ast->kind) {
     case AST_EXPR_CONSTANT_INTEGER:
     case AST_EXPR_CONSTANT_FLOAT:
-        ast->type = ORCRETAIN(ast_makeTypeExpr(AST_TYPEEXPR_NUMBER));
+        //ast->type = ORCRETAIN(ast_makeTypeExpr(AST_TYPEEXPR_NUMBER));
         break;
     case AST_EXPR_CONSTANT_STRING:
-        ast->type = ORCRETAIN(ast_makeTypeExpr(AST_TYPEEXPR_STRING));
+        //ast->type = ORCRETAIN(ast_makeTypeExpr(AST_TYPEEXPR_STRING));
         break;
     default:
         break;
@@ -130,7 +97,7 @@ void sema_extractUnaryTypes(AST* ast, void* data) {
 }
 
 void sema_extractBinaryTypes(AST* ast, void* data) {
-   // TODO: implementation 
+   // TODO: implementation
 }
 
 void sema_inferVariableTypes(AST* ast, void* data) {
@@ -144,5 +111,3 @@ void sema_runTypeAnalysis(AST* ast) {
     ast_traverse(ast, AST_DECL_VAR, NULL,  &sema_extractVariableTypes);
     ast_traverse(ast, AST_DECL_FUNC, NULL, &sema_extractFunctionTypes);
 }
-
-

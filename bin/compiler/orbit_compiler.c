@@ -13,10 +13,10 @@
 #include <orbit/ast/ast.h>
 #include <orbit/source/source.h>
 #include <orbit/parser/parser.h>
-//#include <orbit/sema/type.h>
+#include <orbit/sema/type.h>
 
 int main(int argc, const char** args) {
-    
+    fprintf(stderr, "orbitc/built on %s @ %s\n", __DATE__, __TIME__);
     if(argc < 2 || argc > 3) {
         fprintf(stderr, "usage: orbitc source_file [-dump-tokens] [-dump-ast]\n");
         return -1;
@@ -34,7 +34,7 @@ int main(int argc, const char** args) {
         }
         else if(strcmp(args[2], "-dump-ast") == 0) {
             AST* ast = ORCRETAIN(orbit_parse(&source));
-            //sema_runTypeAnalysis(ast);
+            sema_runTypeAnalysis(ast);
             ast_print(stdout, ast);
             ORCRELEASE(ast);
         }

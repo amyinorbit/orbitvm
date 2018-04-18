@@ -93,6 +93,10 @@ struct _ASTType {
             AST*        returnType;
             AST*        params;
         } funcType;
+        
+        struct {
+            OCToken     symbol;
+        } userType;
     };
 };
 
@@ -200,6 +204,11 @@ struct _AST {
         
     };
 };
+
+extern const AST ast_voidType;
+extern const AST ast_boolType;
+extern const AST ast_numberType;
+extern const AST ast_stringType;
 
 void ast_print(FILE* out, AST* ast);
 void ast_destroy(void* ref);

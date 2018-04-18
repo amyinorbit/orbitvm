@@ -9,7 +9,7 @@
 #include <string.h>
 #include <orbit/utils/memory.h>
 #include <orbit/ast/ast.h>
-#include <orbit/type/type.h>
+//#include <orbit/type/type.h>
 
 const uint32_t ASTStmtMask      = AST_CONDITIONAL
                                 | AST_FOR_IN
