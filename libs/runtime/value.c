@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/runtime/value.c
+// This source is part of Orbit - Runtime
 //
-//  orbit/runtime/value.c
-//  Orbit - Runtime
-//
-//  Created by Amy Parent on 2016-12-26.
-//  Copyright © 2016-2017 Amy Parent. All rights reserved.
-//
+// Created on 2016-12-26 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <string.h>
 #include <orbit/utils/assert.h>
 #include <orbit/utils/string.h>

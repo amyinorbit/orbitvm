@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/runtime/utils.h
+// This source is part of Orbit - Runtime
 //
-//  orbit/runtime/utils.h
-//  Orbit - Runtime
-//
-//  Created by Amy Parent on 2016-12-06.
-//  Copyright © 2016-2017 Amy Parent. All rights reserved.
-//
+// Created on 2016-12-06 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #ifndef orbit_utils_h
 #define orbit_utils_h
 

@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/utils/utf8.c
+// This source is part of Orbit - Utils
 //
-//  orbit/utils/utf8.c
-//  Orbit - Utils
-//
-//  Created by Amy Parent on 2017-02-06.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-02-06 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <ctype.h>
 #include <orbit/utils/utf8.h>
 

@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/ast/ast_builders.c
+// This source is part of Orbit - AST
 //
-//  orbit/ast/ast_builders.c
-//  Orbit - AST
-//
-//  Created by Amy Parent on 2017-09-16.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-09-16 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <stdlib.h>
 #include <string.h>
 #include <orbit/utils/memory.h>

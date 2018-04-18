@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/runtime/vm.c
+// This source is part of Orbit - Runtime
 //
-//  orbit/runtime/vm.c
-//  Orbit - Runtime
-//
-//  Created by Amy Parent on 2017-01-03.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-01-03 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <string.h>
 #include <stdbool.h>
 #include <orbit/runtime/vm.h>

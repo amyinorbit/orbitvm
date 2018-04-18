@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/parser/recursive_descent.h
+// This source is part of Orbit - Parser
 //
-//  orbit/parser/recursive_descent.h
-//  Orbit - Parser
-//
-//  Created by Amy Parent on 2017-10-23.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-10-23 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #ifndef orbit_parser_recdescent_h
 #define orbit_parser_recdescent_h
 

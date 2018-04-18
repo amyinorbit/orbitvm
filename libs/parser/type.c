@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/parser/type.c
+// This source is part of Orbit - Parser
 //
-//  orbit/parser/type.c
-//  Orbit - Parser
-//
-//  Created by Amy Parent on 2017-05-26.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-05-26 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>

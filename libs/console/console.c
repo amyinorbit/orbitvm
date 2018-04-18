@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/console/console.c
+// This source is part of Orbit - Console Support and Utilities
 //
-//  orbit/console/console.c
-//  Orbit - Console Support and Utilities
-//
-//  Created by Amy Parent on 2017-09-28.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-09-28 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <inttypes.h>
 #include <orbit/console/console.h>
 #include <orbit/utils/utf8.h>

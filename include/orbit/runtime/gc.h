@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/runtime/gc.h
+// This source is part of Orbit - Runtime
 //
-//  orbit/runtime/gc.h
-//  Orbit - Runtime
-//
-//  Created by Amy Parent on 2017-01-12.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-01-12 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #ifndef orbit_gc_h
 #define orbit_gc_h
 

@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/stdlib/stdlib.h
+// This source is part of Orbit - Standard Library
 //
-//  orbit/stdlib/stdlib.h
-//  Orbit - Standard Library
-//
-//  Created by Amy Parent on 2017-02-10.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-02-10 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #ifndef orbit_stdlib_h
 #define orbit_stdlib_h
 #include <orbit/orbit.h>

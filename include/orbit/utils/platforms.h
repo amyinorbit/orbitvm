@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/utils/platforms.h
+// This source is part of Orbit - Utils
 //
-//  orbit/utils/platforms.h
-//  Orbit - Utils
-//
-//  Created by Amy Parent on 2016-11-14.
-//  Copyright © 2016-2017 Amy Parent. All rights reserved.
-//
+// Created on 2016-11-14 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #ifndef orbit_platforms_h
 #define orbit_platforms_h
 

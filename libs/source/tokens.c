@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/source/tokens.c
+// This source is part of Orbit - Source Handling
 //
-//  orbit/source/tokens.c
-//  Orbit - Source Handling
-//
-//  Created by Amy Parent on 2017-10-23.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-10-23 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <stdio.h>
 //#include <
 #include <orbit/source/tokens.h>

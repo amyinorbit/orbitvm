@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/stdlib/stdlib.c
+// This source is part of Orbit - Standard Library
 //
-//  orbit/stdlib/stdlib.c
-//  Orbit - Standard Library
-//
-//  Created by Amy Parent on 2017-02-10.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-02-10 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <string.h>
 #include <math.h>
 #include <orbit/runtime/value.h>

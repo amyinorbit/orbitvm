@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/utils/memory.h
+// This source is part of Orbit - Utils
 //
-//  orbit/utils/memory.h
-//  Orbit - Utils
-//
-//  Created by Amy Parent on 2017-10-23.
-//  Copyright © 2016-2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-10-23 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #ifndef orbit_utils_memory_h
 #define orbit_utils_memory_h
 

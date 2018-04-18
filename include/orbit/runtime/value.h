@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/runtime/value.h
+// This source is part of OrbitGC
 //
-//  orbit/runtime/value.h
-//  OrbitGC
-//
-//  Created by Amy Parent on 2016-12-26.
-//  Copyright © 2016-2017 Amy Parent. All rights reserved.
-//
+// Created on 2016-12-26 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #ifndef orbit_value_h
 #define orbit_value_h
 

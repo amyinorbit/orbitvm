@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/utils/rcmap.c
+// This source is part of Orbit - Utils
 //
-//  orbit/utils/rcmap.c
-//  Orbit - Utils
-//
-//  Created by Amy Parent on 2017-11-21.
-//  Copyright © 2016-2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-11-21 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <string.h>
 #include <orbit/utils/assert.h>
 #include <orbit/utils/rcmap.h>

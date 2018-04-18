@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/parser/lexer.c
+// This source is part of Orbit - Parser
 //
-//  orbit/parser/lexer.c
-//  Orbit - Parser
-//
-//  Created by Amy Parent on 2017-03-01.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-03-01 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>

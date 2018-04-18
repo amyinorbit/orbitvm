@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/source/source.c
+// This source is part of Orbit - Source Handling
 //
-//  orbit/source/source.c
-//  Orbit - Source Handling
-//
-//  Created by Amy Parent on 2017-10-23.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-10-23 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <stdlib.h>
 #include <orbit/utils/memory.h>
 #include <orbit/source/source.h>

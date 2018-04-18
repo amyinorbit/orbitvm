@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/ast/ast_traversal.c
+// This source is part of Orbit - AST
 //
-//  orbit/ast/ast_traversal.c
-//  Orbit - AST
-//
-//  Created by Amy Parent on 2017-10-07.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-10-07 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <orbit/ast/traversal.h>
 
 void ast_traverse(AST* ast, ASTKind filter, void* userData, ASTCallback callback) {

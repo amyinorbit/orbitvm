@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/utils/assert.h
+// This source is part of Orbit - Utils
 //
-//  orbit/utils/assert.h
-//  Orbit - Utils
-//
-//  Created by Amy Parent on 2017-06-05.
-//  Copyright © 2016-2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-06-05 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #ifndef orbit_assert_h
 #define orbit_assert_h
 

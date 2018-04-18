@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/console/console.h
+// This source is part of Orbit - Console Support and Utilities
 //
-//  orbit/console/console.h
-//  Orbit - Console Support and Utilities
-//
-//  Created by Amy Parent on 2017-09-28.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-09-28 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #ifndef orbit_ast_console_h
 #define orbit_ast_console_h
 

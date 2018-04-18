@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/runtime/opcodes.h
+// This source is part of Orbit - Runtime
 //
-//  orbit/runtime/opcodes.h
-//  Orbit - Runtime
-//
-//  Created by Amy Parent on 2016-11-13.
-//  Copyright © 2016-2017 Amy Parent. All rights reserved.
-//
+// Created on 2016-11-13 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 //  Opcodes used by the Orbit VM. This include is meant to be used as an
 //  X-macro (see https://en.wikipedia.org/wiki/X_Macro ). The order of
 //  declaration of the opcodes defines how the main interpreter loop's jump

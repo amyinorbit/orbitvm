@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/ast/ast_printer.c
+// This source is part of Orbit - AST
 //
-//  orbit/ast/ast_printer.c
-//  Orbit - AST
-//
-//  Created by Amy Parent on 2017-09-26.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-09-26 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <stdio.h>
 #include <stdbool.h>
 #include <orbit/console/console.h>

@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/utils/pack.c
+// This source is part of Orbit - Utils
 //
-//  orbit/utils/pack.c
-//  Orbit - Utils
-//
-//  Created by Amy Parent on 2017-01-12.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-01-12 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <orbit/utils/pack.h>
 
 #define IEEE754_BITS 64

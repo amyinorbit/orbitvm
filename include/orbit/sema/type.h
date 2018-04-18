@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/sema/type.h
+// This source is part of Orbit - Sema
 //
-//  orbit/sema/type.h
-//  Orbit - Sema
-//
-//  Created by Amy Parent on 2017-10-10.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-10-10 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #ifndef orbit_sema_type_h
 #define orbit_sema_type_h
 

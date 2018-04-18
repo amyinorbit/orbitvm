@@ -1,10 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit/parser/parser.c
+// This source is part of Orbit - Parser
 //
-//  orbit/parser/parser.c
-//  Orbit - Parser
-//
-//  Created by Amy Parent on 2017-05-21.
-//  Copyright © 2017 Amy Parent. All rights reserved.
-//
+// Created on 2017-05-21 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Available under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #include <orbit/utils/assert.h>
 #include <orbit/console/console.h>
 #include <orbit/ast/builders.h>
