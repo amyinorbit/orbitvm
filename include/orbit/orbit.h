@@ -1,11 +1,12 @@
+//===--------------------------------------------------------------------------------------------===
+// orbit.h - Main interface for the Orbit Runtime libraries
+// This source is part of Orbit
 //
-//  orbit.h
-//  Orbit - 
-//
-//  Created by Cesar Parent on 09/12/2016.
-//  Copyright © 2016 cesarparent. All rights reserved.
-//
-
+// Created on 2016-12-09 by Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Licensed under the MIT License
+// =^•.•^=
+//===--------------------------------------------------------------------------------------------===
 #ifndef orbit_h
 #define orbit_h
 

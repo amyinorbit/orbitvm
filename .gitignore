@@ -30,3 +30,6 @@ design/
 spikes/
 *.omf
 
+# Local project config
+*.tm_properties
+
