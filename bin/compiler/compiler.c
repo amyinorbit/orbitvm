@@ -25,6 +25,10 @@ int main(int argc, const char** args) {
     }
     
     OCSource source = source_readFromPath(args[1]);
+    if(!source.bytes) {
+        fprintf(stderr, "error: cannot open `%s`\n", args[1]);
+        return -1;
+    }
     
     if(argc == 3 && strcmp(args[2], "-dump-tokens") == 0) {
         orbit_dumpTokens(&source);

@@ -15,11 +15,11 @@
 OCSource source_readFromPath(const char* path) {
     FILE* f = fopen(path, "r");
     if(!f) {
-        OCSource source;
-        source.path = path;
-        source.length = 0;
-        source.bytes = NULL;
-        return source;
+        return (OCSource) {
+            .path = path,
+            .length = 0,
+            .bytes = NULL
+        };
     }
     OCSource source = source_readFromFile(f);
     source.path = path;
