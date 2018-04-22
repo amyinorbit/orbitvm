@@ -360,9 +360,6 @@ static AST* recTypename(OCParser* parser) {
     else if(have(parser, TOKEN_IDENTIFIER)) {
         OCToken symbol = current(parser);
         expect(parser, TOKEN_IDENTIFIER);
-        fprintf(stderr, "found a user type name: ");
-        console_printToken(stderr, symbol);
-        fputs("\n", stderr);
         return ast_makeUserType(&symbol);
     }
     else

@@ -120,7 +120,6 @@ void sema_installUserTypes(AST* typeDecl, void* data) {
         fprintf(stderr, "error: A type already exists under that name\n");
     } else {
         // TODO: need much better sema error reporting. Will come with AST printing and Diag
-        fprintf(stderr, "Found a user-defined type: '%.*s'\n", (int)symbol->length, symbol->data);
         orbit_rcMapInsert(&sema->typeTable, symbol, typeDecl);
         //orbit_rcArrayAppend(&sema->uniqueTypes, typeDecl);
     }
@@ -168,9 +167,6 @@ void sema_doScopeAnalysis(AST* function, void* data) {
 }
 
 void sema_runTypeAnalysis(AST* ast) {
-    fprintf(stderr, "Running Sema Type Analysis\n");
-    
-    
     // Initialise a Sema object
     OCSema sema;
     ORCRETAIN(orbit_rcMapInit(&sema.typeTable));
