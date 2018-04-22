@@ -122,6 +122,9 @@ struct _OCToken {
 
 const char* source_tokenName(OCTokenKind token);
 const char* source_tokenString(OCTokenKind token);
+UTFConstString* source_stringFromToken(OCToken* token);
+
+bool source_tokenEquals(OCToken* a, OCToken* b);
 
 bool source_isBinaryOp(OCTokenKind token);
 bool source_isUnaryOp(OCTokenKind token);

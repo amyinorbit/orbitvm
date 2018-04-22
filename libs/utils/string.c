@@ -75,6 +75,22 @@ void orbit_utfStringAppend(UTFString* string, codepoint_t c) {
     string->data[string->length] = '\0';
 }
 
+UTFConstString* orbit_cStringConstCopy(const char* cString, size_t length) {
+    OASSERT(cString != NULL, "Null instance error");
+    
+    UTFConstString template = {
+        .length = length,
+        .hash = orbit_hashString(cString, length)
+    };
+    
+    UTFConstString* copy = ORBIT_ALLOC_FLEX(UTFConstString, char, length + 1);
+    memcpy(copy, &template, sizeof(UTFConstString));
+    ORCINIT(copy, NULL);
+    memcpy((char*)copy->data, cString, length);
+    ((char*)copy->data)[copy->length] = '\0';
+    return copy;
+}
+
 UTFConstString* orbit_utfStringConstCopy(UTFString* string) {
     OASSERT(string != NULL, "Null instance error");
     

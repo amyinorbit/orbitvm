@@ -14,11 +14,6 @@
 #include <orbit/ast/ast.h>
 //#include <orbit/type/type.h>
 
-AST* sema_extractType(AST* ast);
-
-void sema_extractVariableTypes(AST* ast, void* data);
-void sema_extractFunctionTypes(AST* ast, void* data);
-void sema_extractLiteralTypes(AST* ast, void* data);
 
 void sema_runTypeAnalysis(AST* ast);
 

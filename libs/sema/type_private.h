@@ -12,21 +12,24 @@
 
 #include <orbit/utils/memory.h>
 #include <orbit/utils/rcarray.h>
+#include <orbit/utils/rcmap.h>
 
 #define ORBIT_SEMA_SCOPESTACK_SIZE 128
 
 typedef struct _OCSema OCSema;
 typedef struct _OCScope OCScope;
 
-struct _OCSema {
-    ORCArray    uniqueTypes;
-    OCScope     stack[ORBIT_SEMA_SCOPESTACK_SIZE];
-};
-
 struct _OCScope {
     OCScope*    parent;
     ORCMap      symbolTable;
 };
+
+struct _OCSema {
+    ORCArray    uniqueTypes;
+    ORCMap      typeTable; // Stores user-defined types (and type aliases in the future)
+    OCScope     stack[ORBIT_SEMA_SCOPESTACK_SIZE];
+};
+
 
 bool sema_typeEquals(AST* a, AST* b);
 AST* sema_uniqueTypeExists(OCSema* sema, AST* type);

@@ -47,8 +47,9 @@ AST* ast_makeSubscriptExpr(AST* symbol, AST* subscript);
 AST* ast_makeNameExpr(const OCToken* symbol);
 AST* ast_makeConstantExpr(const OCToken* symbol, ASTKind kind);
 
-AST* ast_makeTypeExpr(const OCToken* symbol);
-AST* ast_makePrimitiveType(ASTKind kind, const OCToken* symbol);
+// AST* ast_makePrimitiveType(ASTKind kind);
+AST* ast_makeUserType(const OCToken* symbol);
+AST* ast_makePrimitiveType(ASTKind kind);
 AST* ast_makeFuncType(AST* returnType, AST* params);
 AST* ast_makeArrayType(AST* elementType);
 AST* ast_makeMapType(AST* keyType, AST* elementType);

@@ -8,7 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <stdio.h>
-//#include <
+#include <string.h>
 #include <orbit/source/tokens.h>
 #include <orbit/utils/utf8.h>
 
@@ -112,6 +112,22 @@ static const OCTokenData _tokenData[] = {
     [TOKEN_EOF] = {"end_of_file", "end of file", false, false},
     [TOKEN_INVALID] = {"invalid", "invalid token", false, false},
 };
+
+UTFConstString* source_stringFromToken(OCToken* token) {
+    return orbit_cStringConstCopy(token->source->bytes + token->sourceLoc.offset, token->length);
+}
+
+bool source_tokenEquals(OCToken* a, OCToken* b) {
+    // TODO: null instance check
+    if(a == b) { return true; }
+    const char* strA = a->source->bytes + a->sourceLoc.offset;
+    const char* strB = b->source->bytes + b->sourceLoc.offset;
+    return a->source == b->source
+        && a->kind == b->kind
+        && a->length == b->length
+        && ((a->sourceLoc.offset == b->sourceLoc.offset)
+            || (strncmp(strA, strB, a->length) == 0));
+}
 
 const char* source_tokenName(OCTokenKind token) {
     if(token > TOKEN_INVALID) { token = TOKEN_INVALID; }

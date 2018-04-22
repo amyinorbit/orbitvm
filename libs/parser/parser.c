@@ -360,7 +360,10 @@ static AST* recTypename(OCParser* parser) {
     else if(have(parser, TOKEN_IDENTIFIER)) {
         OCToken symbol = current(parser);
         expect(parser, TOKEN_IDENTIFIER);
-        return ast_makeTypeExpr(&symbol);
+        fprintf(stderr, "found a user type name: ");
+        console_printToken(stderr, symbol);
+        fputs("\n", stderr);
+        return ast_makeUserType(&symbol);
     }
     else
         compilerError(parser, "expected a type name");
@@ -387,22 +390,35 @@ static AST* recFuncType(OCParser* parser) {
 }
 
 static AST* recPrimitive(OCParser* parser) {
-    OCToken symbol = current(parser);
-    if(have(parser, TOKEN_NUMBER))
+    //OCToken symbol = current(parser);
+    if(have(parser, TOKEN_NUMBER)) {
         expect(parser, TOKEN_NUMBER);
-    else if(have(parser, TOKEN_BOOL))
+        return ast_makePrimitiveType(AST_TYPEEXPR_NUMBER);
+    }
+    else if(have(parser, TOKEN_BOOL)) {
         expect(parser, TOKEN_BOOL);
-    else if(have(parser, TOKEN_STRING))
+        return ast_makePrimitiveType(AST_TYPEEXPR_BOOL);
+    }
+    else if(have(parser, TOKEN_STRING)) {
         expect(parser, TOKEN_STRING);
-    else if(have(parser, TOKEN_NIL))
+        return ast_makePrimitiveType(AST_TYPEEXPR_STRING);
+    }
+    else if(have(parser, TOKEN_NIL)) {
         expect(parser, TOKEN_NIL);
-    else if(have(parser, TOKEN_VOID))
+        return ast_makePrimitiveType(AST_TYPEEXPR_NIL);
+    }
+    else if(have(parser, TOKEN_VOID)) {
         expect(parser, TOKEN_VOID);
-    else if(have(parser, TOKEN_ANY))
+        return ast_makePrimitiveType(AST_TYPEEXPR_VOID);
+    }
+    else if(have(parser, TOKEN_ANY)) {
         expect(parser, TOKEN_ANY);
-    else
-        compilerError(parser, "expected a primitive type");
-    return ast_makeTypeExpr(&symbol);
+        return ast_makePrimitiveType(AST_TYPEEXPR_ANY);
+    }
+    
+    compilerError(parser, "expected a primitive type");
+    return NULL;
+    //return ast_makeTypeExpr(&symbol);
 }
 
 static AST* recArrayType(OCParser* parser) {

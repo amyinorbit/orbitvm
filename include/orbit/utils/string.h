@@ -41,6 +41,7 @@ UTFString* orbit_utfStringInit(UTFString* string, const char* cString, size_t le
 UTFString* orbit_utfStringInitWithCapacity(UTFString* string, uint64_t capacity);
 
 void orbit_utfStringAppend(UTFString* string, codepoint_t point);
+UTFConstString* orbit_cStringConstCopy(const char* cString, size_t length);
 UTFConstString* orbit_utfStringConstCopy(UTFString* string);
 
 #endif /* orbit_utils_string_h */

@@ -136,9 +136,10 @@ void ast_destroy(void* ref) {
         case AST_TYPEEXPR_BOOL:
         case AST_TYPEEXPR_NUMBER:
         case AST_TYPEEXPR_STRING:
-        case AST_TYPEEXPR_USER:
         case AST_TYPEEXPR_ANY:
-            ORCRELEASE(ast->typeExpr.simpleType.symbol.parsedStringLiteral);
+            break;
+        case AST_TYPEEXPR_USER:
+            ORCRELEASE(ast->typeExpr.userType.symbol.parsedStringLiteral);
             break;
             
         case AST_TYPEEXPR_FUNC:

@@ -59,7 +59,7 @@ static void ast_printType(FILE* out, AST* ast) {
     case AST_TYPEEXPR_STRING:   fputs("String", out);   break;
     case AST_TYPEEXPR_ANY:      fputs("Any", out);      break;
     case AST_TYPEEXPR_USER:
-        console_printToken(out, ast->typeExpr.simpleType.symbol);
+        console_printToken(out, ast->typeExpr.userType.symbol);
         break;
         
     case AST_TYPEEXPR_FUNC:

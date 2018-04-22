@@ -1,0 +1,10 @@
+type VectorA { var x: Number; var y: Number }
+
+fun test(a: Number, b: Number)->Number {
+    return a + b
+}
+
+fun main() {
+    var test : VectorA = make(VectorA)
+    var result = "Hello: " + (1234 + 45)
+}
