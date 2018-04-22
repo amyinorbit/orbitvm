@@ -32,8 +32,6 @@ struct _ORCMap {
 void orbit_rcMapDeinit(void* ref);
 ORCMap* orbit_rcMapInit(ORCMap* map);
 
-bool orbit_rcMapContains(ORCMap* map, UTFConstString* key);
-
 void orbit_rcMapInsert(ORCMap* map, UTFConstString* key, void* item);
 void orbit_rcMapRemove(ORCMap* map, UTFConstString* key);
 void* orbit_rcMapGet(ORCMap* map, UTFConstString* key);

@@ -10,6 +10,7 @@
 #ifndef orbit_sema_typeprivate_h
 #define orbit_sema_typeprivate_h
 
+#include <orbit/ast/ast.h>
 #include <orbit/utils/memory.h>
 #include <orbit/utils/rcarray.h>
 #include <orbit/utils/rcmap.h>
@@ -22,11 +23,13 @@ typedef struct _OCScope OCScope;
 struct _OCScope {
     OCScope*    parent;
     ORCMap      symbolTable;
+    ORCMap      functionTable;
 };
 
 struct _OCSema {
     ORCArray    uniqueTypes;
     ORCMap      typeTable; // Stores user-defined types (and type aliases in the future)
+    uint16_t    stackSize;
     OCScope     stack[ORBIT_SEMA_SCOPESTACK_SIZE];
 };
 

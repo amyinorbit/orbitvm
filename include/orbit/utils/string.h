@@ -15,6 +15,9 @@
 #include <orbit/utils/platforms.h>
 #include <orbit/utils/memory.h>
 
+typedef struct _OCString OCString;
+typedef uint64_t OCStringID;
+typedef struct _OCStringBuffer OCStringBuffer;
 typedef struct _UTFString UTFString;
 typedef struct _UTFConstString UTFConstString;
 
@@ -24,6 +27,19 @@ struct _UTFConstString {
     const uint64_t  length;
     const uint32_t  hash;
     const char      data[ORBIT_FLEXIBLE_ARRAY_MEMB];
+};
+
+struct _OCString {
+    uint64_t        length;
+    uint64_t        next;
+    uint32_t        hash;
+    char            data[0];
+};
+
+struct _OCStringBuffer {
+    uint64_t        length;
+    uint64_t        capacity;
+    char*           data;
 };
 
 struct _UTFString {
@@ -37,8 +53,22 @@ struct _UTFString {
 // This is O(n) complexity and should be used lightly.
 uint32_t orbit_hashString(const char* string, size_t length);
 
+void orbit_stringPoolInit(uint64_t capacity);
+void orbit_stringPoolDeinit();
+
+bool orbit_stringEquals(OCString* a, const char* b, uint64_t length);
+OCStringID orbit_stringIntern(const char* data, uint64_t length);
+OCString* orbit_stringPoolSearch(const char* data, uint64_t length);
+OCString* orbit_stringPoolGet(OCStringID id);
+
 UTFString* orbit_utfStringInit(UTFString* string, const char* cString, size_t length);
 UTFString* orbit_utfStringInitWithCapacity(UTFString* string, uint64_t capacity);
+
+void orbit_stringBufferInit(OCStringBuffer* buffer, uint64_t capacity);
+void orbit_stringBufferReset(OCStringBuffer* buffer);
+
+void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t codepoint);
+OCStringID orbit_stringBufferIntern(OCStringBuffer* buffer);
 
 void orbit_utfStringAppend(UTFString* string, codepoint_t point);
 UTFConstString* orbit_cStringConstCopy(const char* cString, size_t length);
