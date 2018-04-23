@@ -113,10 +113,6 @@ static const OCTokenData _tokenData[] = {
     [TOKEN_INVALID] = {"invalid", "invalid token", false, false},
 };
 
-UTFConstString* source_stringFromToken(OCToken* token) {
-    return orbit_cStringConstCopy(token->source->bytes + token->sourceLoc.offset, token->length);
-}
-
 bool source_tokenEquals(OCToken* a, OCToken* b) {
     // TODO: null instance check
     if(a == b) { return true; }

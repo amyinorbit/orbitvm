@@ -465,5 +465,6 @@ AST* orbit_parse(OCSource* source) {
     
     lexer_nextToken(&parser.lexer);
     AST* ast = recProgram(&parser);
+    lexer_deinit(&parser.lexer);
     return ast;
 }

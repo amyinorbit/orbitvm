@@ -40,8 +40,8 @@ struct _OCLexer {
     uint64_t        line;
     uint64_t        column;
     
-    /// Buffer used when lexin string literals
-    UTFString*      string;
+    /// Buffer used when lexing string literals
+    OCStringBuffer  buffer;
     
     /// We keep track of where the token being built starts.
     const char*     tokenStart;
@@ -51,6 +51,7 @@ struct _OCLexer {
 };
 
 void lexer_init(OCLexer* lexer, OCSource* source);
+void lexer_deinit(OCLexer* lexer);
 
 /// Fetches the next token from the source.
 void lexer_nextToken(OCLexer* lexer);

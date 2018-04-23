@@ -45,12 +45,18 @@ void lexer_init(OCLexer* lexer, OCSource* source) {
     lexer->column = 0;
     lexer->line = 1;
     
-    lexer->string = NULL;
+    //lexer->string = NULL;
+    orbit_stringBufferInit(&lexer->buffer, 64);
     
     lexer->currentToken.kind = 0;
     lexer->currentToken.sourceLoc.offset = 0;
     lexer->currentToken.length = 0;
     lexer->currentToken.source = lexer->source;
+}
+
+void lexer_deinit(OCLexer* lexer) {
+    OASSERT(lexer != NULL, "Null instance error");
+    orbit_stringBufferDeinit(&lexer->buffer);
 }
 
 static codepoint_t _nextChar(OCLexer* lexer) {
@@ -93,7 +99,8 @@ static void _makeToken(OCLexer* lexer, int type) {
     lexer->currentToken.isStartOfLine = lexer->startOfLine;
     lexer->currentToken.displayLength = lexer->column - lexer->currentToken.sourceLoc.column;
     
-    lexer->currentToken.parsedStringLiteral = NULL;
+    lexer->currentToken.parsedStringLiteral = 0; // TODO: replace with invalid StringID constant
+    
     // We reset the start of line marker after a token is produced.
     lexer->startOfLine = false;
 }
@@ -166,7 +173,8 @@ static void _lexString(OCLexer* lexer) {
     
     // String literals cannot be tokenised by solely pointing into the source
     // string, since there's the potential for
-    lexer->string = ORCRETAIN(orbit_utfStringInitWithCapacity(ORBIT_ALLOC(UTFString), 64));
+    orbit_stringBufferReset(&lexer->buffer);
+    //lexer->string = ORCRETAIN(orbit_utfStringInitWithCapacity(ORBIT_ALLOC(UTFString), 64));
     
     for(;;) {
         codepoint_t c = _nextChar(lexer);
@@ -181,29 +189,29 @@ static void _lexString(OCLexer* lexer) {
         else if(c == '\\') {
             c = _nextChar(lexer);
             switch(c) {
-                case '\\': orbit_utfStringAppend(lexer->string, '\\'); break;
-                case 'a':  orbit_utfStringAppend(lexer->string, '\a'); break;
-                case 'b':  orbit_utfStringAppend(lexer->string, '\b'); break;
-                case 'f':  orbit_utfStringAppend(lexer->string, '\f'); break;
-                case 'n':  orbit_utfStringAppend(lexer->string, '\n'); break;
-                case 'r':  orbit_utfStringAppend(lexer->string, '\r'); break;
-                case 't':  orbit_utfStringAppend(lexer->string, '\t'); break;
-                case 'v':  orbit_utfStringAppend(lexer->string, '\v'); break;
-                case '"':  orbit_utfStringAppend(lexer->string, '\"'); break;
+                case '\\': orbit_stringBufferAppend(&lexer->buffer, '\\'); break;
+                case 'a':  orbit_stringBufferAppend(&lexer->buffer, '\a'); break;
+                case 'b':  orbit_stringBufferAppend(&lexer->buffer, '\b'); break;
+                case 'f':  orbit_stringBufferAppend(&lexer->buffer, '\f'); break;
+                case 'n':  orbit_stringBufferAppend(&lexer->buffer, '\n'); break;
+                case 'r':  orbit_stringBufferAppend(&lexer->buffer, '\r'); break;
+                case 't':  orbit_stringBufferAppend(&lexer->buffer, '\t'); break;
+                case 'v':  orbit_stringBufferAppend(&lexer->buffer, '\v'); break;
+                case '"':  orbit_stringBufferAppend(&lexer->buffer, '\"'); break;
                 default:
                     _lexerError(lexer, "unknown escape sequence in literal");
                     break;
             }
         } else {
-            orbit_utfStringAppend(lexer->string, c);
+            orbit_stringBufferAppend(&lexer->buffer, c);
         }
     }
     
     _makeToken(lexer, TOKEN_STRING_LITERAL);
     // Store the parsed string literal
-    lexer->currentToken.parsedStringLiteral = ORCRETAIN(orbit_utfStringConstCopy(lexer->string));
-    ORCRELEASE(lexer->string);
-    lexer->string = NULL;
+    lexer->currentToken.parsedStringLiteral = orbit_stringBufferIntern(&lexer->buffer);
+    //ORCRELEASE(lexer->string);
+    //lexer->string = NULL;
 }
 
 static inline bool isDigit(codepoint_t c) {

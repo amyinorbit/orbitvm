@@ -111,19 +111,16 @@ void sema_extractTypeAnnotations(AST* decl, void* data) {
 
 void sema_installUserTypes(AST* typeDecl, void* data) {
     OCSema* sema = (OCSema*)data;
-    OCToken tok = typeDecl->structDecl.symbol;
-    UTFConstString* symbol = source_stringFromToken(&tok);
-    ORCRETAIN(symbol);
+    OCStringID symbol = typeDecl->structDecl.name;
     
-    if(orbit_rcMapGet(&sema->typeTable, symbol)) {
+    if(orbit_rcMapGetP(&sema->typeTable, symbol)) {
         // A type already exists under that name, error!
         fprintf(stderr, "error: A type already exists under that name\n");
     } else {
         // TODO: need much better sema error reporting. Will come with AST printing and Diag
-        orbit_rcMapInsert(&sema->typeTable, symbol, typeDecl);
+        orbit_rcMapInsertP(&sema->typeTable, symbol, typeDecl);
         //orbit_rcArrayAppend(&sema->uniqueTypes, typeDecl);
     }
-    ORCRELEASE(symbol);
 }
 
 

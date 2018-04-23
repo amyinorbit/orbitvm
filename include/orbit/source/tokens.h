@@ -117,14 +117,13 @@ struct _OCToken {
     uint32_t        displayLength;
     bool            isStartOfLine;
     
-    //OCString*       parsedStringLiteral;
-    UTFConstString* parsedStringLiteral;
+    OCStringID      parsedStringLiteral;
+    //UTFConstString* parsedStringLiteral;
 };
 
 const char* source_tokenName(OCTokenKind token);
 const char* source_tokenString(OCTokenKind token);
 // OCString* source_stringFromToken(OCToken* token);
-UTFConstString* source_stringFromToken(OCToken* token);
 
 bool source_tokenEquals(OCToken* a, OCToken* b);
 

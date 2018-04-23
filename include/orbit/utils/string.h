@@ -18,16 +18,8 @@
 typedef struct _OCString OCString;
 typedef uint64_t OCStringID;
 typedef struct _OCStringBuffer OCStringBuffer;
-typedef struct _UTFString UTFString;
-typedef struct _UTFConstString UTFConstString;
 
-// TODO: replace with const UTFString* ?
-struct _UTFConstString {
-    ORCObject       super;
-    const uint64_t  length;
-    const uint32_t  hash;
-    const char      data[ORBIT_FLEXIBLE_ARRAY_MEMB];
-};
+extern const OCStringID orbit_invalidStringID;
 
 struct _OCString {
     uint64_t        length;
@@ -37,13 +29,6 @@ struct _OCString {
 };
 
 struct _OCStringBuffer {
-    uint64_t        length;
-    uint64_t        capacity;
-    char*           data;
-};
-
-struct _UTFString {
-    ORCObject       super;
     uint64_t        length;
     uint64_t        capacity;
     char*           data;
@@ -61,17 +46,11 @@ OCStringID orbit_stringIntern(const char* data, uint64_t length);
 OCString* orbit_stringPoolSearch(const char* data, uint64_t length);
 OCString* orbit_stringPoolGet(OCStringID id);
 
-UTFString* orbit_utfStringInit(UTFString* string, const char* cString, size_t length);
-UTFString* orbit_utfStringInitWithCapacity(UTFString* string, uint64_t capacity);
-
 void orbit_stringBufferInit(OCStringBuffer* buffer, uint64_t capacity);
+void orbit_stringBufferDeinit(OCStringBuffer* buffer);
 void orbit_stringBufferReset(OCStringBuffer* buffer);
 
 void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t codepoint);
 OCStringID orbit_stringBufferIntern(OCStringBuffer* buffer);
-
-void orbit_utfStringAppend(UTFString* string, codepoint_t point);
-UTFConstString* orbit_cStringConstCopy(const char* cString, size_t length);
-UTFConstString* orbit_utfStringConstCopy(UTFString* string);
 
 #endif /* orbit_utils_string_h */

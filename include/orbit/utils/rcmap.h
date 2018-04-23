@@ -19,7 +19,8 @@ typedef struct _ORCMap ORCMap;
 typedef struct _ORCMapEntry ORCMapEntry;
 
 struct _ORCMapEntry {
-    UTFConstString* key;
+    //UTFConstString* key;
+    OCStringID      key;
     void*           value;
 };
 
@@ -32,9 +33,12 @@ struct _ORCMap {
 void orbit_rcMapDeinit(void* ref);
 ORCMap* orbit_rcMapInit(ORCMap* map);
 
-void orbit_rcMapInsert(ORCMap* map, UTFConstString* key, void* item);
-void orbit_rcMapRemove(ORCMap* map, UTFConstString* key);
-void* orbit_rcMapGet(ORCMap* map, UTFConstString* key);
+//void orbit_rcMapInsert(ORCMap* map, const char* key, uint64_t length, void* item);
+void orbit_rcMapInsertP(ORCMap* map, OCStringID key, void* item);
+//void orbit_rcMapRemove(ORCMap* map, const char* key, uint64_t length);
+void orbit_rcMapRemoveP(ORCMap* map, OCStringID key);
+//void* orbit_rcMapGet(ORCMap* map, const char* key, uint64_t length);
+void* orbit_rcMapGetP(ORCMap* map, OCStringID key);
 
 
 #endif /* orbit_utils_rcmap_h */

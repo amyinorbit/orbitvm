@@ -11,6 +11,7 @@
 #include <orbit/utils/assert.h>
 #include <orbit/utils/string.h>
 
+const OCStringID orbit_invalidStringID = UINT64_MAX;
 
 static struct OCStringPool {
     uint64_t size;
@@ -134,89 +135,4 @@ void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t c) {
 
 OCStringID orbit_stringBufferIntern(OCStringBuffer* buffer) {
     return orbit_stringIntern(buffer->data, buffer->length);
-}
-
-void orbit_utfStringDeinit(void* ref) {
-    OASSERT(ref != NULL, "Null instance error");
-    UTFString* string = (UTFString*)ref;
-    orbit_dealloc(string->data);
-}
-
-UTFString* orbit_utfStringInit(UTFString* string, const char* buffer, size_t length) {
-    OASSERT(string != NULL, "Null instance error");
-    OASSERT(buffer != NULL, "Null instance error");
-    
-    ORCINIT(string, &orbit_utfStringDeinit);
-    string->data = ORBIT_ALLOC_ARRAY(char, length + 1);
-    memcpy(string->data, buffer, length);
-    string->data[length] = 0;
-    string->capacity = length + 1;
-    string->length = length;
-    return string;
-}
-
-UTFString* orbit_utfStringInitWithCapacity(UTFString* string, uint64_t capacity) {
-    OASSERT(string != NULL, "Null instance error");
-    
-    ORCINIT(string, &orbit_utfStringDeinit);
-    string->data = ORBIT_ALLOC_ARRAY(char, capacity);
-    string->capacity = capacity;
-    string->length = 0;
-    return string;
-}
-
-static void _stringReserve(UTFString* string, size_t newSize) {
-    OASSERT(string != NULL, "Null instance error");
-    
-    if(newSize < string->capacity) { return; }
-    while(newSize >= string->capacity) {
-        string->capacity *= 2;
-    }
-    string->data = ORBIT_REALLOC_ARRAY(string->data, char, string->capacity);
-}
-
-void orbit_utfStringAppend(UTFString* string, codepoint_t c) {
-    OASSERT(string != NULL, "Null instance error");
-    
-    int8_t size = utf8_codepointSize(c);
-    if(size < 0) { return; }
-    
-    _stringReserve(string, string->length + size + 1);
-    utf8_writeCodepoint(c, &string->data[string->length],
-                           string->capacity - string->length);
-    string->length += size;
-    string->data[string->length] = '\0';
-}
-
-UTFConstString* orbit_cStringConstCopy(const char* cString, size_t length) {
-    OASSERT(cString != NULL, "Null instance error");
-    
-    UTFConstString template = {
-        .length = length,
-        .hash = orbit_hashString(cString, length)
-    };
-    
-    UTFConstString* copy = ORBIT_ALLOC_FLEX(UTFConstString, char, length + 1);
-    memcpy(copy, &template, sizeof(UTFConstString));
-    ORCINIT(copy, NULL);
-    memcpy((char*)copy->data, cString, length);
-    ((char*)copy->data)[copy->length] = '\0';
-    return copy;
-}
-
-UTFConstString* orbit_utfStringConstCopy(UTFString* string) {
-    OASSERT(string != NULL, "Null instance error");
-    
-    UTFConstString template = {
-        .length = string->length,
-        .hash = orbit_hashString(string->data, string->length)
-    };
-    
-    UTFConstString* copy = ORBIT_ALLOC_FLEX(UTFConstString, char, string->length + 1);
-    memcpy(copy, &template, sizeof(UTFConstString));
-    ORCINIT(copy, NULL);
-    memcpy((char*)copy->data, string->data, string->length);
-    ((char*)copy->data)[copy->length] = '\0';
-    
-    return copy;
 }

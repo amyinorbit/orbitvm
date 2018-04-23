@@ -23,7 +23,7 @@ static const char* tombstone = "ORCMAP_TOMBSTONE";
 void orbit_rcMapDeinit(void* ref) {
     ORCMap* map = (ORCMap*)ref;
     for(uint64_t i = 0; i < map->capacity; ++i) {
-        ORCRELEASE(map->data[i].key);
+        //ORCRELEASE(map->data[i].key);
         ORCRELEASE(map->data[i].value);
     }
 }
@@ -37,35 +37,36 @@ ORCMap* orbit_rcMapInit(ORCMap* map) {
     map->capacity = ORCMAP_DEFAULT_CAPACITY;
     
     ORCMAP_EACH(map) {
-        map->data[i].key = NULL;
+        map->data[i].key = orbit_invalidStringID;
         map->data[i].value = NULL;
     }
     return map;
 }
 
-static inline bool _rcMapCompare(UTFConstString* a, UTFConstString* b) {
-    OASSERT(a != NULL, "Null reference error");
-    OASSERT(b != NULL, "Null reference error");
-    return a == b
-        || (a->hash == b->hash 
-            && a->length == b->length
-            && memcmp(a->data, b->data, a->length) == 0);
-}
+// static inline bool _rcMapCompare(UTFConstString* a, UTFConstString* b) {
+//     OASSERT(a != NULL, "Null reference error");
+//     OASSERT(b != NULL, "Null reference error");
+//     return a == b
+//         || (a->hash == b->hash 
+//             && a->length == b->length
+//             && memcmp(a->data, b->data, a->length) == 0);
+// }
 
-static ORCMapEntry* _rcMapFindSlot(ORCMap* map, UTFConstString* key) {
+static ORCMapEntry* _rcMapFindSlot(ORCMap* map, OCStringID keyID) {
     ORCMapEntry* insert = NULL;
+    OCString* key = orbit_stringPoolGet(keyID);
     uint64_t index = key->hash % map->capacity;
     uint64_t start = index;
     
     do {
-        if(map->data[index].key == NULL) {
+        if(map->data[index].key == orbit_invalidStringID) {
             if(map->data[index].value == tombstone) {
                 if(insert == NULL) { insert = &map->data[index]; }
             } else {
                 return &map->data[index];
             }
         } else {
-            if(_rcMapCompare(map->data[index].key, key)) {
+            if(map->data[index].key == keyID) {
                 return &map->data[index];
             }
         }
@@ -75,6 +76,11 @@ static ORCMapEntry* _rcMapFindSlot(ORCMap* map, UTFConstString* key) {
     OASSERT(insert != NULL, "Map wasn't grown when required");
     return insert;
 }
+
+// static ORCMapEntry* _rcMapFindSlotP(ORCMap* map, OCStringID id) {
+//     OCString* key = orbit_stringPoolGet(id);
+//     return _rcMapFindSlot(map, orbit_stringPoolGet(id));
+// }
 
 static void _rcMapGrow(ORCMap* map) {
     OASSERT(map != NULL, "Null instance error");
@@ -91,52 +97,51 @@ static void _rcMapGrow(ORCMap* map) {
     map->size = 0;
     
     for(uint64_t i = 0; i < map->capacity; ++i) {
-        map->data[i].key = NULL;
+        map->data[i].key = orbit_invalidStringID;
         map->data[i].value = NULL;
     }
     
     for(uint64_t i = 0; i < oldCapacity; ++i) {
-        if(oldData[i].key == NULL) { continue; }
-        orbit_rcMapInsert(map, oldData[i].key, oldData[i].value);
+        if(oldData[i].key == orbit_invalidStringID) { continue; }
+        orbit_rcMapInsertP(map, oldData[i].key, oldData[i].value);
         ORCRELEASE(oldData[i].value);
     }
 }
 
-void orbit_rcMapInsert(ORCMap* map, UTFConstString* key, void* item) {
+void orbit_rcMapInsertP(ORCMap* map, OCStringID key, void* item) {
     OASSERT(map != NULL, "Null instance error");
-    OASSERT(key != NULL, "Null key error");
+    OASSERT(key != orbit_invalidStringID, "Null key error");
     
     if(map->size > ORCMAP_GROWTH_THRESHOLD * map->capacity) {
-        // GROW MAP
         _rcMapGrow(map);
     }
     
     ORCMapEntry* entry = _rcMapFindSlot(map, key);
-    if(entry->key == NULL) {
+    if(entry->key == orbit_invalidStringID) {
         map->size += 1;
     }
-    entry->key = ORCRETAIN(key);
+    //entry->key = ORCRETAIN(key);
     entry->value = ORCRETAIN(item);
 }
 
-void orbit_rcMapRemove(ORCMap* map, UTFConstString* key) {
+void orbit_rcMapRemoveP(ORCMap* map, OCStringID key) {
     OASSERT(map != NULL, "Null instance error");
-    OASSERT(key != NULL, "Null key error");
+    OASSERT(key != orbit_invalidStringID, "Null key error");
     
     ORCMapEntry* slot = _rcMapFindSlot(map, key);
-    if(slot->key == NULL) { return; }
+    if(slot->key == orbit_invalidStringID) { return; }
     
-    ORCRELEASE(slot->key);
+    //ORCRELEASE(slot->key);
     ORCRELEASE(slot->value);
-    slot->key = NULL;
+    slot->key = orbit_invalidStringID;
     slot->value = (void*)tombstone;
     map->size -= 1;
 }
 
-void* orbit_rcMapGet(ORCMap* map, UTFConstString* key) {
+void* orbit_rcMapGetP(ORCMap* map, OCStringID key) {
     OASSERT(map != NULL, "Null instance error");
-    OASSERT(key != NULL, "Null key error");
+    OASSERT(key != orbit_invalidStringID, "Null key error");
     
     ORCMapEntry* slot = _rcMapFindSlot(map, key);
-    return slot->key ? slot->value : NULL;
+    return slot->key != orbit_invalidStringID ? slot->value : NULL;
 }

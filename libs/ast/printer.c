@@ -244,6 +244,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         fputs("StringLiteralExpr ", out);
         console_setColor(out, CLI_RESET);
         console_printToken(out, ast->constantExpr.symbol);
+        fputs(" (", out); console_printPooledString(out, ast->constantExpr.symbol.parsedStringLiteral); fputs(")", out);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         ast_printType(out, ast->type);
