@@ -34,6 +34,11 @@ void console_printToken(FILE* out, OCToken token) {
     fprintf(out, "%.*s", (int)token.length, bytes);
 }
 
+void console_printPooledString(FILE* out, OCStringID id) {
+    OCString* str = orbit_stringPoolGet(id);
+    fprintf(out, "%.*s", (int)str->length, str->data);
+}
+
 void console_printTokenLine(FILE* out, OCToken token) {
     const char* line = token.source->bytes + token.sourceLoc.offset;
     

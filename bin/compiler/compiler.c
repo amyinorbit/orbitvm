@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <orbit/utils/memory.h>
+#include <orbit/utils/string.h>
 #include <orbit/ast/ast.h>
 #include <orbit/source/source.h>
 #include <orbit/parser/parser.h>
@@ -23,6 +24,8 @@ int main(int argc, const char** args) {
         fprintf(stderr, "usage: orbitc source_file [-dump-tokens] [-dump-ast]\n");
         return -1;
     }
+    
+    orbit_stringPoolInit(1024);
     
     OCSource source = source_readFromPath(args[1]);
     if(!source.bytes) {
@@ -45,5 +48,7 @@ int main(int argc, const char** args) {
     
     ORCRELEASE(ast);
     source_close(&source);
+    
+    orbit_stringPoolDeinit();
     return 0;
 }

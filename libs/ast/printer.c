@@ -59,7 +59,7 @@ static void ast_printType(FILE* out, AST* ast) {
     case AST_TYPEEXPR_STRING:   fputs("String", out);   break;
     case AST_TYPEEXPR_ANY:      fputs("Any", out);      break;
     case AST_TYPEEXPR_USER:
-        console_printToken(out, ast->typeExpr.userType.symbol);
+        console_printPooledString(out, ast->typeExpr.userType.symbol);
         break;
         
     case AST_TYPEEXPR_FUNC:
@@ -143,7 +143,9 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
     // DECLARATIONS
     case AST_DECL_MODULE:
         console_setColor(out, CLI_GREEN);
-        fprintf(out, "ModuleDecl '%s'", ast->moduleDecl.symbol);
+        fputs("ModuleDecl '", out);
+        console_printPooledString(out, ast->moduleDecl.symbol);
+        fputs("'", out);
         ast_printList(out, "DeclarationList", ast->moduleDecl.body, depth+1, true);
         break;
     
@@ -151,7 +153,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_GREEN);
         fputs("FuncDecl ", out);
         console_setColor(out, CLI_RESET);
-        console_printToken(out, ast->funcDecl.symbol);
+        console_printPooledString(out, ast->funcDecl.name);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         ast_printType(out, ast->type);
@@ -163,7 +165,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_GREEN);
         fputs("VarDecl ", out);
         console_setColor(out, CLI_RESET);
-        console_printToken(out, ast->varDecl.symbol);
+        console_printPooledString(out, ast->varDecl.name);
         fputs(": ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         ast_printType(out, ast->type);
@@ -173,7 +175,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_GREEN);
         fputs("CompoundTypeDecl ", out);
         console_setColor(out, CLI_RESET);
-        console_printToken(out, ast->structDecl.symbol);
+        console_printPooledString(out, ast->structDecl.name);
         ast_printNode(out, ast->structDecl.constructor, depth+1, false);
         ast_printNode(out, ast->structDecl.destructor, depth+1, false);
         ast_printList(out, "CompoundMemberList", ast->structDecl.fields, depth+1, true);
@@ -261,7 +263,7 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_MAGENTA);
         fputs("NameRefExpr ", out);
         console_setColor(out, CLI_RESET);
-        console_printToken(out, ast->nameExpr.symbol);
+        console_printPooledString(out, ast->nameExpr.name);
         break;
     
     case AST_TYPEEXPR_NIL:

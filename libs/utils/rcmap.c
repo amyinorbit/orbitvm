@@ -102,13 +102,6 @@ static void _rcMapGrow(ORCMap* map) {
     }
 }
 
-bool orbit_rcMapContains(ORCMap* map, UTFConstString* key) {
-    OASSERT(map != NULL, "Null instance error");
-    OASSERT(key != NULL, "Null key error");
-    ORCMapEntry* entry = _rcMapFindSlot(map, key);
-    return entry->key == NULL;
-}
-
 void orbit_rcMapInsert(ORCMap* map, UTFConstString* key, void* item) {
     OASSERT(map != NULL, "Null instance error");
     OASSERT(key != NULL, "Null key error");

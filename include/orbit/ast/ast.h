@@ -93,7 +93,8 @@ struct _ASTType {
         } funcType;
         
         struct {
-            OCToken     symbol;
+            //OCToken     symbol;
+            OCStringID  symbol;
         } userType;
     };
 };
@@ -141,12 +142,13 @@ struct _AST {
         // Declarations
         // --------------------------------------------------------------------
         struct {
-            const char* symbol;
+            OCStringID  symbol;
             AST*        body;
         } moduleDecl;
         
         struct {
             OCToken     symbol;
+            OCStringID  name;
             AST*        returnType;
             AST*        params;
             AST*        body;
@@ -154,11 +156,13 @@ struct _AST {
         
         struct {
             OCToken     symbol;
+            OCStringID  name;
             AST*        typeAnnotation;
         } varDecl;
         
         struct {
             OCToken     symbol;
+            OCStringID  name;
             AST*        constructor;
             AST*        destructor;
             AST*        fields;
@@ -194,6 +198,7 @@ struct _AST {
         
         struct {
             OCToken     symbol;
+            OCStringID  name;
         } nameExpr;
         
         // Type Expressions (necessary for a non-trivial type system)

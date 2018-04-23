@@ -49,6 +49,7 @@ AST* ast_makeConstantExpr(const OCToken* symbol, ASTKind kind);
 
 // AST* ast_makePrimitiveType(ASTKind kind);
 AST* ast_makeUserType(const OCToken* symbol);
+AST* ast_makeUserTypePooled(OCStringID symbol);
 AST* ast_makePrimitiveType(ASTKind kind);
 AST* ast_makeFuncType(AST* returnType, AST* params);
 AST* ast_makeArrayType(AST* elementType);

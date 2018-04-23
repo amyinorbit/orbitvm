@@ -61,7 +61,7 @@ OCString* orbit_stringPoolSearch(const char* data, uint64_t length) {
     return NULL;
 }
 
-OCStringID orbit_stringPoolIntern(const char* data, uint64_t length) {
+OCStringID orbit_stringIntern(const char* data, uint64_t length) {
     OCString* str = orbit_stringPoolSearch(data, length);
     if(str) { return (OCStringID)((void*)str - StringPool.data); }
     
@@ -133,7 +133,7 @@ void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t c) {
 }
 
 OCStringID orbit_stringBufferIntern(OCStringBuffer* buffer) {
-    return orbit_stringPoolIntern(buffer->data, buffer->length);
+    return orbit_stringIntern(buffer->data, buffer->length);
 }
 
 void orbit_utfStringDeinit(void* ref) {

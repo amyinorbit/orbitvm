@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <orbit/utils/string.h>
 #include <orbit/source/source.h>
 #include <orbit/source/tokens.h>
 
@@ -30,6 +31,7 @@ typedef enum {
 void console_setColor(FILE* out, CLIColor color);
 
 void console_printToken(FILE* out, OCToken token);
+void console_printPooledString(FILE* out, OCStringID id);
 void console_printTokenLine(FILE* out, OCToken token);
 void console_printUnderlines(FILE* out, OCToken tok, CLIColor color);
 

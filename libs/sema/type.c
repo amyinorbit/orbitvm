@@ -53,7 +53,7 @@ AST* sema_typeCopy(AST* src) {
                                 sema_typeCopy(src->typeExpr.funcType.params));
         break;
     case AST_TYPEEXPR_USER:
-        copy = ast_makeUserType(&src->typeExpr.userType.symbol);
+        copy = ast_makeUserTypePooled(src->typeExpr.userType.symbol);
         break;
     default:
         // TODO: throw error here, we're not working with a type expression.
@@ -94,7 +94,7 @@ bool sema_typeEquals(AST* a, AST* b) {
             && sema_typeEquals(a->typeExpr.funcType.params, b->typeExpr.funcType.params);
         
     case AST_TYPEEXPR_USER:
-        return source_tokenEquals(&a->typeExpr.userType.symbol, &b->typeExpr.userType.symbol);
+        return a->typeExpr.userType.symbol == b->typeExpr.userType.symbol;
     default:
         // TODO: throw sema type error
         break;

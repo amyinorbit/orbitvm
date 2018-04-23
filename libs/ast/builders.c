@@ -80,7 +80,7 @@ AST* ast_makeReturn(AST* returned) {
 
 AST* ast_makeModuleDecl(const char* symbol, AST* body) {
     AST* ast = ast_makeNode(AST_DECL_MODULE);
-    ast->moduleDecl.symbol = symbol;
+    ast->moduleDecl.symbol = orbit_stringIntern(symbol, strlen(symbol));
     ast->moduleDecl.body = ORCRETAIN(body);
     return ast;
 }
@@ -88,6 +88,8 @@ AST* ast_makeModuleDecl(const char* symbol, AST* body) {
 AST* ast_makeVarDecl(const OCToken* symbol, AST* typeAnnotation) {
     AST* ast = ast_makeNode(AST_DECL_VAR);
     ast->varDecl.symbol = ast_copyToken(symbol);
+    ast->varDecl.name = orbit_stringIntern(symbol->source->bytes+symbol->sourceLoc.offset,
+                                           symbol->length);
     ast->varDecl.typeAnnotation = ORCRETAIN(typeAnnotation);
     return ast;
 }
@@ -95,6 +97,8 @@ AST* ast_makeVarDecl(const OCToken* symbol, AST* typeAnnotation) {
 AST* ast_makeFuncDecl(const OCToken* symbol, AST* returnType, AST* params, AST* body) {
     AST* ast = ast_makeNode(AST_DECL_FUNC);
     ast->funcDecl.symbol = ast_copyToken(symbol);
+    ast->funcDecl.name = orbit_stringIntern(symbol->source->bytes+symbol->sourceLoc.offset,
+                                            symbol->length);
     ast->funcDecl.returnType = ORCRETAIN(returnType);
     ast->funcDecl.params = ORCRETAIN(params);
     ast->funcDecl.body = ORCRETAIN(body);
@@ -105,6 +109,8 @@ AST* ast_makeStructDecl(const OCToken* symbol, AST* constructor, AST* destructor
     AST* ast = ast_makeNode(AST_DECL_STRUCT);
     
     ast->structDecl.symbol = ast_copyToken(symbol);
+    ast->structDecl.name = orbit_stringIntern(symbol->source->bytes+symbol->sourceLoc.offset,
+                                              symbol->length);
     ast->structDecl.constructor = ORCRETAIN(constructor);
     ast->structDecl.destructor = ORCRETAIN(destructor);
     ast->structDecl.fields = ORCRETAIN(fields);
@@ -146,6 +152,10 @@ AST* ast_makeSubscriptExpr(AST* symbol, AST* subscript) {
 AST* ast_makeNameExpr(const OCToken* symbol) {
     AST* ast = ast_makeNode(AST_EXPR_NAME);
     ast->nameExpr.symbol = ast_copyToken(symbol);
+    ast->nameExpr.name = orbit_stringIntern(
+        symbol->source->bytes + symbol->sourceLoc.offset,
+        symbol->length
+    );
     return ast;
 }
 
@@ -155,11 +165,19 @@ AST* ast_makeConstantExpr(const OCToken* symbol, ASTKind kind) {
     return ast;
 }
 
-AST* ast_makeUserType(const OCToken* symbol) {
+AST* ast_makeUserTypePooled(OCStringID symbol) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_USER);
     //ast->typeExpr.canonicalType = ast;
-    ast->typeExpr.userType.symbol = ast_copyToken(symbol);
+    ast->typeExpr.userType.symbol = symbol;
     return ast;
+}
+
+AST* ast_makeUserType(const OCToken* symbol) {
+    OCStringID id = orbit_stringIntern(
+        symbol->source->bytes+symbol->sourceLoc.offset,
+        symbol->length
+    );
+    return ast_makeUserTypePooled(id);
 }
 
 AST* ast_makePrimitiveType(ASTKind kind) {
