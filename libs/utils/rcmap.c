@@ -30,7 +30,7 @@ void orbit_rcMapDeinit(void* ref) {
 
 ORCMap* orbit_rcMapInit(ORCMap* map) {
     OASSERT(map != NULL, "Null instance error");
-    ORCINIT(map, &orbit_rcMapDeinit);
+    //ORCINIT(map, &orbit_rcMapDeinit);
     
     map->data = ORBIT_ALLOC_ARRAY(ORCMapEntry, ORCMAP_DEFAULT_CAPACITY);
     map->size = 0;

@@ -88,6 +88,15 @@ OCString* orbit_stringPoolGet(OCStringID id) {
     return (OCString*)(StringPool.data + id);
 }
 
+void orbit_stringPoolDebug() {
+    uint64_t offset = 0;
+    while(offset < StringPool.size) {
+        OCString* str = (OCString*)(StringPool.data + offset);
+        fprintf(stderr, "[strpool: 0x%08lx]: \"%.*s\"\n", ((void*)str - StringPool.data), (int)str->length, str->data);
+        offset = str->next;
+    }
+}
+
 void orbit_stringBufferInit(OCStringBuffer* buffer, uint64_t capacity) {
     OASSERT(buffer != NULL, "Null instance error");
     

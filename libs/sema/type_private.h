@@ -11,6 +11,7 @@
 #define orbit_sema_typeprivate_h
 
 #include <orbit/ast/ast.h>
+#include <orbit/utils/string.h>
 #include <orbit/utils/memory.h>
 #include <orbit/utils/rcarray.h>
 #include <orbit/utils/rcmap.h>
@@ -23,16 +24,25 @@ typedef struct _OCScope OCScope;
 struct _OCScope {
     OCScope*    parent;
     ORCMap      symbolTable;
-    ORCMap      functionTable;
 };
 
 struct _OCSema {
-    ORCArray    uniqueTypes;
+    //ORCArray    uniqueTypes;
     ORCMap      typeTable; // Stores user-defined types (and type aliases in the future)
     uint16_t    stackSize;
     OCScope     stack[ORBIT_SEMA_SCOPESTACK_SIZE];
 };
 
+void sema_init(OCSema* sema);
+void sema_deinit(OCSema* sema);
+
+OCScope* sema_pushScope(OCSema* sema);
+void sema_popScope(OCSema* sema);
+// AST* sema_lookSymbol(OCSema* sema, const char* symbol, uint64_t length);
+AST* sema_lookupSymbolP(OCSema* sema, OCStringID symbol);
+void sema_declareSymbol(OCSema* sema, OCStringID symbol, AST* type);
+void sema_declareType(OCSema* sema, OCStringID name, AST* declaration);
+AST* sema_lookupType(OCSema* sema, OCStringID name);
 
 bool sema_typeEquals(AST* a, AST* b);
 AST* sema_uniqueTypeExists(OCSema* sema, AST* type);

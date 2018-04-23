@@ -96,7 +96,6 @@ bool sema_typeEquals(AST* a, AST* b) {
     case AST_TYPEEXPR_USER:
         return a->typeExpr.userType.symbol == b->typeExpr.userType.symbol;
     default:
-        // TODO: throw sema type error
         break;
     }
     // TODO: add unreachable flag here
@@ -105,7 +104,19 @@ bool sema_typeEquals(AST* a, AST* b) {
 
 void sema_extractTypeAnnotations(AST* decl, void* data) {
     if(!decl->varDecl.typeAnnotation) { return; }
-    // TODO: Type check first please
+    if(decl->kind == AST_TYPEEXPR_USER) {
+        // If we have a user type we need to make sure it's been declared first
+        AST* typeDecl = sema_lookupType(
+            (OCSema*)data,
+            decl->varDecl.typeAnnotation->typeExpr.userType.symbol
+        );
+        
+        if(!typeDecl) {
+            // TODO: throw sema error
+            fprintf(stderr, "Unknown type name referenced\n");
+            return;
+        }
+    }
     decl->type = ORCRETAIN(decl->varDecl.typeAnnotation);
 }
 
@@ -118,11 +129,10 @@ void sema_installUserTypes(AST* typeDecl, void* data) {
         fprintf(stderr, "error: A type already exists under that name\n");
     } else {
         // TODO: need much better sema error reporting. Will come with AST printing and Diag
-        orbit_rcMapInsertP(&sema->typeTable, symbol, typeDecl);
+        sema_declareType(sema, symbol, typeDecl);
         //orbit_rcArrayAppend(&sema->uniqueTypes, typeDecl);
     }
 }
-
 
 void sema_extractLiteralTypes(AST* literal, void* data) {
     //OCSema* sema = (OCSema*)data;
@@ -156,18 +166,30 @@ void sema_extractFuncTypes(AST* func, void* data) {
     }
     func->type = ORCRETAIN(ast_makeFuncType(returnType, 
                                             ast_listClose(&params)));
+    // TODO: We have a problem for overloads here. Do we need to do name mangling first? Or store
+    // a collection of functions in the symbol table instead (and do mangling at code generation
+    // time, since it's needed for VM operations?)
+    sema_declareSymbol((OCSema*)data, func->funcDecl.name, func->type);
 }
 
-void sema_doScopeAnalysis(AST* function, void* data) {
+bool sema_checkExpression(AST* expression, OCSema* sema) {
+    return true;
+}
+
+void sema_checkBlock(AST* block, OCSema* sema) {
+    
+}
+
+void sema_doScopeAnalysis(AST* func, void* data) {
     //OCSema* sema = (OCSema*)data;
     // TODO: sema should only contain the global scope right now.
+    sema_checkBlock(func->funcDecl.body, (OCSema*)data);
 }
 
 void sema_runTypeAnalysis(AST* ast) {
     // Initialise a Sema object
     OCSema sema;
-    ORCRETAIN(orbit_rcMapInit(&sema.typeTable));
-    ORCRETAIN(orbit_rcArrayInit(&sema.uniqueTypes, 64));
+    sema_init(&sema);
     
     ast_traverse(ast, AST_DECL_STRUCT, &sema, &sema_installUserTypes);
     ast_traverse(ast, AST_EXPR_CONSTANT_INTEGER
@@ -175,9 +197,10 @@ void sema_runTypeAnalysis(AST* ast) {
                     | AST_EXPR_CONSTANT_STRING, &sema, &sema_extractLiteralTypes);
     // Type all the declarations we can type easily
     ast_traverse(ast, AST_DECL_VAR, &sema, &sema_extractTypeAnnotations);
-    // ast_traverse(ast, AST_DECL_VAR, &sema,  &sema_extractVariableTypes);
     ast_traverse(ast, AST_DECL_FUNC, &sema, &sema_extractFuncTypes);
     
-    orbit_rcMapDeinit(&sema.typeTable);
-    orbit_rcArrayDeinit(&sema.uniqueTypes);
+    ast_traverse(ast, AST_DECL_FUNC, &sema, &sema_doScopeAnalysis);
+    
+    
+    sema_deinit(&sema);
 }

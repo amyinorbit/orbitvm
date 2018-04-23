@@ -45,6 +45,7 @@ bool orbit_stringEquals(OCString* a, const char* b, uint64_t length);
 OCStringID orbit_stringIntern(const char* data, uint64_t length);
 OCString* orbit_stringPoolSearch(const char* data, uint64_t length);
 OCString* orbit_stringPoolGet(OCStringID id);
+void orbit_stringPoolDebug();
 
 void orbit_stringBufferInit(OCStringBuffer* buffer, uint64_t capacity);
 void orbit_stringBufferDeinit(OCStringBuffer* buffer);

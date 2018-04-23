@@ -48,7 +48,7 @@ int main(int argc, const char** args) {
     
     ORCRELEASE(ast);
     source_close(&source);
-    
+    orbit_stringPoolDebug();
     orbit_stringPoolDeinit();
     return 0;
 }

@@ -141,6 +141,8 @@ static const struct _kw {
     {"fail",    4,  TOKEN_FAIL},
     {"range",   5,  TOKEN_RANGE},
     {"Number",  6,  TOKEN_NUMBER},
+    {"Int",     3,  TOKEN_NUMBER},
+    {"Float",   5,  TOKEN_NUMBER},
     {"Bool",    4,  TOKEN_BOOL},
     {"String",  6,  TOKEN_STRING},
     {"Nil",     3,  TOKEN_NIL},

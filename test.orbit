@@ -9,6 +9,10 @@ fun test(a: Number, b: Number)->Number {
 
 fun main() {
     var test : Vector = make(Vector)
-    test.x = 2
+    {
+        print("456")
+        print(123)
+        print(123.max)
+    }
     var result = "Hello: " + (1234 + 45)
 }
