@@ -69,6 +69,10 @@ void ast_destroy(void* ref) {
             ORCRELEASE(ast->whileLoop.body);
             break;
             
+        case AST_BLOCK:
+            ORCRELEASE(ast->block.body);
+            break;
+            
         case AST_BREAK:
             break;
             

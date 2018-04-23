@@ -29,32 +29,33 @@ enum _ASTKind {
     AST_BREAK                   = 1 << 3,
     AST_CONTINUE                = 1 << 4,
     AST_RETURN                  = 1 << 5,
+    AST_BLOCK                   = 1 << 6,
     
-    AST_DECL_MODULE             = 1 << 6,
-    AST_DECL_FUNC               = 1 << 7,
-    AST_DECL_VAR                = 1 << 8,
-    AST_DECL_STRUCT             = 1 << 9,
+    AST_DECL_MODULE             = 1 << 7,
+    AST_DECL_FUNC               = 1 << 8,
+    AST_DECL_VAR                = 1 << 9,
+    AST_DECL_STRUCT             = 1 << 10,
     
-    AST_EXPR_UNARY              = 1 << 10,
-    AST_EXPR_BINARY             = 1 << 11,
-    AST_EXPR_CALL               = 1 << 12,
-    AST_EXPR_SUBSCRIPT          = 1 << 13,
-    AST_EXPR_CONSTANT           = 1 << 14,
-    AST_EXPR_CONSTANT_INTEGER   = 1 << 15,
-    AST_EXPR_CONSTANT_FLOAT     = 1 << 16,
-    AST_EXPR_CONSTANT_STRING    = 1 << 17,
-    AST_EXPR_NAME               = 1 << 18,
+    AST_EXPR_UNARY              = 1 << 11,
+    AST_EXPR_BINARY             = 1 << 12,
+    AST_EXPR_CALL               = 1 << 13,
+    AST_EXPR_SUBSCRIPT          = 1 << 14,
+    AST_EXPR_CONSTANT           = 1 << 15,
+    AST_EXPR_CONSTANT_INTEGER   = 1 << 16,
+    AST_EXPR_CONSTANT_FLOAT     = 1 << 17,
+    AST_EXPR_CONSTANT_STRING    = 1 << 18,
+    AST_EXPR_NAME               = 1 << 19,
     
-    AST_TYPEEXPR_NIL            = 1 << 19,
-    AST_TYPEEXPR_VOID           = 1 << 20,
-    AST_TYPEEXPR_BOOL           = 1 << 21,
-    AST_TYPEEXPR_NUMBER         = 1 << 22,
-    AST_TYPEEXPR_STRING         = 1 << 23,
-    AST_TYPEEXPR_USER           = 1 << 24,
-    AST_TYPEEXPR_ARRAY          = 1 << 25,
-    AST_TYPEEXPR_MAP            = 1 << 26,
-    AST_TYPEEXPR_FUNC           = 1 << 27,
-    AST_TYPEEXPR_ANY            = 1 << 28,
+    AST_TYPEEXPR_NIL            = 1 << 20,
+    AST_TYPEEXPR_VOID           = 1 << 21,
+    AST_TYPEEXPR_BOOL           = 1 << 22,
+    AST_TYPEEXPR_NUMBER         = 1 << 23,
+    AST_TYPEEXPR_STRING         = 1 << 24,
+    AST_TYPEEXPR_USER           = 1 << 25,
+    AST_TYPEEXPR_ARRAY          = 1 << 26,
+    AST_TYPEEXPR_MAP            = 1 << 27,
+    AST_TYPEEXPR_FUNC           = 1 << 28,
+    AST_TYPEEXPR_ANY            = 1 << 29,
 };
 
 extern const uint32_t ASTAllMask;
@@ -109,11 +110,6 @@ struct _AST {
     AST*            type;
     
     union {
-        
-        struct {
-            AST*        head;
-        } list;
-        
         // --------------------------------------------------------------------
         // Statements
         // --------------------------------------------------------------------
@@ -133,6 +129,10 @@ struct _AST {
             AST*        condition;
             AST*        body;
         } whileLoop;
+        
+        struct {
+            AST*        body;
+        } block;
         
         struct {
             AST*        returnValue;

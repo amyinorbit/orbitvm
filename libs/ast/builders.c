@@ -36,11 +36,6 @@ static OCToken ast_copyToken(const OCToken* token) {
     return copy;
 }
 
-// static char* ast_copyString(const char* string, size_t length) {
-//     char* copy = calloc(sizeof(char), length + 1);
-//     mcmcpy(copy, string)
-// }
-
 AST* ast_makeConditional(AST* condition, AST* ifBody, AST* elseBody) {
     AST* ast = ast_makeNode(AST_CONDITIONAL);
     ast->conditionalStmt.condition = ORCRETAIN(condition);
@@ -61,6 +56,12 @@ AST* ast_makeWhileLoop(AST* condition, AST* body) {
     AST* ast = ast_makeNode(AST_WHILE);
     ast->whileLoop.condition = ORCRETAIN(condition);
     ast->whileLoop.body = ORCRETAIN(body);
+    return ast;
+}
+
+AST* ast_makeBlock(AST* body) {
+    AST* ast = ast_makeNode(AST_BLOCK);
+    ast->block.body = ORCRETAIN(body);
     return ast;
 }
 

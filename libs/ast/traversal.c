@@ -32,6 +32,10 @@ void ast_traverse(AST* ast, ASTKind filter, void* userData, ASTCallback callback
         ast_traverse(ast->whileLoop.condition, filter, userData, callback);
         ast_traverse(ast->whileLoop.body, filter, userData, callback);
         break;
+        
+    case AST_BLOCK:
+        ast_traverse(ast->block.body, filter, userData, callback);
+        break;
     
     case AST_BREAK:
     case AST_CONTINUE:

@@ -31,6 +31,7 @@ AST* ast_listClose(ASTListBuilder* builder);
 AST* ast_makeConditional(AST* condition, AST* ifBody, AST* elseBody);
 AST* ast_makeForInLoop(const OCToken* var, AST* collection, AST* body);
 AST* ast_makeWhileLoop(AST* condition, AST* body);
+AST* ast_makeBlock(AST* body);
 AST* ast_makeBreak();
 AST* ast_makeContinue();
 AST* ast_makeReturn(AST* returned);

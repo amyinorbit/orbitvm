@@ -150,7 +150,7 @@ static AST* recStatement(OCParser* parser) {
     else if(have(parser, TOKEN_BREAK) || have(parser, TOKEN_CONTINUE))
         return recFlowStatement(parser);
     else if(have(parser, TOKEN_LBRACE))
-        return recBlock(parser);
+        return ast_makeBlock(recBlock(parser));
     else
         compilerError(parser, "expected a statement");
     return NULL;

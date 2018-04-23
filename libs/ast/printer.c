@@ -123,6 +123,20 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         ast_printNode(out, ast->whileLoop.condition, depth+1, false);
         ast_printList(out, "Block", ast->whileLoop.body, depth+1, true);
         break;
+        
+    case AST_BLOCK:
+        console_setColor(out, CLI_CYAN);
+        console_setColor(out, CLI_BOLD);
+        fputs("Block", out);
+        console_setColor(out, CLI_RESET);
+        
+        AST* item = ast->block.body;
+        while(item != NULL) {
+            ast_printNode(out, item, depth+1, item->next == NULL);
+            item = item->next;
+        }
+        //ast_printList(out, "Block", ast->block.body, depth+1, true);
+        break;
     
     case AST_BREAK:
         console_setColor(out, CLI_MAGENTA);
