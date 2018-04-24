@@ -104,24 +104,28 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_MAGENTA);
         fputs("IfStmt", out);
         ast_printNode(out, ast->conditionalStmt.condition, depth+1, false);
-        ast_printList(out, "Block", ast->conditionalStmt.ifBody, depth+1, ast->conditionalStmt.elseBody == NULL);
-        ast_printList(out, "Block", ast->conditionalStmt.elseBody, depth+1, true);
+        ast_printNode(out, ast->conditionalStmt.ifBody, depth+1, ast->conditionalStmt.elseBody == NULL);
+        //ast_printList(out, "Block", ast->conditionalStmt.ifBody, depth+1, ast->conditionalStmt.elseBody == NULL);
+        ast_printNode(out, ast->conditionalStmt.elseBody, depth+1, true);
+        //ast_printList(out, "Block", ast->conditionalStmt.elseBody, depth+1, true);
         break;
     
     case AST_FOR_IN:
         console_setColor(out, CLI_MAGENTA);
-        fputs("ForInStmt", out);
+        fputs("ForInStmt ", out);
         console_setColor(out, CLI_RESET);
         console_printToken(out, ast->forInLoop.variable);
         ast_printNode(out, ast->forInLoop.collection, depth+1, false);
-        ast_printList(out, "Block", ast->forInLoop.body, depth+1, true);
+        ast_printNode(out, ast->forInLoop.body, depth+1, true);
+        //ast_printList(out, "Block", ast->forInLoop.body, depth+1, true);
         break;
     
     case AST_WHILE:
         console_setColor(out, CLI_MAGENTA);
         fputs("WhileStmt", out);
         ast_printNode(out, ast->whileLoop.condition, depth+1, false);
-        ast_printList(out, "Block", ast->whileLoop.body, depth+1, true);
+        ast_printNode(out, ast->whileLoop.body, depth+1, true);
+        //ast_printList(out, "Block", ast->whileLoop.body, depth+1, true);
         break;
         
     case AST_BLOCK:
@@ -172,7 +176,8 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         ast_printType(out, ast->type);
         ast_printList(out, "ParamDeclList", ast->funcDecl.params, depth+1, false);
-        ast_printList(out, "Block", ast->funcDecl.body, depth+1, true);
+        ast_printNode(out, ast->funcDecl.body, depth+1, true);
+        //ast_printList(out, "Block", ast->funcDecl.body, depth+1, true);
         break;
     
     case AST_DECL_VAR:

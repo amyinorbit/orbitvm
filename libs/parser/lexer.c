@@ -90,6 +90,14 @@ static inline codepoint_t _next(OCLexer* lexer) {
     return utf8_getCodepoint(lexer->currentPtr, remaining);
 }
 
+static inline codepoint_t _next2(OCLexer* lexer) {
+    uint64_t remaining = lexer->source->length - (lexer->currentPtr - lexer->source->bytes);
+    codepoint_t next = utf8_getCodepoint(lexer->currentPtr, remaining);
+    int8_t nextSize = utf8_codepointSize(next);
+    remaining -= nextSize;
+    return utf8_getCodepoint(lexer->currentPtr + nextSize, remaining);
+}
+
 static void _makeToken(OCLexer* lexer, int type) {
     OASSERT(lexer != NULL, "Null instance error");
     lexer->currentToken.kind = type;
@@ -227,12 +235,19 @@ static void _lexNumber(OCLexer* lexer) {
     while(isDigit(_next(lexer))) {
         _nextChar(lexer);
     }
-    if(_match(lexer, '.') && isDigit(_next(lexer))) {
+    if(_next(lexer) == '.' && isDigit(_next2(lexer))) {
+        _nextChar(lexer);
         type = TOKEN_FLOAT_LITERAL;
         while(isDigit(_next(lexer))) {
             _nextChar(lexer);
         }
     }
+    // if(_match(lexer, '.') && isDigit(_next(lexer))) {
+    //     type = TOKEN_FLOAT_LITERAL;
+    //     while(isDigit(_next(lexer))) {
+    //         _nextChar(lexer);
+    //     }
+    // }
     _makeToken(lexer, type);
 }
 
