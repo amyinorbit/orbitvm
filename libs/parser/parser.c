@@ -57,7 +57,7 @@ static AST* recBlock(OCParser* parser) {
         expectTerminator(parser);
     }
     expect(parser, TOKEN_RBRACE);
-    return ast_listClose(&block);
+    return ast_makeBlock(ast_listClose(&block));
 }
 
 static AST* recTypeDecl(OCParser* parser) {
@@ -150,7 +150,7 @@ static AST* recStatement(OCParser* parser) {
     else if(have(parser, TOKEN_BREAK) || have(parser, TOKEN_CONTINUE))
         return recFlowStatement(parser);
     else if(have(parser, TOKEN_LBRACE))
-        return ast_makeBlock(recBlock(parser));
+        return recBlock(parser);
     else
         compilerError(parser, "expected a statement");
     return NULL;
@@ -244,7 +244,7 @@ static AST* recExpression(OCParser* parser, int minPrec) {
         AST* rhs = NULL;
         
         switch(operator.kind) {
-            case TOKEN_LPAREN:
+        case TOKEN_LPAREN:
             rhs = recFuncCall(parser);
             expr = ast_makeCallExpr(expr, rhs);
             break;
