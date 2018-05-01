@@ -169,6 +169,11 @@ void sema_extractFuncTypes(AST* func, void* data) {
     // TODO: We have a problem for overloads here. Do we need to do name mangling first? Or store
     // a collection of functions in the symbol table instead (and do mangling at code generation
     // time, since it's needed for VM operations?)
+    
+    OCString* mangled = orbit_stringPoolGet(sema_mangleFuncName(func));
+    fprintf(stderr, "Mangled Fn. Name: %.*s\n", (int)mangled->length, mangled->data);
+    
+    
     sema_declareSymbol((OCSema*)data, func->funcDecl.name, func->type);
 }
 

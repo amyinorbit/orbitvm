@@ -83,3 +83,69 @@ AST* sema_lookupType(OCSema* sema, OCStringID name) {
     return orbit_rcMapGetP(&sema->typeTable, name);
 }
 
+static void sema_mangleType(AST* type, OCStringBuffer* buffer) {
+    switch (type->kind) {
+        case AST_TYPEEXPR_ANY:      orbit_stringBufferAppend(buffer, 'a');  break;
+        case AST_TYPEEXPR_BOOL:     orbit_stringBufferAppend(buffer, 'b');  break;
+        case AST_TYPEEXPR_STRING:   orbit_stringBufferAppend(buffer, 's');  break;
+        case AST_TYPEEXPR_NUMBER:   orbit_stringBufferAppend(buffer, 'd');  break;
+        case AST_TYPEEXPR_VOID:     orbit_stringBufferAppend(buffer, 'v');  break;
+        case AST_TYPEEXPR_NIL:                                              break;
+            
+        case AST_TYPEEXPR_ARRAY:
+            orbit_stringBufferAppendC(buffer, "%a[", 3);
+            sema_mangleType(type->typeExpr.arrayType.elementType, buffer);
+            orbit_stringBufferAppendC(buffer, "]", 1);
+            break;
+        case AST_TYPEEXPR_MAP:
+            orbit_stringBufferAppendC(buffer, "%m[", 3);
+            sema_mangleType(type->typeExpr.mapType.keyType, buffer);
+            orbit_stringBufferAppendC(buffer, "#", 1);
+            sema_mangleType(type->typeExpr.mapType.elementType, buffer);
+            orbit_stringBufferAppendC(buffer, "]", 1);
+            break;
+            
+        case AST_TYPEEXPR_FUNC:
+            orbit_stringBufferAppendC(buffer, "%f[", 3);
+            sema_mangleType(type->typeExpr.funcType.params, buffer);
+            orbit_stringBufferAppendC(buffer, "#", 1);
+            sema_mangleType(type->typeExpr.funcType.returnType, buffer);
+            orbit_stringBufferAppendC(buffer, "]", 1);
+            break;
+            
+        case AST_TYPEEXPR_USER:
+            orbit_stringBufferAppendC(buffer, "%u[", 3);
+            OCString* name = orbit_stringPoolGet(type->typeExpr.userType.symbol);
+            orbit_stringBufferAppendC(buffer, name->data, name->length);
+            orbit_stringBufferAppendC(buffer, "]", 1);
+            break;
+        default:
+            break;
+    }
+    
+    if(type->next) {
+        orbit_stringBufferAppend(buffer, '_');
+        sema_mangleType(type->next, buffer);
+    }
+}
+
+OCStringID sema_mangleFuncName(AST* decl) {
+    OCStringBuffer buffer;
+    orbit_stringBufferInit(&buffer, 128);
+    
+    OCString* name = orbit_stringPoolGet(decl->funcDecl.name);
+    
+    orbit_stringBufferAppend(&buffer, '@');
+    orbit_stringBufferAppendC(&buffer, name->data, name->length);
+    
+    // Now do the params, probably the most tedious part of all this
+    AST* params = decl->type->typeExpr.funcType.params;
+    if(params) {
+        orbit_stringBufferAppendC(&buffer, "__", 2);
+        sema_mangleType(params, &buffer);
+    }
+    
+    OCStringID id = orbit_stringBufferIntern(&buffer);
+    orbit_stringBufferDeinit(&buffer);
+    return id;
+}

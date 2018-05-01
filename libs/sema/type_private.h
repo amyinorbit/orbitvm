@@ -47,4 +47,6 @@ AST* sema_lookupType(OCSema* sema, OCStringID name);
 bool sema_typeEquals(AST* a, AST* b);
 AST* sema_uniqueTypeExists(OCSema* sema, AST* type);
 
+OCStringID sema_mangleFuncName(AST* decl);
+
 #endif /* orbit_sema_typeprivate_h */
