@@ -12,8 +12,6 @@
 
 #include <orbit/utils/platforms.h>
 #include <orbit/ast/ast.h>
-//#include <orbit/type/type.h>
-
 
 void sema_runTypeAnalysis(AST* ast);
 

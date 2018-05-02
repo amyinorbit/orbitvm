@@ -40,7 +40,7 @@ static void _mangleNameLength(const char* name, uint64_t length, OCStringBuffer*
         
         if(c < 256) orbit_stringBufferAppend(buffer, c);
         else {
-            orbit_stringBufferAppend(buffer, '$');
+            orbit_stringBufferAppend(buffer, '%');
             char hex[10];
             uint64_t hexLen = snprintf(hex, 10, "%06X", c);
             orbit_stringBufferAppendC(buffer, hex, hexLen);

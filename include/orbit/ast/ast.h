@@ -148,6 +148,7 @@ struct _AST {
         struct {
             OCToken     symbol;
             OCStringID  name;
+            OCStringID  mangledName;
             AST*        returnType;
             AST*        params;
             AST*        body;

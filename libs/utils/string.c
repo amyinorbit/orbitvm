@@ -85,6 +85,7 @@ OCStringID orbit_stringIntern(const char* data, uint64_t length) {
 }
 
 OCString* orbit_stringPoolGet(OCStringID id) {
+    if(id == orbit_invalidStringID) { return NULL; }
     return (OCString*)(StringPool.data + id);
 }
 

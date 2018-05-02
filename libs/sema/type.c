@@ -13,6 +13,7 @@
 #include <orbit/ast/ast.h>
 #include <orbit/ast/builders.h>
 #include <orbit/ast/traversal.h>
+#include <orbit/mangling/mangle.h>
 #include <orbit/sema/type.h>
 
 #include "type_private.h"
@@ -162,20 +163,11 @@ void sema_extractFuncTypes(AST* func, void* data) {
         ast_listAdd(&params, sema_typeCopy(param->type));
         param = param->next;
     }
-    func->type = ORCRETAIN(ast_makeFuncType(returnType, 
-                                            ast_listClose(&params)));
+    func->type = ORCRETAIN(ast_makeFuncType(returnType, ast_listClose(&params)));
     // TODO: We have a problem for overloads here. Do we need to do name mangling first? Or store
     // a collection of functions in the symbol table instead (and do mangling at code generation
     // time, since it's needed for VM operations?)
-    
-    // OCString* mangled = orbit_stringPoolGet(sema_mangleFuncName(func));
-    // fprintf(stderr, "Symbol: %.*s() ::", (int)mangled->length, mangled->data);
-    // 
-    // OCString* demangled = orbit_stringPoolGet(sema_demangle(mangled->data, mangled->length));
-    // if(demangled)
-    //     fprintf(stderr, " %.*s\n", (int)demangled->length, demangled->data);
-    // else
-    //     fprintf(stderr, " Unable to demangle\n");
+    func->funcDecl.mangledName = orbit_mangleFuncName(func);
     
     
     sema_declareSymbol((OCSema*)data, func->funcDecl.name, func->type);

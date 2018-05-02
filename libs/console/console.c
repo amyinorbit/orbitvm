@@ -36,6 +36,7 @@ void console_printToken(FILE* out, OCToken token) {
 
 void console_printPooledString(FILE* out, OCStringID id) {
     OCString* str = orbit_stringPoolGet(id);
+    if(!str) { return; }
     fprintf(out, "%.*s", (int)str->length, str->data);
 }
 

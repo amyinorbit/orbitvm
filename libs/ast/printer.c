@@ -171,12 +171,16 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         fputs("FuncDecl ", out);
         console_setColor(out, CLI_RESET);
         console_printPooledString(out, ast->funcDecl.name);
-        fputs(": ", out);
+        fputs(" (", out);
+        console_setColor(out, CLI_GREEN);
+        console_printPooledString(out, ast->funcDecl.mangledName);
+        console_setColor(out, CLI_RESET);
+        fputs("): ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         ast_printType(out, ast->type);
+        ast_printReturn(out, depth+1, false);
         ast_printList(out, "ParamDeclList", ast->funcDecl.params, depth+1, false);
         ast_printNode(out, ast->funcDecl.body, depth+1, true);
-        //ast_printList(out, "Block", ast->funcDecl.body, depth+1, true);
         break;
     
     case AST_DECL_VAR:

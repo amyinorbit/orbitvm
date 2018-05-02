@@ -28,20 +28,20 @@ void fail(OCMParser* parser) {
 }
 
 char peek(OCMParser* parser) {
-    if(parser->failed) return '\0';
-    if(!parser->current) return '\0';
+    if(parser->failed) { return '\0'; }
+    if(!parser->current) { return '\0'; }
     return *parser->current;
 }
 
 char next(OCMParser* parser) {
-    if(parser->failed) return '\0';
+    if(parser->failed) { return '\0'; }
     if(parser->current >= parser->source + parser->length) { return *parser->current; }
     parser->current += 1;
     return *parser->current;
 }
 
 bool nextIf(OCMParser* parser, char c) {
-    if(parser->failed) return false;
+    if(parser->failed) { return false; }
     if(*parser->current == c) {
         next(parser);
         return true;
@@ -53,7 +53,7 @@ static void _recTypeList(OCMParser* p, OCStringBuffer* d, char start);
 static void _recIdentifier(OCMParser* p, OCStringBuffer* d);
 
 static void _recPrimitiveType(OCMParser* p, OCStringBuffer* d) {
-    if(p->failed) return;
+    if(p->failed) { return; }
     switch(peek(p)) {
         case '*': orbit_stringBufferAppendC(d, "Any", 3);       break;
         case 'b': orbit_stringBufferAppendC(d, "Bool", 4);      break;
@@ -66,7 +66,7 @@ static void _recPrimitiveType(OCMParser* p, OCStringBuffer* d) {
 }
 
 static void _recType(OCMParser* p, OCStringBuffer* d) {
-    if(p->failed) return;
+    if(p->failed) { return; }
     switch(peek(p)) {
         case 'N':
             next(p);
@@ -110,7 +110,7 @@ static void _recType(OCMParser* p, OCStringBuffer* d) {
 }
 
 static void _recTypeList(OCMParser* p, OCStringBuffer* d, char start) {
-    if(p->failed) return;
+    if(p->failed) { return; }
     if(!nextIf(p, start)) {
         fail(p);
         return;
@@ -130,7 +130,7 @@ static void _recTypeList(OCMParser* p, OCStringBuffer* d, char start) {
 
 
 static void _recIdentifier(OCMParser* p, OCStringBuffer* d) {
-    if(p->failed) return;
+    if(p->failed) { return; }
     char c = peek(p);
     
     // We need to get the length first to know how much to read.
@@ -144,13 +144,17 @@ static void _recIdentifier(OCMParser* p, OCStringBuffer* d) {
     codepoint_t point = -1;
     
     while(length) {
-        if(c == '$') {
+        if(c == '%') {
             // TODO: decode unicode scalar
             c = next(p);
             point = 0;
             for(int i = 0; i < 6; ++i) {
-                if(c >= '0' && c <= '9') point = point * 16 + (c - '0');
-                else if(c >= 'A' && c <= 'F') point = point * 16 + (10 + (c - 'A'));
+                if(c >= '0' && c <= '9') {
+                    point = point * 16 + (c - '0');
+                }
+                else if(c >= 'A' && c <= 'F') {
+                    point = point * 16 + (10 + (c - 'A'));
+                }
                 else {
                     fail(p);
                     return;
@@ -168,11 +172,16 @@ static void _recIdentifier(OCMParser* p, OCStringBuffer* d) {
 }
 
 static void _recFuncName(OCMParser* p, OCStringBuffer* d) {
-    if(p->failed) return;
-    
+    if(p->failed) { return; }
     _recIdentifier(p, d);
+    while(peek(p) >= '0' && peek(p) <= '9') {
+        orbit_stringBufferAppend(d, '.');
+        _recIdentifier(p, d);
+    }
     orbit_stringBufferAppend(d, '(');
-    if(peek(p) == 'p') _recTypeList(p, d, 'p');
+    if(peek(p) == 'p') {
+        _recTypeList(p, d, 'p');
+    }
     orbit_stringBufferAppendC(d, ") -> ", 5);
     _recType(p, d);
 }
@@ -190,18 +199,15 @@ OCStringID orbit_demangle(const char* mangledName, uint64_t length) {
     
     OCStringID id = orbit_invalidStringID;
     
-    if(!nextIf(&parser, '_')) goto failure;
-    if(!nextIf(&parser, 'O')) goto failure;
+    if(!nextIf(&parser, '_')) { goto failure; }
+    if(!nextIf(&parser, 'O')) { goto failure; }
     
     _recFuncName(&parser, &demangled);
     
-    if(parser.failed) goto failure;
+    if(parser.failed) { goto failure; }
     
     id = orbit_stringBufferIntern(&demangled);
-    orbit_stringBufferDeinit(&demangled);
-    return id;
 failure:
-    fprintf(stderr, "FAILURE\n");
     orbit_stringBufferDeinit(&demangled);
     return id;
     

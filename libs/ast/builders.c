@@ -100,6 +100,7 @@ AST* ast_makeFuncDecl(const OCToken* symbol, AST* returnType, AST* params, AST* 
     ast->funcDecl.symbol = ast_copyToken(symbol);
     ast->funcDecl.name = orbit_stringIntern(symbol->source->bytes+symbol->sourceLoc.offset,
                                             symbol->length);
+    ast->funcDecl.mangledName = orbit_invalidStringID;
     ast->funcDecl.returnType = ORCRETAIN(returnType);
     ast->funcDecl.params = ORCRETAIN(params);
     ast->funcDecl.body = ORCRETAIN(body);
@@ -168,7 +169,6 @@ AST* ast_makeConstantExpr(const OCToken* symbol, ASTKind kind) {
 
 AST* ast_makeUserTypePooled(OCStringID symbol) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_USER);
-    //ast->typeExpr.canonicalType = ast;
     ast->typeExpr.userType.symbol = symbol;
     return ast;
 }
@@ -183,8 +183,6 @@ AST* ast_makeUserType(const OCToken* symbol) {
 
 AST* ast_makePrimitiveType(ASTKind kind) {
     AST* ast = ast_makeNode(kind);
-    //ast->typeExpr.canonicalType = ast;
-    //ast->typeExpr.simpleType.symboluserTypeyToken(symbol);
     return ast;
 }
 
