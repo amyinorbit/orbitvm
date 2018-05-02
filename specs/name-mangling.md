@@ -7,19 +7,51 @@ Because Orbit is planned to support function overloads, name mangling is necessa
 | Keyword   | Description                                       |
 |:----------|:--------------------------------------------------|
 | `O`       | Denotes a native Orbit type following             |
-| `Ob`      | Orbit native `Bool`                               |
-| `Od`      | Orbit native `Number` (double)                    |
-| `Oi`      | Orbit native `Int` (unused, reserved)             |
-| `Os`      | Orbit native `String`                             |
+| `b`       | Orbit native `Bool`                               |
+| `*`       | Orbit native `Any`                                |
+| `d`       | Orbit native `Number` (double)                    |
+| `i`       | Orbit native `Int` (unused, reserved)             |
+| `s`       | Orbit native `String`                             |
+| `a`       | Orbit array type                                  |
+| `m`       | Orbit dictionary type                             |
 | `U`       | Denotes a user type following                     |
-| `f`       | Begins a list of function parameters              |
+| `v`       | Void type                                         |
+| `f`       | Function type                                     |
+| `p`       | Begins a list of function parameters              |
 | `t`       | Begins a list of template parameters              |
 | `e`       | Ends a type list                                  |
 
+## Identifiers
+
+Orbit does not support member functions (methods, static functions). It does however have the notion of modules (each orbit source files defines a module) and function should not be required to be unique across modules.
+
+Identifiers are preceded by their length. Function and variable names are mangled so that their modules are added before them. A `Player` type defined in `GamePlay.orbit` would thus become `8GamePlay6Player`. 
+
+TODO: define encoding scheme for non-ascii characters in identifiers (probably `\x1234` unicode codepoints?)
 
 ## Grammar
 
 ````
+mangled-func    ::= full-identifier func-type
+
+type-list       ::= type-name ('_' type-name)*
+type-name       ::= 'U' full-identifier
+                  | 'O' orbit-type-id
+                  | func-type
+                  | array-type
+                  | map-type
+                  | 'v'
+func-params     ::= 'p' type-list 'e'
+template-params ::= 't' type-list 'e'
+
+func-type       ::= 'f' func-params '_' type-name
+array-type      ::= 'a' template-params
+map-type        ::= 'm' template-params
+
+orbit-type-id   ::= 'b' | '*' | 'd' | 'i' | 's'
+
+full-identifier ::= (identifier)? identifier
+identifier      ::= [0-9]+ identifier-head (identifier-char)*
 
 ````
 
