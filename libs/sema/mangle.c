@@ -9,13 +9,43 @@
 //===--------------------------------------------------------------------------------------------===
 #include <string.h>
 #include <inttypes.h>
+#include <orbit/utils/utf8.h>
 #include <orbit/sema/mangle.h>
+
+static uint64_t sema_encodedLength(const char* name, uint64_t length) {
+    uint64_t idx = 0;
+    uint64_t encodedLength = 0;
+    while(idx < length) {
+        codepoint_t c = utf8_getCodepoint(name + idx, length - idx);
+        if(c < 0) { return 0; }
+        
+        idx += utf8_codepointSize(c);
+        encodedLength += c < 256 ? 1 : 7;
+    }
+    return encodedLength;
+}
 
 static void sema_mangleNameLength(const char* name, uint64_t length, OCStringBuffer* buffer) {
     char lenStr[5];
-    uint64_t lenNum = snprintf(lenStr, 5, "%" PRIu64, length);
-    orbit_stringBufferAppendC(buffer, lenStr, lenNum);
-    orbit_stringBufferAppendC(buffer, name, length);
+    uint64_t encodedLength = sema_encodedLength(name, length);
+    if(!encodedLength) return;
+    
+    uint64_t lenLen = snprintf(lenStr, 4, "%" PRIu64, encodedLength);
+    orbit_stringBufferAppendC(buffer, lenStr, lenLen);
+    
+    uint64_t idx = 0;
+    while(idx < length) {
+        codepoint_t c = utf8_getCodepoint(name + idx, length - idx);
+        idx += utf8_codepointSize(c);
+        
+        if(c < 256) orbit_stringBufferAppend(buffer, c);
+        else {
+            orbit_stringBufferAppend(buffer, '$');
+            char hex[10];
+            uint64_t hexLen = snprintf(hex, 10, "%06X", c);
+            orbit_stringBufferAppendC(buffer, hex, hexLen);
+        }
+    }
 }
 
 static void sema_mangleList(AST* head, OCStringBuffer* buffer, codepoint_t start) {
