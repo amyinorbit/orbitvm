@@ -6,7 +6,7 @@ Because Orbit is planned to support function overloads, name mangling is necessa
 
 | Keyword   | Description                                       |
 |:----------|:--------------------------------------------------|
-| `O`       | Denotes a native Orbit type following             |
+| `N`       | Denotes a native Orbit type following             |
 | `b`       | Orbit native `Bool`                               |
 | `*`       | Orbit native `Any`                                |
 | `d`       | Orbit native `Number` (double)                    |
@@ -23,7 +23,7 @@ Because Orbit is planned to support function overloads, name mangling is necessa
 
 ## Identifiers
 
-Orbit does not support member functions (methods, static functions). It does however have the notion of modules (each orbit source files defines a module) and function should not be required to be unique across modules.
+Orbit does not support member functions (methods, static functions). It does however have the notion of modules (each orbit source files defines a module). Function names should not be required to be unique across modules, but need to be unique in the runtime dispatch table.
 
 Identifiers are preceded by their length. Function and variable names are mangled so that their modules are added before them. A `Player` type defined in `GamePlay.orbit` would thus become `8GamePlay6Player`. 
 
@@ -36,7 +36,7 @@ mangled-func    ::= full-identifier func-type
 
 type-list       ::= type-name ('_' type-name)*
 type-name       ::= 'U' full-identifier
-                  | 'O' orbit-type-id
+                  | 'N' orbit-type-id
                   | func-type
                   | array-type
                   | map-type
