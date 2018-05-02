@@ -42,7 +42,6 @@ void sema_mangleType(AST* type, OCStringBuffer* buffer) {
         case AST_TYPEEXPR_STRING:   orbit_stringBufferAppendC(buffer, "Ns", 2); break;
         case AST_TYPEEXPR_NUMBER:   orbit_stringBufferAppendC(buffer, "Nd", 2); break;
         case AST_TYPEEXPR_VOID:     orbit_stringBufferAppend(buffer, 'v');      break;
-        case AST_TYPEEXPR_NIL:                                                  break;
             
         case AST_TYPEEXPR_ARRAY:
             orbit_stringBufferAppendC(buffer, "at", 2);

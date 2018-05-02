@@ -39,7 +39,6 @@ AST* sema_typeCopy(AST* src) {
     case AST_TYPEEXPR_STRING:
     case AST_TYPEEXPR_NUMBER:
     case AST_TYPEEXPR_VOID:
-    case AST_TYPEEXPR_NIL:
         copy = ast_makePrimitiveType(src->kind);
         break;
     case AST_TYPEEXPR_ARRAY:
@@ -81,7 +80,6 @@ bool sema_typeEquals(AST* a, AST* b) {
     case AST_TYPEEXPR_STRING:
     case AST_TYPEEXPR_NUMBER:
     case AST_TYPEEXPR_VOID:
-    case AST_TYPEEXPR_NIL:
         return true;
         
     case AST_TYPEEXPR_ARRAY:
@@ -172,7 +170,7 @@ void sema_extractFuncTypes(AST* func, void* data) {
     // time, since it's needed for VM operations?)
     
     OCString* mangled = orbit_stringPoolGet(sema_mangleFuncName(func));
-    fprintf(stderr, "Mangled Fn. Name: %.*s\n", (int)mangled->length, mangled->data);
+    fprintf(stderr, "Symbol: %.*s()\n", (int)mangled->length, mangled->data);
     
     
     sema_declareSymbol((OCSema*)data, func->funcDecl.name, func->type);

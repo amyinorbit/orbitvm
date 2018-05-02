@@ -34,8 +34,7 @@ const uint32_t ASTExprMask      = AST_EXPR_UNARY
                                 | AST_EXPR_CONSTANT_STRING
                                 | AST_EXPR_NAME;
 
-const uint32_t ASTTypeExprMask  = AST_TYPEEXPR_NIL
-                                | AST_TYPEEXPR_VOID
+const uint32_t ASTTypeExprMask  = AST_TYPEEXPR_VOID
                                 | AST_TYPEEXPR_BOOL
                                 | AST_TYPEEXPR_NUMBER
                                 | AST_TYPEEXPR_STRING
@@ -131,7 +130,8 @@ void ast_destroy(void* ref) {
             break;
         
         case AST_EXPR_NAME:
-        case AST_TYPEEXPR_NIL:
+            break;
+            
         case AST_TYPEEXPR_VOID:
         case AST_TYPEEXPR_BOOL:
         case AST_TYPEEXPR_NUMBER:

@@ -91,7 +91,6 @@ void ast_traverse(AST* ast, ASTKind filter, void* userData, ASTCallback callback
     case AST_EXPR_CONSTANT_STRING:
     case AST_EXPR_CONSTANT:
     case AST_EXPR_NAME:
-    case AST_TYPEEXPR_NIL:
     case AST_TYPEEXPR_VOID:
     case AST_TYPEEXPR_BOOL:
     case AST_TYPEEXPR_NUMBER:

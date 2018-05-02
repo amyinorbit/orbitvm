@@ -88,11 +88,11 @@ typename        ::= primitive
                   | array-type
                   | map-type
                   | user-type
-primitive       ::= 'Nil'
-                  | 'Number'
+primitive       ::= 'Number'
                   | 'Boolean'
                   | 'String'
                   | 'Any'
+                  | 'Void'
 func-type       ::= '(' (type-list)? ')' '->' type
 type-list       ::= type (',' type)*
 array-type      ::= 'Array' '[' type ']'

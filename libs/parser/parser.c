@@ -400,10 +400,6 @@ static AST* recPrimitive(OCParser* parser) {
         expect(parser, TOKEN_STRING);
         return ast_makePrimitiveType(AST_TYPEEXPR_STRING);
     }
-    else if(have(parser, TOKEN_NIL)) {
-        expect(parser, TOKEN_NIL);
-        return ast_makePrimitiveType(AST_TYPEEXPR_NIL);
-    }
     else if(have(parser, TOKEN_VOID)) {
         expect(parser, TOKEN_VOID);
         return ast_makePrimitiveType(AST_TYPEEXPR_VOID);

@@ -52,7 +52,6 @@ static void ast_printType(FILE* out, AST* ast) {
     if((ast->kind & ASTTypeExprMask) == 0) { return; }
     
     switch(ast->kind) {
-    case AST_TYPEEXPR_NIL:      fputs("Nil", out);      break;
     case AST_TYPEEXPR_VOID:     fputs("Void", out);     break;
     case AST_TYPEEXPR_BOOL:     fputs("Bool", out);     break;
     case AST_TYPEEXPR_NUMBER:   fputs("Number", out);   break;
@@ -286,7 +285,6 @@ static void ast_printNode(FILE* out, AST* ast, int depth, bool last) {
         console_printPooledString(out, ast->nameExpr.name);
         break;
     
-    case AST_TYPEEXPR_NIL:
     case AST_TYPEEXPR_VOID:
     case AST_TYPEEXPR_BOOL:
     case AST_TYPEEXPR_NUMBER:

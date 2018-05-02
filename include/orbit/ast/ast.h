@@ -46,16 +46,15 @@ enum _ASTKind {
     AST_EXPR_CONSTANT_STRING    = 1 << 18,
     AST_EXPR_NAME               = 1 << 19,
     
-    AST_TYPEEXPR_NIL            = 1 << 20,
-    AST_TYPEEXPR_VOID           = 1 << 21,
-    AST_TYPEEXPR_BOOL           = 1 << 22,
-    AST_TYPEEXPR_NUMBER         = 1 << 23,
-    AST_TYPEEXPR_STRING         = 1 << 24,
-    AST_TYPEEXPR_USER           = 1 << 25,
-    AST_TYPEEXPR_ARRAY          = 1 << 26,
-    AST_TYPEEXPR_MAP            = 1 << 27,
-    AST_TYPEEXPR_FUNC           = 1 << 28,
-    AST_TYPEEXPR_ANY            = 1 << 29,
+    AST_TYPEEXPR_VOID           = 1 << 20,
+    AST_TYPEEXPR_BOOL           = 1 << 21,
+    AST_TYPEEXPR_NUMBER         = 1 << 22,
+    AST_TYPEEXPR_STRING         = 1 << 23,
+    AST_TYPEEXPR_USER           = 1 << 24,
+    AST_TYPEEXPR_ARRAY          = 1 << 25,
+    AST_TYPEEXPR_MAP            = 1 << 26,
+    AST_TYPEEXPR_FUNC           = 1 << 27,
+    AST_TYPEEXPR_ANY            = 1 << 28,
 };
 
 extern const uint32_t ASTAllMask;
