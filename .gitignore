@@ -32,4 +32,5 @@ spikes/
 
 # Local project config
 *.tm_properties
+*test.orbit
 
