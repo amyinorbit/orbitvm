@@ -13,6 +13,7 @@
 #include <orbit/ast/ast.h>
 #include <orbit/ast/builders.h>
 #include <orbit/ast/traversal.h>
+#include <orbit/sema/mangle.h>
 #include <orbit/sema/type.h>
 
 #include "type_private.h"
