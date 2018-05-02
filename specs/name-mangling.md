@@ -44,7 +44,7 @@ type-name       ::= 'U' full-identifier
 func-params     ::= 'p' type-list 'e'
 template-params ::= 't' type-list 'e'
 
-func-type       ::= 'f' (func-params)? '_' type-name
+func-type       ::= 'f' (func-params)? type-name
 array-type      ::= 'a' template-params
 map-type        ::= 'm' template-params
 

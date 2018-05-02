@@ -13,7 +13,6 @@
 #include <orbit/ast/ast.h>
 #include <orbit/ast/builders.h>
 #include <orbit/ast/traversal.h>
-#include <orbit/sema/mangle.h>
 #include <orbit/sema/type.h>
 
 #include "type_private.h"
@@ -169,8 +168,14 @@ void sema_extractFuncTypes(AST* func, void* data) {
     // a collection of functions in the symbol table instead (and do mangling at code generation
     // time, since it's needed for VM operations?)
     
-    OCString* mangled = orbit_stringPoolGet(sema_mangleFuncName(func));
-    fprintf(stderr, "Symbol: %.*s()\n", (int)mangled->length, mangled->data);
+    // OCString* mangled = orbit_stringPoolGet(sema_mangleFuncName(func));
+    // fprintf(stderr, "Symbol: %.*s() ::", (int)mangled->length, mangled->data);
+    // 
+    // OCString* demangled = orbit_stringPoolGet(sema_demangle(mangled->data, mangled->length));
+    // if(demangled)
+    //     fprintf(stderr, " %.*s\n", (int)demangled->length, demangled->data);
+    // else
+    //     fprintf(stderr, " Unable to demangle\n");
     
     
     sema_declareSymbol((OCSema*)data, func->funcDecl.name, func->type);
