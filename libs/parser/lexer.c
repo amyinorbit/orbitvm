@@ -179,12 +179,9 @@ static void _lexIdentifier(OCLexer* lexer) {
 }
 
 static void _lexString(OCLexer* lexer) {
-    //lexer->tokenStart += 1; Not necessary, we want to keep track of the quote in the token
-    
     // String literals cannot be tokenised by solely pointing into the source
-    // string, since there's the potential for
+    // string, we need to account for escape sequences.
     orbit_stringBufferReset(&lexer->buffer);
-    //lexer->string = ORCRETAIN(orbit_utfStringInitWithCapacity(ORBIT_ALLOC(UTFString), 64));
     
     for(;;) {
         codepoint_t c = _nextChar(lexer);
@@ -220,8 +217,6 @@ static void _lexString(OCLexer* lexer) {
     _makeToken(lexer, TOKEN_STRING_LITERAL);
     // Store the parsed string literal
     lexer->currentToken.parsedStringLiteral = orbit_stringBufferIntern(&lexer->buffer);
-    //ORCRELEASE(lexer->string);
-    //lexer->string = NULL;
 }
 
 static inline bool isDigit(codepoint_t c) {
@@ -242,18 +237,34 @@ static void _lexNumber(OCLexer* lexer) {
             _nextChar(lexer);
         }
     }
-    // if(_match(lexer, '.') && isDigit(_next(lexer))) {
-    //     type = TOKEN_FLOAT_LITERAL;
-    //     while(isDigit(_next(lexer))) {
-    //         _nextChar(lexer);
-    //     }
-    // }
     _makeToken(lexer, type);
 }
 
 static void _eatLineComment(OCLexer* lexer) {
     while(_next(lexer) != '\n' && _next(lexer) != '\0') {
         _nextChar(lexer);
+    }
+}
+
+static void _lexBlockComment(OCLexer* lexer) {
+    int depth = 1;
+    for(;;) {
+        codepoint_t c = _nextChar(lexer);
+        switch(c) {
+        case '*':
+            c = _nextChar(lexer);
+            if(c == '/') { depth -= 1; }
+            break;
+        case '/':
+            c = _nextChar(lexer);
+            if(c == '*') { depth += 1; }
+            break;
+        case '\0':
+            _lexerError(lexer, "unterminated string literal");
+            return;
+        default: break;
+        }
+        if(depth == 0) { return; }
     }
 }
 
@@ -318,7 +329,10 @@ void lexer_nextToken(OCLexer* lexer) {
             case '/':
                 if(_match(lexer, '/')) {
                     _eatLineComment(lexer);
-                } else {
+                } else if(_match(lexer, '*')) {
+                    _lexBlockComment(lexer);
+                }
+                else {
                     _twoChars(lexer, '=', TOKEN_SLASHEQ, TOKEN_SLASH);
                     return;
                 }
