@@ -142,28 +142,28 @@ void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj) {
     obj->mark = true;
     
     switch(obj->type) {
-    case OBJ_CLASS:
+    case ORBIT_OBJK_CLASS:
         orbit_markClass(vm, (GCClass*)obj);
         break;
-    case OBJ_INSTANCE:
+    case ORBIT_OBJK_INSTANCE:
         orbit_markInstance(vm, (GCInstance*)obj);
         break;
-    case OBJ_STRING:
+    case ORBIT_OBJK_STRING:
         orbit_markString(vm, (GCString*)obj);
         break;
-    case OBJ_MAP:
+    case ORBIT_OBJK_MAP:
         orbit_markMap(vm, (GCMap*)obj);
         break;
-    case OBJ_ARRAY:
+    case ORBIT_OBJK_ARRAY:
         orbit_markArray(vm, (GCArray*)obj);
         break;
-    case OBJ_FUNCTION:
+    case ORBIT_OBJK_FUNCTION:
         orbit_markFunction(vm, (VMFunction*)obj);
         break;
-    case OBJ_MODULE:
+    case ORBIT_OBJK_MODULE:
         orbit_markModule(vm, (VMModule*)obj);
         break;
-    case OBJ_TASK:
+    case ORBIT_OBJK_TASK:
         orbit_markTask(vm, (VMTask*)obj);
         break;
     }

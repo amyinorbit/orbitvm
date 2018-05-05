@@ -16,21 +16,21 @@
 #include <orbit/orbit.h>
 #include <orbit/utils/platforms.h>
 
-typedef enum _ValueType     ValueType;
-typedef enum _GCFnType      GCFnType;
-typedef enum _GCObjType     GCObjType;
-typedef struct _GCValue     GCValue;
-typedef struct _GCClass     GCClass;
-typedef struct _GCObject    GCObject;
-typedef struct _GCInstance  GCInstance;
-typedef struct _GCString    GCString;
-typedef struct _GCMap       GCMap;
-typedef struct _GCArray     GCArray;
-typedef struct _VMFunction  VMFunction;
-typedef struct _VMCallFrame VMCallFrame;
-typedef struct _VMGlobal    VMGlobal;
-typedef struct _VMModule    VMModule;
-typedef struct _VMTask      VMTask;
+typedef enum _OrbitValueKind    OrbitValueKind;
+typedef enum _GCFnType          GCFnType;
+typedef enum _OrbitObjKind      OrbitObjKind;
+typedef struct _GCValue         GCValue;
+typedef struct _GCClass         GCClass;
+typedef struct _GCObject        GCObject;
+typedef struct _GCInstance      GCInstance;
+typedef struct _GCString        GCString;
+typedef struct _GCMap           GCMap;
+typedef struct _GCArray         GCArray;
+typedef struct _VMFunction      VMFunction;
+typedef struct _VMCallFrame     VMCallFrame;
+typedef struct _VMGlobal        VMGlobal;
+typedef struct _VMModule        VMModule;
+typedef struct _VMTask          VMTask;
 typedef bool (*GCForeignFn)(OrbitVM* vm, GCValue*);
 
 
@@ -43,18 +43,18 @@ typedef bool (*GCForeignFn)(OrbitVM* vm, GCValue*);
 //
 // A value can also hold a function reference for potential closures in the
 // future.
-enum _ValueType {
-    TYPE_NIL,
-    TYPE_TRUE,
-    TYPE_FALSE,
-    TYPE_NUM,
-    TYPE_OBJECT
+enum _OrbitValueKind {
+    ORBIT_VK_NIL,
+    ORBIT_VK_TRUE,
+    ORBIT_VK_FALSE,
+    ORBIT_VK_NUM,
+    ORBIT_VK_OBJECT
 };
 
 
 // Orbit's value type, used for the GC's stack and the language's variables.
 struct _GCValue {
-    ValueType       type;
+    OrbitValueKind  type;
     union {
         double      numValue;
         void*       objectValue;
@@ -63,15 +63,15 @@ struct _GCValue {
 
 // The type of a garbage-collected object. This is used to decide how to collect
 // the object, and wether it has fields pointing to other objects in the graph.
-enum _GCObjType {
-    OBJ_CLASS,
-    OBJ_INSTANCE,
-    OBJ_STRING,
-    OBJ_MAP,
-    OBJ_ARRAY,
-    OBJ_FUNCTION,
-    OBJ_MODULE,
-    OBJ_TASK,
+enum _OrbitObjKind {
+    ORBIT_OBJK_CLASS,
+    ORBIT_OBJK_INSTANCE,
+    ORBIT_OBJK_STRING,
+    ORBIT_OBJK_MAP,
+    ORBIT_OBJK_ARRAY,
+    ORBIT_OBJK_FUNCTION,
+    ORBIT_OBJK_MODULE,
+    ORBIT_OBJK_TASK,
 };
 
 
@@ -79,7 +79,7 @@ enum _GCObjType {
 // collector.
 struct _GCObject {
     GCClass*        class;
-    GCObjType       type;
+    OrbitObjKind       type;
     bool            mark;
     GCObject*       next;
 };
@@ -222,29 +222,29 @@ struct _VMModule {
 
 // Macros used to check the type of an orbit GCValue tagged union.
 
-#define MAKE_NUM(num)   ((GCValue){TYPE_NUM, {.numValue=(num)}})
-#define MAKE_BOOL(val)  ((GCValue){(val)? TYPE_TRUE : TYPE_FALSE, {.numValue=0}})
-#define MAKE_OBJECT(obj)((GCValue){TYPE_OBJECT, {.objectValue=(obj)}})
+#define MAKE_NUM(num)   ((GCValue){ORBIT_VK_NUM, {.numValue=(num)}})
+#define MAKE_BOOL(val)  ((GCValue){(val)? ORBIT_VK_TRUE : ORBIT_VK_FALSE, {.numValue=0}})
+#define MAKE_OBJECT(obj)((GCValue){ORBIT_VK_OBJECT, {.objectValue=(obj)}})
 
-#define VAL_NIL         ((GCValue){TYPE_NIL, {.objectValue=NULL}})
-#define VAL_TRUE        ((GCValue){TYPE_TRUE, {.objectValue=NULL}})
-#define VAL_FALSE       ((GCValue){TYPE_FALSE, {.objectValue=NULL}})
+#define VAL_NIL         ((GCValue){ORBIT_VK_NIL, {.objectValue=NULL}})
+#define VAL_TRUE        ((GCValue){ORBIT_VK_TRUE, {.objectValue=NULL}})
+#define VAL_FALSE       ((GCValue){ORBIT_VK_FALSE, {.objectValue=NULL}})
 
-#define IS_BOOL(val)    ((val).type == TYPE_TRUE || (val).type == TYPE_FALSE)
-#define IS_TRUE(val)    ((val).type == TYPE_TRUE || (IS_NUM(val) && AS_NUM(val) != 0.0))
+#define IS_BOOL(val)    ((val).type == ORBIT_VK_TRUE || (val).type == ORBIT_VK_FALSE)
+#define IS_TRUE(val)    ((val).type == ORBIT_VK_TRUE || (IS_NUM(val) && AS_NUM(val) != 0.0))
 #define IS_FALSE(val)   (!IS_TRUE(val))
-#define IS_NIL(val)     ((val).type == TYPE_NIL)
-#define IS_NUM(val)     ((val).type == TYPE_NUM)
-#define IS_OBJECT(val)  ((val).type == TYPE_OBJECT)
-#define IS_INSTANCE(val)(IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_INSTANCE)
-#define IS_STRING(val)  (IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_STRING)
-#define IS_CLASS(val)   (IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_CLASS)
-#define IS_FUNCTION(val)(IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_FUNCTION)
-#define IS_MODULE(val)  (IS_OBJECT(val) && AS_OBJECT(val)->type == OBJ_MODULE)
+#define IS_NIL(val)     ((val).type == ORBIT_VK_NIL)
+#define IS_NUM(val)     ((val).type == ORBIT_VK_NUM)
+#define IS_OBJECT(val)  ((val).type == ORBIT_VK_OBJECT)
+#define IS_INSTANCE(val)(IS_OBJECT(val) && AS_OBJECT(val)->type == ORBIT_OBJK_INSTANCE)
+#define IS_STRING(val)  (IS_OBJECT(val) && AS_OBJECT(val)->type == ORBIT_OBJK_STRING)
+#define IS_CLASS(val)   (IS_OBJECT(val) && AS_OBJECT(val)->type == ORBIT_OBJK_CLASS)
+#define IS_FUNCTION(val)(IS_OBJECT(val) && AS_OBJECT(val)->type == ORBIT_OBJK_FUNCTION)
+#define IS_MODULE(val)  (IS_OBJECT(val) && AS_OBJECT(val)->type == ORBIT_OBJK_MODULE)
 
 // Macros used to cast [val] to a given GC type.
 
-#define AS_BOOL(val)    ((val).type == TYPE_TRUE)
+#define AS_BOOL(val)    ((val).type == ORBIT_VK_TRUE)
 #define AS_NUM(val)     ((double)(val).numValue)
 #define AS_OBJECT(val)  ((GCObject*)(val).objectValue)
 #define AS_CLASS(val)   ((GCClass*)AS_OBJECT(val))

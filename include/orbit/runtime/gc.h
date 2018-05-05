@@ -7,8 +7,8 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#ifndef orbit_gc_h
-#define orbit_gc_h
+#ifndef orbit_runtime_gc_h
+#define orbit_runtime_gc_h
 
 #include <orbit/orbit.h>
 #include <orbit/runtime/value.h>
@@ -20,4 +20,4 @@ void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj);
 
 void orbit_gcMark(OrbitVM* vm, GCValue value);
 
-#endif /* orbit_gc_h */
+#endif /* orbit_runtime_gc_h */

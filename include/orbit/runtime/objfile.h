@@ -7,8 +7,8 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#ifndef orbit_objfile_h
-#define orbit_objfile_h
+#ifndef orbit_runtime_objfile_h
+#define orbit_runtime_objfile_h
 
 #include <stdio.h>
 #include <stdint.h>
@@ -94,4 +94,4 @@ typedef enum {
 VMModule* orbit_unpackModule(OrbitVM* vm, FILE* file);
 
 
-#endif /* orbit_pack_h */
+#endif /* orbit_runtime_objfile_h */

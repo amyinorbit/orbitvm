@@ -44,7 +44,7 @@ GCString* orbit_gcStringReserve(OrbitVM* vm, size_t length) {
     GCString* object = ALLOC_FLEX(vm, GCString, char, length+1);
     orbit_objectInit(vm, (GCObject*)object, NULL);
     
-    object->base.type = OBJ_STRING;
+    object->base.type = ORBIT_OBJK_STRING;
     object->hash = 0;
     object->length = length;
     memset(object->data, '\0', length);
@@ -62,7 +62,7 @@ GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class) {
     
     GCInstance* object = ALLOC_FLEX(vm, GCInstance, GCValue, class->fieldCount);
     orbit_objectInit(vm, (GCObject*)object, class);
-    object->base.type = OBJ_INSTANCE;
+    object->base.type = ORBIT_OBJK_INSTANCE;
     return object;
 }
 
@@ -72,7 +72,7 @@ GCClass* orbit_gcClassNew(OrbitVM* vm, GCString* name, uint16_t fieldCount) {
     
     GCClass* class = ALLOC(vm, GCClass);
     orbit_objectInit(vm, (GCObject*)class, NULL);
-    class->base.type = OBJ_CLASS;
+    class->base.type = ORBIT_OBJK_CLASS;
     class->name = name;
     class->super = NULL;
     class->fieldCount = fieldCount;
@@ -86,7 +86,7 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength) {
     
     VMFunction* function = ALLOC(vm, VMFunction);
     orbit_objectInit(vm, (GCObject*)function, NULL);
-    function->base.type = OBJ_FUNCTION;
+    function->base.type = ORBIT_OBJK_FUNCTION;
     function->type = FN_NATIVE;
     
     // By default the function lives in the wild
@@ -107,7 +107,7 @@ VMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_t ari
     
     VMFunction* function = ALLOC(vm, VMFunction);
     orbit_objectInit(vm, (GCObject*)function, NULL);
-    function->base.type = OBJ_FUNCTION;
+    function->base.type = ORBIT_OBJK_FUNCTION;
     function->type = FN_FOREIGN;
 
     function->module = NULL;
@@ -125,7 +125,7 @@ VMModule* orbit_gcModuleNew(OrbitVM* vm) {
     
     VMModule* module = ALLOC(vm, VMModule);
     orbit_objectInit(vm, (GCObject*)module, NULL);
-    module->base.type = OBJ_MODULE;
+    module->base.type = ORBIT_OBJK_MODULE;
     
     module->constantCount = 0;
     module->constants = NULL;
@@ -139,7 +139,7 @@ VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function) {
     
     VMTask* task = ALLOC(vm, VMTask);
     orbit_objectInit(vm, (GCObject*)task, NULL);
-    task->base.type = OBJ_TASK;
+    task->base.type = ORBIT_OBJK_TASK;
     
     task->stack = ALLOC_ARRAY(vm, GCValue, 512);
     task->stackCapacity = 512;
@@ -168,35 +168,35 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
     OASSERT(object != NULL, "Null instance error");
     
     switch(object->type) {
-    case OBJ_CLASS:
+    case ORBIT_OBJK_CLASS:
         break;
         
-    case OBJ_INSTANCE:
+    case ORBIT_OBJK_INSTANCE:
         break;
         
-    case OBJ_STRING:
+    case ORBIT_OBJK_STRING:
         break;
         
-    case OBJ_MAP:
+    case ORBIT_OBJK_MAP:
         DEALLOC(vm, ((GCMap*)object)->data);
         break;
     
-    case OBJ_ARRAY:
+    case ORBIT_OBJK_ARRAY:
         DEALLOC(vm, ((GCArray*)object)->data);
         break;
         
-    case OBJ_FUNCTION:
+    case ORBIT_OBJK_FUNCTION:
         if(((VMFunction*)object)->type == FN_NATIVE) {
             DEALLOC(vm, ((VMFunction*)object)->native.byteCode);
         }
         break;
         
-    case OBJ_MODULE:
+    case ORBIT_OBJK_MODULE:
         DEALLOC(vm, ((VMModule*)object)->constants);
         DEALLOC(vm, ((VMModule*)object)->globals);
         break;
         
-    case OBJ_TASK:
+    case ORBIT_OBJK_TASK:
         DEALLOC(vm, ((VMTask*)object)->stack);
         DEALLOC(vm, ((VMTask*)object)->frames);
         break;
@@ -288,7 +288,7 @@ GCMap* orbit_gcMapNew(OrbitVM* vm) {
     
     GCMap* map = ALLOC(vm, GCMap);
     orbit_objectInit(vm, (GCObject*)map, NULL/* TODO: replace with Map class*/);
-    map->base.type = OBJ_MAP;
+    map->base.type = ORBIT_OBJK_MAP;
     
     map->data = NULL;
     map->capacity = 0;
@@ -365,7 +365,7 @@ GCArray* orbit_gcArrayNew(OrbitVM* vm) {
     
     GCArray* array = ALLOC(vm, GCArray);
     orbit_objectInit(vm, (GCObject*)array, NULL);
-    array->base.type = OBJ_ARRAY;
+    array->base.type = ORBIT_OBJK_ARRAY;
     
     array->data = NULL;
     array->capacity = 0;
