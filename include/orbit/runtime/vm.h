@@ -27,20 +27,20 @@ typedef enum {
 
 #define ORBIT_GCSTACK_SIZE 16
 struct _OrbitVM {
-    VMTask*     task;
-    GCObject*   gcHead;
-    uint64_t    allocated;
-    uint64_t    nextGC;
+    VMTask*         task;
+    OrbitGCObject*  gcHead;
+    uint64_t        allocated;
+    uint64_t        nextGC;
     
-    GCMap*      dispatchTable;
-    GCMap*      classes;
-    GCMap*      modules;
+    OrbitGCMap*     dispatchTable;
+    OrbitGCMap*     classes;
+    OrbitGCMap*     modules;
     
-    GCObject*   gcStack[ORBIT_GCSTACK_SIZE];
-    uint64_t    gcStackSize;
+    OrbitGCObject*  gcStack[ORBIT_GCSTACK_SIZE];
+    uint64_t        gcStackSize;
 };
 
-static inline void orbit_gcRetain(OrbitVM* vm, GCObject* object) {
+static inline void orbit_gcRetain(OrbitVM* vm, OrbitGCObject* object) {
     OASSERT(vm->gcStackSize < ORBIT_GCSTACK_SIZE-1, "stack overflow");
     vm->gcStack[vm->gcStackSize++] = object;
 }

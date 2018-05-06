@@ -118,8 +118,8 @@ void gc_collect(void) {
     OrbitVM* vm = orbit_vmNew();
     size_t zero_alloc = vm->allocated;
     
-    GCString* string = orbit_gcStringNew(vm, "Hello, world");
-    size_t size = sizeof(GCString) + string->length+1;
+    OrbitGCString* string = orbit_gcStringNew(vm, "Hello, world");
+    size_t size = sizeof(OrbitGCString) + string->length+1;
     TEST_ASSERT_EQUAL(zero_alloc + size, vm->allocated);
     
     orbit_gcRun(vm);
@@ -131,12 +131,12 @@ void gc_savestack(void) {
     OrbitVM* vm = orbit_vmNew();
     size_t zero_alloc = vm->allocated;
     
-    GCString* string = orbit_gcStringNew(vm, "Hello, world");
+    OrbitGCString* string = orbit_gcStringNew(vm, "Hello, world");
     
-    size_t size = sizeof(GCString) + string->length+1;
+    size_t size = sizeof(OrbitGCString) + string->length+1;
     TEST_ASSERT_EQUAL(zero_alloc + size, vm->allocated);
     
-    orbit_gcRetain(vm, (GCObject*)string);
+    orbit_gcRetain(vm, (OrbitGCObject*)string);
     orbit_gcRun(vm);
     TEST_ASSERT_EQUAL(zero_alloc+size, vm->allocated);
     orbit_gcRelease(vm);
@@ -147,7 +147,7 @@ void gc_savestack(void) {
 
 void string_create(void) {
     OrbitVM* vm = orbit_vmNew();
-    GCString* string = orbit_gcStringNew(vm, "Hello, world!");
+    OrbitGCString* string = orbit_gcStringNew(vm, "Hello, world!");
     
     TEST_ASSERT_NOT_NULL(string);
     TEST_ASSERT_EQUAL(string->length, 13);
@@ -159,9 +159,9 @@ void string_create(void) {
 
 void string_hash(void) {
     OrbitVM* vm = orbit_vmNew();
-    GCString* a = orbit_gcStringNew(vm, "Hello");
-    GCString* b = orbit_gcStringNew(vm, "Hello");
-    GCString* c = orbit_gcStringNew(vm, "Goodbye!");
+    OrbitGCString* a = orbit_gcStringNew(vm, "Hello");
+    OrbitGCString* b = orbit_gcStringNew(vm, "Hello");
+    OrbitGCString* c = orbit_gcStringNew(vm, "Goodbye!");
     
     TEST_ASSERT_NOT_NULL(a);
     TEST_ASSERT_NOT_NULL(b);
@@ -176,8 +176,8 @@ void string_hash(void) {
 
 void string_emptyHash(void) {
     OrbitVM* vm = orbit_vmNew();
-    GCString* a = orbit_gcStringNew(vm, "");
-    GCString* b = orbit_gcStringNew(vm, "");
+    OrbitGCString* a = orbit_gcStringNew(vm, "");
+    OrbitGCString* b = orbit_gcStringNew(vm, "");
     
     TEST_ASSERT_NOT_NULL(a);
     TEST_ASSERT_NOT_NULL(b);
@@ -197,7 +197,7 @@ void double_hash(void) {
 void gcarray_new(void) {
     OrbitVM* vm = orbit_vmNew();
     
-    GCArray* array = orbit_gcArrayNew(vm);
+    OrbitGCArray* array = orbit_gcArrayNew(vm);
     
     TEST_ASSERT_NOT_NULL(array);
     TEST_ASSERT_NOT_NULL(array->data);
@@ -210,7 +210,7 @@ void gcarray_new(void) {
 
 void gcarray_add(void) {
     OrbitVM* vm = orbit_vmNew();
-    GCArray* array = orbit_gcArrayNew(vm);
+    OrbitGCArray* array = orbit_gcArrayNew(vm);
     orbit_gcArrayAdd(vm, array, MAKE_NUM(123.456));
     
     TEST_ASSERT_EQUAL(1, array->size);
@@ -220,11 +220,11 @@ void gcarray_add(void) {
 }
 
 void gcarray_get(void) {
-    GCValue result;
+    OrbitValue result;
     bool success = false;
     
     OrbitVM* vm = orbit_vmNew();
-    GCArray* array = orbit_gcArrayNew(vm);
+    OrbitGCArray* array = orbit_gcArrayNew(vm);
     orbit_gcArrayAdd(vm, array, MAKE_NUM(123.456));
     
     TEST_ASSERT_EQUAL(1, array->size);
@@ -237,11 +237,11 @@ void gcarray_get(void) {
 }
 
 void gcarray_remove(void) {
-    GCValue result;
+    OrbitValue result;
     bool success = false;
     
     OrbitVM* vm = orbit_vmNew();
-    GCArray* array = orbit_gcArrayNew(vm);
+    OrbitGCArray* array = orbit_gcArrayNew(vm);
     orbit_gcArrayAdd(vm, array, MAKE_NUM(123.456));
     orbit_gcArrayAdd(vm, array, MAKE_NUM(-1));
     
@@ -259,7 +259,7 @@ void gcarray_remove(void) {
 
 void gcarray_grow(void) {
     OrbitVM* vm = orbit_vmNew();
-    GCArray* array = orbit_gcArrayNew(vm);
+    OrbitGCArray* array = orbit_gcArrayNew(vm);
     
     for(uint32_t i = 0; i <= GCARRAY_DEFAULT_CAPACITY; ++i) {
         orbit_gcArrayAdd(vm, array, MAKE_NUM(i));
@@ -276,7 +276,7 @@ void gcarray_grow(void) {
 void gcmap_new(void) {
     OrbitVM* vm = orbit_vmNew();
     
-    GCMap* map = orbit_gcMapNew(vm);
+    OrbitGCMap* map = orbit_gcMapNew(vm);
     
     TEST_ASSERT_NOT_NULL(map);
     TEST_ASSERT_NOT_NULL(map->data);
@@ -290,9 +290,9 @@ void gcmap_new(void) {
 void gcmap_insert(void) {
     OrbitVM* vm = orbit_vmNew();
     
-    GCValue key1 = MAKE_OBJECT(orbit_gcStringNew(vm, "key1"));
-    GCValue key2 = MAKE_NUM(123);
-    GCMap* map = orbit_gcMapNew(vm);
+    OrbitValue key1 = MAKE_OBJECT(orbit_gcStringNew(vm, "key1"));
+    OrbitValue key2 = MAKE_NUM(123);
+    OrbitGCMap* map = orbit_gcMapNew(vm);
     
     orbit_gcMapAdd(vm, map, key1, MAKE_NUM(1000));
     orbit_gcMapAdd(vm, map, key2, MAKE_NUM(-1000));
@@ -304,12 +304,12 @@ void gcmap_insert(void) {
 
 void gcmap_get(void) {
     OrbitVM* vm = orbit_vmNew();
-    GCValue result;
+    OrbitValue result;
     bool success = false;
     
-    GCValue key1 = MAKE_OBJECT(orbit_gcStringNew(vm, "key1"));
-    GCValue key2 = MAKE_NUM(123);
-    GCMap* map = orbit_gcMapNew(vm);
+    OrbitValue key1 = MAKE_OBJECT(orbit_gcStringNew(vm, "key1"));
+    OrbitValue key2 = MAKE_NUM(123);
+    OrbitGCMap* map = orbit_gcMapNew(vm);
     
     orbit_gcMapAdd(vm, map, key1, MAKE_NUM(1000));
     orbit_gcMapAdd(vm, map, key2, MAKE_NUM(-1000));
@@ -328,12 +328,12 @@ void gcmap_get(void) {
 
 void gcmap_overwrite(void) {
     OrbitVM* vm = orbit_vmNew();
-    GCValue result;
+    OrbitValue result;
     bool success = false;
     
-    GCValue key1 = MAKE_OBJECT(orbit_gcStringNew(vm, "key1"));
-    GCValue key2 = MAKE_NUM(123);
-    GCMap* map = orbit_gcMapNew(vm);
+    OrbitValue key1 = MAKE_OBJECT(orbit_gcStringNew(vm, "key1"));
+    OrbitValue key2 = MAKE_NUM(123);
+    OrbitGCMap* map = orbit_gcMapNew(vm);
     
     orbit_gcMapAdd(vm, map, key1, MAKE_NUM(1000));
     orbit_gcMapAdd(vm, map, key2, MAKE_NUM(-1000));
@@ -351,12 +351,12 @@ void gcmap_overwrite(void) {
 
 void gcmap_remove(void) {
     OrbitVM* vm = orbit_vmNew();
-    GCValue result;
+    OrbitValue result;
     bool success = false;
     
-    GCValue key1 = MAKE_OBJECT(orbit_gcStringNew(vm, "key1"));
-    GCValue key2 = MAKE_NUM(123);
-    GCMap* map = orbit_gcMapNew(vm);
+    OrbitValue key1 = MAKE_OBJECT(orbit_gcStringNew(vm, "key1"));
+    OrbitValue key2 = MAKE_NUM(123);
+    OrbitGCMap* map = orbit_gcMapNew(vm);
     
     orbit_gcMapAdd(vm, map, key1, MAKE_NUM(1000));
     orbit_gcMapAdd(vm, map, key2, MAKE_NUM(-1000));
@@ -375,12 +375,12 @@ void gcmap_remove(void) {
 
 void gcmap_removeAdd(void) {
     OrbitVM* vm = orbit_vmNew();
-    GCValue result;
+    OrbitValue result;
     bool success = false;
     
-    GCValue key1 = MAKE_OBJECT(orbit_gcStringNew(vm, "key1"));
-    GCValue key2 = MAKE_NUM(123);
-    GCMap* map = orbit_gcMapNew(vm);
+    OrbitValue key1 = MAKE_OBJECT(orbit_gcStringNew(vm, "key1"));
+    OrbitValue key2 = MAKE_NUM(123);
+    OrbitGCMap* map = orbit_gcMapNew(vm);
     
     orbit_gcMapAdd(vm, map, key1, MAKE_NUM(1000));
     orbit_gcMapAdd(vm, map, key2, MAKE_NUM(-1000));
@@ -407,7 +407,7 @@ void gcmap_removeAdd(void) {
 void gcmap_grow(void) {
 
     OrbitVM* vm = orbit_vmNew();
-    GCMap* map = orbit_gcMapNew(vm);
+    OrbitGCMap* map = orbit_gcMapNew(vm);
     
     for(uint32_t i = 0; i <= GCMAP_DEFAULT_CAPACITY; ++i) {
         orbit_gcMapAdd(vm, map, MAKE_NUM(i), MAKE_NUM(i*1000));
@@ -416,7 +416,7 @@ void gcmap_grow(void) {
     TEST_ASSERT_NOT_NULL(map->data);
     TEST_ASSERT_EQUAL(GCMAP_DEFAULT_CAPACITY*2, map->capacity);
     
-    GCValue result;
+    OrbitValue result;
     bool success = false;
     for(uint32_t i = 0; i <= GCMAP_DEFAULT_CAPACITY; ++i) {
         success = orbit_gcMapGet(map, MAKE_NUM(i), &result);

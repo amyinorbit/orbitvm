@@ -25,10 +25,10 @@ void orbit_gcRun(OrbitVM* vm) {
     vm->allocated = 0;
     
     // mark everything used by the current execution context
-    orbit_gcMarkObject(vm, (GCObject*)vm->task);
-    orbit_gcMarkObject(vm, (GCObject*)vm->dispatchTable);
-    orbit_gcMarkObject(vm, (GCObject*)vm->classes);
-    orbit_gcMarkObject(vm, (GCObject*)vm->modules);
+    orbit_gcMarkObject(vm, (OrbitGCObject*)vm->task);
+    orbit_gcMarkObject(vm, (OrbitGCObject*)vm->dispatchTable);
+    orbit_gcMarkObject(vm, (OrbitGCObject*)vm->classes);
+    orbit_gcMarkObject(vm, (OrbitGCObject*)vm->modules);
     
     // mark the retained objects
     for(uint8_t i = 0; i < vm->gcStackSize; ++i) {
@@ -39,10 +39,10 @@ void orbit_gcRun(OrbitVM* vm) {
     
 // basic Mark-sweep algorithm from 
 // http://journal.stuffwithstuff.com/2013/12/08/babys-first-garbage-collector/
-    GCObject** obj = &vm->gcHead;
+    OrbitGCObject** obj = &vm->gcHead;
     while(*obj) {
         if(!(*obj)->mark) {
-            GCObject* garbage = *obj;
+            OrbitGCObject* garbage = *obj;
             *obj = garbage->next;
             orbit_gcDeallocate(vm, garbage);
         } else {
@@ -55,31 +55,31 @@ void orbit_gcRun(OrbitVM* vm) {
     vm->nextGC = vm->allocated * 2;
 }
 
-static inline void orbit_markClass(OrbitVM* vm, GCClass* class) {
-    vm->allocated += sizeof(GCClass);
-    orbit_gcMarkObject(vm, (GCObject*)class->name);
-    orbit_gcMarkObject(vm, (GCObject*)class->methods);
+static inline void orbit_markClass(OrbitVM* vm, OrbitGCClass* class) {
+    vm->allocated += sizeof(OrbitGCClass);
+    orbit_gcMarkObject(vm, (OrbitGCObject*)class->name);
+    orbit_gcMarkObject(vm, (OrbitGCObject*)class->methods);
 }
 
-static inline void orbit_markString(OrbitVM* vm, GCString* string) {
-    vm->allocated += sizeof(GCString) + string->length + 1;
+static inline void orbit_markString(OrbitVM* vm, OrbitGCString* string) {
+    vm->allocated += sizeof(OrbitGCString) + string->length + 1;
 }
 
-static inline void orbit_markInstance(OrbitVM* vm, GCInstance* instance) {
+static inline void orbit_markInstance(OrbitVM* vm, OrbitGCInstance* instance) {
     // mark objects pointed to by the fields of the instance.
     for(uint16_t i = 0; i < instance->base.class->fieldCount; ++i) {
         orbit_gcMark(vm, instance->fields[i]);
     }
     // mark the class .
-    orbit_gcMarkObject(vm, (GCObject*)instance->base.class);
+    orbit_gcMarkObject(vm, (OrbitGCObject*)instance->base.class);
     
-    vm->allocated += sizeof(GCInstance)
-                    + instance->base.class->fieldCount * sizeof(GCValue);
+    vm->allocated += sizeof(OrbitGCInstance)
+                    + instance->base.class->fieldCount * sizeof(OrbitValue);
 }
 
-static inline void orbit_markMap(OrbitVM* vm, GCMap* map) {
-    vm->allocated += sizeof(GCMap);
-    vm->allocated += sizeof(GCMapEntry) * map->capacity;
+static inline void orbit_markMap(OrbitVM* vm, OrbitGCMap* map) {
+    vm->allocated += sizeof(OrbitGCMap);
+    vm->allocated += sizeof(OrbitGCMapEntry) * map->capacity;
     
     for(uint32_t i = 0; i < map->capacity; ++i) {
         if(IS_NIL(map->data[i].key)) continue;
@@ -88,9 +88,9 @@ static inline void orbit_markMap(OrbitVM* vm, GCMap* map) {
     }
 }
 
-static inline void orbit_markArray(OrbitVM* vm, GCArray* array) {
-    vm->allocated += sizeof(GCArray);
-    vm->allocated += sizeof(GCValue) * array->capacity;
+static inline void orbit_markArray(OrbitVM* vm, OrbitGCArray* array) {
+    vm->allocated += sizeof(OrbitGCArray);
+    vm->allocated += sizeof(OrbitValue) * array->capacity;
     
     for(uint32_t i = 0; i < array->size; ++i) {
         orbit_gcMark(vm, array->data[i]);
@@ -99,8 +99,8 @@ static inline void orbit_markArray(OrbitVM* vm, GCArray* array) {
 
 static inline void orbit_markFunction(OrbitVM* vm, VMFunction* function) {
     vm->allocated += sizeof(VMFunction);
-    orbit_gcMarkObject(vm, (GCObject*)function->module);
-    if(function->type == FN_NATIVE) {
+    orbit_gcMarkObject(vm, (OrbitGCObject*)function->module);
+    if(function->type == ORBIT_FK_NATIVE) {
         vm->allocated += function->native.byteCodeLength;
     }
 }
@@ -122,20 +122,20 @@ static inline void orbit_markModule(OrbitVM* vm, VMModule* module) {
 static inline void orbit_markTask(OrbitVM* vm, VMTask* task) {
     vm->allocated += sizeof(VMTask);
     vm->allocated += sizeof(VMCallFrame) * task->frameCapacity;
-    vm->allocated += sizeof(GCValue) * task->stackCapacity;
+    vm->allocated += sizeof(OrbitValue) * task->stackCapacity;
     
     // mark the stack
-    for(GCValue* val = task->stack; val < task->sp; val++) {
+    for(OrbitValue* val = task->stack; val < task->sp; val++) {
         orbit_gcMark(vm, *val);
     }
     
     // mark the call frames
     for(uint32_t i = 0; i < task->frameCount; ++i) {
-        orbit_gcMarkObject(vm, (GCObject*)task->frames[i].function);
+        orbit_gcMarkObject(vm, (OrbitGCObject*)task->frames[i].function);
     }
 }
 
-void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj) {
+void orbit_gcMarkObject(OrbitVM* vm, OrbitGCObject* obj) {
     if(obj == NULL) return;
     if(obj->mark) return;
     
@@ -143,19 +143,19 @@ void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj) {
     
     switch(obj->type) {
     case ORBIT_OBJK_CLASS:
-        orbit_markClass(vm, (GCClass*)obj);
+        orbit_markClass(vm, (OrbitGCClass*)obj);
         break;
     case ORBIT_OBJK_INSTANCE:
-        orbit_markInstance(vm, (GCInstance*)obj);
+        orbit_markInstance(vm, (OrbitGCInstance*)obj);
         break;
     case ORBIT_OBJK_STRING:
-        orbit_markString(vm, (GCString*)obj);
+        orbit_markString(vm, (OrbitGCString*)obj);
         break;
     case ORBIT_OBJK_MAP:
-        orbit_markMap(vm, (GCMap*)obj);
+        orbit_markMap(vm, (OrbitGCMap*)obj);
         break;
     case ORBIT_OBJK_ARRAY:
-        orbit_markArray(vm, (GCArray*)obj);
+        orbit_markArray(vm, (OrbitGCArray*)obj);
         break;
     case ORBIT_OBJK_FUNCTION:
         orbit_markFunction(vm, (VMFunction*)obj);
@@ -169,7 +169,7 @@ void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj) {
     }
 }
 
-void orbit_gcMark(OrbitVM* vm, GCValue value) {
+void orbit_gcMark(OrbitVM* vm, OrbitValue value) {
     if(!IS_OBJECT(value)) return;
     orbit_gcMarkObject(vm, AS_OBJECT(value));
 }

@@ -16,8 +16,8 @@
 
 void orbit_gcRun(OrbitVM* vm);
 
-void orbit_gcMarkObject(OrbitVM* vm, GCObject* obj);
+void orbit_gcMarkObject(OrbitVM* vm, OrbitGCObject* obj);
 
-void orbit_gcMark(OrbitVM* vm, GCValue value);
+void orbit_gcMark(OrbitVM* vm, OrbitValue value);
 
 #endif /* orbit_runtime_gc_h */

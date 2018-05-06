@@ -17,24 +17,24 @@
 #include <orbit/utils/platforms.h>
 
 typedef enum _OrbitValueKind    OrbitValueKind;
-typedef enum _GCFnType          GCFnType;
+typedef enum _OrbitFnKind       OrbitFnKind;
 typedef enum _OrbitObjKind      OrbitObjKind;
-typedef struct _GCValue         GCValue;
-typedef struct _GCClass         GCClass;
-typedef struct _GCObject        GCObject;
-typedef struct _GCInstance      GCInstance;
-typedef struct _GCString        GCString;
-typedef struct _GCMap           GCMap;
-typedef struct _GCArray         GCArray;
+typedef struct _OrbitValue      OrbitValue;
+typedef struct _OrbitGCClass    OrbitGCClass;
+typedef struct _OrbitGCObject   OrbitGCObject;
+typedef struct _OrbitGCInstance OrbitGCInstance;
+typedef struct _OrbitGCString   OrbitGCString;
+typedef struct _OrbitGCMap      OrbitGCMap;
+typedef struct _OrbitGCArray    OrbitGCArray;
 typedef struct _VMFunction      VMFunction;
 typedef struct _VMCallFrame     VMCallFrame;
 typedef struct _VMGlobal        VMGlobal;
 typedef struct _VMModule        VMModule;
 typedef struct _VMTask          VMTask;
-typedef bool (*GCForeignFn)(OrbitVM* vm, GCValue*);
+typedef bool (*GCForeignFn)(OrbitVM* vm, OrbitValue*);
 
 
-// The type tag of a GCValue tagged union. NIL, True and False are singletons
+// The type tag of a OrbitValue tagged union. NIL, True and False are singletons
 // to simplify dealing with them often.
 //
 // All numbers are double to simplify the standard library and allow
@@ -53,7 +53,7 @@ enum _OrbitValueKind {
 
 
 // Orbit's value type, used for the GC's stack and the language's variables.
-struct _GCValue {
+struct _OrbitValue {
     OrbitValueKind  type;
     union {
         double      numValue;
@@ -77,23 +77,23 @@ enum _OrbitObjKind {
 
 // The base struct for any object that must be kept track of by the GC's garbage
 // collector.
-struct _GCObject {
-    GCClass*        class;
-    OrbitObjKind       type;
+struct _OrbitGCObject {
+    OrbitGCClass*   class;
+    OrbitObjKind    type;
     bool            mark;
-    GCObject*       next;
+    OrbitGCObject*  next;
 };
 
 
 // Orbit's class/user type representation. Even though Orbit 1 will probably
 // not support inheritance (if it even supports OOP at all), we keep some space
 // for a pointer to the parent class.
-struct _GCClass {
-    GCObject        base;
-    GCString*       name;
-    GCClass*        super;
+struct _OrbitGCClass {
+    OrbitGCObject   base;
+    OrbitGCString*  name;
+    OrbitGCClass*   super;
     uint16_t        fieldCount;
-    GCMap*          methods;
+    OrbitGCMap*     methods;
 };
 
 
@@ -101,9 +101,9 @@ struct _GCClass {
 // 
 // Half-classes like the language's primitives string, array and map do not
 // require [fields] and are implemented mostly in C.
-struct _GCInstance {
-    GCObject        base;
-    GCValue         fields[ORBIT_FLEXIBLE_ARRAY_MEMB];
+struct _OrbitGCInstance {
+    OrbitGCObject   base;
+    OrbitValue      fields[ORBIT_FLEXIBLE_ARRAY_MEMB];
 };
 
 
@@ -111,8 +111,8 @@ struct _GCInstance {
 //
 // Strings are immutable, which allows a bunch of optimisiations like storing
 // length and hash, computed only once when the string is created.
-struct _GCString {
-    GCObject        base;
+struct _OrbitGCString {
+    OrbitGCObject   base;
     uint64_t        length;
     uint32_t        hash;
     char            data[ORBIT_FLEXIBLE_ARRAY_MEMB];
@@ -121,9 +121,9 @@ struct _GCString {
 // Orbit's primitive map's entry type. Key can be any primitive value (string
 // or number).
 typedef struct {
-    GCValue         key;
-    GCValue         value;
-} GCMapEntry;
+    OrbitValue      key;
+    OrbitValue      value;
+} OrbitGCMapEntry;
 
 // The default capacity of a hash map. Must be a power of two to allow for
 // AND modulo hack.
@@ -131,28 +131,28 @@ typedef struct {
 
 // Orbit's associative array type, implemented as an open-addressed, linear
 // probed hash map.
-struct _GCMap {
-    GCObject        base;
-    uint64_t        mask;
-    uint64_t        size;
-    uint64_t        capacity;
-    GCMapEntry*     data;
+struct _OrbitGCMap {
+    OrbitGCObject       base;
+    uint64_t            mask;
+    uint64_t            size;
+    uint64_t            capacity;
+    OrbitGCMapEntry*    data;
 };
 
 #define GCARRAY_DEFAULT_CAPACITY 32
 
 // Orbit's dynamic array type.
-struct _GCArray {
-    GCObject        base;
+struct _OrbitGCArray {
+    OrbitGCObject   base;
     uint64_t        size;
     uint64_t        capacity;
-    GCValue*        data;
+    OrbitValue*     data;
 };
 
 // The type fo a GC function.
-enum _GCFnType {
-    FN_NATIVE,
-    FN_FOREIGN,
+enum _OrbitFnKind {
+    ORBIT_FK_NATIVE,
+    ORBIT_FK_FOREIGN,
 };
 
 // Orbit's native function type, used for bytecode-compiled functions.
@@ -167,8 +167,8 @@ typedef struct _GCNativeFn {
 // Orbit script file, or a pointer to their native implementation for functions
 // declared through the C API.
 struct _VMFunction {
-    GCObject        base;
-    GCFnType        type;
+    OrbitGCObject   base;
+    OrbitFnKind     type;
     VMModule*       module;
     uint8_t         arity;
     uint8_t         localCount;
@@ -184,18 +184,18 @@ struct _VMCallFrame {
     VMTask*         task;
     VMFunction*     function;
     uint8_t*        ip;
-    GCValue*        stackBase;
+    OrbitValue*     stackBase;
 };
 
 // Tasks hold the data required to execute bytecode: an operand stack for
 // temporary results, as well as a call stack for function invocation and
 // return.
 struct _VMTask {
-    GCObject        base;
+    OrbitGCObject   base;
     
     uint64_t        stackCapacity;
-    GCValue*        sp;
-    GCValue*        stack;
+    OrbitValue*     sp;
+    OrbitValue*     stack;
     
     uint64_t        frameCount;
     uint64_t        frameCapacity;
@@ -203,32 +203,32 @@ struct _VMTask {
 };
 
 struct _VMGlobal {
-    GCValue         name;
-    GCValue         global;
+    OrbitValue      name;
+    OrbitValue      global;
 };
 
 // VMModule holds all that is needed for a bytecode file to be executed.
 // A module is created when a bytecode file is loaded into the VM, and can be
 // used to hold state in between C API function calls.
 struct _VMModule {
-    GCObject        base;
+    OrbitGCObject   base;
     
     uint16_t        constantCount;
-    GCValue*        constants;
+    OrbitValue*     constants;
     
     uint16_t        globalCount;
     VMGlobal*       globals;
 };
 
-// Macros used to check the type of an orbit GCValue tagged union.
+// Macros used to check the type of an orbit OrbitValue tagged union.
 
-#define MAKE_NUM(num)   ((GCValue){ORBIT_VK_NUM, {.numValue=(num)}})
-#define MAKE_BOOL(val)  ((GCValue){(val)? ORBIT_VK_TRUE : ORBIT_VK_FALSE, {.numValue=0}})
-#define MAKE_OBJECT(obj)((GCValue){ORBIT_VK_OBJECT, {.objectValue=(obj)}})
+#define MAKE_NUM(num)   ((OrbitValue){ORBIT_VK_NUM, {.numValue=(num)}})
+#define MAKE_BOOL(val)  ((OrbitValue){(val)? ORBIT_VK_TRUE : ORBIT_VK_FALSE, {.numValue=0}})
+#define MAKE_OBJECT(obj)((OrbitValue){ORBIT_VK_OBJECT, {.objectValue=(obj)}})
 
-#define VAL_NIL         ((GCValue){ORBIT_VK_NIL, {.objectValue=NULL}})
-#define VAL_TRUE        ((GCValue){ORBIT_VK_TRUE, {.objectValue=NULL}})
-#define VAL_FALSE       ((GCValue){ORBIT_VK_FALSE, {.objectValue=NULL}})
+#define VAL_NIL         ((OrbitValue){ORBIT_VK_NIL, {.objectValue=NULL}})
+#define VAL_TRUE        ((OrbitValue){ORBIT_VK_TRUE, {.objectValue=NULL}})
+#define VAL_FALSE       ((OrbitValue){ORBIT_VK_FALSE, {.objectValue=NULL}})
 
 #define IS_BOOL(val)    ((val).type == ORBIT_VK_TRUE || (val).type == ORBIT_VK_FALSE)
 #define IS_TRUE(val)    ((val).type == ORBIT_VK_TRUE || (IS_NUM(val) && AS_NUM(val) != 0.0))
@@ -246,53 +246,53 @@ struct _VMModule {
 
 #define AS_BOOL(val)    ((val).type == ORBIT_VK_TRUE)
 #define AS_NUM(val)     ((double)(val).numValue)
-#define AS_OBJECT(val)  ((GCObject*)(val).objectValue)
-#define AS_CLASS(val)   ((GCClass*)AS_OBJECT(val))
-#define AS_INST(val)    ((GCInstance*)AS_OBJECT(val))
-#define AS_STRING(val)  ((GCString*)AS_OBJECT(val))
+#define AS_OBJECT(val)  ((OrbitGCObject*)(val).objectValue)
+#define AS_CLASS(val)   ((OrbitGCClass*)AS_OBJECT(val))
+#define AS_INST(val)    ((OrbitGCInstance*)AS_OBJECT(val))
+#define AS_STRING(val)  ((OrbitGCString*)AS_OBJECT(val))
 #define AS_FUNCTION(val)((VMFunction*)AS_OBJECT(val))
 
 // Creates a garbage collected string in [vm] from the bytes in [string].
-GCString* orbit_gcStringNew(OrbitVM* vm, const char* string);
+OrbitGCString* orbit_gcStringNew(OrbitVM* vm, const char* string);
 
 // Creates a garbage collected string in [vm] with [size] bytes.
-GCString* orbit_gcStringReserve(OrbitVM* vm, size_t size);
+OrbitGCString* orbit_gcStringReserve(OrbitVM* vm, size_t size);
 
 // Recomputes the hash of [string] and stores it.
-void orbit_gcStringComputeHash(GCString* string);
+void orbit_gcStringComputeHash(OrbitGCString* string);
 
 // Creates a garbage collected instance of [class] in [vm].
-GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class);
+OrbitGCInstance* orbit_gcInstanceNew(OrbitVM* vm, OrbitGCClass* class);
 
 // Creates a new class meta-object in [vm] named [className].
-GCClass* orbit_gcClassNew(OrbitVM* vm, GCString* name, uint16_t fieldCount);
+OrbitGCClass* orbit_gcClassNew(OrbitVM* vm, OrbitGCString* name, uint16_t fieldCount);
 
 // Creates a new hash map object in [vm];
-GCMap* orbit_gcMapNew(OrbitVM* vm);
+OrbitGCMap* orbit_gcMapNew(OrbitVM* vm);
 
 // Add a the [key] ==> [value] pair to [map]. [map] is grown if necessary.
-void orbit_gcMapAdd(OrbitVM* vm, GCMap* map, GCValue key, GCValue value);
+void orbit_gcMapAdd(OrbitVM* vm, OrbitGCMap* map, OrbitValue key, OrbitValue value);
 
 // Fetch the value for [key] in [map] into [value]. If [key] does not exist in
 // [map], returns false.
-bool orbit_gcMapGet(GCMap* map, GCValue key, GCValue* value);
+bool orbit_gcMapGet(OrbitGCMap* map, OrbitValue key, OrbitValue* value);
 
 // Remove the value for [key] in [map] if it exists.
-void orbit_gcMapRemove(OrbitVM* vm, GCMap* map, GCValue key);
+void orbit_gcMapRemove(OrbitVM* vm, OrbitGCMap* map, OrbitValue key);
 
 // Creates a new array in [vm].
-GCArray* orbit_gcArrayNew(OrbitVM* vm);
+OrbitGCArray* orbit_gcArrayNew(OrbitVM* vm);
 
 // Add [value] to [array].
-void orbit_gcArrayAdd(OrbitVM* vm, GCArray* array, GCValue value);
+void orbit_gcArrayAdd(OrbitVM* vm, OrbitGCArray* array, OrbitValue value);
 
 // Fetch the value at [index] in [array] into [value]. If [index] is out of
 // bounds, returns false.
-bool orbit_gcArrayGet(GCArray* array, uint32_t index, GCValue* value);
+bool orbit_gcArrayGet(OrbitGCArray* array, uint32_t index, OrbitValue* value);
 
 // Remove the value at [index] in [array]. If [index] is out of bounds, returns
 // false. Shrink [array] if necessary.
-bool orbit_gcArrayRemove(OrbitVM* vm, GCArray* array, uint32_t index);
+bool orbit_gcArrayRemove(OrbitVM* vm, OrbitGCArray* array, uint32_t index);
 
 // Creates a native bytecode function.
 VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength);
@@ -309,6 +309,6 @@ VMModule* orbit_gcModuleNew(OrbitVM* vm);
 VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function);
 
 // Deallocates [object].
-void orbit_gcDeallocate(OrbitVM* vm, GCObject* object);
+void orbit_gcDeallocate(OrbitVM* vm, OrbitGCObject* object);
 
 #endif /* orbit_value_h */

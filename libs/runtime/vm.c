@@ -52,8 +52,8 @@ void orbit_vmLoadModule(OrbitVM* vm, const char* moduleName) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(moduleName != NULL, "Null string error");
     
-    GCValue key = MAKE_OBJECT(orbit_gcStringNew(vm, moduleName));
-    GCValue module = VAL_NIL;
+    OrbitValue key = MAKE_OBJECT(orbit_gcStringNew(vm, moduleName));
+    OrbitValue module = VAL_NIL;
     
     orbit_gcMapGet(vm->modules, key, &module);
     if(IS_MODULE(module)) { return; }
@@ -89,8 +89,8 @@ bool orbit_vmInvoke(OrbitVM* vm, const char* module, const char* entry) {
     
     orbit_vmLoadModule(vm, module);
     
-    GCValue signature = MAKE_OBJECT(orbit_gcStringNew(vm, entry));
-    GCValue fn = VAL_NIL;
+    OrbitValue signature = MAKE_OBJECT(orbit_gcStringNew(vm, entry));
+    OrbitValue fn = VAL_NIL;
     if(!orbit_gcMapGet(vm->dispatchTable, signature, &fn) || !IS_FUNCTION(fn)) {
         fprintf(stderr, "error: cannot find `%s` (entry point)\n", entry);
         return false;
@@ -121,8 +121,8 @@ static inline void orbit_vmEnsureStack(OrbitVM* vm, VMTask* task, uint8_t req) {
     while(task->stackCapacity < required) {
         task->stackCapacity *= 2;
     }
-    GCValue* oldStack = task->stack;
-    task->stack = REALLOC_ARRAY(vm, task->stack, GCValue, task->stackCapacity);
+    OrbitValue* oldStack = task->stack;
+    task->stack = REALLOC_ARRAY(vm, task->stack, OrbitValue, task->stackCapacity);
     
     int64_t stackOffset = task->stack - oldStack;
     if(stackOffset == 0) { return; }
@@ -162,7 +162,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
     register VMCode instruction = CODE_halt;
     register VMFunction* fn = frame->function;
     register uint8_t* ip = frame->ip;
-    register GCValue* locals = frame->stackBase;
+    register OrbitValue* locals = frame->stackBase;
     
 #define PUSH(value) (*(task->sp++) = (value))
 #define PEEK() (*(task->sp - 1))
@@ -216,7 +216,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
         CASE_OP(load_field):
             {
                 // TODO: replace POP() by PEEK() ?
-                GCInstance* obj = AS_INST(POP());
+                OrbitGCInstance* obj = AS_INST(POP());
                 PUSH(obj->fields[READ16()]);
             }
             NEXT();
@@ -235,7 +235,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
         CASE_OP(store_field):
             {
-                GCValue val = POP();
+                OrbitValue val = POP();
                 AS_INST(POP())->fields[READ16()] = val;
             }
             NEXT();
@@ -315,7 +315,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
         CASE_OP(jump_if):
             {
                 uint16_t offset= READ16();
-                GCValue condition = POP();
+                OrbitValue condition = POP();
                 if(IS_FALSE(condition)) {
                     NEXT();
                 }
@@ -334,7 +334,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             {
                 uint16_t offset;
                 offset = READ16();
-                GCValue condition = POP();
+                OrbitValue condition = POP();
                 if(IS_FALSE(condition)) NEXT();
                 ip -= offset;
             }
@@ -353,8 +353,8 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
         CASE_OP(swap):
             {
-                GCValue a = POP();
-                GCValue b = POP();
+                OrbitValue a = POP();
+                OrbitValue b = POP();
                 PUSH(a);
                 PUSH(b);
             }
@@ -372,7 +372,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             // function object in memory. This avoids the overhead of hashmap
             // lookup with every single invocation, but does not require the
             // whole bytecode to be checked and doctored at load time.
-            GCValue     callee, symbol;
+            OrbitValue     callee, symbol;
             uint16_t    idx;
             
         CASE_OP(invoke_sym):
@@ -401,7 +401,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             frame->ip = ip;
             
             switch(AS_FUNCTION(callee)->type) {
-            case FN_NATIVE:
+            case ORBIT_FK_NATIVE:
                 // Get the pointer to the function object for convenience
                 fn = AS_FUNCTION(callee);
                 orbit_vmEnsureFrames(vm, task);
@@ -427,7 +427,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
                 NEXT();
                 break;
                 
-            case FN_FOREIGN:
+            case ORBIT_FK_FOREIGN:
             
                 if(AS_FUNCTION(callee)->foreign(vm, task->sp - AS_FUNCTION(callee)->arity)) {
                     task->sp -= (AS_FUNCTION(callee)->arity - 1);
@@ -448,7 +448,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             // value is popped off the stack before reseting sp, and pushed
             // back on top after.
             
-            GCValue returnValue;
+            OrbitValue returnValue;
         CASE_OP(ret_val):
             returnValue = POP();
             task->sp = frame->stackBase;
@@ -475,12 +475,12 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
         
         
         {
-            GCValue class;
+            OrbitValue class;
             uint16_t idx;
         CASE_OP(init_sym):
             
             idx = READ8();
-            GCValue symbol = fn->module->constants[idx];
+            OrbitValue symbol = fn->module->constants[idx];
             orbit_gcMapGet(vm->classes, symbol, &class);
             // replace the opcode in the bytecode stream so that future calls
             // can use the direct reference.
@@ -499,7 +499,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             
         CASE_OP(debug_prt):
             {
-                GCValue tos = PEEK();
+                OrbitValue tos = PEEK();
                 if(IS_NUM(tos)) {
                     fprintf(stderr, "TOS: %lf\n", AS_NUM(tos));
                 }

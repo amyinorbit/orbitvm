@@ -16,7 +16,7 @@
 
 // Initialises [object] as an instance of [class]. [class] can be NULL if the
 // object being initialized is a class itself.
-static void orbit_objectInit(OrbitVM* vm, GCObject* object, GCClass* class) {
+static void orbit_objectInit(OrbitVM* vm, OrbitGCObject* object, OrbitGCClass* class) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(object != NULL, "Null instance error");
     
@@ -26,11 +26,11 @@ static void orbit_objectInit(OrbitVM* vm, GCObject* object, GCClass* class) {
     vm->gcHead = object;
 }
 
-GCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
+OrbitGCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
     OASSERT(vm != NULL, "Null instance error");
     
     size_t length = strlen(string);
-    GCString* object = orbit_gcStringReserve(vm, length);
+    OrbitGCString* object = orbit_gcStringReserve(vm, length);
     
     memcpy(object->data, string, length);
     object->data[length] = '\0';
@@ -38,11 +38,11 @@ GCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
     return object;
 }
 
-GCString* orbit_gcStringReserve(OrbitVM* vm, size_t length) {
+OrbitGCString* orbit_gcStringReserve(OrbitVM* vm, size_t length) {
     OASSERT(vm != NULL, "Null instance error");
     
-    GCString* object = ALLOC_FLEX(vm, GCString, char, length+1);
-    orbit_objectInit(vm, (GCObject*)object, NULL);
+    OrbitGCString* object = ALLOC_FLEX(vm, OrbitGCString, char, length+1);
+    orbit_objectInit(vm, (OrbitGCObject*)object, NULL);
     
     object->base.type = ORBIT_OBJK_STRING;
     object->hash = 0;
@@ -51,27 +51,27 @@ GCString* orbit_gcStringReserve(OrbitVM* vm, size_t length) {
     return object;
 }
 
-void orbit_gcStringComputeHash(GCString* string) {
+void orbit_gcStringComputeHash(OrbitGCString* string) {
     OASSERT(string != NULL, "Null instance error");
     string->hash = orbit_hashString(string->data, string->length);
 }
 
-GCInstance* orbit_gcInstanceNew(OrbitVM* vm, GCClass* class) {
+OrbitGCInstance* orbit_gcInstanceNew(OrbitVM* vm, OrbitGCClass* class) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(class != NULL, "Null class error");
     
-    GCInstance* object = ALLOC_FLEX(vm, GCInstance, GCValue, class->fieldCount);
-    orbit_objectInit(vm, (GCObject*)object, class);
+    OrbitGCInstance* object = ALLOC_FLEX(vm, OrbitGCInstance, OrbitValue, class->fieldCount);
+    orbit_objectInit(vm, (OrbitGCObject*)object, class);
     object->base.type = ORBIT_OBJK_INSTANCE;
     return object;
 }
 
-GCClass* orbit_gcClassNew(OrbitVM* vm, GCString* name, uint16_t fieldCount) {
+OrbitGCClass* orbit_gcClassNew(OrbitVM* vm, OrbitGCString* name, uint16_t fieldCount) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(name != NULL, "Null instance error");
     
-    GCClass* class = ALLOC(vm, GCClass);
-    orbit_objectInit(vm, (GCObject*)class, NULL);
+    OrbitGCClass* class = ALLOC(vm, OrbitGCClass);
+    orbit_objectInit(vm, (OrbitGCObject*)class, NULL);
     class->base.type = ORBIT_OBJK_CLASS;
     class->name = name;
     class->super = NULL;
@@ -85,9 +85,9 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength) {
     OASSERT(vm != NULL, "Null instance error");
     
     VMFunction* function = ALLOC(vm, VMFunction);
-    orbit_objectInit(vm, (GCObject*)function, NULL);
+    orbit_objectInit(vm, (OrbitGCObject*)function, NULL);
     function->base.type = ORBIT_OBJK_FUNCTION;
-    function->type = FN_NATIVE;
+    function->type = ORBIT_FK_NATIVE;
     
     // By default the function lives in the wild
     function->module = NULL;
@@ -106,9 +106,9 @@ VMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_t ari
     OASSERT(vm != NULL, "Null instance error");
     
     VMFunction* function = ALLOC(vm, VMFunction);
-    orbit_objectInit(vm, (GCObject*)function, NULL);
+    orbit_objectInit(vm, (OrbitGCObject*)function, NULL);
     function->base.type = ORBIT_OBJK_FUNCTION;
-    function->type = FN_FOREIGN;
+    function->type = ORBIT_FK_FOREIGN;
 
     function->module = NULL;
     function->foreign = ffi;
@@ -124,7 +124,7 @@ VMModule* orbit_gcModuleNew(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
     
     VMModule* module = ALLOC(vm, VMModule);
-    orbit_objectInit(vm, (GCObject*)module, NULL);
+    orbit_objectInit(vm, (OrbitGCObject*)module, NULL);
     module->base.type = ORBIT_OBJK_MODULE;
     
     module->constantCount = 0;
@@ -138,10 +138,10 @@ VMModule* orbit_gcModuleNew(OrbitVM* vm) {
 VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function) {
     
     VMTask* task = ALLOC(vm, VMTask);
-    orbit_objectInit(vm, (GCObject*)task, NULL);
+    orbit_objectInit(vm, (OrbitGCObject*)task, NULL);
     task->base.type = ORBIT_OBJK_TASK;
     
-    task->stack = ALLOC_ARRAY(vm, GCValue, 512);
+    task->stack = ALLOC_ARRAY(vm, OrbitValue, 512);
     task->stackCapacity = 512;
     
     task->frames = ALLOC_ARRAY(vm, VMTask, 32);
@@ -163,7 +163,7 @@ VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function) {
     return task;
 }
 
-void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
+void orbit_gcDeallocate(OrbitVM* vm, OrbitGCObject* object) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(object != NULL, "Null instance error");
     
@@ -178,15 +178,15 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
         break;
         
     case ORBIT_OBJK_MAP:
-        DEALLOC(vm, ((GCMap*)object)->data);
+        DEALLOC(vm, ((OrbitGCMap*)object)->data);
         break;
     
     case ORBIT_OBJK_ARRAY:
-        DEALLOC(vm, ((GCArray*)object)->data);
+        DEALLOC(vm, ((OrbitGCArray*)object)->data);
         break;
         
     case ORBIT_OBJK_FUNCTION:
-        if(((VMFunction*)object)->type == FN_NATIVE) {
+        if(((VMFunction*)object)->type == ORBIT_FK_NATIVE) {
             DEALLOC(vm, ((VMFunction*)object)->native.byteCode);
         }
         break;
@@ -206,7 +206,7 @@ void orbit_gcDeallocate(OrbitVM* vm, GCObject* object) {
 
 // MARK: - Map functions implementations
 
-static inline uint32_t orbit_valueHash(GCValue value) {
+static inline uint32_t orbit_valueHash(OrbitValue value) {
     if(IS_NUM(value))
         return orbit_hashDouble(AS_NUM(value));
     if(IS_STRING(value))
@@ -215,16 +215,16 @@ static inline uint32_t orbit_valueHash(GCValue value) {
         return 0; // TODO: replace with pointer hash.
 }
 
-static void orbit_gcMapGrow(OrbitVM* vm, GCMap* map) {
+static void orbit_gcMapGrow(OrbitVM* vm, OrbitGCMap* map) {
     uint32_t oldCapacity = map->capacity;
-    GCMapEntry* oldData = map->data;
+    OrbitGCMapEntry* oldData = map->data;
     
     if(map->capacity == 0)
         map->capacity = GCMAP_DEFAULT_CAPACITY;
     else
         map->capacity = map->capacity << 1;
     
-    map->data = ALLOC_ARRAY(vm, GCMapEntry, map->capacity);
+    map->data = ALLOC_ARRAY(vm, OrbitGCMapEntry, map->capacity);
     map->size = 0;
     map->mask = map->capacity - 1;
     
@@ -242,12 +242,12 @@ static void orbit_gcMapGrow(OrbitVM* vm, GCMap* map) {
 
 // Custom equality check for map, we avoid unused cases (only number and string
 // comparisons)
-static inline bool orbit_gcMapComp(GCValue a, GCValue b) {
+static inline bool orbit_gcMapComp(OrbitValue a, OrbitValue b) {
     if(IS_NUM(a) && IS_NUM(b)) {
         return AS_NUM(a) == AS_NUM(b);
     }
-    GCString* stra = AS_STRING(a);
-    GCString* strb = AS_STRING(b);
+    OrbitGCString* stra = AS_STRING(a);
+    OrbitGCString* strb = AS_STRING(b);
     // Check for pointer equality first.
     return (stra == strb)
         || (stra->length == strb->length
@@ -257,8 +257,8 @@ static inline bool orbit_gcMapComp(GCValue a, GCValue b) {
 
 // Find the entry in [map] keyed by [key], or return a pointer to the entry
 // where a value should be inserted.
-static GCMapEntry* orbit_gcMapFindSlot(GCMap* map, GCValue key) {
-    GCMapEntry* insert = NULL;
+static OrbitGCMapEntry* orbit_gcMapFindSlot(OrbitGCMap* map, OrbitValue key) {
+    OrbitGCMapEntry* insert = NULL;
     uint32_t index = orbit_valueHash(key) & map->mask;
     uint32_t start = index;
     
@@ -283,11 +283,11 @@ static GCMapEntry* orbit_gcMapFindSlot(GCMap* map, GCValue key) {
     return insert;
 }
 
-GCMap* orbit_gcMapNew(OrbitVM* vm) {
+OrbitGCMap* orbit_gcMapNew(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
     
-    GCMap* map = ALLOC(vm, GCMap);
-    orbit_objectInit(vm, (GCObject*)map, NULL/* TODO: replace with Map class*/);
+    OrbitGCMap* map = ALLOC(vm, OrbitGCMap);
+    orbit_objectInit(vm, (OrbitGCObject*)map, NULL/* TODO: replace with Map class*/);
     map->base.type = ORBIT_OBJK_MAP;
     
     map->data = NULL;
@@ -297,7 +297,7 @@ GCMap* orbit_gcMapNew(OrbitVM* vm) {
     return map;
 }
 
-void orbit_gcMapAdd(OrbitVM* vm, GCMap* map, GCValue key, GCValue value) {
+void orbit_gcMapAdd(OrbitVM* vm, OrbitGCMap* map, OrbitValue key, OrbitValue value) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(map != NULL, "Null instance error");
     OASSERT(IS_NUM(key) || IS_STRING(key), "Map keys must be primitives");
@@ -306,7 +306,7 @@ void orbit_gcMapAdd(OrbitVM* vm, GCMap* map, GCValue key, GCValue value) {
         orbit_gcMapGrow(vm, map);
     }
     
-    GCMapEntry* slot = orbit_gcMapFindSlot(map, key);
+    OrbitGCMapEntry* slot = orbit_gcMapFindSlot(map, key);
     if(IS_NIL(slot->key)) {
         map->size += 1;
     }
@@ -314,11 +314,11 @@ void orbit_gcMapAdd(OrbitVM* vm, GCMap* map, GCValue key, GCValue value) {
     slot->value = value;
 }
 
-bool orbit_gcMapGet(GCMap* map, GCValue key, GCValue* value) {
+bool orbit_gcMapGet(OrbitGCMap* map, OrbitValue key, OrbitValue* value) {
     OASSERT(map != NULL, "Null instance error");
     OASSERT(IS_NUM(key) || IS_STRING(key), "Map keys must be primitives");
     
-    GCMapEntry* slot = orbit_gcMapFindSlot(map, key);
+    OrbitGCMapEntry* slot = orbit_gcMapFindSlot(map, key);
     if(IS_NIL(slot->key)) {
         *value = VAL_NIL;
         return false;
@@ -328,12 +328,12 @@ bool orbit_gcMapGet(GCMap* map, GCValue key, GCValue* value) {
     }
 }
 
-void orbit_gcMapRemove(OrbitVM* vm, GCMap* map, GCValue key) {
+void orbit_gcMapRemove(OrbitVM* vm, OrbitGCMap* map, OrbitValue key) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(map != NULL, "Null instance error");
     OASSERT(IS_NUM(key) || IS_STRING(key), "Map keys must be primitives");
     
-    GCMapEntry* slot = orbit_gcMapFindSlot(map, key);
+    OrbitGCMapEntry* slot = orbit_gcMapFindSlot(map, key);
     if(IS_NIL(slot->key)) return;
     
     // Tombstone, so that entries pushed further by collisions can still be
@@ -345,26 +345,26 @@ void orbit_gcMapRemove(OrbitVM* vm, GCMap* map, GCValue key) {
 
 // MARK: - Array functions implementation
 
-static void orbit_gcArrayGrow(OrbitVM* vm, GCArray* array) {
+static void orbit_gcArrayGrow(OrbitVM* vm, OrbitGCArray* array) {
     if(array->capacity == 0)
         array->capacity = GCARRAY_DEFAULT_CAPACITY;
     else
         array->capacity = array->capacity << 1;
-    array->data = REALLOC_ARRAY(vm, array->data, GCValue, array->capacity);
+    array->data = REALLOC_ARRAY(vm, array->data, OrbitValue, array->capacity);
 }
 //
-// static inline void orbit_gcArrayShrink(OrbitVM* vm, GCArray* array) {
+// static inline void orbit_gcArrayShrink(OrbitVM* vm, OrbitGCArray* array) {
 //     while(array->capacity >> 1 > array->size) {
 //         array->capacity = array->capacity >> 1;
 //     }
-//     array->data = REALLOC_ARRAY(vm, array->data, GCValue, array->capacity);
+//     array->data = REALLOC_ARRAY(vm, array->data, OrbitValue, array->capacity);
 // }
 
-GCArray* orbit_gcArrayNew(OrbitVM* vm) {
+OrbitGCArray* orbit_gcArrayNew(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
     
-    GCArray* array = ALLOC(vm, GCArray);
-    orbit_objectInit(vm, (GCObject*)array, NULL);
+    OrbitGCArray* array = ALLOC(vm, OrbitGCArray);
+    orbit_objectInit(vm, (OrbitGCObject*)array, NULL);
     array->base.type = ORBIT_OBJK_ARRAY;
     
     array->data = NULL;
@@ -375,7 +375,7 @@ GCArray* orbit_gcArrayNew(OrbitVM* vm) {
     return array;
 }
 
-void orbit_gcArrayAdd(OrbitVM* vm, GCArray* array, GCValue value) {
+void orbit_gcArrayAdd(OrbitVM* vm, OrbitGCArray* array, OrbitValue value) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(array != NULL, "Null instance error");
     
@@ -385,7 +385,7 @@ void orbit_gcArrayAdd(OrbitVM* vm, GCArray* array, GCValue value) {
     array->data[array->size++] = value;
 }
 
-bool orbit_gcArrayGet(GCArray* array, uint32_t index, GCValue* value) {
+bool orbit_gcArrayGet(OrbitGCArray* array, uint32_t index, OrbitValue* value) {
     OASSERT(array != NULL, "Null instance error");
     
     if(index > array->size) {
@@ -396,13 +396,13 @@ bool orbit_gcArrayGet(GCArray* array, uint32_t index, GCValue* value) {
     return true;
 }
 
-bool orbit_gcArrayRemove(OrbitVM* vm, GCArray* array, uint32_t index) {
+bool orbit_gcArrayRemove(OrbitVM* vm, OrbitGCArray* array, uint32_t index) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(array != NULL, "Null instance error");
     
     if(index > array->size) return false;
     array->size -= 1;
     memmove(&array->data[index], &array->data[index+1],
-            sizeof(GCValue)*(array->size - index));
+            sizeof(OrbitValue)*(array->size - index));
     return true;
 }

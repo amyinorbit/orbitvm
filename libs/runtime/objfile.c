@@ -37,19 +37,19 @@ static bool _checkVersion(FILE* in, uint16_t version, OrbitPackError* error) {
     return fileVersion == version;
 }
 
-static inline bool _loadNumber(FILE* in, GCValue* value, OrbitPackError* error) {
+static inline bool _loadNumber(FILE* in, OrbitValue* value, OrbitPackError* error) {
     double number = orbit_unpackIEEE754(in, error);
     if(*error != PACK_NOERROR) { return false; }
     *value = MAKE_NUM(number);
     return true;
 }
 
-static inline bool _loadString(OrbitVM* vm, FILE* in, GCValue* value, OrbitPackError* error) {
+static inline bool _loadString(OrbitVM* vm, FILE* in, OrbitValue* value, OrbitPackError* error) {
     uint16_t length = orbit_unpack16(in, error);
     if(*error != PACK_NOERROR) { return false; }
     
     // TODO: Check that the string is valid UTF-8
-    GCString* string = orbit_gcStringReserve(vm, length);
+    OrbitGCString* string = orbit_gcStringReserve(vm, length);
     
     *error = orbit_unpackBytes(in, (uint8_t*)string->data, length);
     if(*error != PACK_NOERROR) { return false; }
@@ -60,7 +60,7 @@ static inline bool _loadString(OrbitVM* vm, FILE* in, GCValue* value, OrbitPackE
     return true;
 }
 
-static bool _loadConstant(OrbitVM* vm, FILE* in, GCValue* value, OrbitPackError* error) {
+static bool _loadConstant(OrbitVM* vm, FILE* in, OrbitValue* value, OrbitPackError* error) {
     uint8_t tag = orbit_unpack8(in, error);
     if(*error != PACK_NOERROR) { return false; }
     
@@ -81,8 +81,8 @@ static bool _loadConstant(OrbitVM* vm, FILE* in, GCValue* value, OrbitPackError*
 
 static bool _loadClass(OrbitVM* vm,
                        FILE* in,
-                       GCValue* className,
-                       GCValue* class,
+                       OrbitValue* className,
+                       OrbitValue* class,
                        OrbitPackError* error)
 {
     if(!_expect(in, OMF_CLASS, error)) { return false; }
@@ -93,15 +93,15 @@ static bool _loadClass(OrbitVM* vm,
     if(*error != PACK_NOERROR) { return false; }
     
     DBG("CREATE NEW CLASS");
-    GCClass* impl = orbit_gcClassNew(vm, AS_STRING(*className), fieldCount);
+    OrbitGCClass* impl = orbit_gcClassNew(vm, AS_STRING(*className), fieldCount);
     *class = MAKE_OBJECT(impl);
     return true;
 }
 
 static bool _loadFunction(OrbitVM* vm,
                           FILE* in,
-                          GCValue* signature,
-                          GCValue* function,
+                          OrbitValue* signature,
+                          OrbitValue* function,
                           OrbitPackError* error)
 {
     if(!_expect(in, OMF_FUNCTION, error)) { return false; }
@@ -144,7 +144,7 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
     
     // We don't want the module to get destroyed collected if the GC kicks
     // in while we're creating it.
-    orbit_gcRetain(vm, (GCObject*)module);
+    orbit_gcRetain(vm, (OrbitGCObject*)module);
     
     if(!_checkSignature(in, errorp)) {
         fprintf(stderr, "error: invalid module file signature\n");
@@ -161,7 +161,7 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
         fprintf(stderr, "error: invalid module constant count\n");
         goto fail;
     }
-    module->constants = ALLOC_ARRAY(vm, GCValue, module->constantCount);
+    module->constants = ALLOC_ARRAY(vm, OrbitValue, module->constantCount);
     
     for(uint16_t i = 0; i < module->constantCount; ++i) {
         if(!_loadConstant(vm, in, &module->constants[i], errorp)) {
@@ -201,7 +201,7 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
         goto fail;
     }
     for(uint8_t i = 0; i < classCount; ++i) {
-        GCValue name, class;
+        OrbitValue name, class;
         if(!_loadClass(vm, in, &name, &class, errorp)) {
             goto fail;
             fprintf(stderr, "error: invalid module class\n");
@@ -217,7 +217,7 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
     }
     
     for(uint16_t i = 0; i < functionCount; ++i) {
-        GCValue signature, function;
+        OrbitValue signature, function;
         if(!_loadFunction(vm, in, &signature, &function, errorp)) {
             fprintf(stderr, "error: invalid module function\n");
             goto fail;
