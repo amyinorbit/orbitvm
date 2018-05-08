@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <orbit/ast/builders.h>
 #include <orbit/utils/utf8.h>
-#include <orbit/utils/string.h>
+#include <orbit/csupport/string.h>
 #include <orbit/mangling/mangle.h>
 
 

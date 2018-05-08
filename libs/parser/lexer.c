@@ -13,6 +13,7 @@
 #include <inttypes.h>
 #include <orbit/console/console.h>
 #include <orbit/parser/lexer.h>
+#include <orbit/utils/assert.h>
 #include <orbit/utils/wcwidth.h>
 
 

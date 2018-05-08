@@ -7,7 +7,7 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#include <orbit/utils/rcmap.h>
+#include <orbit/csupport/rcmap.h>
 #include <orbit/utils/assert.h>
 #include "type_private.h"
 

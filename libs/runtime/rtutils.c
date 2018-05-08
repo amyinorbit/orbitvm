@@ -27,15 +27,3 @@ void* orbit_allocator(OrbitVM* vm, void* ptr, size_t newSize) {
     OASSERT(mem != NULL, "Error reallocating memory");
     return mem;
 }
-
-typedef union {
-    double      number;
-    uint32_t    raw[2];
-} RawDouble;
-
-// TODO: Move hashDouble to orbit/utils/hashing
-
-uint32_t orbit_hashDouble(double number) {
-    RawDouble bits = {.number = number};
-    return bits.raw[0] ^ bits.raw[1];
-}

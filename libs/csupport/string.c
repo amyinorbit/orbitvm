@@ -19,18 +19,6 @@ static struct OCStringPool {
     void* data;
 } StringPool;
 
-uint32_t orbit_hashString(const char* string, size_t length) {
-    OASSERT(string != NULL, "Null instance error");
-    
-    //Fowler-Noll-Vo 1a hash
-    //http://create.stephan-brumme.com/fnv-hash/
-    uint32_t hash = 0x811C9DC5;
-    for(size_t i = 0; i < length; ++i) {
-        hash = (hash ^ string[i]) * 0x01000193;
-    }
-    return hash;
-}
-
 void orbit_stringPoolInit(uint64_t capacity) {
     StringPool.capacity = capacity;
     StringPool.size = 0;

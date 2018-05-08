@@ -16,7 +16,6 @@
 #include <orbit/source/source.h>
 
 void orbit_dumpTokens(OCSource* source);
-
 AST* orbit_parse(OCSource* source);
 
 #endif /* orbit_parser_h */

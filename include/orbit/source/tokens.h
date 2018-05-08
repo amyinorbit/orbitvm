@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <orbit/utils/string.h>
+#include <orbit/csupport/string.h>
 #include <orbit/source/source.h>
 
 typedef struct _OCToken OCToken;

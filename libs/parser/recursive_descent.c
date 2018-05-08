@@ -12,6 +12,7 @@
 #include <inttypes.h>
 #include <orbit/console/console.h>
 #include <orbit/parser/lexer.h>
+#include <orbit/utils/assert.h>
 #include "recursive_descent.h"
 
 // MARK: - Error printing

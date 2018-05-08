@@ -11,10 +11,10 @@
 #define orbit_sema_typeprivate_h
 
 #include <orbit/ast/ast.h>
-#include <orbit/utils/string.h>
 #include <orbit/utils/memory.h>
-#include <orbit/utils/rcarray.h>
-#include <orbit/utils/rcmap.h>
+#include <orbit/csupport/string.h>
+#include <orbit/csupport/rcarray.h>
+#include <orbit/csupport/rcmap.h>
 
 #define ORBIT_SEMA_SCOPESTACK_SIZE 128
 

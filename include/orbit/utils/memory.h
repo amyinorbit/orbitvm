@@ -38,11 +38,8 @@ struct _ORCObject {
 #define ORBIT_REALLOC_ARRAY(ptr, type, count) (orbit_realloc((ptr), sizeof (type) * (count)))
 
 void* orbit_alloc(size_t size);
-
 void* orbit_allocMulti(size_t size, size_t count);
-
 void* orbit_realloc(void* memory, size_t size);
-
 void orbit_dealloc(void* memory);
 
 /// Initialises the object at [ref] with a [retainCount] of 0 and [destructor]. [ref] must

@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <orbit/ast/ast.h>
-#include <orbit/utils/string.h>
+#include <orbit/csupport/string.h>
 
 void orbit_mangleType(AST* type, OCStringBuffer* buffer);
 OCStringID orbit_mangleFuncName(AST* decl);

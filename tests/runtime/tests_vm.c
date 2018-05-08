@@ -7,10 +7,11 @@
 //
 #include <stdio.h>
 #include <string.h>
-#include <orbit/utils/pack.h>
 #include <orbit/runtime/value.h>
 #include <orbit/runtime/vm.h>
 #include <orbit/runtime/gc.h>
+#include <orbit/utils/pack.h>
+#include <orbit/utils/hashing.h>
 #include "unity.h"
 
 void pack_uint8(void) {

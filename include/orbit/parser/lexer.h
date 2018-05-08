@@ -14,9 +14,8 @@
 #include <stdio.h>
 #include <orbit/source/source.h>
 #include <orbit/source/tokens.h>
-#include <orbit/utils/string.h>
-#include <orbit/utils/assert.h>
 #include <orbit/utils/utf8.h>
+#include <orbit/csupport/string.h>
 
 typedef struct _OCLexer OCLexer;
 

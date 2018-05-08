@@ -30,9 +30,4 @@
 // Single function used for memory allocation and deallocation in orbit.
 void* orbit_allocator(OrbitVM* vm, void* ptr, size_t newSize);
 
-// Hash functions
-
-// Computes the hash code of [number].
-uint32_t orbit_hashDouble(double number);
-
 #endif /* orbit_utils_h */

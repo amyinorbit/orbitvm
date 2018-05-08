@@ -9,7 +9,8 @@
 //===--------------------------------------------------------------------------------------------===
 #include <string.h>
 #include <orbit/utils/assert.h>
-#include <orbit/utils/string.h>
+//#include <orbit/utils/string.h>
+#include <orbit/utils/hashing.h>
 #include <orbit/runtime/value.h>
 #include <orbit/runtime/rtutils.h>
 #include <orbit/runtime/vm.h>
