@@ -6,6 +6,8 @@ Because Orbit is planned to support function overloads, name mangling is necessa
 
 | Keyword   | Description                                       |
 |:----------|:--------------------------------------------------|
+| `F`       | Denotes the start of a mangled function symbol    |
+| `V`       | Denotes the start of a mangled variable symbol    |
 | `N`       | Denotes a native Orbit type following             |
 | `b`       | Orbit native `Bool`                               |
 | `*`       | Orbit native `Any`                                |

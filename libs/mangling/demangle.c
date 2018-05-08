@@ -173,6 +173,7 @@ static void _recIdentifier(OCMParser* p, OCStringBuffer* d) {
 
 static void _recFuncName(OCMParser* p, OCStringBuffer* d) {
     if(p->failed) { return; }
+    if(!nextIf(p, 'F')) { fail(p); return; }
     _recIdentifier(p, d);
     while(peek(p) >= '0' && peek(p) <= '9') {
         orbit_stringBufferAppend(d, '.');
@@ -186,6 +187,11 @@ static void _recFuncName(OCMParser* p, OCStringBuffer* d) {
     _recType(p, d);
 }
 
+static void _recVariableName(OCMParser* p, OCStringBuffer* d) {
+    if(p->failed) { return; }
+    if(!nextIf(p, 'V')) { fail(p); return; }
+    _recIdentifier(p, d);
+}
 
 OCStringID orbit_demangle(const char* mangledName, uint64_t length) {
     OCStringBuffer demangled;
@@ -202,7 +208,17 @@ OCStringID orbit_demangle(const char* mangledName, uint64_t length) {
     if(!nextIf(&parser, '_')) { goto failure; }
     if(!nextIf(&parser, 'O')) { goto failure; }
     
-    _recFuncName(&parser, &demangled);
+    switch(peek(&parser)) {
+    case 'F':
+        _recFuncName(&parser, &demangled);
+        break;
+        
+    case 'V':
+        _recVariableName(&parser, &demangled);
+        break;
+        
+    default: break;
+    }    
     
     if(parser.failed) { goto failure; }
     

@@ -108,7 +108,7 @@ OCStringID orbit_mangleFuncName(AST* decl) {
     
     OCString* name = orbit_stringPoolGet(decl->funcDecl.name);
     
-    orbit_stringBufferAppendC(&buffer, "_O", 2);
+    orbit_stringBufferAppendC(&buffer, "_OF", 3);
     _mangleNameLength(name->data, name->length, &buffer);
     orbit_mangleList(decl->type->typeExpr.funcType.params,&buffer, 'p');
     orbit_mangleType(decl->type->typeExpr.funcType.returnType, &buffer);
