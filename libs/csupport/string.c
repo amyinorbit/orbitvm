@@ -9,7 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <string.h>
 #include <orbit/utils/assert.h>
-#include <orbit/utils/string.h>
+#include <orbit/csupport/string.h>
 
 const OCStringID orbit_invalidStringID = UINT64_MAX;
 

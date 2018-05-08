@@ -9,7 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <string.h>
 #include <orbit/utils/assert.h>
-#include <orbit/utils/rcmap.h>
+#include <orbit/csupport/rcmap.h>
 
 #define ORCMAP_DEFAULT_CAPACITY 32
 #define ORCMAP_GROWTH_THRESHOLD 0.75

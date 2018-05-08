@@ -14,6 +14,7 @@
 #include <orbit/ast/ast.h>
 #include <orbit/csupport/source.h>
 #include <orbit/csupport/string.h>
+#include <orbit/csupport/diag.h>
 #include <orbit/parser/parser.h>
 #include <orbit/sema/type.h>
 #include <orbit/utils/memory.h>
@@ -33,6 +34,8 @@ int main(int argc, const char** args) {
         return -1;
     }
     
+    orbit_diagManagerInit(&orbit_defaultDiagManager, &source);
+    
     if(argc == 3 && strcmp(args[2], "-dump-tokens") == 0) {
         orbit_dumpTokens(&source);
         source_close(&source);
@@ -41,6 +44,7 @@ int main(int argc, const char** args) {
     
     AST* ast = ORCRETAIN(orbit_parse(&source));
     sema_runTypeAnalysis(ast);
+    orbit_diagEmitAll(&orbit_defaultDiagManager);
     
     if(argc == 3 && strcmp(args[2], "-dump-ast") == 0) {
         ast_print(stdout, ast);

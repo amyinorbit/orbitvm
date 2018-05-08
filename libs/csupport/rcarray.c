@@ -9,7 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <string.h>
 #include <orbit/utils/assert.h>
-#include <orbit/utils/rcarray.h>
+#include <orbit/csupport/rcarray.h>
 
 void orbit_rcArrayDeinit(void* ref) {
     ORCArray* array = (ORCArray*)ref;
