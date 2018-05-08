@@ -120,7 +120,7 @@ static bool _loadFunction(OrbitVM* vm,
     uint16_t byteCodeLength = orbit_unpack16(in, error);
     if(*error != PACK_NOERROR) { return false; }
     
-    VMFunction* impl = orbit_gcFunctionNew(vm, byteCodeLength);
+    OrbitVMFunction* impl = orbit_gcFunctionNew(vm, byteCodeLength);
     
     impl->arity = arity;
     impl->localCount = localCount;
@@ -133,14 +133,14 @@ static bool _loadFunction(OrbitVM* vm,
     return true;
 }
 
-VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
+OrbitVMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
     // TODO: implementation
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(in != NULL, "Null file passed");
     
     OrbitPackError error = PACK_NOERROR;
     OrbitPackError* errorp = &error;
-    VMModule* module = orbit_gcModuleNew(vm);
+    OrbitVMModule* module = orbit_gcModuleNew(vm);
     
     // We don't want the module to get destroyed collected if the GC kicks
     // in while we're creating it.
@@ -176,7 +176,7 @@ VMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
         fprintf(stderr, "error: invalid module global count\n");
         goto fail;
     }
-    module->globals = ALLOC_ARRAY(vm, VMGlobal, module->globalCount);
+    module->globals = ALLOC_ARRAY(vm, OrbitVMGlobal, module->globalCount);
 
     for(uint16_t i = 0; i < module->globalCount; ++i) {
         if(!_expect(in, OMF_VARIABLE, errorp)) {

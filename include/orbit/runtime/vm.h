@@ -27,7 +27,7 @@ typedef enum {
 
 #define ORBIT_GCSTACK_SIZE 16
 struct _OrbitVM {
-    VMTask*         task;
+    OrbitVMTask*    task;
     OrbitGCObject*  gcHead;
     uint64_t        allocated;
     uint64_t        nextGC;

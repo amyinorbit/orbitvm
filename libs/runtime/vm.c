@@ -13,7 +13,7 @@
 #include <orbit/runtime/objfile.h>
 #include <orbit/runtime/gc.h>
 
-static bool orbit_vmRun(OrbitVM*, VMTask*);
+static bool orbit_vmRun(OrbitVM*, OrbitVMTask*);
 
 OrbitVM* orbit_vmNew() {
     
@@ -73,7 +73,7 @@ void orbit_vmLoadModule(OrbitVM* vm, const char* moduleName) {
         return;
     }
     
-    VMModule* moduleObj = orbit_unpackModule(vm, in);
+    OrbitVMModule* moduleObj = orbit_unpackModule(vm, in);
     fclose(in);
     
     if(moduleObj == NULL) {
@@ -95,7 +95,7 @@ bool orbit_vmInvoke(OrbitVM* vm, const char* module, const char* entry) {
         fprintf(stderr, "error: cannot find `%s` (entry point)\n", entry);
         return false;
     }
-    VMTask* task = orbit_gcTaskNew(vm, AS_FUNCTION(fn));
+    OrbitVMTask* task = orbit_gcTaskNew(vm, AS_FUNCTION(fn));
     if(!orbit_vmRun(vm, task)) {
         // TODO: print error details. String in fiber/VM?
         return false;
@@ -106,7 +106,7 @@ bool orbit_vmInvoke(OrbitVM* vm, const char* module, const char* entry) {
 
 // Checks that [task]'s stack as at least [effect] more slots available. If it
 // doesn't grow the stack.
-static inline void orbit_vmEnsureStack(OrbitVM* vm, VMTask* task, uint8_t req) {
+static inline void orbit_vmEnsureStack(OrbitVM* vm, OrbitVMTask* task, uint8_t req) {
     uint64_t stackSize = (task->sp - task->stack);
     uint64_t required = stackSize + req;
     if(required <= task->stackCapacity) { return; }
@@ -135,17 +135,17 @@ static inline void orbit_vmEnsureStack(OrbitVM* vm, VMTask* task, uint8_t req) {
 
 // checks that a task has enough frames left in the call stack for one more
 // to be pushed.
-static void orbit_vmEnsureFrames(OrbitVM* vm, VMTask* task) {
+static void orbit_vmEnsureFrames(OrbitVM* vm, OrbitVMTask* task) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(task != NULL, "Null instance error");
     
     if(task->frameCount + 1 < task->frameCapacity) return;
     task->frameCapacity *= 2;
     task->frames = REALLOC_ARRAY(vm, task->frames,
-                                 VMCallFrame, task->frameCapacity);
+                                 OrbitVMFrame, task->frameCapacity);
 }
 
-static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
+static bool orbit_vmRun(OrbitVM* vm, OrbitVMTask* task) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(task != NULL, "Null instance error");
     
@@ -157,10 +157,10 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
     // two line. This means invoke: and return: will have to update those
     // so that we stay on the same page.
     
-    VMCallFrame* frame = &task->frames[task->frameCount-1];
+    OrbitVMFrame* frame = &task->frames[task->frameCount-1];
     
     register VMCode instruction = CODE_halt;
-    register VMFunction* fn = frame->function;
+    register OrbitVMFunction* fn = frame->function;
     register uint8_t* ip = frame->ip;
     register OrbitValue* locals = frame->stackBase;
     
@@ -400,7 +400,7 @@ static bool orbit_vmRun(OrbitVM* vm, VMTask* task) {
             // into the task's frame stack.
             frame->ip = ip;
             
-            switch(AS_FUNCTION(callee)->type) {
+            switch(AS_FUNCTION(callee)->kind) {
             case ORBIT_FK_NATIVE:
                 // Get the pointer to the function object for convenience
                 fn = AS_FUNCTION(callee);

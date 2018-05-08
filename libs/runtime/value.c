@@ -44,7 +44,7 @@ OrbitGCString* orbit_gcStringReserve(OrbitVM* vm, size_t length) {
     OrbitGCString* object = ALLOC_FLEX(vm, OrbitGCString, char, length+1);
     orbit_objectInit(vm, (OrbitGCObject*)object, NULL);
     
-    object->base.type = ORBIT_OBJK_STRING;
+    object->base.kind = ORBIT_OBJK_STRING;
     object->hash = 0;
     object->length = length;
     memset(object->data, '\0', length);
@@ -62,7 +62,7 @@ OrbitGCInstance* orbit_gcInstanceNew(OrbitVM* vm, OrbitGCClass* class) {
     
     OrbitGCInstance* object = ALLOC_FLEX(vm, OrbitGCInstance, OrbitValue, class->fieldCount);
     orbit_objectInit(vm, (OrbitGCObject*)object, class);
-    object->base.type = ORBIT_OBJK_INSTANCE;
+    object->base.kind = ORBIT_OBJK_INSTANCE;
     return object;
 }
 
@@ -72,7 +72,7 @@ OrbitGCClass* orbit_gcClassNew(OrbitVM* vm, OrbitGCString* name, uint16_t fieldC
     
     OrbitGCClass* class = ALLOC(vm, OrbitGCClass);
     orbit_objectInit(vm, (OrbitGCObject*)class, NULL);
-    class->base.type = ORBIT_OBJK_CLASS;
+    class->base.kind = ORBIT_OBJK_CLASS;
     class->name = name;
     class->super = NULL;
     class->fieldCount = fieldCount;
@@ -81,13 +81,13 @@ OrbitGCClass* orbit_gcClassNew(OrbitVM* vm, OrbitGCString* name, uint16_t fieldC
     return class;
 }
 
-VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength) {
+OrbitVMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength) {
     OASSERT(vm != NULL, "Null instance error");
     
-    VMFunction* function = ALLOC(vm, VMFunction);
+    OrbitVMFunction* function = ALLOC(vm, OrbitVMFunction);
     orbit_objectInit(vm, (OrbitGCObject*)function, NULL);
-    function->base.type = ORBIT_OBJK_FUNCTION;
-    function->type = ORBIT_FK_NATIVE;
+    function->base.kind = ORBIT_OBJK_FUNCTION;
+    function->kind = ORBIT_FK_NATIVE;
     
     // By default the function lives in the wild
     function->module = NULL;
@@ -102,13 +102,13 @@ VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength) {
 }
 
 // Creates a new foreign function
-VMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_t arity) {
+OrbitVMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_t arity) {
     OASSERT(vm != NULL, "Null instance error");
     
-    VMFunction* function = ALLOC(vm, VMFunction);
+    OrbitVMFunction* function = ALLOC(vm, OrbitVMFunction);
     orbit_objectInit(vm, (OrbitGCObject*)function, NULL);
-    function->base.type = ORBIT_OBJK_FUNCTION;
-    function->type = ORBIT_FK_FOREIGN;
+    function->base.kind = ORBIT_OBJK_FUNCTION;
+    function->kind = ORBIT_FK_FOREIGN;
 
     function->module = NULL;
     function->foreign = ffi;
@@ -120,12 +120,12 @@ VMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_t ari
     return function;
 }
 
-VMModule* orbit_gcModuleNew(OrbitVM* vm) {
+OrbitVMModule* orbit_gcModuleNew(OrbitVM* vm) {
     OASSERT(vm != NULL, "Null instance error");
     
-    VMModule* module = ALLOC(vm, VMModule);
+    OrbitVMModule* module = ALLOC(vm, OrbitVMModule);
     orbit_objectInit(vm, (OrbitGCObject*)module, NULL);
-    module->base.type = ORBIT_OBJK_MODULE;
+    module->base.kind = ORBIT_OBJK_MODULE;
     
     module->constantCount = 0;
     module->constants = NULL;
@@ -135,21 +135,21 @@ VMModule* orbit_gcModuleNew(OrbitVM* vm) {
     return module;
 }
 
-VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function) {
+OrbitVMTask* orbit_gcTaskNew(OrbitVM* vm, OrbitVMFunction* function) {
     
-    VMTask* task = ALLOC(vm, VMTask);
+    OrbitVMTask* task = ALLOC(vm, OrbitVMTask);
     orbit_objectInit(vm, (OrbitGCObject*)task, NULL);
-    task->base.type = ORBIT_OBJK_TASK;
+    task->base.kind = ORBIT_OBJK_TASK;
     
     task->stack = ALLOC_ARRAY(vm, OrbitValue, 512);
     task->stackCapacity = 512;
     
-    task->frames = ALLOC_ARRAY(vm, VMTask, 32);
+    task->frames = ALLOC_ARRAY(vm, OrbitVMTask, 32);
     task->frameCapacity = 32;
     
     // Create the first frame
     task->frameCount = 1;
-    VMCallFrame* frame = &task->frames[0];
+    OrbitVMFrame* frame = &task->frames[0];
     
     frame->task = task; // FIXME: not required? prob. not accesed
     frame->function = function;
@@ -167,7 +167,7 @@ void orbit_gcDeallocate(OrbitVM* vm, OrbitGCObject* object) {
     OASSERT(vm != NULL, "Null instance error");
     OASSERT(object != NULL, "Null instance error");
     
-    switch(object->type) {
+    switch(object->kind) {
     case ORBIT_OBJK_CLASS:
         break;
         
@@ -186,19 +186,19 @@ void orbit_gcDeallocate(OrbitVM* vm, OrbitGCObject* object) {
         break;
         
     case ORBIT_OBJK_FUNCTION:
-        if(((VMFunction*)object)->type == ORBIT_FK_NATIVE) {
-            DEALLOC(vm, ((VMFunction*)object)->native.byteCode);
+        if(((OrbitVMFunction*)object)->kind == ORBIT_FK_NATIVE) {
+            DEALLOC(vm, ((OrbitVMFunction*)object)->native.byteCode);
         }
         break;
         
     case ORBIT_OBJK_MODULE:
-        DEALLOC(vm, ((VMModule*)object)->constants);
-        DEALLOC(vm, ((VMModule*)object)->globals);
+        DEALLOC(vm, ((OrbitVMModule*)object)->constants);
+        DEALLOC(vm, ((OrbitVMModule*)object)->globals);
         break;
         
     case ORBIT_OBJK_TASK:
-        DEALLOC(vm, ((VMTask*)object)->stack);
-        DEALLOC(vm, ((VMTask*)object)->frames);
+        DEALLOC(vm, ((OrbitVMTask*)object)->stack);
+        DEALLOC(vm, ((OrbitVMTask*)object)->frames);
         break;
     }
     DEALLOC(vm, object);
@@ -288,7 +288,7 @@ OrbitGCMap* orbit_gcMapNew(OrbitVM* vm) {
     
     OrbitGCMap* map = ALLOC(vm, OrbitGCMap);
     orbit_objectInit(vm, (OrbitGCObject*)map, NULL/* TODO: replace with Map class*/);
-    map->base.type = ORBIT_OBJK_MAP;
+    map->base.kind = ORBIT_OBJK_MAP;
     
     map->data = NULL;
     map->capacity = 0;
@@ -365,7 +365,7 @@ OrbitGCArray* orbit_gcArrayNew(OrbitVM* vm) {
     
     OrbitGCArray* array = ALLOC(vm, OrbitGCArray);
     orbit_objectInit(vm, (OrbitGCObject*)array, NULL);
-    array->base.type = ORBIT_OBJK_ARRAY;
+    array->base.kind = ORBIT_OBJK_ARRAY;
     
     array->data = NULL;
     array->capacity = 0;

@@ -91,7 +91,7 @@ typedef enum {
 } OMFTag;
 
 // Unpacks a module from [file] and adds it to [vm].
-VMModule* orbit_unpackModule(OrbitVM* vm, FILE* file);
+OrbitVMModule* orbit_unpackModule(OrbitVM* vm, FILE* file);
 
 
 #endif /* orbit_runtime_objfile_h */

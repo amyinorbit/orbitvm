@@ -88,7 +88,7 @@ bool plus_String_String(OrbitVM* vm, OrbitValue* args) {
 // Reigsters [function] in [vm] with [arity] parameters, as [signature]
 static void _registerFn(OrbitVM* vm, const char* signature,
                         GCForeignFn function, uint8_t arity) {
-    VMFunction* fn = orbit_gcFunctionForeignNew(vm, function, arity);
+    OrbitVMFunction* fn = orbit_gcFunctionForeignNew(vm, function, arity);
     OrbitGCString* sig = orbit_gcStringNew(vm, signature);
     orbit_gcMapAdd(vm, vm->dispatchTable, MAKE_OBJECT(sig), MAKE_OBJECT(fn));
 }

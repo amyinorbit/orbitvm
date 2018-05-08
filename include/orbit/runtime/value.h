@@ -26,11 +26,11 @@ typedef struct _OrbitGCInstance OrbitGCInstance;
 typedef struct _OrbitGCString   OrbitGCString;
 typedef struct _OrbitGCMap      OrbitGCMap;
 typedef struct _OrbitGCArray    OrbitGCArray;
-typedef struct _VMFunction      VMFunction;
-typedef struct _VMCallFrame     VMCallFrame;
-typedef struct _VMGlobal        VMGlobal;
-typedef struct _VMModule        VMModule;
-typedef struct _VMTask          VMTask;
+typedef struct _OrbitVMFunction OrbitVMFunction;
+typedef struct _OrbitVMFrame    OrbitVMFrame;
+typedef struct _OrbitVMGlobal   OrbitVMGlobal;
+typedef struct _OrbitVMModule   OrbitVMModule;
+typedef struct _OrbitVMTask     OrbitVMTask;
 typedef bool (*GCForeignFn)(OrbitVM* vm, OrbitValue*);
 
 
@@ -54,7 +54,7 @@ enum _OrbitValueKind {
 
 // Orbit's value type, used for the GC's stack and the language's variables.
 struct _OrbitValue {
-    OrbitValueKind  type;
+    OrbitValueKind  kind;
     union {
         double      numValue;
         void*       objectValue;
@@ -79,7 +79,7 @@ enum _OrbitObjKind {
 // collector.
 struct _OrbitGCObject {
     OrbitGCClass*   class;
-    OrbitObjKind    type;
+    OrbitObjKind    kind;
     bool            mark;
     OrbitGCObject*  next;
 };
@@ -166,10 +166,10 @@ typedef struct _GCNativeFn {
 // Function objects can hold either bytecode for functions compiled from an
 // Orbit script file, or a pointer to their native implementation for functions
 // declared through the C API.
-struct _VMFunction {
+struct _OrbitVMFunction {
     OrbitGCObject   base;
-    OrbitFnKind     type;
-    VMModule*       module;
+    OrbitFnKind     kind;
+    OrbitVMModule*  module;
     uint8_t         arity;
     uint8_t         localCount;
     uint8_t         stackEffect;
@@ -180,17 +180,17 @@ struct _VMFunction {
 };
 
 // Orbit's call stack frame structure.
-struct _VMCallFrame {
-    VMTask*         task;
-    VMFunction*     function;
-    uint8_t*        ip;
-    OrbitValue*     stackBase;
+struct _OrbitVMFrame {
+    OrbitVMTask*             task;
+    OrbitVMFunction*    function;
+    uint8_t*            ip;
+    OrbitValue*         stackBase;
 };
 
 // Tasks hold the data required to execute bytecode: an operand stack for
 // temporary results, as well as a call stack for function invocation and
 // return.
-struct _VMTask {
+struct _OrbitVMTask {
     OrbitGCObject   base;
     
     uint64_t        stackCapacity;
@@ -199,25 +199,25 @@ struct _VMTask {
     
     uint64_t        frameCount;
     uint64_t        frameCapacity;
-    VMCallFrame*    frames;
+    OrbitVMFrame*   frames;
 };
 
-struct _VMGlobal {
+struct _OrbitVMGlobal {
     OrbitValue      name;
     OrbitValue      global;
 };
 
-// VMModule holds all that is needed for a bytecode file to be executed.
+// OrbitVMModule holds all that is needed for a bytecode file to be executed.
 // A module is created when a bytecode file is loaded into the VM, and can be
 // used to hold state in between C API function calls.
-struct _VMModule {
+struct _OrbitVMModule {
     OrbitGCObject   base;
     
     uint16_t        constantCount;
     OrbitValue*     constants;
     
     uint16_t        globalCount;
-    VMGlobal*       globals;
+    OrbitVMGlobal*  globals;
 };
 
 // Macros used to check the type of an orbit OrbitValue tagged union.
@@ -230,17 +230,17 @@ struct _VMModule {
 #define VAL_TRUE        ((OrbitValue){ORBIT_VK_TRUE, {.objectValue=NULL}})
 #define VAL_FALSE       ((OrbitValue){ORBIT_VK_FALSE, {.objectValue=NULL}})
 
-#define IS_BOOL(val)    ((val).type == ORBIT_VK_TRUE || (val).type == ORBIT_VK_FALSE)
-#define IS_TRUE(val)    ((val).type == ORBIT_VK_TRUE || (IS_NUM(val) && AS_NUM(val) != 0.0))
+#define IS_BOOL(val)    ((val).kind == ORBIT_VK_TRUE || (val).kind == ORBIT_VK_FALSE)
+#define IS_TRUE(val)    ((val).kind == ORBIT_VK_TRUE || (IS_NUM(val) && AS_NUM(val) != 0.0))
 #define IS_FALSE(val)   (!IS_TRUE(val))
-#define IS_NIL(val)     ((val).type == ORBIT_VK_NIL)
-#define IS_NUM(val)     ((val).type == ORBIT_VK_NUM)
-#define IS_OBJECT(val)  ((val).type == ORBIT_VK_OBJECT)
-#define IS_INSTANCE(val)(IS_OBJECT(val) && AS_OBJECT(val)->type == ORBIT_OBJK_INSTANCE)
-#define IS_STRING(val)  (IS_OBJECT(val) && AS_OBJECT(val)->type == ORBIT_OBJK_STRING)
-#define IS_CLASS(val)   (IS_OBJECT(val) && AS_OBJECT(val)->type == ORBIT_OBJK_CLASS)
-#define IS_FUNCTION(val)(IS_OBJECT(val) && AS_OBJECT(val)->type == ORBIT_OBJK_FUNCTION)
-#define IS_MODULE(val)  (IS_OBJECT(val) && AS_OBJECT(val)->type == ORBIT_OBJK_MODULE)
+#define IS_NIL(val)     ((val).kind == ORBIT_VK_NIL)
+#define IS_NUM(val)     ((val).kind == ORBIT_VK_NUM)
+#define IS_OBJECT(val)  ((val).kind == ORBIT_VK_OBJECT)
+#define IS_INSTANCE(val)(IS_OBJECT(val) && AS_OBJECT(val)->kind == ORBIT_OBJK_INSTANCE)
+#define IS_STRING(val)  (IS_OBJECT(val) && AS_OBJECT(val)->kind == ORBIT_OBJK_STRING)
+#define IS_CLASS(val)   (IS_OBJECT(val) && AS_OBJECT(val)->kind == ORBIT_OBJK_CLASS)
+#define IS_FUNCTION(val)(IS_OBJECT(val) && AS_OBJECT(val)->kind == ORBIT_OBJK_FUNCTION)
+#define IS_MODULE(val)  (IS_OBJECT(val) && AS_OBJECT(val)->kind == ORBIT_OBJK_MODULE)
 
 // Macros used to cast [val] to a given GC type.
 
@@ -250,7 +250,7 @@ struct _VMModule {
 #define AS_CLASS(val)   ((OrbitGCClass*)AS_OBJECT(val))
 #define AS_INST(val)    ((OrbitGCInstance*)AS_OBJECT(val))
 #define AS_STRING(val)  ((OrbitGCString*)AS_OBJECT(val))
-#define AS_FUNCTION(val)((VMFunction*)AS_OBJECT(val))
+#define AS_FUNCTION(val)((OrbitVMFunction*)AS_OBJECT(val))
 
 // Creates a garbage collected string in [vm] from the bytes in [string].
 OrbitGCString* orbit_gcStringNew(OrbitVM* vm, const char* string);
@@ -295,18 +295,18 @@ bool orbit_gcArrayGet(OrbitGCArray* array, uint32_t index, OrbitValue* value);
 bool orbit_gcArrayRemove(OrbitVM* vm, OrbitGCArray* array, uint32_t index);
 
 // Creates a native bytecode function.
-VMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength);
+OrbitVMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength);
 
 // Creates a new foreign function
-VMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_t arity);
+OrbitVMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_t arity);
 
 // Creates a module that can be populated with the contents of a bytecode file.
 // The resulting module has no constant or variable space reserved. This must
 // be handled by the function generating the module.
-VMModule* orbit_gcModuleNew(OrbitVM* vm);
+OrbitVMModule* orbit_gcModuleNew(OrbitVM* vm);
 
 // Creates a new task in [vm] and push [function] on the call stack;
-VMTask* orbit_gcTaskNew(OrbitVM* vm, VMFunction* function);
+OrbitVMTask* orbit_gcTaskNew(OrbitVM* vm, OrbitVMFunction* function);
 
 // Deallocates [object].
 void orbit_gcDeallocate(OrbitVM* vm, OrbitGCObject* object);
