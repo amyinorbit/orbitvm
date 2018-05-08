@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <orbit/source/tokens.h>
+#include <orbit/csupport/tokens.h>
 #include <orbit/utils/platforms.h>
 #include <orbit/utils/memory.h>
 

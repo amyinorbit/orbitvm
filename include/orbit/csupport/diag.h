@@ -1,5 +1,5 @@
 //===--------------------------------------------------------------------------------------------===
-// hashing.h - Hashing algorithms used for orbit data types.
+// diag.h - Orbit's compiler diagnostic API
 // This source is part of Orbit
 //
 // Created on 2018-05-08 by Amy Parent <amy@amyparent.com>
@@ -7,11 +7,7 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#ifndef orbit_utils_hashing_h
-#define orbit_utils_hashing_h
-#include <stdint.h>
+#ifndef orbit_csupport_diag_h
+#define orbit_csupport_diag_h
 
-uint32_t orbit_hashString(const char* string, uint64_t length);
-uint32_t orbit_hashDouble(double number);
-
-#endif /* orbit_utils_hashing_h */
+#endif /* orbit_csupport_diag_h */

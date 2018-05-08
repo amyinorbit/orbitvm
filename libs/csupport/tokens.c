@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
-// orbit/source/tokens.c
-// This source is part of Orbit - Source Handling
+// orbit/csupport/tokens.c
+// This source is part of Orbit - Compiler Support
 //
 // Created on 2017-10-23 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
@@ -9,7 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <stdio.h>
 #include <string.h>
-#include <orbit/source/tokens.h>
+#include <orbit/csupport/tokens.h>
 #include <orbit/utils/utf8.h>
 
 void source_printTokenLine(FILE* out, const OCToken token) {

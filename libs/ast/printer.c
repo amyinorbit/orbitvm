@@ -9,7 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <stdio.h>
 #include <stdbool.h>
-#include <orbit/console/console.h>
+#include <orbit/csupport/console.h>
 #include <orbit/ast/ast.h>
 
 static void ast_printNode(FILE* out, AST* ast, int depth, bool last);

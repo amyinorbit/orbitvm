@@ -12,10 +12,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <orbit/source/source.h>
-#include <orbit/source/tokens.h>
-#include <orbit/utils/utf8.h>
+#include <orbit/csupport/source.h>
 #include <orbit/csupport/string.h>
+#include <orbit/csupport/tokens.h>
+#include <orbit/utils/utf8.h>
 
 typedef struct _OCLexer OCLexer;
 

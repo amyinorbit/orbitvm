@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <orbit/csupport/string.h>
 #include <orbit/mangling/mangle.h>
-#include <orbit/utils/string.h>
 #include <orbit/stdlib/stdlib.h>
 #include <orbit/orbit.h>
 

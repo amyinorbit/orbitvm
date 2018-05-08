@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
-// orbit/source/source.c
-// This source is part of Orbit - Source Handling
+// orbit/csupport/source.c
+// This source is part of Orbit - Compiler Support
 //
 // Created on 2017-10-23 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
@@ -8,8 +8,8 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <stdlib.h>
+#include <orbit/csupport/source.h>
 #include <orbit/utils/memory.h>
-#include <orbit/source/source.h>
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
 OCSource source_readFromPath(const char* path) {

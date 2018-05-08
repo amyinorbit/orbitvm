@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
-// orbit/console/console.c
-// This source is part of Orbit - Console Support and Utilities
+// orbit/csupport/console.c
+// This source is part of Orbit - Compiler Support
 //
 // Created on 2017-09-28 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
@@ -8,7 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <inttypes.h>
-#include <orbit/console/console.h>
+#include <orbit/csupport/console.h>
 #include <orbit/utils/utf8.h>
 
 static const char* _ansiCodes[] = {

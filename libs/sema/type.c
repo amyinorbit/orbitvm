@@ -8,7 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <stdio.h>
-#include <orbit/source/tokens.h>
+#include <orbit/csupport/tokens.h>
 #include <orbit/utils/memory.h>
 #include <orbit/ast/ast.h>
 #include <orbit/ast/builders.h>

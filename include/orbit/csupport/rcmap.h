@@ -11,9 +11,9 @@
 #define orbit_utils_rcmap_h
 
 #include <stdint.h>
+#include <orbit/csupport/string.h>
 #include <orbit/utils/platforms.h>
 #include <orbit/utils/memory.h>
-#include <orbit/utils/string.h>
 
 typedef struct _ORCMap ORCMap;
 typedef struct _ORCMapEntry ORCMapEntry;

@@ -8,7 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <orbit/utils/assert.h>
-#include <orbit/console/console.h>
+#include <orbit/csupport/console.h>
 #include <orbit/ast/builders.h>
 #include <orbit/parser/parser.h>
 #include <orbit/parser/lexer.h>

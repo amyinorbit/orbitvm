@@ -1,19 +1,19 @@
 //===--------------------------------------------------------------------------------------------===
-// orbit/source/tokens.h
-// This source is part of Orbit - Source Handling
+// orbit/csupport/tokens.h
+// This source is part of Orbit - Compiler Support
 //
 // Created on 2017-10-23 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#ifndef orbit_source_tokens_h
-#define orbit_source_tokens_h
+#ifndef orbit_csupport_tokens_h
+#define orbit_csupport_tokens_h
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <orbit/csupport/string.h>
-#include <orbit/source/source.h>
+#include <orbit/csupport/source.h>
 
 typedef struct _OCToken OCToken;
 
@@ -133,4 +133,4 @@ bool source_isUnaryOp(OCTokenKind token);
 int source_binaryPrecedence(OCTokenKind token);
 int source_binaryRightAssoc(OCTokenKind token);
 
-#endif /* orbit_source_tokens_h */
+#endif /* orbit_csupport_tokens_h */

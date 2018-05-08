@@ -11,12 +11,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <orbit/utils/memory.h>
-#include <orbit/utils/string.h>
 #include <orbit/ast/ast.h>
-#include <orbit/source/source.h>
+#include <orbit/csupport/source.h>
+#include <orbit/csupport/string.h>
 #include <orbit/parser/parser.h>
 #include <orbit/sema/type.h>
+#include <orbit/utils/memory.h>
 
 int main(int argc, const char** args) {
     fprintf(stderr, "orbitc built on %s @ %s\n", __DATE__, __TIME__);

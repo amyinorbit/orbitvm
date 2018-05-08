@@ -8,7 +8,6 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <orbit/utils/hashing.h>
-
 #include <orbit/utils/assert.h>
 
 uint32_t orbit_hashString(const char* string, uint64_t length) {

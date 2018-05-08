@@ -1,14 +1,14 @@
 //===--------------------------------------------------------------------------------------------===
-// orbit/source/source.h
-// This source is part of Orbit - Source Handling
+// orbit/csupport/source.h
+// This source is part of Orbit - Compiler Support
 //
 // Created on 2017-10-23 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#ifndef orbit_source_h
-#define orbit_source_h
+#ifndef orbit_csupport_source_h
+#define orbit_csupport_source_h
 
 #include <stdio.h>
 #include <stdint.h>
@@ -49,4 +49,4 @@ OCSource source_readFromFile(FILE* file);
 /// will be invalidated.
 void source_close(OCSource* source);
 
-#endif /* orbit_source_h_ */
+#endif /* orbit_csupport_source_h */

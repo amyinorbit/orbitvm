@@ -1,11 +1,8 @@
-
 add_subdirectory(ast)
-add_subdirectory(console)
 add_subdirectory(csupport)
 add_subdirectory(mangling)
 add_subdirectory(parser)
 add_subdirectory(runtime)
 add_subdirectory(sema)
-add_subdirectory(source)
 add_subdirectory(stdlib)
 add_subdirectory(utils)

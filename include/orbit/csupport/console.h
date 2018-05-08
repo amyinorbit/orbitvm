@@ -1,20 +1,20 @@
 //===--------------------------------------------------------------------------------------------===
-// orbit/console/console.h
-// This source is part of Orbit - Console Support and Utilities
+// orbit/csupport/console.h
+// This source is part of Orbit - Compiler Support
 //
 // Created on 2017-09-28 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#ifndef orbit_ast_console_h
-#define orbit_ast_console_h
+#ifndef orbit_csupport_console_h
+#define orbit_csupport_console_h
 
 #include <stdio.h>
 #include <stdint.h>
-#include <orbit/utils/string.h>
-#include <orbit/source/source.h>
-#include <orbit/source/tokens.h>
+#include <orbit/csupport/string.h>
+#include <orbit/csupport/source.h>
+#include <orbit/csupport/tokens.h>
 
 typedef enum {
     CLI_RESET,
@@ -35,4 +35,4 @@ void console_printPooledString(FILE* out, OCStringID id);
 void console_printTokenLine(FILE* out, OCToken token);
 void console_printUnderlines(FILE* out, OCToken tok, CLIColor color);
 
-#endif /* orbit_ast_console_h */
+#endif /* orbit_csupport_console_h */
