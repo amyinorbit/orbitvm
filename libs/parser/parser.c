@@ -7,11 +7,12 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#include <orbit/utils/assert.h>
-#include <orbit/csupport/console.h>
 #include <orbit/ast/builders.h>
+#include <orbit/csupport/console.h>
+#include <orbit/csupport/diag.h>
 #include <orbit/parser/parser.h>
 #include <orbit/parser/lexer.h>
+#include <orbit/utils/assert.h>
 
 #include "recursive_descent.h"
 #include "recognizers.h"
@@ -152,7 +153,7 @@ static AST* recStatement(OCParser* parser) {
     else if(have(parser, TOKEN_LBRACE))
         return recBlock(parser);
     else
-        compilerError(parser, "expected a statement");
+        orbit_diagEmitError(current(parser).sourceLoc, "expected a statement", 0);
     return NULL;
 }
 
@@ -164,7 +165,7 @@ static AST* recConditional(OCParser* parser) {
     else if(have(parser, TOKEN_FOR))
         return recForLoop(parser);
     else
-        compilerError(parser, "expected an if statement or a loop");
+        orbit_diagEmitError(current(parser).sourceLoc, "expected an if statement or a loop", 0);
     return NULL;
 }
 
@@ -180,7 +181,7 @@ static AST* recIfStatement(OCParser* parser) {
         else if(have(parser, TOKEN_IF))
             elseBody = recIfStatement(parser);
         else
-            compilerError(parser, "expected block or if statement");
+            orbit_diagEmitError(current(parser).sourceLoc, "expected block or if statement", 0);
     }
     return ast_makeConditional(condition, ifBody, elseBody);
 }
@@ -191,7 +192,7 @@ static AST* recFlowStatement(OCParser* parser) {
     else if(match(parser, TOKEN_CONTINUE))
         return ast_makeContinue();
     else
-        compilerError(parser, "expected break or continue");
+        orbit_diagEmitError(current(parser).sourceLoc, "expected break or continue", 0);
     return NULL;
         
 }
@@ -294,7 +295,7 @@ static AST* recTerm(OCParser* parser) {
     else if(match(parser, TOKEN_FLOAT_LITERAL))
         term = ast_makeConstantExpr(&symbol, AST_EXPR_CONSTANT_FLOAT);
     else
-        compilerError(parser, "expected an expression term");
+        orbit_diagEmitError(current(parser).sourceLoc, "expected an expression term", 0);
     
     return unary ? ast_makeUnaryExpr(&operator, term) : term;
 }
@@ -363,7 +364,7 @@ static AST* recTypename(OCParser* parser) {
         return ast_makeUserType(&symbol);
     }
     else
-        compilerError(parser, "missing type name");
+        orbit_diagEmitError(current(parser).sourceLoc, "missing type name", 0);
     return NULL;
 }
 
@@ -409,7 +410,7 @@ static AST* recPrimitive(OCParser* parser) {
         return ast_makePrimitiveType(AST_TYPEEXPR_ANY);
     }
     
-    compilerError(parser, "expected a primitive type");
+    orbit_diagEmitError(current(parser).sourceLoc, "expected a primitive type", 0);
     return NULL;
     //return ast_makeTypeExpr(&symbol);
 }

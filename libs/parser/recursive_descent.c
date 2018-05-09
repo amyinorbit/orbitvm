@@ -18,25 +18,31 @@
 
 // MARK: - Error printing
 
-void compilerError(OCParser* parser, const char* fmt, ...) {
-    OrbitDiagID id = orbit_diagNew(
-        &orbit_defaultDiagManager,
-        ORBIT_DIAGLEVEL_ERROR,
-        fmt
-    );
-    orbit_diagAddSourceLoc(id, current(parser).sourceLoc);
-}
+// void compilerError(OCParser* parser, const char* format, int count, ...) {
+//     OrbitDiagID id = orbit_diagNew(
+//         &orbit_defaultDiagManager,
+//         ORBIT_DIAGLEVEL_ERROR,
+//         format
+//     );
+//     orbit_diagAddSourceLoc(id, current(parser).sourceLoc);
+// 
+//     va_list args;
+//     va_start(args, count);
+//     for(int i = 0; i < count; ++i) {
+//         orbit_diagAddParam(id, va_arg(args, OrbitDiagParam));
+//     }
+//     va_end(args);
+// }
 
-void syntaxError(OCParser* parser, OCTokenKind kind) {
-    OrbitDiagID id = orbit_diagNew(
-        &orbit_defaultDiagManager,
-        ORBIT_DIAGLEVEL_ERROR,
-        "$0 was expected, but $1 was found instead"
-    );
-    orbit_diagAddParam(id, ORBIT_DIAG_CSTRING(source_tokenString(kind)));
-    orbit_diagAddParam(id, ORBIT_DIAG_CSTRING(source_tokenString(current(parser).kind)));
-    orbit_diagAddSourceLoc(id, current(parser).sourceLoc);
-}
+
+// void compilerError(OCParser* parser, const char* fmt, ...) {
+//     OrbitDiagID id = orbit_diagNew(
+//         &orbit_defaultDiagManager,
+//         ORBIT_DIAGLEVEL_ERROR,
+//         fmt
+//     );
+//     orbit_diagAddSourceLoc(id, current(parser).sourceLoc);
+// }
 
 // MARK: - RD Basics
 
@@ -119,8 +125,10 @@ bool expectTerminator(OCParser* parser) {
         if(match(parser, TOKEN_SEMICOLON) || implicitTerminator(parser)) {
             return true;
         }
-        compilerError(parser, "statements on the same line should be separated by ';'");
-        //syntaxError(parser, TOKEN_SEMICOLON);
+        orbit_diagEmitError(
+            current(parser).sourceLoc,
+            "consecutive statements on a line must be separated by ';'", 0
+        );
         return true;
     }
 }
@@ -137,7 +145,10 @@ bool expect(OCParser* parser, OCTokenKind kind) {
         return match(parser, kind);
     } else {
         if(match(parser, kind)) { return true; }
-        syntaxError(parser, kind);
+        orbit_diagEmitError(
+            current(parser).sourceLoc, "$0 found while $1 was expected", 2, ORBIT_DIAG_CSTRING(source_tokenString(current(parser).kind)),
+            ORBIT_DIAG_CSTRING(source_tokenString(kind))
+        );
         return false;
     }
 }

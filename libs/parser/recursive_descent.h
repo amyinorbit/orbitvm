@@ -12,6 +12,7 @@
 
 //#include <orbit/parser/compiler_utils.h>
 #include <orbit/csupport/tokens.h>
+#include <orbit/parser/lexer.h>
 
 typedef struct {
     OCLexer     lexer;
@@ -30,9 +31,7 @@ static inline OCToken current(OCParser* parser) {
     return parser->lexer.currentToken;
 }
 
-void compilerError(OCParser* parser, const char* fmt, ...);
-
-void syntaxError(OCParser* parser, OCTokenKind kind);
+//void compilerError(OCParser* parser, const char* format, int count, ...);
 
 bool have(OCParser* parser, OCTokenKind kind);
 

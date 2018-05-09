@@ -120,7 +120,7 @@ void orbit_rcMapInsertP(ORCMap* map, OCStringID key, void* item) {
     if(entry->key == orbit_invalidStringID) {
         map->size += 1;
     }
-    //entry->key = ORCRETAIN(key);
+    entry->key = key;
     entry->value = ORCRETAIN(item);
 }
 

@@ -27,12 +27,12 @@ static inline OCSourceLoc maxLoc(OCSourceLoc a, OCSourceLoc b) {
 
 OCSourceRange source_rangeFromLength(OCSourceLoc start, uint64_t length) {
     OCSourceLoc end = start;
-    start.column += length;
-    return (OCSourceRange){start, end};
+    end.column += length;
+    return (OCSourceRange){.start=start, .end=end};
 }
 
 OCSourceRange source_rangeUnion(OCSourceRange a, OCSourceRange b) {
-    return (OCSourceRange){minLoc(a.start,b.start), maxLoc(a.end,b.end)};
+    return (OCSourceRange){.start=minLoc(a.start,b.start), .end=maxLoc(a.end,b.end)};
 }
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.

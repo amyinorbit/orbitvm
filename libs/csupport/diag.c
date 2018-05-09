@@ -8,6 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <stdint.h>
+#include <stdarg.h>
 #include <orbit/csupport/console.h>
 #include <orbit/csupport/diag.h>
 #include <orbit/utils/assert.h>
@@ -45,6 +46,24 @@ void _orbit_defaultDiagConsumer(OCSource* source, OrbitDiag* diagnostic) {
     char* printed = orbit_diagGetFormat(diagnostic);
     fprintf(stderr, "%s\n\n", printed);
     orbit_dealloc(printed);
+}
+
+OrbitDiagID orbit_diagEmitError(OCSourceLoc loc, const char* format, int count, ...) {
+    OrbitDiagID id = orbit_diagNew(
+        &orbit_defaultDiagManager,
+        ORBIT_DIAGLEVEL_ERROR,
+        format
+    );
+    orbit_diagAddSourceLoc(id, loc);
+    
+    va_list args;
+    va_start(args, count);
+    for(int i = 0; i < count; ++i) {
+        orbit_diagAddParam(id, va_arg(args, OrbitDiagParam));
+    }
+    va_end(args);
+    
+    return id;
 }
 
 void orbit_diagManagerInit(OrbitDiagManager* manager, OCSource* source) {

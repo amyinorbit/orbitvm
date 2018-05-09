@@ -183,7 +183,9 @@ AST* ast_makeUserType(const OCToken* symbol) {
         symbol->source->bytes+symbol->sourceLoc.offset,
         symbol->length
     );
-    return ast_makeUserTypePooled(id);
+    AST* ast = ast_makeUserTypePooled(id);
+    ast->sourceRange = source_rangeFromLength(symbol->sourceLoc, symbol->length);
+    return ast;
 }
 
 AST* ast_makePrimitiveType(ASTKind kind) {

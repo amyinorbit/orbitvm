@@ -8,13 +8,14 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <stdio.h>
-#include <orbit/csupport/tokens.h>
-#include <orbit/utils/memory.h>
 #include <orbit/ast/ast.h>
 #include <orbit/ast/builders.h>
 #include <orbit/ast/traversal.h>
+#include <orbit/csupport/diag.h>
+#include <orbit/csupport/tokens.h>
 #include <orbit/mangling/mangle.h>
 #include <orbit/sema/type.h>
+#include <orbit/utils/memory.h>
 
 #include "type_private.h"
 
@@ -103,16 +104,18 @@ bool sema_typeEquals(AST* a, AST* b) {
 
 void sema_extractTypeAnnotations(AST* decl, void* data) {
     if(!decl->varDecl.typeAnnotation) { return; }
-    if(decl->kind == AST_TYPEEXPR_USER) {
+    if(decl->varDecl.typeAnnotation->kind == AST_TYPEEXPR_USER) {
         // If we have a user type we need to make sure it's been declared first
+        OCStringID symbol = decl->varDecl.typeAnnotation->typeExpr.userType.symbol;
+        
         AST* typeDecl = sema_lookupType(
             (OCSema*)data,
-            decl->varDecl.typeAnnotation->typeExpr.userType.symbol
+            symbol
         );
         
         if(!typeDecl) {
-            // TODO: throw sema error
-            fprintf(stderr, "Unknown type name referenced\n");
+            OCSourceLoc loc = decl->varDecl.typeAnnotation->sourceRange.start;
+            orbit_diagEmitError(loc, "unkown type '$0'", 1, ORBIT_DIAG_STRING(symbol));
             return;
         }
     }
@@ -121,15 +124,14 @@ void sema_extractTypeAnnotations(AST* decl, void* data) {
 
 void sema_installUserTypes(AST* typeDecl, void* data) {
     OCSema* sema = (OCSema*)data;
-    OCStringID symbol = typeDecl->structDecl.name;
+    OCStringID name = typeDecl->structDecl.name;
     
-    if(orbit_rcMapGetP(&sema->typeTable, symbol)) {
-        // A type already exists under that name, error!
-        fprintf(stderr, "error: A type already exists under that name\n");
+    if(orbit_rcMapGetP(&sema->typeTable, name)) {
+        OCSourceLoc loc = typeDecl->structDecl.symbol.sourceLoc;
+        orbit_diagEmitError(loc, "type '$0' was declared before", 1, ORBIT_DIAG_STRING(name));
+        
     } else {
-        // TODO: need much better sema error reporting. Will come with AST printing and Diag
-        sema_declareType(sema, symbol, typeDecl);
-        //orbit_rcArrayAppend(&sema->uniqueTypes, typeDecl);
+        sema_declareType(sema, name, typeDecl);
     }
 }
 

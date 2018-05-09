@@ -70,6 +70,7 @@ extern OrbitDiagManager orbit_defaultDiagManager;
 
 void orbit_diagManagerInit(OrbitDiagManager* manager, OCSource* source);
 
+OrbitDiagID orbit_diagEmitError(OCSourceLoc loc, const char* format, int count, ...);
 OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format);
 void orbit_diagAddParam(OrbitDiagID id, OrbitDiagParam param);
 void orbit_diagAddSourceLoc(OrbitDiagID id, OCSourceLoc loc);
