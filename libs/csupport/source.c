@@ -11,6 +11,30 @@
 #include <orbit/csupport/source.h>
 #include <orbit/utils/memory.h>
 
+static inline OCSourceLoc minLoc(OCSourceLoc a, OCSourceLoc b) {
+    if(a.line != b.line) {
+        return a.line < b.line ? a : b;
+    }
+    return a.column < b.column ? a : b;
+}
+
+static inline OCSourceLoc maxLoc(OCSourceLoc a, OCSourceLoc b) {
+    if(a.line != b.line) {
+        return a.line >= b.line ? a : b;
+    }
+    return a.column >= b.column ? a : b;
+}
+
+OCSourceRange source_rangeFromLength(OCSourceLoc start, uint64_t length) {
+    OCSourceLoc end = start;
+    start.column += length;
+    return (OCSourceRange){start, end};
+}
+
+OCSourceRange source_rangeUnion(OCSourceRange a, OCSourceRange b) {
+    return (OCSourceRange){minLoc(a.start,b.start), maxLoc(a.end,b.end)};
+}
+
 /// Creates a source handler by opening the file at [path] and reading its bytes.
 OCSource source_readFromPath(const char* path) {
     FILE* f = fopen(path, "r");

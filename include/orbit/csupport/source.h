@@ -14,8 +14,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct _OCSource    OCSource;
-typedef struct _OCSourceLoc OCSourceLoc;
+typedef struct _OCSource        OCSource;
+typedef struct _OCSourceLoc     OCSourceLoc;
+typedef struct _OCSourceRange   OCSourceRange;
 
 struct _OCSource {
     const char*     path;
@@ -36,6 +37,9 @@ struct _OCSourceRange {
     const OCSourceLoc start;
     const OCSourceLoc end;
 };
+
+OCSourceRange source_rangeFromLength(OCSourceLoc start, uint64_t length);
+OCSourceRange source_rangeUnion(OCSourceRange a, OCSourceRange b);
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
 OCSource source_readFromPath(const char* path);

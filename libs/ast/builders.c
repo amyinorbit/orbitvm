@@ -126,7 +126,7 @@ AST* ast_makeBinaryExpr(const OCToken* operator, AST* lhs, AST* rhs) {
     ast->binaryExpr.operator = ast_copyToken(operator);
     ast->binaryExpr.lhs = ORCRETAIN(lhs);
     ast->binaryExpr.rhs = ORCRETAIN(rhs);
-    
+    ast->sourceRange = source_rangeUnion(lhs->sourceRange, rhs->sourceRange);
     return ast;
 }
 
@@ -134,6 +134,7 @@ AST* ast_makeUnaryExpr(const OCToken* operator, AST* rhs) {
     AST* ast = ast_makeNode(AST_EXPR_UNARY);
     ast->unaryExpr.operator = ast_copyToken(operator);
     ast->unaryExpr.rhs = ORCRETAIN(rhs);
+    // TODO: create source range here
     return ast;
 }
 
@@ -141,6 +142,7 @@ AST* ast_makeCallExpr(AST* symbol, AST* params) {
     AST* ast = ast_makeNode(AST_EXPR_CALL);
     ast->callExpr.symbol = ORCRETAIN(symbol);
     ast->callExpr.params = ORCRETAIN(params);
+    ast->sourceRange = source_rangeUnion(symbol->sourceRange, params->sourceRange);
     return ast;
 }
 
@@ -148,6 +150,7 @@ AST* ast_makeSubscriptExpr(AST* symbol, AST* subscript) {
     AST* ast = ast_makeNode(AST_EXPR_SUBSCRIPT);
     ast->subscriptExpr.symbol = ORCRETAIN(symbol);
     ast->subscriptExpr.subscript = ORCRETAIN(subscript);
+    ast->sourceRange = source_rangeUnion(symbol->sourceRange, subscript->sourceRange);
     return ast;
 }
 
@@ -158,12 +161,14 @@ AST* ast_makeNameExpr(const OCToken* symbol) {
         symbol->source->bytes + symbol->sourceLoc.offset,
         symbol->length
     );
+    ast->sourceRange = source_rangeFromLength(symbol->sourceLoc, symbol->displayLength);
     return ast;
 }
 
 AST* ast_makeConstantExpr(const OCToken* symbol, ASTKind kind) {
     AST* ast = ast_makeNode(kind);
     ast->constantExpr.symbol = ast_copyToken(symbol);
+    ast->sourceRange = source_rangeFromLength(symbol->sourceLoc, symbol->displayLength);
     return ast;
 }
 
@@ -188,7 +193,6 @@ AST* ast_makePrimitiveType(ASTKind kind) {
 
 AST* ast_makeFuncType(AST* returnType, AST* params) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_FUNC);
-    //ast->typeExpr.canonicalType = ast;
     ast->typeExpr.funcType.returnType = ORCRETAIN(returnType);
     ast->typeExpr.funcType.params = ORCRETAIN(params);
     return ast;
@@ -196,14 +200,12 @@ AST* ast_makeFuncType(AST* returnType, AST* params) {
 
 AST* ast_makeArrayType(AST* elementType) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_ARRAY);
-    //ast->typeExpr.canonicalType = ast;
     ast->typeExpr.arrayType.elementType = ORCRETAIN(elementType);
     return ast;
 }
 
 AST* ast_makeMapType(AST* keyType, AST* elementType) {
     AST* ast = ast_makeNode(AST_TYPEEXPR_MAP);
-    //ast->typeExpr.canonicalType = ast;
     ast->typeExpr.mapType.keyType = ORCRETAIN(keyType);
     ast->typeExpr.mapType.elementType = ORCRETAIN(elementType);
     return ast;

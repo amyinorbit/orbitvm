@@ -108,6 +108,8 @@ struct _AST {
     AST*            next;
     AST*            type;
     
+    OCSourceRange   sourceRange;
+    
     union {
         // --------------------------------------------------------------------
         // Statements
