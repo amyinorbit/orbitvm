@@ -15,7 +15,6 @@
 OrbitDiagManager orbit_defaultDiagManager;
 
 void _orbit_defaultDiagConsumer(OCSource* source, OrbitDiag* diagnostic) {
-    char printed[256];
     
     // print basic stuff first:
     console_setColor(stderr, CLI_BOLD);
@@ -35,14 +34,17 @@ void _orbit_defaultDiagConsumer(OCSource* source, OrbitDiag* diagnostic) {
     }
     console_setColor(stderr, CLI_RESET);
     console_setColor(stderr, CLI_BOLD);
-    fprintf(stderr, " in %s [%d:%d]-----\n", source->path, diagnostic->sourceLoc.line, diagnostic->sourceLoc.column);
+    fprintf(stderr, " in %s -----\n", source->path);
     
     console_setColor(stderr, CLI_RESET);
-    console_printSourceLocLine(stderr, source, diagnostic->sourceLoc);
-    console_printCaret(stderr, diagnostic->sourceLoc, CLI_GREEN);
+    if(diagnostic->sourceLoc.line != 0) {
+        console_printSourceLocLine(stderr, source, diagnostic->sourceLoc);
+        console_printCaret(stderr, diagnostic->sourceLoc, CLI_GREEN);
+    }
     
-    orbit_diagGetFormat(diagnostic, printed, 512);
+    char* printed = orbit_diagGetFormat(diagnostic);
     fprintf(stderr, "%s\n\n", printed);
+    orbit_dealloc(printed);
 }
 
 void orbit_diagManagerInit(OrbitDiagManager* manager, OCSource* source) {
@@ -58,10 +60,10 @@ OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const
     
     uint32_t id = manager->diagnosticCount++;
     OrbitDiag* d = &manager->diagnostics[id];
+    d->sourceLoc.line = d->sourceLoc.column = 0;
     d->level = level;
     d->format = format;
     d->paramCount = 0;
-    d->params = ORBIT_ALLOC_ARRAY(OrbitDiagParam, 5); // TODO: add capacity flag, move to ORCArray?
     return (OrbitDiagID){.manager = manager, .id=id};
 }
 
@@ -69,7 +71,7 @@ void orbit_diagAddParam(OrbitDiagID id, OrbitDiagParam param) {
     OASSERT(id.manager, "Diagnostics manager does not exist");
     
     OrbitDiag* d = &id.manager->diagnostics[id.id];
-    OASSERT(d->paramCount < 5, "Diagnostics are limited 5 parameters"); // TODO: remove
+    OASSERT(d->paramCount < 10, "Diagnostics are limited 10 parameters");
     
     d->params[d->paramCount] = param;
     d->paramCount += 1;

@@ -17,34 +17,8 @@
 #include "recursive_descent.h"
 
 // MARK: - Error printing
-// TODO: move to console/diagnostics.h
 
 void compilerError(OCParser* parser, const char* fmt, ...) {
-    // OASSERT(parser != NULL, "Null instance error");
-    // if(parser->recovering) { return; }
-    // parser->recovering = true;
-    // 
-    // OCToken tok  = current(parser);
-    // 
-    // console_setColor(stderr, CLI_BOLD);
-    // console_setColor(stderr, CLI_BLUE);
-    // fputs("----- ", stderr);
-    // console_setColor(stderr, CLI_RED);
-    // fputs("SYNTAX ERROR", stderr);
-    // console_setColor(stderr, CLI_BLUE);
-    // 
-    // fprintf(stderr, " in %s\n", parser->lexer.source->path);
-    // 
-    // console_setColor(stderr, CLI_RESET);
-    // console_printTokenLine(stderr, current(parser));
-    // console_printUnderlines(stderr, tok, CLI_RED);
-    // 
-    // console_setColor(stderr, CLI_BOLD);
-    // va_list va;
-    // va_start(va, fmt);
-    // vfprintf(stderr, fmt, va);
-    // va_end(va);
-    // fputc('\n', stderr);
     OrbitDiagID id = orbit_diagNew(
         &orbit_defaultDiagManager,
         ORBIT_DIAGLEVEL_ERROR,
@@ -145,8 +119,9 @@ bool expectTerminator(OCParser* parser) {
         if(match(parser, TOKEN_SEMICOLON) || implicitTerminator(parser)) {
             return true;
         }
-        syntaxError(parser, TOKEN_SEMICOLON);
-        return false;
+        compilerError(parser, "statements on the same line should be separated by ';'");
+        //syntaxError(parser, TOKEN_SEMICOLON);
+        return true;
     }
 }
 

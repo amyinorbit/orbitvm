@@ -36,10 +36,9 @@ enum _OrbitDiagLevel {
 };
 
 struct _OrbitDiagParam {
-    enum { ORBIT_DPK_INT, ORBIT_DPK_FLOAT, ORBIT_DPK_STRING, ORBIT_DPK_CSTRING } kind;
+    enum { ORBIT_DPK_INT, ORBIT_DPK_STRING, ORBIT_DPK_CSTRING } kind;
     union {
         int         intValue;
-        float       floatValue;
         const char* cstringValue;
         OCStringID  stringValue;
     };
@@ -52,7 +51,7 @@ struct _OrbitDiag {
     const char*     format;
 
     uint32_t        paramCount;
-    OrbitDiagParam* params;
+    OrbitDiagParam  params[10];
 };
 
 struct _OrbitDiagManager {
@@ -78,7 +77,7 @@ void orbit_diagAddSourceLoc(OrbitDiagID id, OCSourceLoc loc);
 void orbit_diagEmitAll(OrbitDiagManager* manager);
 void orbit_diagEmitAbove(OrbitDiagManager* manager, OrbitDiagLevel level);
 
-uint32_t orbit_diagGetFormat(OrbitDiag* diag, char* data, uint32_t size);
+char* orbit_diagGetFormat(OrbitDiag* diag);
 
 
 #endif /* orbit_csupport_diag_h */

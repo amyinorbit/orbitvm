@@ -48,7 +48,6 @@ void console_printSourceLocLine(FILE* out, const OCSource* source, OCSourceLoc l
     while(*(line-1) != '\n'&& line != source->bytes) {
         line -= 1;
     }
-    line += 1; // otherwise, we won't print anything.
     
     // ...then print the line itself.
     char utf[6];

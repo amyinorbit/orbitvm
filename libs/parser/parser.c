@@ -363,7 +363,7 @@ static AST* recTypename(OCParser* parser) {
         return ast_makeUserType(&symbol);
     }
     else
-        compilerError(parser, "expected a type name");
+        compilerError(parser, "missing type name");
     return NULL;
 }
 

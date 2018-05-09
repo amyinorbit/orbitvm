@@ -8,90 +8,134 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <stdio.h>
+#include <string.h>
 #include <orbit/csupport/diag.h>
+#include <orbit/csupport/string.h>
 #include <orbit/utils/assert.h>
 
-uint32_t orbit_printDiagS(OrbitDiagParam param, char* str, uint32_t size) {
-    bool print = false;
-    switch(param.kind) {
-        case ORBIT_DPK_INT:     print = (param.intValue != 1);      break;
-        case ORBIT_DPK_FLOAT:   print = (param.floatValue != 1.0);  break;
-        case ORBIT_DPK_CSTRING:
-        case ORBIT_DPK_STRING:  print = false;                      break;
+static const char* scan(const char* str, const char* end, char value) {
+    while(*str != value && str != end) {
+        str += 1;
     }
-    if(print && size > 1) {
-        putchar('s');
-        str[0] = 's';
-        return 1;
-    }
-    return 0;
+    return str;
 }
 
-uint32_t orbit_printDiagParam(OrbitDiagParam param, char* str, uint32_t size) {
-    switch(param.kind) {
-        case ORBIT_DPK_INT:
-            return snprintf(str, size, "%d", param.intValue);
-            
-        case ORBIT_DPK_FLOAT:
-            return snprintf(str, size, "%f", param.floatValue);
-            
-        case ORBIT_DPK_STRING: {
-            OCString* p = orbit_stringPoolGet(param.stringValue);
-            return snprintf(str, size, "%.*s", (int)p->length, p->data);
-        }
-        
-        case ORBIT_DPK_CSTRING:
-            return snprintf(str, size, "%s", param.cstringValue);
-    }
+static bool isDigit(codepoint_t c) {
+    return c >= '0' && c <= '9';
 }
 
-uint32_t orbit_diagGetFormat(OrbitDiag* diag, char* str, uint32_t size) {
+static bool modifierIs(const char* str, uint32_t length, const char* value) {
+    if(length != strlen(value)) { return false; }
+    return strncmp(str, value, length) == 0;
+}
+
+static void handleSelect(OCStringBuffer* buf, const char* arg, uint32_t length, int value) {
+    OASSERT(arg, "diagnostic format argument: no parameter");
+    OASSERT(length > 0, "diagnostic format argument: no parameter");
+    const char* end = arg + length;
+    while(value) {
+        const char* next = scan(arg, end, '|');
+        OASSERT(next != end, "diagnostic format argument: invalid selection index");
+        value -= 1;
+        arg = next+1;
+    }
     
-    const char* format = diag->format;
-    uint32_t head = 0;
+    end = scan(arg, end, '|');
+    orbit_stringBufferAppendC(buf, arg, end-arg);
+}
+
+static void handleS(OCStringBuffer* buf, int value) {
+    if(value == 1) { return; }
+    orbit_stringBufferAppend(buf, 's');
+}
+
+static void handlePlural(OCStringBuffer* buf, const char* arg, uint32_t length, int value) {
+    handleSelect(buf, arg, length, value == 1 ? 0 : 1);
+}
+
+// After a few attempts using rec-descent parsers, this is heavily based on clang's diagnostic
+// formatter (lines ~700+ -> https://clang.llvm.org/doxygen/Basic_2Diagnostic_8cpp_source.html)
+char* orbit_diagGetFormat(OrbitDiag* diag) {
+    // TODO: probably cache this? Though we are unlikely to print diags more than once
+    // TODO: We should be safe, but we should probably port all of this to codepoint_t
     
-    #define CURRENT()   (*format)
-    #define NEXT()      (*(format+1))
-    #define INCRCHECK() {if(*(++format) == '\0') { break; }}
-    #define ISDIGIT()   (*format >= '0' && *format <= '9')
+    OCStringBuffer buffer, *buf = &buffer;
+    orbit_stringBufferInit(buf, 512);
+    const char* fmt = diag->format;
+    const char* end = diag->format + strlen(diag->format);
     
-    bool placeholderIsPlural = false;
-    uint16_t placeholderIndex = 0;
-    
-    while(*format && head < size-1) {
-        
-        if(CURRENT() != '$') {
-            str[head++] = CURRENT();
-            INCRCHECK();
+    while(fmt != end) {
+                
+        // If we aren't looking at a $, we can just copy until the first dollar (or the end).
+        if(*fmt != '$') {
+            const char* strEnd = scan(fmt, end, '$');
+            orbit_stringBufferAppendC(buf, fmt, strEnd-fmt);
+            fmt = strEnd;
             continue;
         }
-        INCRCHECK();
         
-        placeholderIndex = 0;
-        placeholderIsPlural = false;
+        // Skip the dollar.
+        fmt += 1;
         
-        if(CURRENT() == 's') {
-            placeholderIsPlural = true;
-            INCRCHECK();
+        const char* modifier = NULL;
+        const char* parameter = NULL;
+        uint16_t modifierLength = 0;
+        uint16_t parameterLength = 0;
+        
+        if(!isDigit(*fmt)) {
+            modifier = fmt;
+            while(*fmt >= 'a' && *fmt <= 'z') { fmt += 1; }
+            modifierLength = fmt - modifier;
+            
+            if(*fmt == '{') {
+                fmt += 1;
+                parameter = fmt;
+                fmt = scan(fmt, end, '}');
+                OASSERT(fmt != end, "diagnostic format string: unmatched '{'");
+                parameterLength = fmt - parameter;
+                fmt += 1;
+            }
         }
         
-        if(!ISDIGIT()) { break; }
-        while(ISDIGIT()) {
-            placeholderIndex = placeholderIndex * 10 + (CURRENT() - '0');
-            INCRCHECK();
-        }
+        OASSERT(isDigit(*fmt), "diagnostic format argument: should be a digit");
+        uint8_t argIdx = *fmt - '0';
+        OASSERT(argIdx < diag->paramCount, "diagnostic format argument: invalid index");
+        OrbitDiagParam param = diag->params[argIdx];
+        fmt += 1;
         
-        if(placeholderIsPlural) {
-            head += orbit_printDiagS(diag->params[placeholderIndex], &str[head], (size-head));
-        } else {
-            head += orbit_printDiagParam(diag->params[placeholderIndex], &str[head], (size-head));
+        switch(param.kind) {
+        case ORBIT_DPK_INT:
+            if(modifierIs(modifier, modifierLength, "s")) {
+                handleS(buf, param.intValue);
+            }
+            else if(modifierIs(modifier, modifierLength, "plural")) {
+                handlePlural(buf, parameter, parameterLength, param.intValue);
+            }
+            else if(modifierIs(modifier, modifierLength, "select")) {
+                handleSelect(buf, parameter, parameterLength, param.intValue);
+            }
+            else {
+                OASSERT(!modifier, "diagnostic format argument: unknown modifier");
+                char number[32];
+                int numberLength = snprintf(number, 32, "%d", param.intValue);
+                orbit_stringBufferAppendC(buf, number, numberLength);
+            }
+            break;
+            
+        case ORBIT_DPK_CSTRING:
+            OASSERT(!modifier, "diagnostic format argument: no string modifiers");
+            orbit_stringBufferAppendC(buf, param.cstringValue, strlen(param.cstringValue));
+            break;
+            
+        case ORBIT_DPK_STRING: {
+                OCString* str = orbit_stringPoolGet(param.stringValue);
+                OASSERT(str, "diagnostic format argument: invalid string pool ID");
+                OASSERT(!modifier, "diagnostic format argument: no string modifiers");
+                orbit_stringBufferAppendC(buf, str->data, str->length);
+            }
+            break;
         }
     }
     
-    #undef CURRENT
-    #undef NEXT
-    #undef INCRCHECK
-    str[head++] = '\0';
-    
-    return head;
+    return buffer.data; // Ownership of the allocated data string is transferred
 }
