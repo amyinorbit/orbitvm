@@ -16,34 +16,6 @@
 #include <orbit/utils/assert.h>
 #include "recursive_descent.h"
 
-// MARK: - Error printing
-
-// void compilerError(OCParser* parser, const char* format, int count, ...) {
-//     OrbitDiagID id = orbit_diagNew(
-//         &orbit_defaultDiagManager,
-//         ORBIT_DIAGLEVEL_ERROR,
-//         format
-//     );
-//     orbit_diagAddSourceLoc(id, current(parser).sourceLoc);
-// 
-//     va_list args;
-//     va_start(args, count);
-//     for(int i = 0; i < count; ++i) {
-//         orbit_diagAddParam(id, va_arg(args, OrbitDiagParam));
-//     }
-//     va_end(args);
-// }
-
-
-// void compilerError(OCParser* parser, const char* fmt, ...) {
-//     OrbitDiagID id = orbit_diagNew(
-//         &orbit_defaultDiagManager,
-//         ORBIT_DIAGLEVEL_ERROR,
-//         fmt
-//     );
-//     orbit_diagAddSourceLoc(id, current(parser).sourceLoc);
-// }
-
 // MARK: - RD Basics
 
 bool have(OCParser* parser, OCTokenKind kind) {

@@ -59,7 +59,7 @@ OrbitDiagID orbit_diagEmitError(OCSourceLoc loc, const char* format, int count, 
     va_list args;
     va_start(args, count);
     for(int i = 0; i < count; ++i) {
-        orbit_diagAddParam(id, va_arg(args, OrbitDiagParam));
+        orbit_diagAddParam(id, va_arg(args, OrbitDiagArg));
     }
     va_end(args);
     
@@ -86,7 +86,7 @@ OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const
     return (OrbitDiagID){.manager = manager, .id=id};
 }
 
-void orbit_diagAddParam(OrbitDiagID id, OrbitDiagParam param) {
+void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param) {
     OASSERT(id.manager, "Diagnostics manager does not exist");
     
     OrbitDiag* d = &id.manager->diagnostics[id.id];

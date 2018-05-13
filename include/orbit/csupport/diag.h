@@ -18,7 +18,7 @@
 typedef enum _OrbitDiagLevel        OrbitDiagLevel;
 typedef struct _OrbitDiagManager    OrbitDiagManager;
 typedef struct _OrbitDiag           OrbitDiag;
-typedef struct _OrbitDiagParam      OrbitDiagParam;
+typedef struct _OrbitDiagArg      OrbitDiagArg;
 
 //typedef uint32_t                    OrbitDiagID;
 
@@ -35,7 +35,7 @@ enum _OrbitDiagLevel {
     ORBIT_DIAGLEVEL_ERROR   = 2,
 };
 
-struct _OrbitDiagParam {
+struct _OrbitDiagArg {
     enum { ORBIT_DPK_INT, ORBIT_DPK_STRING, ORBIT_DPK_CSTRING } kind;
     union {
         int         intValue;
@@ -49,9 +49,9 @@ struct _OrbitDiag {
     OCSourceLoc     sourceLoc;
     
     const char*     format;
-
+    
     uint32_t        paramCount;
-    OrbitDiagParam  params[10];
+    OrbitDiagArg    params[10];
 };
 
 struct _OrbitDiagManager {
@@ -61,10 +61,10 @@ struct _OrbitDiagManager {
     OrbitDiag           diagnostics[ORBIT_DIAG_MAXCOUNT];
 };
 
-#define ORBIT_DIAG_INT(val)     ((OrbitDiagParam){.kind=ORBIT_DPK_INT, .intValue=(val)})
-#define ORBIT_DIAG_FLOAT(val)   ((OrbitDiagParam){.kind=ORBIT_DPK_FLOAT, .floatValue=(val)})
-#define ORBIT_DIAG_STRING(val)  ((OrbitDiagParam){.kind=ORBIT_DPK_STRING, .stringValue=(val)})
-#define ORBIT_DIAG_CSTRING(val)  ((OrbitDiagParam){.kind=ORBIT_DPK_CSTRING, .cstringValue=(val)})
+#define ORBIT_DIAG_INT(val)     ((OrbitDiagArg){.kind=ORBIT_DPK_INT, .intValue=(val)})
+#define ORBIT_DIAG_FLOAT(val)   ((OrbitDiagArg){.kind=ORBIT_DPK_FLOAT, .floatValue=(val)})
+#define ORBIT_DIAG_STRING(val)  ((OrbitDiagArg){.kind=ORBIT_DPK_STRING, .stringValue=(val)})
+#define ORBIT_DIAG_CSTRING(val)  ((OrbitDiagArg){.kind=ORBIT_DPK_CSTRING, .cstringValue=(val)})
 
 extern OrbitDiagManager orbit_defaultDiagManager;
 
@@ -72,7 +72,7 @@ void orbit_diagManagerInit(OrbitDiagManager* manager, OCSource* source);
 
 OrbitDiagID orbit_diagEmitError(OCSourceLoc loc, const char* format, int count, ...);
 OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format);
-void orbit_diagAddParam(OrbitDiagID id, OrbitDiagParam param);
+void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param);
 void orbit_diagAddSourceLoc(OrbitDiagID id, OCSourceLoc loc);
 
 void orbit_diagEmitAll(OrbitDiagManager* manager);

@@ -100,7 +100,7 @@ char* orbit_diagGetFormat(OrbitDiag* diag) {
         OASSERT(isDigit(*fmt), "diagnostic format argument: should be a digit");
         uint8_t argIdx = *fmt - '0';
         OASSERT(argIdx < diag->paramCount, "diagnostic format argument: invalid index");
-        OrbitDiagParam param = diag->params[argIdx];
+        OrbitDiagArg param = diag->params[argIdx];
         fmt += 1;
         
         switch(param.kind) {
