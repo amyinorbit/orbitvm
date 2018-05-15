@@ -10,6 +10,7 @@
 #ifndef orbit_csupport_diag_h
 #define orbit_csupport_diag_h
 #include <stdint.h>
+#include <orbit/ast/ast.h>
 #include <orbit/csupport/source.h>
 #include <orbit/csupport/string.h>
 
@@ -36,11 +37,12 @@ enum _OrbitDiagLevel {
 };
 
 struct _OrbitDiagArg {
-    enum { ORBIT_DPK_INT, ORBIT_DPK_STRING, ORBIT_DPK_CSTRING } kind;
+    enum { ORBIT_DPK_INT, ORBIT_DPK_STRING, ORBIT_DPK_CSTRING, ORBIT_DPK_TYPE } kind;
     union {
         int         intValue;
         const char* cstringValue;
         OCStringID  stringValue;
+        AST*        typeValue;
     };
 };
 
@@ -65,7 +67,8 @@ struct _OrbitDiagManager {
 #define ORBIT_DIAG_INT(val)     ((OrbitDiagArg){.kind=ORBIT_DPK_INT, .intValue=(val)})
 #define ORBIT_DIAG_FLOAT(val)   ((OrbitDiagArg){.kind=ORBIT_DPK_FLOAT, .floatValue=(val)})
 #define ORBIT_DIAG_STRING(val)  ((OrbitDiagArg){.kind=ORBIT_DPK_STRING, .stringValue=(val)})
-#define ORBIT_DIAG_CSTRING(val)  ((OrbitDiagArg){.kind=ORBIT_DPK_CSTRING, .cstringValue=(val)})
+#define ORBIT_DIAG_CSTRING(val) ((OrbitDiagArg){.kind=ORBIT_DPK_CSTRING, .cstringValue=(val)})
+#define ORBIT_DIAG_TYPE(val)    ((OrbitDiagArg){.kind=ORBIT_DPK_TYPE, .typeValue=(val)})
 
 extern OrbitDiagManager orbit_defaultDiagManager;
 

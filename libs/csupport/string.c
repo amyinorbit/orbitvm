@@ -131,6 +131,13 @@ void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t c) {
     buffer->data[buffer->length] = '\0';
 }
 
+void orbit_stringBufferAppendP(OCStringBuffer* buffer, OCStringID id) {
+    OASSERT(buffer != NULL, "Null instance error");
+    OCString* str = orbit_stringPoolGet(id);
+    if(!str) { return; }
+    orbit_stringBufferAppendC(buffer, str->data, str->length);
+}
+
 void orbit_stringBufferAppendC(OCStringBuffer* buffer, const char* data, uint64_t length) {
     OASSERT(buffer != NULL, "Null instance error");
     _bufferReserve(buffer, buffer->length + length + 1);

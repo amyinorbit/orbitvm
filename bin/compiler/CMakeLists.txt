@@ -1,6 +1,7 @@
 file(GLOB SRC_FILES *.c)
 add_executable(orbitc ${SRC_FILES})
 target_link_libraries(orbitc OrbitUtils)
+target_link_libraries(orbitc OrbitAST)
 target_link_libraries(orbitc OrbitCSupport)
 target_link_libraries(orbitc OrbitParser)
 target_link_libraries(orbitc OrbitSema)

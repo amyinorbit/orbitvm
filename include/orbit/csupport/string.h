@@ -52,6 +52,7 @@ void orbit_stringBufferDeinit(OCStringBuffer* buffer);
 void orbit_stringBufferReset(OCStringBuffer* buffer);
 
 void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t codepoint);
+void orbit_stringBufferAppendP(OCStringBuffer* buffer, OCStringID id);
 void orbit_stringBufferAppendC(OCStringBuffer* buffer, const char* data, uint64_t length);
 OCStringID orbit_stringBufferIntern(OCStringBuffer* buffer);
 

@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <orbit/ast/diag.h>
+#include <orbit/ast/type.h>
 #include <orbit/csupport/string.h>
 #include <orbit/utils/assert.h>
 
@@ -133,6 +134,11 @@ char* orbit_diagGetFormat(OrbitDiag* diag) {
                 OASSERT(!modifier, "diagnostic format argument: no string modifiers");
                 orbit_stringBufferAppendC(buf, str->data, str->length);
             }
+            break;
+        
+        case ORBIT_DPK_TYPE:
+            OASSERT(!modifier, "diagnostic format argument: no type expression modifiers");
+            orbit_astTypeString(buf, param.typeValue);
             break;
         }
     }

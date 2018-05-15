@@ -11,7 +11,7 @@
 #include <orbit/ast/ast.h>
 #include <orbit/ast/builders.h>
 #include <orbit/ast/traversal.h>
-#include <orbit/csupport/diag.h>
+#include <orbit/ast/diag.h>
 #include <orbit/csupport/tokens.h>
 #include <orbit/mangling/mangle.h>
 #include <orbit/sema/type.h>
