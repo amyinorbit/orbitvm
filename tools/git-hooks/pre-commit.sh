@@ -1,6 +1,7 @@
 #!/bin/sh
 git stash -q --keep-index
-REPO_DIR=$(pwd)
+
+REPO_DIR=$PWD
 ${REPO_DIR}/tools/git-hooks/run-tests.sh "$REPO_DIR"
 RESULT=$?
 

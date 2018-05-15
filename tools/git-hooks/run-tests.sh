@@ -7,6 +7,6 @@ cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release
 make all > /dev/null
 make test
 RESULT=$?
-rm -rf $BUILD_DIR
+
 [ $RESULT -ne 0 ] && exit 1 
 exit 0
