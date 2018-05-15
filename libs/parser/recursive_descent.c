@@ -10,8 +10,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <inttypes.h>
-//#include <orbit/csupport/console.h>
-#include <orbit/csupport/diag.h>
+#include <orbit/ast/diag.h>
 #include <orbit/parser/lexer.h>
 #include <orbit/utils/assert.h>
 #include "recursive_descent.h"

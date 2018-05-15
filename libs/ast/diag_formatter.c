@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
-// orbit/csupport/diag_formatter.c - Implementation of the diagnostics token formatter
-// This source is part of Orbit - Compiler Support
+// orbit/ast/diag_formatter.c - Implementation of the diagnostics token formatter
+// This source is part of Orbit - AST
 //
 // Created on 2018-05-08 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
@@ -9,7 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <stdio.h>
 #include <string.h>
-#include <orbit/csupport/diag.h>
+#include <orbit/ast/diag.h>
 #include <orbit/csupport/string.h>
 #include <orbit/utils/assert.h>
 

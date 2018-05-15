@@ -1,6 +1,6 @@
 //===--------------------------------------------------------------------------------------------===
-// orbit/csupport/diag.h - Orbit's compiler diagnostic API
-// This source is part of Orbit - Compiler Support
+// orbit/ast/diag.h - Orbit's compiler diagnostic API
+// This source is part of Orbit - AST
 //
 // Created on 2018-05-08 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>

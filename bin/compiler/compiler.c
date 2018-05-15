@@ -12,9 +12,9 @@
 #include <string.h>
 #include <stdbool.h>
 #include <orbit/ast/ast.h>
+#include <orbit/ast/diag.h>
 #include <orbit/csupport/source.h>
 #include <orbit/csupport/string.h>
-#include <orbit/csupport/diag.h>
 #include <orbit/parser/parser.h>
 #include <orbit/sema/type.h>
 #include <orbit/utils/memory.h>
