@@ -25,28 +25,27 @@ Building has only been tested on macOS (Apple LLVM/clang) so far, but should
 work as-is on most Linux/UNIX-based systems and GCC. The only dependancy is the
 C standard library.
 
-## Roadmap
+## Contributing
 
-At the moment, OrbitVM is capable of running most of its bytecode instructions
-and call foreign functions (defined from the C API). The garbage collector
-(simple mark-and-sweep) is operational. A (private so far) simple assembler
-can generate Orbit Module Files, and OrbitVM can load them and run their 
-bytecode.
+Orbit is a very small project, and I don't expect it to pick up a lot of
+contributors. If you feel like working on it, make sure you have read and
+respect the [code of conduct][2], and fork away. Given the size, I'll review
+the pull requests myself, but in the future a discussion system might be more
+appropriate.
 
-The next steps are:
- * [x] rework project structure and build system
- * [x] organise files/modules according to new project layout
- * [x] define complete Orbit grammar
- * [x] implement Recursive-descent parser
- * [x] describe Orbit type system
- * [x] provide AST walker API:
-     * [ ] implement OMF backend (source to orbit module file)
-     * [ ] implement direct codegen backend (source to VM, REPL)
+If you contribute, I strongly encourage you to use the pre-commit hook provided
+in `/tools/git-hooks`:
 
- * [ ] improve module loading and registration in the VM
- * [ ] add dependency import system
- * [ ] improve UTF-8 support and string library
- * [ ] implement a basic standard library
- * [ ] improve runtime error printing, and provide some error handling
+````bash
+$ cd .git/hooks
+$ ln -s ../../tools/git-hooks/pre-commit.sh pre-commit
+$ chmod +x pre-commit
+````
+
+The hook will ensure that all the automated tests pass before committing. If you
+are working locally and want to commit some temporary work, you can use bypass it
+with `git commit --no-verify`, but it is heavily recommended that you don't push
+any changes that do not pass the tests.
 
    [1]: http://www.throwtheswitch.org/unity/
+   [2]: CODE_OF_CONDUCT.md
