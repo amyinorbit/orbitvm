@@ -31,6 +31,7 @@ spikes/
 *.omf
 
 # Local project config
+*.ignore
 *.tm_properties
 *.test.orbit
 
