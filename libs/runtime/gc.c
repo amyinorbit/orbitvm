@@ -7,7 +7,7 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#include <orbit/utils/assert.h>
+#include <assert.h>
 #include <orbit/runtime/gc.h>
 #include <orbit/runtime/vm.h>
 

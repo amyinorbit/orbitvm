@@ -7,8 +7,8 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <string.h>
-#include <orbit/utils/assert.h>
 #include <orbit/csupport/rcmap.h>
 
 #define ORCMAP_DEFAULT_CAPACITY 32
@@ -29,7 +29,7 @@ void orbit_rcMapDeinit(void* ref) {
 }
 
 ORCMap* orbit_rcMapInit(ORCMap* map) {
-    OASSERT(map != NULL, "Null instance error");
+    assert(map != NULL && "Null instance error");
     //ORCINIT(map, &orbit_rcMapDeinit);
     
     map->data = ORBIT_ALLOC_ARRAY(ORCMapEntry, ORCMAP_DEFAULT_CAPACITY);
@@ -44,8 +44,8 @@ ORCMap* orbit_rcMapInit(ORCMap* map) {
 }
 
 // static inline bool _rcMapCompare(UTFConstString* a, UTFConstString* b) {
-//     OASSERT(a != NULL, "Null reference error");
-//     OASSERT(b != NULL, "Null reference error");
+//     assert(a != NULL && "Null reference error");
+//     assert(b != NULL && "Null reference error");
 //     return a == b
 //         || (a->hash == b->hash 
 //             && a->length == b->length
@@ -73,7 +73,7 @@ static ORCMapEntry* _rcMapFindSlot(ORCMap* map, OCStringID keyID) {
         index = (index + 1) % map->capacity;
     } while(index != start);
     
-    OASSERT(insert != NULL, "Map wasn't grown when required");
+    assert(insert != NULL && "Map wasn't grown when required");
     return insert;
 }
 
@@ -83,7 +83,7 @@ static ORCMapEntry* _rcMapFindSlot(ORCMap* map, OCStringID keyID) {
 // }
 
 static void _rcMapGrow(ORCMap* map) {
-    OASSERT(map != NULL, "Null instance error");
+    assert(map != NULL && "Null instance error");
     uint64_t oldCapacity = map->capacity;
     ORCMapEntry* oldData = map->data;
     
@@ -109,8 +109,8 @@ static void _rcMapGrow(ORCMap* map) {
 }
 
 void orbit_rcMapInsertP(ORCMap* map, OCStringID key, void* item) {
-    OASSERT(map != NULL, "Null instance error");
-    OASSERT(key != orbit_invalidStringID, "Null key error");
+    assert(map != NULL && "Null instance error");
+    assert(key != orbit_invalidStringID && "Null key error");
     
     if(map->size > ORCMAP_GROWTH_THRESHOLD * map->capacity) {
         _rcMapGrow(map);
@@ -125,8 +125,8 @@ void orbit_rcMapInsertP(ORCMap* map, OCStringID key, void* item) {
 }
 
 void orbit_rcMapRemoveP(ORCMap* map, OCStringID key) {
-    OASSERT(map != NULL, "Null instance error");
-    OASSERT(key != orbit_invalidStringID, "Null key error");
+    assert(map != NULL && "Null instance error");
+    assert(key != orbit_invalidStringID && "Null key error");
     
     ORCMapEntry* slot = _rcMapFindSlot(map, key);
     if(slot->key == orbit_invalidStringID) { return; }
@@ -139,8 +139,8 @@ void orbit_rcMapRemoveP(ORCMap* map, OCStringID key) {
 }
 
 void* orbit_rcMapGetP(ORCMap* map, OCStringID key) {
-    OASSERT(map != NULL, "Null instance error");
-    OASSERT(key != orbit_invalidStringID, "Null key error");
+    assert(map != NULL && "Null instance error");
+    assert(key != orbit_invalidStringID && "Null key error");
     
     ORCMapEntry* slot = _rcMapFindSlot(map, key);
     return slot->key != orbit_invalidStringID ? slot->value : NULL;

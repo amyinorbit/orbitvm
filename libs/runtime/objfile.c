@@ -7,13 +7,14 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <orbit/utils/assert.h>
-#include <orbit/utils/pack.h>
 #include <orbit/runtime/rtutils.h>
 #include <orbit/runtime/objfile.h>
 #include <orbit/runtime/vm.h>
+#include <orbit/utils/debug.h>
+#include <orbit/utils/pack.h>
 
 static bool _expect(FILE* in, OMFTag expected, OrbitPackError* error) {
     uint8_t tag = orbit_unpack8(in, error);
@@ -92,7 +93,7 @@ static bool _loadClass(OrbitVM* vm,
     uint16_t fieldCount = orbit_unpack16(in, error);
     if(*error != PACK_NOERROR) { return false; }
     
-    DBG("CREATE NEW CLASS");
+    ORBIT_DLOG("CREATE NEW CLASS");
     OrbitGCClass* impl = orbit_gcClassNew(vm, AS_STRING(*className), fieldCount);
     *class = MAKE_OBJECT(impl);
     return true;
@@ -135,8 +136,8 @@ static bool _loadFunction(OrbitVM* vm,
 
 OrbitVMModule* orbit_unpackModule(OrbitVM* vm, FILE* in) {
     // TODO: implementation
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(in != NULL, "Null file passed");
+    assert(vm != NULL && "Null instance error");
+    assert(in != NULL && "Null file passed");
     
     OrbitPackError error = PACK_NOERROR;
     OrbitPackError* errorp = &error;

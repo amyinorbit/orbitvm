@@ -10,9 +10,9 @@
 #ifndef orbit_vm_h
 #define orbit_vm_h
 
+#include <assert.h>
 #include <stdint.h>
 #include <orbit/orbit.h>
-#include <orbit/utils/assert.h>
 #include <orbit/runtime/rtutils.h>
 #include <orbit/runtime/value.h>
 
@@ -41,12 +41,12 @@ struct _OrbitVM {
 };
 
 static inline void orbit_gcRetain(OrbitVM* vm, OrbitGCObject* object) {
-    OASSERT(vm->gcStackSize < ORBIT_GCSTACK_SIZE-1, "stack overflow");
+    assert(vm->gcStackSize < ORBIT_GCSTACK_SIZE-1 && "stack overflow");
     vm->gcStack[vm->gcStackSize++] = object;
 }
 
 static inline void orbit_gcRelease(OrbitVM* vm) {
-    OASSERT(vm->gcStackSize > 0, "stack underflow");
+    assert(vm->gcStackSize > 0 && "stack underflow");
     vm->gcStackSize--;
 }
 

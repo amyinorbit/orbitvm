@@ -7,18 +7,18 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
 #include <inttypes.h>
 #include <orbit/csupport/console.h>
 #include <orbit/parser/lexer.h>
-#include <orbit/utils/assert.h>
 #include <orbit/utils/wcwidth.h>
 
 
 static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
-    OASSERT(lexer != NULL, "Null instance error");
+    assert(lexer != NULL && "Null instance error");
     
     fprintf(stderr, "%s:%"PRIu64":%"PRIu64": error: ",
                      lexer->source->path,
@@ -34,7 +34,7 @@ static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
 }
 
 void lexer_init(OCLexer* lexer, OCSource* source) {
-    OASSERT(lexer != NULL, "Null instance error");
+    assert(lexer != NULL && "Null instance error");
     
     lexer->source = source;
 
@@ -56,12 +56,12 @@ void lexer_init(OCLexer* lexer, OCSource* source) {
 }
 
 void lexer_deinit(OCLexer* lexer) {
-    OASSERT(lexer != NULL, "Null instance error");
+    assert(lexer != NULL && "Null instance error");
     orbit_stringBufferDeinit(&lexer->buffer);
 }
 
 static codepoint_t _nextChar(OCLexer* lexer) {
-    OASSERT(lexer != NULL, "Null instance error");
+    assert(lexer != NULL && "Null instance error");
     if(!lexer->currentPtr) { return lexer->currentChar = '\0'; }
     
     uint64_t remaining = lexer->source->length - (lexer->currentPtr - lexer->source->bytes);
@@ -100,7 +100,7 @@ static inline codepoint_t _next2(OCLexer* lexer) {
 }
 
 static void _makeToken(OCLexer* lexer, int type) {
-    OASSERT(lexer != NULL, "Null instance error");
+    assert(lexer != NULL && "Null instance error");
     lexer->currentToken.kind = type;
     lexer->currentToken.sourceLoc.offset = lexer->tokenStart - lexer->source->bytes;
     lexer->currentToken.length = lexer->currentPtr - lexer->tokenStart;
@@ -277,7 +277,7 @@ static void _updateTokenStart(OCLexer* lexer) {
 }
 
 void lexer_nextToken(OCLexer* lexer) {
-    OASSERT(lexer != NULL, "Null instance error");
+    assert(lexer != NULL && "Null instance error");
     if(lexer->currentToken.kind == TOKEN_EOF) { return; }
     
     while(_next(lexer) != '\0') {

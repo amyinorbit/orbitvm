@@ -7,8 +7,8 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <string.h>
-#include <orbit/utils/assert.h>
 #include <orbit/csupport/rcarray.h>
 
 void orbit_rcArrayDeinit(void* ref) {
@@ -19,7 +19,7 @@ void orbit_rcArrayDeinit(void* ref) {
 }
 
 ORCArray* orbit_rcArrayInit(ORCArray* array, uint64_t capacity) {
-    OASSERT(array != NULL, "Null instance error");
+    assert(array != NULL && "Null instance error");
     
     array->data = ORBIT_ALLOC_ARRAY(void*, capacity);
     ORCINIT(array, &orbit_rcArrayDeinit);
@@ -37,7 +37,7 @@ static void _arrayReserve(ORCArray* array, uint64_t newSize) {
 }
 
 void orbit_rcArrayAppend(ORCArray* array, void* item) {
-    OASSERT(array != NULL, "Null instance error");
+    assert(array != NULL && "Null instance error");
     
     _arrayReserve(array, array->size + 1);
     array->data[array->size] = ORCRETAIN(item);
@@ -45,8 +45,8 @@ void orbit_rcArrayAppend(ORCArray* array, void* item) {
 }
 
 void orbit_rcArrayInsert(ORCArray* array, uint64_t index, void* item) {
-    OASSERT(array != NULL, "Null instance error");
-    OASSERT(index <= array->size, "Index out of range");
+    assert(array != NULL && "Null instance error");
+    assert(index <= array->size && "Index out of range");
     
     _arrayReserve(array, array->size + 1);
     void** insertion = &array->data[index];
@@ -56,8 +56,8 @@ void orbit_rcArrayInsert(ORCArray* array, uint64_t index, void* item) {
 }
 
 void orbit_rcArrayRemove(ORCArray* array, uint64_t index) {
-    OASSERT(array != NULL, "Null instance error");
-    OASSERT(index < array->size, "Index out of range");
+    assert(array != NULL && "Null instance error");
+    assert(index < array->size && "Index out of range");
 
     ORCRELEASE(array->data[index]);
     
@@ -67,7 +67,7 @@ void orbit_rcArrayRemove(ORCArray* array, uint64_t index) {
 }
 
 void orbit_rcArrayEmpty(ORCArray* array) {
-    OASSERT(array != NULL, "Null instance error");
+    assert(array != NULL && "Null instance error");
     for(uint64_t i = 0; i < array->size; ++i) {
         ORCRELEASE(array->data[i]);
     }

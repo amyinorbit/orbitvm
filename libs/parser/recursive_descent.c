@@ -7,12 +7,12 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <inttypes.h>
 #include <orbit/ast/diag.h>
 #include <orbit/parser/lexer.h>
-#include <orbit/utils/assert.h>
 #include "recursive_descent.h"
 
 // MARK: - RD Basics

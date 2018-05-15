@@ -7,12 +7,12 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <orbit/csupport/rcmap.h>
-#include <orbit/utils/assert.h>
 #include "type_private.h"
 
 void sema_init(OCSema* sema) {
-    OASSERT(sema != NULL, "Null instance error");
+    assert(sema != NULL && "Null instance error");
     orbit_rcMapInit(&sema->typeTable);
     
     // Create stack[0], global scope
@@ -22,7 +22,7 @@ void sema_init(OCSema* sema) {
 }
 
 void sema_deinit(OCSema* sema) {
-    OASSERT(sema != NULL, "Null instance error");
+    assert(sema != NULL && "Null instance error");
     orbit_rcMapDeinit(&sema->typeTable);
     
     sema->stackSize = 0;
@@ -30,8 +30,8 @@ void sema_deinit(OCSema* sema) {
 }
 
 OCScope* sema_pushScope(OCSema* sema) {
-    OASSERT(sema != NULL, "Null instance error");
-    OASSERT(sema->stackSize < ORBIT_SEMA_SCOPESTACK_SIZE, "Sema stack overflow");
+    assert(sema != NULL && "Null instance error");
+    assert(sema->stackSize < ORBIT_SEMA_SCOPESTACK_SIZE && "Sema stack overflow");
     
     OCScope* scope = &sema->stack[sema->stackSize];
     scope->parent = &sema->stack[sema->stackSize-1];
@@ -41,8 +41,8 @@ OCScope* sema_pushScope(OCSema* sema) {
 }
 
 void sema_popScope(OCSema* sema) {
-    OASSERT(sema != NULL, "Null instance error");
-    OASSERT(sema->stackSize > 1, "Sema stack underflow");
+    assert(sema != NULL && "Null instance error");
+    assert(sema->stackSize > 1 && "Sema stack underflow");
     sema->stackSize -= 1;
     
     orbit_rcMapDeinit(&sema->stack[sema->stackSize].symbolTable);
@@ -50,7 +50,7 @@ void sema_popScope(OCSema* sema) {
 }
 
 AST* sema_lookupSymbolP(OCSema* sema, OCStringID symbol) {
-    OASSERT(sema != NULL, "Null instance error");
+    assert(sema != NULL && "Null instance error");
     if(sema->stackSize == 0) { return NULL; }
     
     OCScope* scope = &sema->stack[sema->stackSize-1];
@@ -63,22 +63,22 @@ AST* sema_lookupSymbolP(OCSema* sema, OCStringID symbol) {
 }
 
 void sema_declareSymbol(OCSema* sema, OCStringID symbol, AST* type) {
-    OASSERT(sema != NULL, "Null instance error");
-    OASSERT(type != NULL, "Null type error");
-    OASSERT(sema->stackSize > 0, "Sema no scope error");
+    assert(sema != NULL && "Null instance error");
+    assert(type != NULL && "Null type error");
+    assert(sema->stackSize > 0 && "Sema no scope error");
     
     OCScope* scope = &sema->stack[sema->stackSize-1];
     orbit_rcMapInsertP(&scope->symbolTable, symbol, type);
 }
 
 void sema_declareType(OCSema* sema, OCStringID name, AST* declaration) {
-    OASSERT(sema != NULL, "Null instance error");
-    OASSERT(declaration != NULL, "Null declaration error");
+    assert(sema != NULL && "Null instance error");
+    assert(declaration != NULL && "Null declaration error");
     
     orbit_rcMapInsertP(&sema->typeTable, name, declaration);
 }
 
 AST* sema_lookupType(OCSema* sema, OCStringID name) {
-    OASSERT(sema != NULL, "Null instance error");
+    assert(sema != NULL && "Null instance error");
     return orbit_rcMapGetP(&sema->typeTable, name);
 }

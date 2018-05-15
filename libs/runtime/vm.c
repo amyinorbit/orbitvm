@@ -7,11 +7,13 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <string.h>
 #include <stdbool.h>
 #include <orbit/runtime/vm.h>
 #include <orbit/runtime/objfile.h>
 #include <orbit/runtime/gc.h>
+#include <orbit/utils/debug.h>
 
 static bool orbit_vmRun(OrbitVM*, OrbitVMTask*);
 
@@ -36,7 +38,7 @@ OrbitVM* orbit_vmNew() {
 }
 
 void orbit_vmDealloc(OrbitVM* vm) {
-    OASSERT(vm != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
     
     // Set those as unreachable so the GC can collect them
     vm->dispatchTable = NULL;
@@ -49,8 +51,8 @@ void orbit_vmDealloc(OrbitVM* vm) {
 }
 
 void orbit_vmLoadModule(OrbitVM* vm, const char* moduleName) {
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(moduleName != NULL, "Null string error");
+    assert(vm != NULL && "Null instance error");
+    assert(moduleName != NULL && "Null string error");
     
     OrbitValue key = MAKE_OBJECT(orbit_gcStringNew(vm, moduleName));
     OrbitValue module = VAL_NIL;
@@ -65,7 +67,7 @@ void orbit_vmLoadModule(OrbitVM* vm, const char* moduleName) {
     strncpy(path+length, ".omf", 4);
     path[length+4] = '\0';
     
-    DBG("Loading module %s", path);
+    ORBIT_DLOG("Loading module %s", path);
     
     FILE* in = fopen(path, "rb");
     if(!in) {
@@ -85,7 +87,7 @@ void orbit_vmLoadModule(OrbitVM* vm, const char* moduleName) {
 }
 
 bool orbit_vmInvoke(OrbitVM* vm, const char* module, const char* entry) {
-    OASSERT(vm != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
     
     orbit_vmLoadModule(vm, module);
     
@@ -136,8 +138,8 @@ static inline void orbit_vmEnsureStack(OrbitVM* vm, OrbitVMTask* task, uint8_t r
 // checks that a task has enough frames left in the call stack for one more
 // to be pushed.
 static void orbit_vmEnsureFrames(OrbitVM* vm, OrbitVMTask* task) {
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(task != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
+    assert(task != NULL && "Null instance error");
     
     if(task->frameCount + 1 < task->frameCapacity) return;
     task->frameCapacity *= 2;
@@ -146,10 +148,10 @@ static void orbit_vmEnsureFrames(OrbitVM* vm, OrbitVMTask* task) {
 }
 
 static bool orbit_vmRun(OrbitVM* vm, OrbitVMTask* task) {
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(task != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
+    assert(task != NULL && "Null instance error");
     
-    OASSERT(task->frameCount > 0, "task must have an entry point");
+    assert(task->frameCount > 0 && "task must have an entry point");
     
     vm->task = task;
     
@@ -224,7 +226,7 @@ static bool orbit_vmRun(OrbitVM* vm, OrbitVMTask* task) {
         CASE_OP(load_global):
             {
                 uint16_t idx = READ16();
-                OASSERT(idx < fn->module->globalCount, "global index out of range");
+                assert(idx < fn->module->globalCount && "global index out of range");
                 PUSH(fn->module->globals[idx].global);
             }
             NEXT();
@@ -243,7 +245,7 @@ static bool orbit_vmRun(OrbitVM* vm, OrbitVMTask* task) {
         CASE_OP(store_global):
             {
                 uint16_t idx = READ16();
-                OASSERT(idx < fn->module->globalCount, "global index out of range");
+                assert(idx < fn->module->globalCount && "global index out of range");
                 fn->module->globals[idx].global = POP();
             }
             NEXT();

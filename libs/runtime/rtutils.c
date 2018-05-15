@@ -7,13 +7,13 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#include <orbit/utils/assert.h>
+#include <assert.h>
 #include <orbit/runtime/rtutils.h>
 #include <orbit/runtime/vm.h>
 #include <orbit/runtime/gc.h>
 
 void* orbit_allocator(OrbitVM* vm, void* ptr, size_t newSize) {
-    OASSERT(vm != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
     vm->allocated += newSize;
     if(vm->allocated > vm->nextGC) {
         orbit_gcRun(vm);
@@ -24,6 +24,6 @@ void* orbit_allocator(OrbitVM* vm, void* ptr, size_t newSize) {
         return NULL;
     }
     void* mem = realloc(ptr, newSize);
-    OASSERT(mem != NULL, "Error reallocating memory");
+    assert(mem != NULL && "Error reallocating memory");
     return mem;
 }

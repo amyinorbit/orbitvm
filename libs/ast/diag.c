@@ -7,11 +7,11 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <orbit/ast/diag.h>
 #include <orbit/csupport/console.h>
-#include <orbit/utils/assert.h>
 
 OrbitDiagManager orbit_defaultDiagManager;
 
@@ -67,7 +67,7 @@ OrbitDiagID orbit_diagEmitError(OCSourceLoc loc, const char* format, int count, 
 }
 
 void orbit_diagManagerInit(OrbitDiagManager* manager, OCSource* source) {
-    OASSERT(manager, "Invalid Diagnostics Manager instance");
+    assert(manager && "Invalid Diagnostics Manager instance");
     manager->source = source;
     manager->consumer = &_orbit_defaultDiagConsumer;
     manager->errorCount = 0;
@@ -75,8 +75,8 @@ void orbit_diagManagerInit(OrbitDiagManager* manager, OCSource* source) {
 }
 
 OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format) {
-    OASSERT(manager, "Diagnostics manager does not exist");
-    OASSERT(manager->diagnosticCount < ORBIT_DIAG_MAXCOUNT, "Diagnostics overflow");
+    assert(manager && "Diagnostics manager does not exist");
+    assert(manager->diagnosticCount < ORBIT_DIAG_MAXCOUNT && "Diagnostics overflow");
     if(level >= ORBIT_DIAGLEVEL_ERROR) {
         manager->errorCount += 1;
     }
@@ -90,17 +90,17 @@ OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const
 }
 
 void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param) {
-    OASSERT(id.manager, "Diagnostics manager does not exist");
+    assert(id.manager && "Diagnostics manager does not exist");
     
     OrbitDiag* d = &id.manager->diagnostics[id.id];
-    OASSERT(d->paramCount < 10, "Diagnostics are limited 10 parameters");
+    assert(d->paramCount < 10 && "Diagnostics are limited 10 parameters");
     
     d->params[d->paramCount] = param;
     d->paramCount += 1;
 }
 
 void orbit_diagAddSourceLoc(OrbitDiagID id, OCSourceLoc loc) {
-    OASSERT(id.manager, "Diagnostics manager does not exist");
+    assert(id.manager && "Diagnostics manager does not exist");
     OrbitDiag* d = &id.manager->diagnostics[id.id];
     d->sourceLoc = loc;
 }
@@ -111,7 +111,7 @@ void orbit_diagEmitAll(OrbitDiagManager* manager) {
 }
 
 void orbit_diagEmitAbove(OrbitDiagManager* manager, OrbitDiagLevel level) {
-    OASSERT(manager, "Diagnostics manager does not exist");
+    assert(manager && "Diagnostics manager does not exist");
     // TODO: Sort diagnostics by severity, location?
     
     for(uint32_t i = 0; i < manager->diagnosticCount; ++i) {

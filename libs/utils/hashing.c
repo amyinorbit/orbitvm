@@ -7,11 +7,12 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
+#include <stddef.h> // in order to get NULL
 #include <orbit/utils/hashing.h>
-#include <orbit/utils/assert.h>
 
 uint32_t orbit_hashString(const char* string, uint64_t length) {
-    OASSERT(string != NULL, "Null instance error");
+    assert(string != NULL && "Null instance error");
     
     //Fowler-Noll-Vo 1a hash
     //http://create.stephan-brumme.com/fnv-hash/

@@ -7,9 +7,8 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <string.h>
-#include <orbit/utils/assert.h>
-//#include <orbit/utils/string.h>
 #include <orbit/utils/hashing.h>
 #include <orbit/runtime/value.h>
 #include <orbit/runtime/rtutils.h>
@@ -18,8 +17,8 @@
 // Initialises [object] as an instance of [class]. [class] can be NULL if the
 // object being initialized is a class itself.
 static void orbit_objectInit(OrbitVM* vm, OrbitGCObject* object, OrbitGCClass* class) {
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(object != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
+    assert(object != NULL && "Null instance error");
     
     object->class = class;
     object->mark = false;
@@ -28,7 +27,7 @@ static void orbit_objectInit(OrbitVM* vm, OrbitGCObject* object, OrbitGCClass* c
 }
 
 OrbitGCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
-    OASSERT(vm != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
     
     size_t length = strlen(string);
     OrbitGCString* object = orbit_gcStringReserve(vm, length);
@@ -40,7 +39,7 @@ OrbitGCString* orbit_gcStringNew(OrbitVM* vm, const char* string) {
 }
 
 OrbitGCString* orbit_gcStringReserve(OrbitVM* vm, size_t length) {
-    OASSERT(vm != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
     
     OrbitGCString* object = ALLOC_FLEX(vm, OrbitGCString, char, length+1);
     orbit_objectInit(vm, (OrbitGCObject*)object, NULL);
@@ -53,13 +52,13 @@ OrbitGCString* orbit_gcStringReserve(OrbitVM* vm, size_t length) {
 }
 
 void orbit_gcStringComputeHash(OrbitGCString* string) {
-    OASSERT(string != NULL, "Null instance error");
+    assert(string != NULL && "Null instance error");
     string->hash = orbit_hashString(string->data, string->length);
 }
 
 OrbitGCInstance* orbit_gcInstanceNew(OrbitVM* vm, OrbitGCClass* class) {
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(class != NULL, "Null class error");
+    assert(vm != NULL && "Null instance error");
+    assert(class != NULL && "Null class error");
     
     OrbitGCInstance* object = ALLOC_FLEX(vm, OrbitGCInstance, OrbitValue, class->fieldCount);
     orbit_objectInit(vm, (OrbitGCObject*)object, class);
@@ -68,8 +67,8 @@ OrbitGCInstance* orbit_gcInstanceNew(OrbitVM* vm, OrbitGCClass* class) {
 }
 
 OrbitGCClass* orbit_gcClassNew(OrbitVM* vm, OrbitGCString* name, uint16_t fieldCount) {
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(name != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
+    assert(name != NULL && "Null instance error");
     
     OrbitGCClass* class = ALLOC(vm, OrbitGCClass);
     orbit_objectInit(vm, (OrbitGCObject*)class, NULL);
@@ -83,7 +82,7 @@ OrbitGCClass* orbit_gcClassNew(OrbitVM* vm, OrbitGCString* name, uint16_t fieldC
 }
 
 OrbitVMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength) {
-    OASSERT(vm != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
     
     OrbitVMFunction* function = ALLOC(vm, OrbitVMFunction);
     orbit_objectInit(vm, (OrbitGCObject*)function, NULL);
@@ -104,7 +103,7 @@ OrbitVMFunction* orbit_gcFunctionNew(OrbitVM* vm, uint16_t byteCodeLength) {
 
 // Creates a new foreign function
 OrbitVMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_t arity) {
-    OASSERT(vm != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
     
     OrbitVMFunction* function = ALLOC(vm, OrbitVMFunction);
     orbit_objectInit(vm, (OrbitGCObject*)function, NULL);
@@ -122,7 +121,7 @@ OrbitVMFunction* orbit_gcFunctionForeignNew(OrbitVM* vm, GCForeignFn ffi, uint8_
 }
 
 OrbitVMModule* orbit_gcModuleNew(OrbitVM* vm) {
-    OASSERT(vm != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
     
     OrbitVMModule* module = ALLOC(vm, OrbitVMModule);
     orbit_objectInit(vm, (OrbitGCObject*)module, NULL);
@@ -165,8 +164,8 @@ OrbitVMTask* orbit_gcTaskNew(OrbitVM* vm, OrbitVMFunction* function) {
 }
 
 void orbit_gcDeallocate(OrbitVM* vm, OrbitGCObject* object) {
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(object != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
+    assert(object != NULL && "Null instance error");
     
     switch(object->kind) {
     case ORBIT_OBJK_CLASS:
@@ -285,7 +284,7 @@ static OrbitGCMapEntry* orbit_gcMapFindSlot(OrbitGCMap* map, OrbitValue key) {
 }
 
 OrbitGCMap* orbit_gcMapNew(OrbitVM* vm) {
-    OASSERT(vm != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
     
     OrbitGCMap* map = ALLOC(vm, OrbitGCMap);
     orbit_objectInit(vm, (OrbitGCObject*)map, NULL/* TODO: replace with Map class*/);
@@ -299,9 +298,9 @@ OrbitGCMap* orbit_gcMapNew(OrbitVM* vm) {
 }
 
 void orbit_gcMapAdd(OrbitVM* vm, OrbitGCMap* map, OrbitValue key, OrbitValue value) {
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(map != NULL, "Null instance error");
-    OASSERT(IS_NUM(key) || IS_STRING(key), "Map keys must be primitives");
+    assert(vm != NULL && "Null instance error");
+    assert(map != NULL && "Null instance error");
+    assert(IS_NUM(key) || IS_STRING(key) && "Map keys must be primitives");
     
     if(map->size+1 > 0.75 * map->capacity) {
         orbit_gcMapGrow(vm, map);
@@ -316,8 +315,8 @@ void orbit_gcMapAdd(OrbitVM* vm, OrbitGCMap* map, OrbitValue key, OrbitValue val
 }
 
 bool orbit_gcMapGet(OrbitGCMap* map, OrbitValue key, OrbitValue* value) {
-    OASSERT(map != NULL, "Null instance error");
-    OASSERT(IS_NUM(key) || IS_STRING(key), "Map keys must be primitives");
+    assert(map != NULL && "Null instance error");
+    assert(IS_NUM(key) || IS_STRING(key) && "Map keys must be primitives");
     
     OrbitGCMapEntry* slot = orbit_gcMapFindSlot(map, key);
     if(IS_NIL(slot->key)) {
@@ -330,9 +329,9 @@ bool orbit_gcMapGet(OrbitGCMap* map, OrbitValue key, OrbitValue* value) {
 }
 
 void orbit_gcMapRemove(OrbitVM* vm, OrbitGCMap* map, OrbitValue key) {
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(map != NULL, "Null instance error");
-    OASSERT(IS_NUM(key) || IS_STRING(key), "Map keys must be primitives");
+    assert(vm != NULL && "Null instance error");
+    assert(map != NULL && "Null instance error");
+    assert(IS_NUM(key) || IS_STRING(key) && "Map keys must be primitives");
     
     OrbitGCMapEntry* slot = orbit_gcMapFindSlot(map, key);
     if(IS_NIL(slot->key)) return;
@@ -362,7 +361,7 @@ static void orbit_gcArrayGrow(OrbitVM* vm, OrbitGCArray* array) {
 // }
 
 OrbitGCArray* orbit_gcArrayNew(OrbitVM* vm) {
-    OASSERT(vm != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
     
     OrbitGCArray* array = ALLOC(vm, OrbitGCArray);
     orbit_objectInit(vm, (OrbitGCObject*)array, NULL);
@@ -377,8 +376,8 @@ OrbitGCArray* orbit_gcArrayNew(OrbitVM* vm) {
 }
 
 void orbit_gcArrayAdd(OrbitVM* vm, OrbitGCArray* array, OrbitValue value) {
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(array != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
+    assert(array != NULL && "Null instance error");
     
     if(array->size + 1 > array->capacity) {
         orbit_gcArrayGrow(vm, array);
@@ -387,7 +386,7 @@ void orbit_gcArrayAdd(OrbitVM* vm, OrbitGCArray* array, OrbitValue value) {
 }
 
 bool orbit_gcArrayGet(OrbitGCArray* array, uint32_t index, OrbitValue* value) {
-    OASSERT(array != NULL, "Null instance error");
+    assert(array != NULL && "Null instance error");
     
     if(index > array->size) {
         *value = VAL_NIL;
@@ -398,8 +397,8 @@ bool orbit_gcArrayGet(OrbitGCArray* array, uint32_t index, OrbitValue* value) {
 }
 
 bool orbit_gcArrayRemove(OrbitVM* vm, OrbitGCArray* array, uint32_t index) {
-    OASSERT(vm != NULL, "Null instance error");
-    OASSERT(array != NULL, "Null instance error");
+    assert(vm != NULL && "Null instance error");
+    assert(array != NULL && "Null instance error");
     
     if(index > array->size) return false;
     array->size -= 1;

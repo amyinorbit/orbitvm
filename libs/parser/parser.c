@@ -7,12 +7,12 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <orbit/ast/builders.h>
 #include <orbit/csupport/console.h>
 #include <orbit/csupport/diag.h>
 #include <orbit/parser/parser.h>
 #include <orbit/parser/lexer.h>
-#include <orbit/utils/assert.h>
 
 #include "recursive_descent.h"
 #include "recognizers.h"

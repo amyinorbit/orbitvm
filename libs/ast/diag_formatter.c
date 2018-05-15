@@ -7,12 +7,12 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <orbit/ast/diag.h>
 #include <orbit/ast/type.h>
 #include <orbit/csupport/string.h>
-#include <orbit/utils/assert.h>
 
 static const char* scan(const char* str, const char* end, char value) {
     while(*str != value && str != end) {
@@ -31,12 +31,12 @@ static bool modifierIs(const char* str, uint32_t length, const char* value) {
 }
 
 static void handleSelect(OCStringBuffer* buf, const char* arg, uint32_t length, int value) {
-    OASSERT(arg, "diagnostic format argument: no parameter");
-    OASSERT(length > 0, "diagnostic format argument: no parameter");
+    assert(arg && "diagnostic format argument: no parameter");
+    assert(length > 0 && "diagnostic format argument: no parameter");
     const char* end = arg + length;
     while(value) {
         const char* next = scan(arg, end, '|');
-        OASSERT(next != end, "diagnostic format argument: invalid selection index");
+        assert(next != end && "diagnostic format argument: invalid selection index");
         value -= 1;
         arg = next+1;
     }
@@ -92,15 +92,15 @@ char* orbit_diagGetFormat(OrbitDiag* diag) {
                 fmt += 1;
                 parameter = fmt;
                 fmt = scan(fmt, end, '}');
-                OASSERT(fmt != end, "diagnostic format string: unmatched '{'");
+                assert(fmt != end && "diagnostic format string: unmatched '{'");
                 parameterLength = fmt - parameter;
                 fmt += 1;
             }
         }
         
-        OASSERT(isDigit(*fmt), "diagnostic format argument: should be a digit");
+        assert(isDigit(*fmt) && "diagnostic format argument: should be a digit");
         uint8_t argIdx = *fmt - '0';
-        OASSERT(argIdx < diag->paramCount, "diagnostic format argument: invalid index");
+        assert(argIdx < diag->paramCount && "diagnostic format argument: invalid index");
         OrbitDiagArg param = diag->params[argIdx];
         fmt += 1;
         
@@ -116,7 +116,7 @@ char* orbit_diagGetFormat(OrbitDiag* diag) {
                 handleSelect(buf, parameter, parameterLength, param.intValue);
             }
             else {
-                OASSERT(!modifier, "diagnostic format argument: unknown modifier");
+                assert(!modifier && "diagnostic format argument: unknown modifier");
                 char number[32];
                 int numberLength = snprintf(number, 32, "%d", param.intValue);
                 orbit_stringBufferAppendC(buf, number, numberLength);
@@ -124,20 +124,20 @@ char* orbit_diagGetFormat(OrbitDiag* diag) {
             break;
             
         case ORBIT_DPK_CSTRING:
-            OASSERT(!modifier, "diagnostic format argument: no string modifiers");
+            assert(!modifier && "diagnostic format argument: no string modifiers");
             orbit_stringBufferAppendC(buf, param.cstringValue, strlen(param.cstringValue));
             break;
             
         case ORBIT_DPK_STRING: {
                 OCString* str = orbit_stringPoolGet(param.stringValue);
-                OASSERT(str, "diagnostic format argument: invalid string pool ID");
-                OASSERT(!modifier, "diagnostic format argument: no string modifiers");
+                assert(str && "diagnostic format argument: invalid string pool ID");
+                assert(!modifier && "diagnostic format argument: no string modifiers");
                 orbit_stringBufferAppendC(buf, str->data, str->length);
             }
             break;
         
         case ORBIT_DPK_TYPE:
-            OASSERT(!modifier, "diagnostic format argument: no type expression modifiers");
+            assert(!modifier && "diagnostic format argument: no type expression modifiers");
             orbit_astTypeString(buf, param.typeValue);
             break;
         }

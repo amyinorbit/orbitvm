@@ -8,7 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <string.h>
-#include <orbit/utils/assert.h>
+#include <assert.h>
 #include <orbit/csupport/string.h>
 
 const OCStringID orbit_invalidStringID = UINT64_MAX;
@@ -87,7 +87,7 @@ void orbit_stringPoolDebug() {
 }
 
 void orbit_stringBufferInit(OCStringBuffer* buffer, uint64_t capacity) {
-    OASSERT(buffer != NULL, "Null instance error");
+    assert(buffer != NULL && "Null instance error");
     
     buffer->data = ORBIT_ALLOC_ARRAY(char, capacity);
     buffer->data[0] = '\0';
@@ -96,20 +96,20 @@ void orbit_stringBufferInit(OCStringBuffer* buffer, uint64_t capacity) {
 }
 
 void orbit_stringBufferReset(OCStringBuffer* buffer) {
-    OASSERT(buffer != NULL, "Null instance error");
+    assert(buffer != NULL && "Null instance error");
     buffer->length = 0;
     buffer->data[0] = '\0';
 }
 
 void orbit_stringBufferDeinit(OCStringBuffer* buffer) {
-    OASSERT(buffer != NULL, "Null instance error");
+    assert(buffer != NULL && "Null instance error");
     orbit_dealloc(buffer->data);
     buffer->capacity = 0;
     buffer->length = 0;
 }
 
 static void _bufferReserve(OCStringBuffer* buffer, size_t newSize) {
-    OASSERT(buffer != NULL, "Null instance error");
+    assert(buffer != NULL && "Null instance error");
     
     if(newSize < buffer->capacity) { return; }
     while(newSize >= buffer->capacity) {
@@ -119,7 +119,7 @@ static void _bufferReserve(OCStringBuffer* buffer, size_t newSize) {
 }
 
 void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t c) {
-    OASSERT(buffer != NULL, "Null instance error");
+    assert(buffer != NULL && "Null instance error");
     
     int8_t size = utf8_codepointSize(c);
     if(size < 0) { return; }
@@ -132,14 +132,14 @@ void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t c) {
 }
 
 void orbit_stringBufferAppendP(OCStringBuffer* buffer, OCStringID id) {
-    OASSERT(buffer != NULL, "Null instance error");
+    assert(buffer != NULL && "Null instance error");
     OCString* str = orbit_stringPoolGet(id);
     if(!str) { return; }
     orbit_stringBufferAppendC(buffer, str->data, str->length);
 }
 
 void orbit_stringBufferAppendC(OCStringBuffer* buffer, const char* data, uint64_t length) {
-    OASSERT(buffer != NULL, "Null instance error");
+    assert(buffer != NULL && "Null instance error");
     _bufferReserve(buffer, buffer->length + length + 1);
     memcpy(buffer->data + buffer->length, data, length);
     buffer->length += length;
