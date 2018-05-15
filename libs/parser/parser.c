@@ -19,129 +19,129 @@
 
 // MARK: - Recognizer implementations
 
-static AST* recProgram(OCParser* parser) {
+static OrbitAST* recProgram(OCParser* parser) {
     ASTListBuilder program;
-    ast_listStart(&program);
+    orbit_astListStart(&program);
     
     for(;;) {
         if(have(parser, TOKEN_VAR))
-            ast_listAdd(&program, recVarDecl(parser));
+            orbit_astListAdd(&program, recVarDecl(parser));
         else if(have(parser, TOKEN_FUN)) 
-            ast_listAdd(&program, recFuncDecl(parser));
+            orbit_astListAdd(&program, recFuncDecl(parser));
         else if(have(parser, TOKEN_TYPE))
-            ast_listAdd(&program, recTypeDecl(parser));
+            orbit_astListAdd(&program, recTypeDecl(parser));
         else
             break;
         expectTerminator(parser);
     }
     expect(parser, TOKEN_EOF);
-    return ast_makeModuleDecl("TranslationUnit", ast_listClose(&program));
+    return orbit_astMakeModuleDecl("TranslationUnit", orbit_astListClose(&program));
 }
 
-static AST* recBlock(OCParser* parser) {
+static OrbitAST* recBlock(OCParser* parser) {
     ASTListBuilder block;
-    ast_listStart(&block);
+    orbit_astListStart(&block);
     
     expect(parser, TOKEN_LBRACE);
     for(;;) {
         if(have(parser, TOKEN_VAR))
-            ast_listAdd(&block, recVarDecl(parser));
+            orbit_astListAdd(&block, recVarDecl(parser));
         else if(haveTerm(parser)
             || haveConditional(parser)
             || have(parser, TOKEN_RETURN)
             || have(parser, TOKEN_BREAK)
             || have(parser, TOKEN_CONTINUE)
             || have(parser, TOKEN_LBRACE))
-             ast_listAdd(&block, recStatement(parser));
+             orbit_astListAdd(&block, recStatement(parser));
         else
             break;
         expectTerminator(parser);
     }
     expect(parser, TOKEN_RBRACE);
-    return ast_makeBlock(ast_listClose(&block));
+    return orbit_astMakeBlock(orbit_astListClose(&block));
 }
 
-static AST* recTypeDecl(OCParser* parser) {
+static OrbitAST* recTypeDecl(OCParser* parser) {
     expect(parser, TOKEN_TYPE);
     OCToken symbol = current(parser);
     expect(parser, TOKEN_IDENTIFIER);
     
     ASTListBuilder fields;
-    ast_listStart(&fields);
+    orbit_astListStart(&fields);
     
     expect(parser, TOKEN_LBRACE);
     do {
-        ast_listAdd(&fields, recVarDecl(parser));
+        orbit_astListAdd(&fields, recVarDecl(parser));
         expectTerminator(parser);
     } while(have(parser, TOKEN_VAR));
     expect(parser, TOKEN_RBRACE);
-    return ast_makeStructDecl(&symbol, NULL, NULL, ast_listClose(&fields));
+    return orbit_astMakeStructDecl(&symbol, NULL, NULL, orbit_astListClose(&fields));
 }
 
 // 'var' identifier ((':', type) | ((':', type)? '=' expression))
-static AST* recVarDecl(OCParser* parser) {
+static OrbitAST* recVarDecl(OCParser* parser) {
     expect(parser, TOKEN_VAR);
     
     OCToken symbol = current(parser);
     expect(parser, TOKEN_IDENTIFIER);
-    AST* typeAnnotation = NULL;
+    OrbitAST* typeAnnotation = NULL;
     
     if(match(parser, TOKEN_COLON)) {
         typeAnnotation = recType(parser);
     }
     
-    AST* decl = ast_makeVarDecl(&symbol, typeAnnotation);
+    OrbitAST* decl = orbit_astMakeVarDecl(&symbol, typeAnnotation);
     
     OCToken operator = parser->lexer.currentToken;
     if(match(parser, TOKEN_EQUALS)) {
-        AST* rhs = recExpression(parser, 0);
-        return ast_makeBinaryExpr(&operator, decl, rhs);
+        OrbitAST* rhs = recExpression(parser, 0);
+        return orbit_astMakeBinaryExpr(&operator, decl, rhs);
     }
     return decl;
 }
 
 // func-proto '{' block '}'
 // 'func' identifier parameters '->' type
-static AST* recFuncDecl(OCParser* parser) {
+static OrbitAST* recFuncDecl(OCParser* parser) {
     expect(parser, TOKEN_FUN);
     
     OCToken symbol = current(parser);
     expect(parser, TOKEN_IDENTIFIER);
     expect(parser, TOKEN_LPAREN);
     
-    AST* params = NULL;
+    OrbitAST* params = NULL;
     if(have(parser, TOKEN_IDENTIFIER)) {
         params = recParameters(parser);
     }
     expect(parser, TOKEN_RPAREN);
     
-    AST* returnType = NULL;
+    OrbitAST* returnType = NULL;
     if(match(parser, TOKEN_ARROW)) {
         returnType = recType(parser);
     }
-    AST* body = recBlock(parser);
+    OrbitAST* body = recBlock(parser);
     
-    return ast_makeFuncDecl(&symbol, returnType, params, body);
+    return orbit_astMakeFuncDecl(&symbol, returnType, params, body);
 }
 
 
-static AST* recParameters(OCParser* parser) {
+static OrbitAST* recParameters(OCParser* parser) {
     ASTListBuilder params;
-    ast_listStart(&params);
+    orbit_astListStart(&params);
     
     do {
         OCToken symbol = current(parser);
         expect(parser, TOKEN_IDENTIFIER);
         expect(parser, TOKEN_COLON);
         
-        AST* type = recType(parser);
-        ast_listAdd(&params, ast_makeVarDecl(&symbol, type));
+        OrbitAST* type = recType(parser);
+        orbit_astListAdd(&params, orbit_astMakeVarDecl(&symbol, type));
     } while(match(parser, TOKEN_COMMA));
     
-    return ast_listClose(&params);
+    return orbit_astListClose(&params);
 }
 
-static AST* recStatement(OCParser* parser) {
+static OrbitAST* recStatement(OCParser* parser) {
     if(haveConditional(parser))
         return recConditional(parser);
     else if(haveTerm(parser))
@@ -157,7 +157,7 @@ static AST* recStatement(OCParser* parser) {
     return NULL;
 }
 
-static AST* recConditional(OCParser* parser) {
+static OrbitAST* recConditional(OCParser* parser) {
     if(have(parser, TOKEN_IF))
         return recIfStatement(parser);
     else if(have(parser, TOKEN_WHILE))
@@ -169,11 +169,11 @@ static AST* recConditional(OCParser* parser) {
     return NULL;
 }
 
-static AST* recIfStatement(OCParser* parser) {
+static OrbitAST* recIfStatement(OCParser* parser) {
     expect(parser, TOKEN_IF);
-    AST* condition = recExpression(parser, 0);
-    AST* ifBody = recBlock(parser);
-    AST* elseBody = NULL;
+    OrbitAST* condition = recExpression(parser, 0);
+    OrbitAST* ifBody = recBlock(parser);
+    OrbitAST* elseBody = NULL;
     
     if(match(parser, TOKEN_ELSE)) {
         if(have(parser, TOKEN_LBRACE))
@@ -183,52 +183,52 @@ static AST* recIfStatement(OCParser* parser) {
         else
             orbit_diagEmitError(current(parser).sourceLoc, "expected block or if statement", 0);
     }
-    return ast_makeConditional(condition, ifBody, elseBody);
+    return orbit_astMakeConditional(condition, ifBody, elseBody);
 }
 
-static AST* recFlowStatement(OCParser* parser) {
+static OrbitAST* recFlowStatement(OCParser* parser) {
     if(match(parser, TOKEN_BREAK))
-        return ast_makeBreak();
+        return orbit_astMakeBreak();
     else if(match(parser, TOKEN_CONTINUE))
-        return ast_makeContinue();
+        return orbit_astMakeContinue();
     else
         orbit_diagEmitError(current(parser).sourceLoc, "expected break or continue", 0);
     return NULL;
         
 }
 
-static AST* recReturnStatement(OCParser* parser) {
-    AST* returnValue = NULL;
+static OrbitAST* recReturnStatement(OCParser* parser) {
+    OrbitAST* returnValue = NULL;
     expect(parser, TOKEN_RETURN);
     if(haveTerm(parser)) {
         returnValue = recExpression(parser, 0);
     }
-    return ast_makeReturn(returnValue);
+    return orbit_astMakeReturn(returnValue);
 }
 
-static AST* recWhileLoop(OCParser* parser) {
+static OrbitAST* recWhileLoop(OCParser* parser) {
     expect(parser, TOKEN_WHILE);
-    AST* condition = recExpression(parser, 0);
-    AST* body = recBlock(parser);
-    return ast_makeWhileLoop(condition, body);
+    OrbitAST* condition = recExpression(parser, 0);
+    OrbitAST* body = recBlock(parser);
+    return orbit_astMakeWhileLoop(condition, body);
 }
 
-static AST* recForLoop(OCParser* parser) {
+static OrbitAST* recForLoop(OCParser* parser) {
     expect(parser, TOKEN_FOR);
     
     OCToken var = current(parser);
     expect(parser, TOKEN_IDENTIFIER);
     expect(parser, TOKEN_IN);
-    AST* collection = recExpression(parser, 0);
-    AST* body = recBlock(parser);
-    return ast_makeForInLoop(&var, collection, body);
+    OrbitAST* collection = recExpression(parser, 0);
+    OrbitAST* body = recBlock(parser);
+    return orbit_astMakeForInLoop(&var, collection, body);
 }
 
 // We don't embed precedence in the grammar - instead any expression
 // is parsed using precedence-climbing
 // http://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing
-static AST* recExpression(OCParser* parser, int minPrec) {
-    AST* expr = recTerm(parser);
+static OrbitAST* recExpression(OCParser* parser, int minPrec) {
+    OrbitAST* expr = recTerm(parser);
     for(;;) {
         
         if(!haveBinaryOp(parser) || precedence(parser) < minPrec) {
@@ -242,35 +242,35 @@ static AST* recExpression(OCParser* parser, int minPrec) {
         int nextMinPrec = right ? prec : prec + 1;
         lexer_nextToken(&parser->lexer);
         
-        AST* rhs = NULL;
+        OrbitAST* rhs = NULL;
         
         switch(operator.kind) {
         case TOKEN_LPAREN:
             rhs = recFuncCall(parser);
-            expr = ast_makeCallExpr(expr, rhs);
+            expr = orbit_astMakeCallExpr(expr, rhs);
             break;
             
         case TOKEN_LBRACKET:
             rhs = recSubscript(parser);
-            expr = ast_makeSubscriptExpr(expr, rhs);
+            expr = orbit_astMakeSubscriptExpr(expr, rhs);
             break;
             
         case TOKEN_DOT:
             rhs = recFieldAccess(parser);
-            expr = ast_makeBinaryExpr(&operator, expr, rhs);
+            expr = orbit_astMakeBinaryExpr(&operator, expr, rhs);
             break;
             
         default:
             rhs = recExpression(parser, nextMinPrec);
-            expr = ast_makeBinaryExpr(&operator, expr, rhs);
+            expr = orbit_astMakeBinaryExpr(&operator, expr, rhs);
             break;
         }
     }
     return expr;
 }
 
-static AST* recTerm(OCParser* parser) {
-    AST* term = NULL;
+static OrbitAST* recTerm(OCParser* parser) {
+    OrbitAST* term = NULL;
     OCToken operator;
     bool unary = false;
     
@@ -289,39 +289,39 @@ static AST* recTerm(OCParser* parser) {
     else if(have(parser, TOKEN_IDENTIFIER))
         term = recName(parser);
     else if(match(parser, TOKEN_STRING_LITERAL))
-        term = ast_makeConstantExpr(&symbol, AST_EXPR_CONSTANT_STRING);
+        term = orbit_astMakeConstantExpr(&symbol, ORBIT_AST_EXPR_CONSTANT_STRING);
     else if(match(parser, TOKEN_INTEGER_LITERAL))
-        term = ast_makeConstantExpr(&symbol, AST_EXPR_CONSTANT_INTEGER);
+        term = orbit_astMakeConstantExpr(&symbol, ORBIT_AST_EXPR_CONSTANT_INTEGER);
     else if(match(parser, TOKEN_FLOAT_LITERAL))
-        term = ast_makeConstantExpr(&symbol, AST_EXPR_CONSTANT_FLOAT);
+        term = orbit_astMakeConstantExpr(&symbol, ORBIT_AST_EXPR_CONSTANT_FLOAT);
     else
         orbit_diagEmitError(current(parser).sourceLoc, "expected an expression term", 0);
     
-    return unary ? ast_makeUnaryExpr(&operator, term) : term;
+    return unary ? orbit_astMakeUnaryExpr(&operator, term) : term;
 }
 
-static AST* recName(OCParser* parser) {
+static OrbitAST* recName(OCParser* parser) {
     OCToken symbol = current(parser);
-    AST* name = ast_makeNameExpr(&symbol);
+    OrbitAST* name = orbit_astMakeNameExpr(&symbol);
     expect(parser, TOKEN_IDENTIFIER);
     return name;
 }
 
-static AST* recSubscript(OCParser* parser) {
-    AST* subscript = recExpression(parser, 0);
+static OrbitAST* recSubscript(OCParser* parser) {
+    OrbitAST* subscript = recExpression(parser, 0);
     expect(parser, TOKEN_RBRACKET);
     return subscript;
 }
 
-static AST* recFieldAccess(OCParser* parser) {
+static OrbitAST* recFieldAccess(OCParser* parser) {
     //expect(parser, TOKEN_DOT);
     OCToken symbol = current(parser);
     expect(parser, TOKEN_IDENTIFIER);
-    return ast_makeNameExpr(&symbol);
+    return orbit_astMakeNameExpr(&symbol);
 }
 
-static AST* recFuncCall(OCParser* parser) {
-    AST* paramList = NULL;
+static OrbitAST* recFuncCall(OCParser* parser) {
+    OrbitAST* paramList = NULL;
     if(haveTerm(parser)) {
         paramList = recExprList(parser);
     }
@@ -329,19 +329,19 @@ static AST* recFuncCall(OCParser* parser) {
     return paramList;
 }
 
-static AST* recExprList(OCParser* parser) {
+static OrbitAST* recExprList(OCParser* parser) {
     
     ASTListBuilder list;
-    ast_listStart(&list);
-    ast_listAdd(&list, recExpression(parser, 0));
+    orbit_astListStart(&list);
+    orbit_astListAdd(&list, recExpression(parser, 0));
     
     while(match(parser, TOKEN_COMMA)) {
-        ast_listAdd(&list, recExpression(parser, 0));
+        orbit_astListAdd(&list, recExpression(parser, 0));
     }
-    return ast_listClose(&list);
+    return orbit_astListClose(&list);
 }
 
-static AST* recType(OCParser* parser) {
+static OrbitAST* recType(OCParser* parser) {
     if(match(parser, TOKEN_MAYBE)) {
         //TODO: recognise optionals
     }
@@ -349,7 +349,7 @@ static AST* recType(OCParser* parser) {
 }
 
 
-static AST* recTypename(OCParser* parser) {
+static OrbitAST* recTypename(OCParser* parser) {
     if(havePrimitiveType(parser))
         return recPrimitive(parser);
     else if(have(parser, TOKEN_LPAREN))
@@ -361,78 +361,78 @@ static AST* recTypename(OCParser* parser) {
     else if(have(parser, TOKEN_IDENTIFIER)) {
         OCToken symbol = current(parser);
         expect(parser, TOKEN_IDENTIFIER);
-        return ast_makeUserType(&symbol);
+        return orbit_astMakeUserType(&symbol);
     }
     else
         orbit_diagEmitError(current(parser).sourceLoc, "missing type name", 0);
     return NULL;
 }
 
-static AST* recFuncType(OCParser* parser) {
+static OrbitAST* recFuncType(OCParser* parser) {
     expect(parser, TOKEN_LPAREN);
     
     ASTListBuilder params;
-    ast_listStart(&params);
+    orbit_astListStart(&params);
     
     if(haveType(parser)) {
-        ast_listAdd(&params, recType(parser));
+        orbit_astListAdd(&params, recType(parser));
         while(match(parser, TOKEN_COMMA)) {
-            ast_listAdd(&params, recType(parser));
+            orbit_astListAdd(&params, recType(parser));
         }
     }
     expect(parser, TOKEN_RPAREN);
     expect(parser, TOKEN_ARROW);
     
-    AST* returnType = recType(parser);
-    return ast_makeFuncType(returnType, ast_listClose(&params));
+    OrbitAST* returnType = recType(parser);
+    return orbit_astMakeFuncType(returnType, orbit_astListClose(&params));
 }
 
-static AST* recPrimitive(OCParser* parser) {
+static OrbitAST* recPrimitive(OCParser* parser) {
     //OCToken symbol = current(parser);
     if(have(parser, TOKEN_NUMBER)) {
         expect(parser, TOKEN_NUMBER);
-        return ast_makePrimitiveType(AST_TYPEEXPR_NUMBER);
+        return orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_NUMBER);
     }
     else if(have(parser, TOKEN_BOOL)) {
         expect(parser, TOKEN_BOOL);
-        return ast_makePrimitiveType(AST_TYPEEXPR_BOOL);
+        return orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_BOOL);
     }
     else if(have(parser, TOKEN_STRING)) {
         expect(parser, TOKEN_STRING);
-        return ast_makePrimitiveType(AST_TYPEEXPR_STRING);
+        return orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_STRING);
     }
     else if(have(parser, TOKEN_VOID)) {
         expect(parser, TOKEN_VOID);
-        return ast_makePrimitiveType(AST_TYPEEXPR_VOID);
+        return orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_VOID);
     }
     else if(have(parser, TOKEN_ANY)) {
         expect(parser, TOKEN_ANY);
-        return ast_makePrimitiveType(AST_TYPEEXPR_ANY);
+        return orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_ANY);
     }
     
     orbit_diagEmitError(current(parser).sourceLoc, "expected a primitive type", 0);
     return NULL;
-    //return ast_makeTypeExpr(&symbol);
+    //return orbit_astMakeTypeExpr(&symbol);
 }
 
-static AST* recArrayType(OCParser* parser) {
+static OrbitAST* recArrayType(OCParser* parser) {
     expect(parser, TOKEN_ARRAY);
     expect(parser, TOKEN_LBRACKET);
-    AST* elementType = recType(parser);
+    OrbitAST* elementType = recType(parser);
     expect(parser, TOKEN_RBRACKET);
     
-    return ast_makeArrayType(elementType);
+    return orbit_astMakeArrayType(elementType);
 }
 
-static AST* recMapType(OCParser* parser) {
+static OrbitAST* recMapType(OCParser* parser) {
     expect(parser, TOKEN_MAP);
     expect(parser, TOKEN_LBRACKET);
-    AST* keyType = recPrimitive(parser);
+    OrbitAST* keyType = recPrimitive(parser);
     expect(parser, TOKEN_COLON);
-    AST* elementType = recType(parser);
+    OrbitAST* elementType = recType(parser);
     expect(parser, TOKEN_RBRACKET);
     
-    return ast_makeMapType(keyType, elementType);
+    return orbit_astMakeMapType(keyType, elementType);
 }
 
 void orbit_dumpTokens(OCSource* source) {
@@ -454,14 +454,14 @@ void orbit_dumpTokens(OCSource* source) {
     }
 }
 
-AST* orbit_parse(OCSource* source) {
+OrbitAST* orbit_parse(OCSource* source) {
     
     OCParser parser;
     parser.recovering = false;
     lexer_init(&parser.lexer, source);
     
     lexer_nextToken(&parser.lexer);
-    AST* ast = recProgram(&parser);
+    OrbitAST* ast = recProgram(&parser);
     lexer_deinit(&parser.lexer);
     return ast;
 }

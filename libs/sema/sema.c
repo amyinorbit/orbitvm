@@ -49,20 +49,20 @@ void sema_popScope(OCSema* sema) {
     sema->stack[sema->stackSize].parent = NULL;
 }
 
-AST* sema_lookupSymbolP(OCSema* sema, OCStringID symbol) {
+OrbitAST* sema_lookupSymbolP(OCSema* sema, OCStringID symbol) {
     assert(sema != NULL && "Null instance error");
     if(sema->stackSize == 0) { return NULL; }
     
     OCScope* scope = &sema->stack[sema->stackSize-1];
     while(scope) {
-        AST* result = orbit_rcMapGetP(&scope->symbolTable, symbol);
+        OrbitAST* result = orbit_rcMapGetP(&scope->symbolTable, symbol);
         if(result) { return result; }
         scope = scope->parent;
     }
     return NULL;
 }
 
-void sema_declareSymbol(OCSema* sema, OCStringID symbol, AST* type) {
+void sema_declareSymbol(OCSema* sema, OCStringID symbol, OrbitAST* type) {
     assert(sema != NULL && "Null instance error");
     assert(type != NULL && "Null type error");
     assert(sema->stackSize > 0 && "Sema no scope error");
@@ -71,14 +71,14 @@ void sema_declareSymbol(OCSema* sema, OCStringID symbol, AST* type) {
     orbit_rcMapInsertP(&scope->symbolTable, symbol, type);
 }
 
-void sema_declareType(OCSema* sema, OCStringID name, AST* declaration) {
+void sema_declareType(OCSema* sema, OCStringID name, OrbitAST* declaration) {
     assert(sema != NULL && "Null instance error");
     assert(declaration != NULL && "Null declaration error");
     
     orbit_rcMapInsertP(&sema->typeTable, name, declaration);
 }
 
-AST* sema_lookupType(OCSema* sema, OCStringID name) {
+OrbitAST* sema_lookupType(OCSema* sema, OCStringID name) {
     assert(sema != NULL && "Null instance error");
     return orbit_rcMapGetP(&sema->typeTable, name);
 }

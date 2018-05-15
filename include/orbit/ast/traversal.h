@@ -13,11 +13,11 @@
 #include <stdbool.h>
 #include <orbit/ast/ast.h>
 
-typedef void (*ASTCallback)(AST*, void*);
+typedef void (*ASTCallback)(OrbitAST*, void*);
 
 /// Traverses the AST and invokes [callback] when a node which [kind] matches
 /// the [filter] mask is found. [userData] can be any arbitrary data required by
 /// the callback.
-void ast_traverse(AST* ast, ASTKind filter, void* userData, ASTCallback callback);
+void orbit_astTraverse(OrbitAST* ast, ASTKind filter, void* userData, ASTCallback callback);
 
 #endif /* orbit_ast_traversal_h */

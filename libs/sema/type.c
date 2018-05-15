@@ -30,31 +30,31 @@ x. scoped analysis. build symbol tables, from global to nested scopes
 
 */
 
-AST* sema_typeCopy(AST* src) {
+OrbitAST* sema_typeCopy(OrbitAST* src) {
     if(src == NULL) { return NULL; }
-    AST* copy = NULL;
+    OrbitAST* copy = NULL;
     
     switch (src->kind) {
-    case AST_TYPEEXPR_ANY:
-    case AST_TYPEEXPR_BOOL:
-    case AST_TYPEEXPR_STRING:
-    case AST_TYPEEXPR_NUMBER:
-    case AST_TYPEEXPR_VOID:
-        copy = ast_makePrimitiveType(src->kind);
+    case ORBIT_AST_TYPEEXPR_ANY:
+    case ORBIT_AST_TYPEEXPR_BOOL:
+    case ORBIT_AST_TYPEEXPR_STRING:
+    case ORBIT_AST_TYPEEXPR_NUMBER:
+    case ORBIT_AST_TYPEEXPR_VOID:
+        copy = orbit_astMakePrimitiveType(src->kind);
         break;
-    case AST_TYPEEXPR_ARRAY:
-        copy = ast_makeArrayType(sema_typeCopy(src->typeExpr.arrayType.elementType));
+    case ORBIT_AST_TYPEEXPR_ARRAY:
+        copy = orbit_astMakeArrayType(sema_typeCopy(src->typeExpr.arrayType.elementType));
         break;
-    case AST_TYPEEXPR_MAP:
-        copy = ast_makeMapType(sema_typeCopy(src->typeExpr.mapType.keyType), 
+    case ORBIT_AST_TYPEEXPR_MAP:
+        copy = orbit_astMakeMapType(sema_typeCopy(src->typeExpr.mapType.keyType), 
                                sema_typeCopy(src->typeExpr.mapType.elementType));
         break;
-    case AST_TYPEEXPR_FUNC:
-        copy = ast_makeFuncType(sema_typeCopy(src->typeExpr.funcType.returnType), 
+    case ORBIT_AST_TYPEEXPR_FUNC:
+        copy = orbit_astMakeFuncType(sema_typeCopy(src->typeExpr.funcType.returnType), 
                                 sema_typeCopy(src->typeExpr.funcType.params));
         break;
-    case AST_TYPEEXPR_USER:
-        copy = ast_makeUserTypePooled(src->typeExpr.userType.symbol);
+    case ORBIT_AST_TYPEEXPR_USER:
+        copy = orbit_astMakeUserTypePooled(src->typeExpr.userType.symbol);
         break;
     default:
         // TODO: throw error here, we're not working with a type expression.
@@ -65,7 +65,7 @@ AST* sema_typeCopy(AST* src) {
     return copy;
 }
 
-bool sema_typeEquals(AST* a, AST* b) {
+bool sema_typeEquals(OrbitAST* a, OrbitAST* b) {
     if(a == b) { return true; }
     if(!a && !b) { return true; }
     if(!a || !b) { return false; }
@@ -76,24 +76,24 @@ bool sema_typeEquals(AST* a, AST* b) {
     if(!sema_typeEquals(a->next, b->next)) { return false; }
     
     switch(a->kind) {
-    case AST_TYPEEXPR_ANY:
-    case AST_TYPEEXPR_BOOL:
-    case AST_TYPEEXPR_STRING:
-    case AST_TYPEEXPR_NUMBER:
-    case AST_TYPEEXPR_VOID:
+    case ORBIT_AST_TYPEEXPR_ANY:
+    case ORBIT_AST_TYPEEXPR_BOOL:
+    case ORBIT_AST_TYPEEXPR_STRING:
+    case ORBIT_AST_TYPEEXPR_NUMBER:
+    case ORBIT_AST_TYPEEXPR_VOID:
         return true;
         
-    case AST_TYPEEXPR_ARRAY:
+    case ORBIT_AST_TYPEEXPR_ARRAY:
         return sema_typeEquals(a->typeExpr.arrayType.elementType,
                                b->typeExpr.arrayType.elementType);
-    case AST_TYPEEXPR_MAP:
+    case ORBIT_AST_TYPEEXPR_MAP:
         return sema_typeEquals(a->typeExpr.mapType.elementType, b->typeExpr.mapType.elementType)
             && sema_typeEquals(a->typeExpr.mapType.keyType, b->typeExpr.mapType.keyType);
-    case AST_TYPEEXPR_FUNC:
+    case ORBIT_AST_TYPEEXPR_FUNC:
         return sema_typeEquals(a->typeExpr.funcType.returnType, b->typeExpr.funcType.returnType)
             && sema_typeEquals(a->typeExpr.funcType.params, b->typeExpr.funcType.params);
         
-    case AST_TYPEEXPR_USER:
+    case ORBIT_AST_TYPEEXPR_USER:
         return a->typeExpr.userType.symbol == b->typeExpr.userType.symbol;
     default:
         break;
@@ -102,13 +102,13 @@ bool sema_typeEquals(AST* a, AST* b) {
     return NULL;
 }
 
-void sema_extractTypeAnnotations(AST* decl, void* data) {
+void sema_extractTypeAnnotations(OrbitAST* decl, void* data) {
     if(!decl->varDecl.typeAnnotation) { return; }
-    if(decl->varDecl.typeAnnotation->kind == AST_TYPEEXPR_USER) {
+    if(decl->varDecl.typeAnnotation->kind == ORBIT_AST_TYPEEXPR_USER) {
         // If we have a user type we need to make sure it's been declared first
         OCStringID symbol = decl->varDecl.typeAnnotation->typeExpr.userType.symbol;
         
-        AST* typeDecl = sema_lookupType(
+        OrbitAST* typeDecl = sema_lookupType(
             (OCSema*)data,
             symbol
         );
@@ -122,7 +122,7 @@ void sema_extractTypeAnnotations(AST* decl, void* data) {
     decl->type = ORCRETAIN(decl->varDecl.typeAnnotation);
 }
 
-void sema_installUserTypes(AST* typeDecl, void* data) {
+void sema_installUserTypes(OrbitAST* typeDecl, void* data) {
     OCSema* sema = (OCSema*)data;
     OCStringID name = typeDecl->structDecl.name;
     
@@ -135,16 +135,16 @@ void sema_installUserTypes(AST* typeDecl, void* data) {
     }
 }
 
-void sema_extractLiteralTypes(AST* literal, void* data) {
+void sema_extractLiteralTypes(OrbitAST* literal, void* data) {
     //OCSema* sema = (OCSema*)data;
     switch(literal->kind) {
-    case AST_EXPR_CONSTANT_INTEGER:
-    case AST_EXPR_CONSTANT_FLOAT:
-        literal->type = ORCRETAIN(ast_makePrimitiveType(AST_TYPEEXPR_NUMBER));
+    case ORBIT_AST_EXPR_CONSTANT_INTEGER:
+    case ORBIT_AST_EXPR_CONSTANT_FLOAT:
+        literal->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_NUMBER));
         break;
         
-    case AST_EXPR_CONSTANT_STRING:
-        literal->type = ORCRETAIN(ast_makePrimitiveType(AST_TYPEEXPR_STRING));
+    case ORBIT_AST_EXPR_CONSTANT_STRING:
+        literal->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_STRING));
         break;
     default:
         // TODO: signal error here, though that shouldn't really happen?
@@ -152,20 +152,20 @@ void sema_extractLiteralTypes(AST* literal, void* data) {
     }
 }
 
-void sema_extractFuncTypes(AST* func, void* data) {
+void sema_extractFuncTypes(OrbitAST* func, void* data) {
     
-    AST* returnType = func->funcDecl.returnType ?
+    OrbitAST* returnType = func->funcDecl.returnType ?
                         func->funcDecl.returnType :
-                        ast_makePrimitiveType(AST_TYPEEXPR_VOID);
+                        orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_VOID);
     
     ASTListBuilder params;
-    ast_listStart(&params);
-    AST* param = func->funcDecl.params;
+    orbit_astListStart(&params);
+    OrbitAST* param = func->funcDecl.params;
     while(param) {
-        ast_listAdd(&params, sema_typeCopy(param->type));
+        orbit_astListAdd(&params, sema_typeCopy(param->type));
         param = param->next;
     }
-    func->type = ORCRETAIN(ast_makeFuncType(returnType, ast_listClose(&params)));
+    func->type = ORCRETAIN(orbit_astMakeFuncType(returnType, orbit_astListClose(&params)));
     // TODO: We have a problem for overloads here. Do we need to do name mangling first? Or store
     // a collection of functions in the symbol table instead (and do mangling at code generation
     // time, since it's needed for VM operations?)
@@ -175,34 +175,34 @@ void sema_extractFuncTypes(AST* func, void* data) {
     sema_declareSymbol((OCSema*)data, func->funcDecl.name, func->type);
 }
 
-bool sema_checkExpression(AST* expression, OCSema* sema) {
+bool sema_checkExpression(OrbitAST* expression, OCSema* sema) {
     return true;
 }
 
-void sema_checkBlock(AST* block, OCSema* sema) {
+void sema_checkBlock(OrbitAST* block, OCSema* sema) {
     
 }
 
-void sema_doScopeAnalysis(AST* func, void* data) {
+void sema_doScopeAnalysis(OrbitAST* func, void* data) {
     //OCSema* sema = (OCSema*)data;
     // TODO: sema should only contain the global scope right now.
     sema_checkBlock(func->funcDecl.body, (OCSema*)data);
 }
 
-void sema_runTypeAnalysis(AST* ast) {
+void sema_runTypeAnalysis(OrbitAST* ast) {
     // Initialise a Sema object
     OCSema sema;
     sema_init(&sema);
     
-    ast_traverse(ast, AST_DECL_STRUCT, &sema, &sema_installUserTypes);
-    ast_traverse(ast, AST_EXPR_CONSTANT_INTEGER
-                    | AST_EXPR_CONSTANT_FLOAT
-                    | AST_EXPR_CONSTANT_STRING, &sema, &sema_extractLiteralTypes);
+    orbit_astTraverse(ast, ORBIT_AST_DECL_STRUCT, &sema, &sema_installUserTypes);
+    orbit_astTraverse(ast, ORBIT_AST_EXPR_CONSTANT_INTEGER
+                    | ORBIT_AST_EXPR_CONSTANT_FLOAT
+                    | ORBIT_AST_EXPR_CONSTANT_STRING, &sema, &sema_extractLiteralTypes);
     // Type all the declarations we can type easily
-    ast_traverse(ast, AST_DECL_VAR, &sema, &sema_extractTypeAnnotations);
-    ast_traverse(ast, AST_DECL_FUNC, &sema, &sema_extractFuncTypes);
+    orbit_astTraverse(ast, ORBIT_AST_DECL_VAR, &sema, &sema_extractTypeAnnotations);
+    orbit_astTraverse(ast, ORBIT_AST_DECL_FUNC, &sema, &sema_extractFuncTypes);
     
-    ast_traverse(ast, AST_DECL_FUNC, &sema, &sema_doScopeAnalysis);
+    orbit_astTraverse(ast, ORBIT_AST_DECL_FUNC, &sema, &sema_doScopeAnalysis);
     
     
     sema_deinit(&sema);

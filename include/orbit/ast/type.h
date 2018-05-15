@@ -12,6 +12,6 @@
 #include <orbit/ast/ast.h>
 #include <orbit/csupport/string.h>
 
-void orbit_astTypeString(OCStringBuffer* buffer, AST* ast);
+void orbit_astTypeString(OCStringBuffer* buffer, OrbitAST* ast);
 
 #endif /* orbit_ast_type_h */

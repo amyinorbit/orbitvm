@@ -44,13 +44,13 @@ int main(int argc, const char** args) {
         return 0;
     }
     
-    AST* ast = ORCRETAIN(orbit_parse(&source));
+    OrbitAST* ast = ORCRETAIN(orbit_parse(&source));
     sema_runTypeAnalysis(ast);
     orbit_diagEmitAll(&orbit_defaultDiagManager);
     result = orbit_defaultDiagManager.errorCount == 0 ? 0 : -1;
     
     if(argc == 3 && strcmp(args[2], "-dump-ast") == 0) {
-        ast_print(stdout, ast);
+        orbit_astPrint(stdout, ast);
     }
     
     ORCRELEASE(ast);

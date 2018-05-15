@@ -30,7 +30,7 @@
 #endif
 
 #ifndef _MSC_VER
-#define ORBIT_FAST_INTERPRET
+#define ORBIT_FORBIT_AST_INTERPRET
 #endif
 
 #if __STDC_VERSION__ >= 199901L

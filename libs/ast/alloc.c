@@ -12,144 +12,144 @@
 #include <orbit/utils/memory.h>
 #include <orbit/ast/ast.h>
 
-const uint32_t ASTStmtMask      = AST_CONDITIONAL
-                                | AST_FOR_IN
-                                | AST_WHILE
-                                | AST_BREAK
-                                | AST_CONTINUE
-                                | AST_RETURN;
+const uint32_t ASTStmtMask      = ORBIT_AST_CONDITIONAL
+                                | ORBIT_AST_FOR_IN
+                                | ORBIT_AST_WHILE
+                                | ORBIT_AST_BREAK
+                                | ORBIT_AST_CONTINUE
+                                | ORBIT_AST_RETURN;
 
-const uint32_t ASTDeclMask      = AST_DECL_MODULE
-                                | AST_DECL_FUNC
-                                | AST_DECL_VAR
-                                | AST_DECL_STRUCT;
+const uint32_t ASTDeclMask      = ORBIT_AST_DECL_MODULE
+                                | ORBIT_AST_DECL_FUNC
+                                | ORBIT_AST_DECL_VAR
+                                | ORBIT_AST_DECL_STRUCT;
 
-const uint32_t ASTExprMask      = AST_EXPR_UNARY
-                                | AST_EXPR_BINARY
-                                | AST_EXPR_CALL
-                                | AST_EXPR_SUBSCRIPT
-                                | AST_EXPR_CONSTANT
-                                | AST_EXPR_CONSTANT_INTEGER
-                                | AST_EXPR_CONSTANT_FLOAT
-                                | AST_EXPR_CONSTANT_STRING
-                                | AST_EXPR_NAME;
+const uint32_t ASTExprMask      = ORBIT_AST_EXPR_UNARY
+                                | ORBIT_AST_EXPR_BINARY
+                                | ORBIT_AST_EXPR_CALL
+                                | ORBIT_AST_EXPR_SUBSCRIPT
+                                | ORBIT_AST_EXPR_CONSTANT
+                                | ORBIT_AST_EXPR_CONSTANT_INTEGER
+                                | ORBIT_AST_EXPR_CONSTANT_FLOAT
+                                | ORBIT_AST_EXPR_CONSTANT_STRING
+                                | ORBIT_AST_EXPR_NAME;
 
-const uint32_t ASTTypeExprMask  = AST_TYPEEXPR_VOID
-                                | AST_TYPEEXPR_BOOL
-                                | AST_TYPEEXPR_NUMBER
-                                | AST_TYPEEXPR_STRING
-                                | AST_TYPEEXPR_USER
-                                | AST_TYPEEXPR_ANY
-                                | AST_TYPEEXPR_ARRAY
-                                | AST_TYPEEXPR_MAP
-                                | AST_TYPEEXPR_FUNC;
+const uint32_t ASTTypeExprMask  = ORBIT_AST_TYPEEXPR_VOID
+                                | ORBIT_AST_TYPEEXPR_BOOL
+                                | ORBIT_AST_TYPEEXPR_NUMBER
+                                | ORBIT_AST_TYPEEXPR_STRING
+                                | ORBIT_AST_TYPEEXPR_USER
+                                | ORBIT_AST_TYPEEXPR_ANY
+                                | ORBIT_AST_TYPEEXPR_ARRAY
+                                | ORBIT_AST_TYPEEXPR_MAP
+                                | ORBIT_AST_TYPEEXPR_FUNC;
 
 const uint32_t ASTAllMask       = 0xffffffff;
 
-void ast_destroy(void* ref) {
+void orbit_astDestroy(void* ref) {
     if(ref == NULL) { return; }
-    AST* ast = (AST*)ref;
+    OrbitAST* ast = (OrbitAST*)ref;
     
     switch(ast->kind) {
         // STATEMENTS
-        case AST_CONDITIONAL:
+        case ORBIT_AST_CONDITIONAL:
             ORCRELEASE(ast->conditionalStmt.condition);
             ORCRELEASE(ast->conditionalStmt.ifBody);
             ORCRELEASE(ast->conditionalStmt.elseBody);
             break;
         
-        case AST_FOR_IN:
+        case ORBIT_AST_FOR_IN:
             ORCRELEASE(ast->forInLoop.collection);
             ORCRELEASE(ast->forInLoop.body);
             break;
         
-        case AST_WHILE:
+        case ORBIT_AST_WHILE:
             ORCRELEASE(ast->whileLoop.condition);
             ORCRELEASE(ast->whileLoop.body);
             break;
             
-        case AST_BLOCK:
+        case ORBIT_AST_BLOCK:
             ORCRELEASE(ast->block.body);
             break;
             
-        case AST_BREAK:
+        case ORBIT_AST_BREAK:
             break;
             
-        case AST_CONTINUE:
+        case ORBIT_AST_CONTINUE:
             break;
             
-        case AST_RETURN:
+        case ORBIT_AST_RETURN:
             ORCRELEASE(ast->returnStmt.returnValue);
             break;
         
         // DECLARATIONS
-        case AST_DECL_MODULE:
+        case ORBIT_AST_DECL_MODULE:
             ORCRELEASE(ast->moduleDecl.body);
             break;
         
-        case AST_DECL_FUNC:
+        case ORBIT_AST_DECL_FUNC:
             ORCRELEASE(ast->funcDecl.returnType);
             ORCRELEASE(ast->funcDecl.params);
             ORCRELEASE(ast->funcDecl.body);
             break;
         
-        case AST_DECL_VAR:
+        case ORBIT_AST_DECL_VAR:
             ORCRELEASE(ast->varDecl.typeAnnotation);
             break;
         
-        case AST_DECL_STRUCT:
+        case ORBIT_AST_DECL_STRUCT:
             ORCRELEASE(ast->structDecl.constructor);
             ORCRELEASE(ast->structDecl.destructor);
             ORCRELEASE(ast->structDecl.fields);
             break;
             
         // EXPRESSIONS
-        case AST_EXPR_UNARY:
+        case ORBIT_AST_EXPR_UNARY:
             ORCRELEASE(ast->unaryExpr.rhs);
             break;
         
-        case AST_EXPR_BINARY:
+        case ORBIT_AST_EXPR_BINARY:
             ORCRELEASE(ast->binaryExpr.lhs);
             ORCRELEASE(ast->binaryExpr.rhs);
             break;
         
-        case AST_EXPR_CALL:
+        case ORBIT_AST_EXPR_CALL:
             ORCRELEASE(ast->callExpr.symbol);
             ORCRELEASE(ast->callExpr.params);
             break;
         
-        case AST_EXPR_SUBSCRIPT:
+        case ORBIT_AST_EXPR_SUBSCRIPT:
             ORCRELEASE(ast->subscriptExpr.symbol);
             ORCRELEASE(ast->subscriptExpr.subscript);
             break;
         
-        case AST_EXPR_CONSTANT:
-        case AST_EXPR_CONSTANT_INTEGER:
-        case AST_EXPR_CONSTANT_FLOAT:
-        case AST_EXPR_CONSTANT_STRING:
+        case ORBIT_AST_EXPR_CONSTANT:
+        case ORBIT_AST_EXPR_CONSTANT_INTEGER:
+        case ORBIT_AST_EXPR_CONSTANT_FLOAT:
+        case ORBIT_AST_EXPR_CONSTANT_STRING:
             break;
         
-        case AST_EXPR_NAME:
+        case ORBIT_AST_EXPR_NAME:
             break;
             
-        case AST_TYPEEXPR_VOID:
-        case AST_TYPEEXPR_BOOL:
-        case AST_TYPEEXPR_NUMBER:
-        case AST_TYPEEXPR_STRING:
-        case AST_TYPEEXPR_ANY:
-        case AST_TYPEEXPR_USER:
+        case ORBIT_AST_TYPEEXPR_VOID:
+        case ORBIT_AST_TYPEEXPR_BOOL:
+        case ORBIT_AST_TYPEEXPR_NUMBER:
+        case ORBIT_AST_TYPEEXPR_STRING:
+        case ORBIT_AST_TYPEEXPR_ANY:
+        case ORBIT_AST_TYPEEXPR_USER:
             break;
             
-        case AST_TYPEEXPR_FUNC:
+        case ORBIT_AST_TYPEEXPR_FUNC:
             ORCRELEASE(ast->typeExpr.funcType.returnType);
             ORCRELEASE(ast->typeExpr.funcType.params);
             break;
             
-        case AST_TYPEEXPR_ARRAY:
+        case ORBIT_AST_TYPEEXPR_ARRAY:
             ORCRELEASE(ast->typeExpr.arrayType.elementType);
             break;
             
-        case AST_TYPEEXPR_MAP:
+        case ORBIT_AST_TYPEEXPR_MAP:
             ORCRELEASE(ast->typeExpr.mapType.keyType);
             ORCRELEASE(ast->typeExpr.mapType.elementType);
             break;
@@ -159,10 +159,10 @@ void ast_destroy(void* ref) {
     ORCRELEASE(ast->next);
 }
 
-AST* ast_makeNode(ASTKind kind) {
-    AST* ast = orbit_alloc(sizeof (AST));
-    memset(ast, 0, sizeof (AST));
-    ORCINIT(ast, &ast_destroy);
+OrbitAST* orbit_astMake(ASTKind kind) {
+    OrbitAST* ast = orbit_alloc(sizeof (OrbitAST));
+    memset(ast, 0, sizeof (OrbitAST));
+    ORCINIT(ast, &orbit_astDestroy);
     
     ast->kind = kind;
     ast->next = NULL;

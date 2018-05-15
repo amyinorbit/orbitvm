@@ -174,7 +174,7 @@ static bool orbit_vmRun(OrbitVM* vm, OrbitVMTask* task) {
 #define READ8() (*(ip++))
 #define READ16() (ip += 2, (uint16_t)((ip[-2] << 8) | ip[-1]))
     
-#ifdef ORBIT_FAST_INTERPRET
+#ifdef ORBIT_FORBIT_AST_INTERPRET
     #define OPCODE(code, _, __) &&code_##code,
     static void* dispatch[] = {
     #include <orbit/runtime/opcodes.h>

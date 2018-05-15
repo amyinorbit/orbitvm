@@ -38,15 +38,15 @@ void sema_deinit(OCSema* sema);
 
 OCScope* sema_pushScope(OCSema* sema);
 void sema_popScope(OCSema* sema);
-// AST* sema_lookSymbol(OCSema* sema, const char* symbol, uint64_t length);
-AST* sema_lookupSymbolP(OCSema* sema, OCStringID symbol);
-void sema_declareSymbol(OCSema* sema, OCStringID symbol, AST* type);
-void sema_declareType(OCSema* sema, OCStringID name, AST* declaration);
-AST* sema_lookupType(OCSema* sema, OCStringID name);
+// OrbitAST* sema_lookSymbol(OCSema* sema, const char* symbol, uint64_t length);
+OrbitAST* sema_lookupSymbolP(OCSema* sema, OCStringID symbol);
+void sema_declareSymbol(OCSema* sema, OCStringID symbol, OrbitAST* type);
+void sema_declareType(OCSema* sema, OCStringID name, OrbitAST* declaration);
+OrbitAST* sema_lookupType(OCSema* sema, OCStringID name);
 
-bool sema_typeEquals(AST* a, AST* b);
-AST* sema_uniqueTypeExists(OCSema* sema, AST* type);
+bool sema_typeEquals(OrbitAST* a, OrbitAST* b);
+OrbitAST* sema_uniqueTypeExists(OCSema* sema, OrbitAST* type);
 
-OCStringID sema_mangleFuncName(AST* decl);
+OCStringID sema_mangleFuncName(OrbitAST* decl);
 
 #endif /* orbit_sema_typeprivate_h */

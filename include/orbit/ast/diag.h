@@ -42,7 +42,7 @@ struct _OrbitDiagArg {
         int         intValue;
         const char* cstringValue;
         OCStringID  stringValue;
-        AST*        typeValue;
+        OrbitAST*        typeValue;
     };
 };
 
