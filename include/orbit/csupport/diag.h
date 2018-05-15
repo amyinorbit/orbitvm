@@ -57,6 +57,7 @@ struct _OrbitDiag {
 struct _OrbitDiagManager {
     OCSource*           source;
     OrbitDiagConsumer   consumer;
+    uint32_t            errorCount;
     uint32_t            diagnosticCount;
     OrbitDiag           diagnostics[ORBIT_DIAG_MAXCOUNT];
 };

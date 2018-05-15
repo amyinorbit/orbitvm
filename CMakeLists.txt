@@ -12,6 +12,8 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
+set(DEV_TOOLS_DIR "${CMAKE_SOURCE_DIR}/tools")
+
 install(DIRECTORY include/orbit DESTINATION include)
 add_subdirectory(libs)
 add_subdirectory(bin)

@@ -142,7 +142,9 @@ AST* ast_makeCallExpr(AST* symbol, AST* params) {
     AST* ast = ast_makeNode(AST_EXPR_CALL);
     ast->callExpr.symbol = ORCRETAIN(symbol);
     ast->callExpr.params = ORCRETAIN(params);
-    ast->sourceRange = source_rangeUnion(symbol->sourceRange, params->sourceRange);
+    ast->sourceRange = params ?
+                        source_rangeUnion(symbol->sourceRange, params->sourceRange) :
+                        symbol->sourceRange;
     return ast;
 }
 

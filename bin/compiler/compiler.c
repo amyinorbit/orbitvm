@@ -21,6 +21,8 @@
 
 int main(int argc, const char** args) {
     fprintf(stderr, "orbitc built on %s @ %s\n", __DATE__, __TIME__);
+    int result = 0;
+    
     if(argc < 2 || argc > 3) {
         fprintf(stderr, "usage: orbitc source_file [-dump-tokens] [-dump-ast]\n");
         return -1;
@@ -45,6 +47,7 @@ int main(int argc, const char** args) {
     AST* ast = ORCRETAIN(orbit_parse(&source));
     sema_runTypeAnalysis(ast);
     orbit_diagEmitAll(&orbit_defaultDiagManager);
+    result = orbit_defaultDiagManager.errorCount == 0 ? 0 : -1;
     
     if(argc == 3 && strcmp(args[2], "-dump-ast") == 0) {
         ast_print(stdout, ast);
@@ -52,7 +55,6 @@ int main(int argc, const char** args) {
     
     ORCRELEASE(ast);
     source_close(&source);
-    //orbit_stringPoolDebug();
     orbit_stringPoolDeinit();
-    return 0;
+    return result;
 }
