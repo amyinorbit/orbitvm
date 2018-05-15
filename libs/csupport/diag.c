@@ -70,13 +70,16 @@ void orbit_diagManagerInit(OrbitDiagManager* manager, OCSource* source) {
     OASSERT(manager, "Invalid Diagnostics Manager instance");
     manager->source = source;
     manager->consumer = &_orbit_defaultDiagConsumer;
+    manager->errorCount = 0;
     manager->diagnosticCount = 0;
 }
 
 OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format) {
     OASSERT(manager, "Diagnostics manager does not exist");
     OASSERT(manager->diagnosticCount < ORBIT_DIAG_MAXCOUNT, "Diagnostics overflow");
-    
+    if(level >= ORBIT_DIAGLEVEL_ERROR) {
+        manager->errorCount += 1;
+    }
     uint32_t id = manager->diagnosticCount++;
     OrbitDiag* d = &manager->diagnostics[id];
     d->sourceLoc.line = d->sourceLoc.column = 0;
@@ -104,6 +107,7 @@ void orbit_diagAddSourceLoc(OrbitDiagID id, OCSourceLoc loc) {
 
 void orbit_diagEmitAll(OrbitDiagManager* manager) {
     orbit_diagEmitAbove(manager, ORBIT_DIAGLEVEL_INFO);
+    manager->diagnosticCount = 0;
 }
 
 void orbit_diagEmitAbove(OrbitDiagManager* manager, OrbitDiagLevel level) {
