@@ -9,6 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <inttypes.h>
 #include <math.h>
+#include <stdbool.h>
 #include <orbit/csupport/console.h>
 #include <orbit/utils/utf8.h>
 
@@ -24,8 +25,16 @@ static const char* _ansiCodes[] = {
     [CLI_BADCOLOR]  = "",
 };
 
+#if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__)) || defined (__MINGW32__)
+#include <unistd.h>
+#define orbit_consoleSupportsColor(file) (isatty(fileno(file)))
+#else
+#define orbit_consoleSupportsColor(file) (false)
+#endif
+
+
 void console_setColor(FILE* out, CLIColor color) {
-    // TODO: implement windows equivalent
+    if(!orbit_consoleSupportsColor(out)) { return; }
     if(color > CLI_BADCOLOR) { return; }
     fprintf(out, "%s", _ansiCodes[color]);
 }
