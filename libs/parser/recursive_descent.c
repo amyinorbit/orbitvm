@@ -39,37 +39,37 @@ bool haveUnaryOp(OCParser* parser) {
 }
 
 bool haveConditional(OCParser* parser) {
-    return have(parser, TOKEN_IF)
-        || have(parser, TOKEN_FOR)
-        || have(parser, TOKEN_WHILE);
+    return have(parser, ORBIT_TOK_IF)
+        || have(parser, ORBIT_TOK_FOR)
+        || have(parser, ORBIT_TOK_WHILE);
 }
 
 bool haveTerm(OCParser* parser) {
     return haveUnaryOp(parser)
-        || have(parser, TOKEN_LPAREN)
-        || have(parser, TOKEN_IDENTIFIER)
-        || have(parser, TOKEN_STRING_LITERAL)
-        || have(parser, TOKEN_INTEGER_LITERAL)
-        || have(parser, TOKEN_FLOAT_LITERAL);
+        || have(parser, ORBIT_TOK_LPAREN)
+        || have(parser, ORBIT_TOK_IDENTIFIER)
+        || have(parser, ORBIT_TOK_STRING_LITERAL)
+        || have(parser, ORBIT_TOK_INTEGER_LITERAL)
+        || have(parser, ORBIT_TOK_FLOAT_LITERAL);
 }
 
 bool havePrimitiveType(OCParser* parser) {
-    return have(parser, TOKEN_NUMBER)
-        || have(parser, TOKEN_BOOL)
-        || have(parser, TOKEN_BOOL)
-        || have(parser, TOKEN_STRING)
-        || have(parser, TOKEN_NIL)
-        || have(parser, TOKEN_VOID)
-        || have(parser, TOKEN_ANY);
+    return have(parser, ORBIT_TOK_NUMBER)
+        || have(parser, ORBIT_TOK_BOOL)
+        || have(parser, ORBIT_TOK_BOOL)
+        || have(parser, ORBIT_TOK_STRING)
+        || have(parser, ORBIT_TOK_NIL)
+        || have(parser, ORBIT_TOK_VOID)
+        || have(parser, ORBIT_TOK_ANY);
 }
 
 bool haveType(OCParser* parser) {
     return havePrimitiveType(parser)
-        || have(parser, TOKEN_MAYBE)
-        || have(parser, TOKEN_LPAREN)
-        || have(parser, TOKEN_ARRAY)
-        || have(parser, TOKEN_MAP)
-        || have(parser, TOKEN_IDENTIFIER);
+        || have(parser, ORBIT_TOK_MAYBE)
+        || have(parser, ORBIT_TOK_LPAREN)
+        || have(parser, ORBIT_TOK_ARRAY)
+        || have(parser, ORBIT_TOK_MAP)
+        || have(parser, ORBIT_TOK_IDENTIFIER);
 }
 
 // Few functions to allow optional semicolons, swift-style.
@@ -78,22 +78,22 @@ bool haveType(OCParser* parser) {
 
 bool implicitTerminator(OCParser* parser) {
     return parser->lexer.currentToken.isStartOfLine
-        || have(parser, TOKEN_EOF)
-        || have(parser, TOKEN_RBRACE);
+        || have(parser, ORBIT_TOK_EOF)
+        || have(parser, ORBIT_TOK_RBRACE);
 }
 
 bool expectTerminator(OCParser* parser) {
     if(parser->recovering) {
-        while(!have(parser, TOKEN_SEMICOLON) && !have(parser, TOKEN_EOF) && !implicitTerminator(parser)) {
+        while(!have(parser, ORBIT_TOK_SEMICOLON) && !have(parser, ORBIT_TOK_EOF) && !implicitTerminator(parser)) {
             lexer_nextToken(&parser->lexer);
         }
-        if(have(parser, TOKEN_EOF)) {
+        if(have(parser, ORBIT_TOK_EOF)) {
             return false;
         }
         parser->recovering = false;
-        return have(parser, TOKEN_SEMICOLON) ? match(parser, TOKEN_SEMICOLON) : true;
+        return have(parser, ORBIT_TOK_SEMICOLON) ? match(parser, ORBIT_TOK_SEMICOLON) : true;
     } else {
-        if(match(parser, TOKEN_SEMICOLON) || implicitTerminator(parser)) {
+        if(match(parser, ORBIT_TOK_SEMICOLON) || implicitTerminator(parser)) {
             return true;
         }
         orbit_diagEmitError(
@@ -106,10 +106,10 @@ bool expectTerminator(OCParser* parser) {
 
 bool expect(OCParser* parser, OCTokenKind kind) {
     if(parser->recovering) {
-        while(!have(parser, kind) && !have(parser, TOKEN_EOF)) {
+        while(!have(parser, kind) && !have(parser, ORBIT_TOK_EOF)) {
             lexer_nextToken(&parser->lexer);
         }
-        if(have(parser, TOKEN_EOF)) {
+        if(have(parser, ORBIT_TOK_EOF)) {
             return false;
         }
         parser->recovering = false;

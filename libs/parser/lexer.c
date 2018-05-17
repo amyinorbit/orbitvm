@@ -133,32 +133,32 @@ static const struct _kw {
     uint64_t    length;
     int         type;
 } _keywords[] = {
-    {"fun",     3,  TOKEN_FUN},
-    {"var",     3,  TOKEN_VAR},
-    {"const",   5,  TOKEN_CONST},
-    {"maybe",   5,  TOKEN_MAYBE},
-    {"type",    4,  TOKEN_TYPE},
-    {"return",  6,  TOKEN_RETURN},
-    {"for",     3,  TOKEN_FOR},
-    {"in",      2,  TOKEN_IN},
-    {"while",   5,  TOKEN_WHILE},
-    {"break",   5,  TOKEN_BREAK},
-    {"continue",7,  TOKEN_CONTINUE},
-    {"if",      2,  TOKEN_IF},
-    {"else",    4,  TOKEN_ELSE},
-    {"init",    4,  TOKEN_INIT},
-    {"fail",    4,  TOKEN_FAIL},
-    {"range",   5,  TOKEN_RANGE},
-    {"Number",  6,  TOKEN_NUMBER},
-    {"Int",     3,  TOKEN_NUMBER},
-    {"Float",   5,  TOKEN_NUMBER},
-    {"Bool",    4,  TOKEN_BOOL},
-    {"String",  6,  TOKEN_STRING},
-    {"Nil",     3,  TOKEN_NIL},
-    {"Void",    4,  TOKEN_VOID},
-    {"Array",   5,  TOKEN_ARRAY},
-    {"Map",     3,  TOKEN_MAP},
-    {"Any",     3,  TOKEN_ANY},
+    {"fun",     3,  ORBIT_TOK_FUN},
+    {"var",     3,  ORBIT_TOK_VAR},
+    {"const",   5,  ORBIT_TOK_CONST},
+    {"maybe",   5,  ORBIT_TOK_MAYBE},
+    {"type",    4,  ORBIT_TOK_TYPE},
+    {"return",  6,  ORBIT_TOK_RETURN},
+    {"for",     3,  ORBIT_TOK_FOR},
+    {"in",      2,  ORBIT_TOK_IN},
+    {"while",   5,  ORBIT_TOK_WHILE},
+    {"break",   5,  ORBIT_TOK_BREAK},
+    {"continue",7,  ORBIT_TOK_CONTINUE},
+    {"if",      2,  ORBIT_TOK_IF},
+    {"else",    4,  ORBIT_TOK_ELSE},
+    {"init",    4,  ORBIT_TOK_INIT},
+    {"fail",    4,  ORBIT_TOK_FAIL},
+    {"range",   5,  ORBIT_TOK_RANGE},
+    {"Number",  6,  ORBIT_TOK_NUMBER},
+    {"Int",     3,  ORBIT_TOK_NUMBER},
+    {"Float",   5,  ORBIT_TOK_NUMBER},
+    {"Bool",    4,  ORBIT_TOK_BOOL},
+    {"String",  6,  ORBIT_TOK_STRING},
+    {"Nil",     3,  ORBIT_TOK_NIL},
+    {"Void",    4,  ORBIT_TOK_VOID},
+    {"Array",   5,  ORBIT_TOK_ARRAY},
+    {"Map",     3,  ORBIT_TOK_MAP},
+    {"Any",     3,  ORBIT_TOK_ANY},
     {NULL, 0}
 };
 
@@ -167,7 +167,7 @@ static void _lexIdentifier(OCLexer* lexer) {
         _nextChar(lexer);
     }
     
-    int type = TOKEN_IDENTIFIER;
+    int type = ORBIT_TOK_IDENTIFIER;
     uint32_t length = lexer->currentPtr - lexer->tokenStart;
     for(uint16_t i = 0; _keywords[i].name != NULL; ++i) {
         if(_keywords[i].length == length &&
@@ -215,7 +215,7 @@ static void _lexString(OCLexer* lexer) {
         }
     }
     
-    _makeToken(lexer, TOKEN_STRING_LITERAL);
+    _makeToken(lexer, ORBIT_TOK_STRING_LITERAL);
     // Store the parsed string literal
     lexer->currentToken.parsedStringLiteral = orbit_stringBufferIntern(&lexer->buffer);
 }
@@ -226,14 +226,14 @@ static inline bool isDigit(codepoint_t c) {
 
 static void _lexNumber(OCLexer* lexer) {
     
-    int type = TOKEN_INTEGER_LITERAL;
+    int type = ORBIT_TOK_INTEGER_LITERAL;
     
     while(isDigit(_next(lexer))) {
         _nextChar(lexer);
     }
     if(_next(lexer) == '.' && isDigit(_next2(lexer))) {
         _nextChar(lexer);
-        type = TOKEN_FLOAT_LITERAL;
+        type = ORBIT_TOK_FLOAT_LITERAL;
         while(isDigit(_next(lexer))) {
             _nextChar(lexer);
         }
@@ -278,7 +278,7 @@ static void _updateTokenStart(OCLexer* lexer) {
 
 void lexer_nextToken(OCLexer* lexer) {
     assert(lexer != NULL && "Null instance error");
-    if(lexer->currentToken.kind == TOKEN_EOF) { return; }
+    if(lexer->currentToken.kind == ORBIT_TOK_EOF) { return; }
     
     while(_next(lexer) != '\0') {
         
@@ -296,34 +296,34 @@ void lexer_nextToken(OCLexer* lexer) {
                 break;
             
             // single character tokens
-            case ';': _makeToken(lexer, TOKEN_SEMICOLON);return;
+            case ';': _makeToken(lexer, ORBIT_TOK_SEMICOLON);return;
             
-            case '{': _makeToken(lexer, TOKEN_LBRACE);   return;
-            case '}': _makeToken(lexer, TOKEN_RBRACE);   return;
-            case '[': _makeToken(lexer, TOKEN_LBRACKET); return;
-            case ']': _makeToken(lexer, TOKEN_RBRACKET); return;
-            case '(': _makeToken(lexer, TOKEN_LPAREN);   return;
-            case ')': _makeToken(lexer, TOKEN_RPAREN);   return;
-            case ':': _makeToken(lexer, TOKEN_COLON);    return;
-            case '.': _makeToken(lexer, TOKEN_DOT);      return;
-            case ',': _makeToken(lexer, TOKEN_COMMA);    return;
+            case '{': _makeToken(lexer, ORBIT_TOK_LBRACE);   return;
+            case '}': _makeToken(lexer, ORBIT_TOK_RBRACE);   return;
+            case '[': _makeToken(lexer, ORBIT_TOK_LBRACKET); return;
+            case ']': _makeToken(lexer, ORBIT_TOK_RBRACKET); return;
+            case '(': _makeToken(lexer, ORBIT_TOK_LPAREN);   return;
+            case ')': _makeToken(lexer, ORBIT_TOK_RPAREN);   return;
+            case ':': _makeToken(lexer, ORBIT_TOK_COLON);    return;
+            case '.': _makeToken(lexer, ORBIT_TOK_DOT);      return;
+            case ',': _makeToken(lexer, ORBIT_TOK_COMMA);    return;
 
-            case '^': _makeToken(lexer, TOKEN_CARET);    return;
-            case '~': _makeToken(lexer, TOKEN_TILDE);    return;
-            case '%': _makeToken(lexer, TOKEN_PERCENT);  return;
-            case '?': _makeToken(lexer, TOKEN_QUESTION); return;
+            case '^': _makeToken(lexer, ORBIT_TOK_CARET);    return;
+            case '~': _makeToken(lexer, ORBIT_TOK_TILDE);    return;
+            case '%': _makeToken(lexer, ORBIT_TOK_PERCENT);  return;
+            case '?': _makeToken(lexer, ORBIT_TOK_QUESTION); return;
             
-            case '+': _twoChars(lexer, '=', TOKEN_PLUSEQ, TOKEN_PLUS);  return;
-            case '&': _twoChars(lexer, '&', TOKEN_AMPAMP, TOKEN_AMP);   return;
-            case '|': _twoChars(lexer, '|', TOKEN_PIPEPIPE, TOKEN_PIPE);return;
-            case '!': _twoChars(lexer, '=', TOKEN_BANGEQ, TOKEN_BANG);  return;
-            case '=': _twoChars(lexer, '=', TOKEN_EQEQ, TOKEN_EQUALS);  return;
+            case '+': _twoChars(lexer, '=', ORBIT_TOK_PLUSEQ, ORBIT_TOK_PLUS);  return;
+            case '&': _twoChars(lexer, '&', ORBIT_TOK_AMPAMP, ORBIT_TOK_AMP);   return;
+            case '|': _twoChars(lexer, '|', ORBIT_TOK_PIPEPIPE, ORBIT_TOK_PIPE);return;
+            case '!': _twoChars(lexer, '=', ORBIT_TOK_BANGEQ, ORBIT_TOK_BANG);  return;
+            case '=': _twoChars(lexer, '=', ORBIT_TOK_EQEQ, ORBIT_TOK_EQUALS);  return;
             
             case '*':
                 if(_match(lexer, '*')) {
-                    _makeToken(lexer, TOKEN_STARSTAR);
+                    _makeToken(lexer, ORBIT_TOK_STARSTAR);
                 } else {
-                    _twoChars(lexer, '=', TOKEN_STAREQ, TOKEN_STAR);
+                    _twoChars(lexer, '=', ORBIT_TOK_STAREQ, ORBIT_TOK_STAR);
                 }
                 return;
             
@@ -334,32 +334,32 @@ void lexer_nextToken(OCLexer* lexer) {
                     _lexBlockComment(lexer);
                 }
                 else {
-                    _twoChars(lexer, '=', TOKEN_SLASHEQ, TOKEN_SLASH);
+                    _twoChars(lexer, '=', ORBIT_TOK_SLASHEQ, ORBIT_TOK_SLASH);
                     return;
                 }
                 break;
             
             case '-':
                 if(_match(lexer, '>')) {
-                    _makeToken(lexer, TOKEN_ARROW);
+                    _makeToken(lexer, ORBIT_TOK_ARROW);
                 } else {
-                    _twoChars(lexer, '=', TOKEN_MINUSEQ, TOKEN_MINUS);
+                    _twoChars(lexer, '=', ORBIT_TOK_MINUSEQ, ORBIT_TOK_MINUS);
                 }
                 return;
             
             case '<':
                 if(_match(lexer, '<')) {
-                    _makeToken(lexer, TOKEN_LTLT);
+                    _makeToken(lexer, ORBIT_TOK_LTLT);
                 } else {
-                    _twoChars(lexer, '=', TOKEN_LTEQ, TOKEN_LT);
+                    _twoChars(lexer, '=', ORBIT_TOK_LTEQ, ORBIT_TOK_LT);
                 }
                 return;
             
             case '>':
                 if(_match(lexer, '>')) {
-                    _makeToken(lexer, TOKEN_GTGT);
+                    _makeToken(lexer, ORBIT_TOK_GTGT);
                 } else {
-                    _twoChars(lexer, '=', TOKEN_GTEQ, TOKEN_GT);
+                    _twoChars(lexer, '=', ORBIT_TOK_GTEQ, ORBIT_TOK_GT);
                 }
                 return;
             
@@ -384,12 +384,12 @@ void lexer_nextToken(OCLexer* lexer) {
                     int size = utf8_writeCodepoint(c, point, 6);
                     point[size] = '\0';
                     _lexerError(lexer, "invalid character '%.*s'", size, point);
-                    _makeToken(lexer, TOKEN_INVALID);
+                    _makeToken(lexer, ORBIT_TOK_INVALID);
                 }
                 return;
         }
     }
-    lexer->currentToken.kind = TOKEN_EOF;
+    lexer->currentToken.kind = ORBIT_TOK_EOF;
     lexer->currentToken.length = 0;
     lexer->currentToken.sourceLoc.offset = 0;
 }

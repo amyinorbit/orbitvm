@@ -178,7 +178,6 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("): ", out);
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         orbit_astPrintType(out, ast->type);
-        orbit_astPrintReturn(out, depth+1, false);
         orbit_astPrintList(out, "ParamDeclList", ast->funcDecl.params, depth+1, false);
         orbit_astPrintNode(out, ast->funcDecl.body, depth+1, true);
         break;
