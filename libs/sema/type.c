@@ -115,8 +115,11 @@ void sema_extractTypeAnnotations(OrbitAST* decl, void* data) {
         
         if(!typeDecl) {
             OrbitSLoc loc = decl->varDecl.typeAnnotation->sourceRange.start;
-            orbit_diagEmitError(loc, "unkown type '$0'", 1, ORBIT_DIAG_STRING(symbol));
-            //orbit_diagAddSourceRange(id, ...)
+            OrbitDiagID id = orbit_diagEmitError(
+                loc, "unkown type '$0'", 1,
+                ORBIT_DIAG_STRING(symbol)
+            );
+            orbit_diagAddSourceRange(id, decl->varDecl.typeAnnotation->sourceRange);
             return;
         }
     }

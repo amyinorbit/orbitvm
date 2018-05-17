@@ -30,8 +30,8 @@ int main(int argc, const char** args) {
     
     orbit_stringPoolInit(1024);
     
-    OrbitSource source = orbit_sourceInitPath(args[1]);
-    if(!source.bytes) {
+    OrbitSource source;
+    if(!orbit_sourceInitPath(&source, args[1])) {
         fprintf(stderr, "error: cannot open `%s`\n", args[1]);
         return -1;
     }

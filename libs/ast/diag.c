@@ -12,6 +12,7 @@
 #include <stdarg.h>
 #include <orbit/ast/diag.h>
 #include <orbit/csupport/console.h>
+#include <orbit/utils/memory.h>
 
 #include "diag_private.h"
 
@@ -40,13 +41,15 @@ void _orbit_defaultDiagConsumer(OrbitSource* source, OrbitDiag* diagnostic) {
     fprintf(stderr, " in %s -----\n", source->path);
     
     console_setColor(stderr, CLI_RESET);
-    if(diagnostic->hasSourceLoc) {
+    if(ORBIT_SLOC_VALID(diagnostic->sourceLoc)) {
         console_printSourceLocLine(stderr, source, diagnostic->sourceLoc);
-        
-        if(diagnostic->hasSourceRange)
-            console_printUnderlines(stderr, diagnostic->sourceLoc, diagnostic->sourceRange, CLI_GREEN);
-        else
-            console_printCaret(stderr, diagnostic->sourceLoc, CLI_GREEN);
+
+        if(ORBIT_SRANGE_VALID(diagnostic->sourceRange)) {
+            console_printUnderlines(stderr, source, diagnostic->sourceLoc, diagnostic->sourceRange);
+        } else {
+            console_printCaret(stderr, source, diagnostic->sourceLoc);
+        }
+            
     }
     
     char* printed = orbit_diagGetFormat(diagnostic);
@@ -78,7 +81,7 @@ void orbit_diagManagerInit(OrbitDiagManager* manager, OrbitSource* source) {
     manager->consumer = &_orbit_defaultDiagConsumer;
     manager->errorCount = 0;
     manager->diagnosticCount = 0;
-    manager->diagnostics = calloc(ORBIT_DIAG_MAXCOUNT, sizeof(OrbitDiag));
+    manager->diagnostics = orbit_allocMulti(sizeof(OrbitDiag), ORBIT_DIAG_MAXCOUNT);
 }
 
 void orbit_diagManagerDeinit(OrbitDiagManager* manager) {
@@ -95,8 +98,9 @@ OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const
     }
     uint32_t id = manager->diagnosticCount++;
     OrbitDiag* d = &((OrbitDiag*)manager->diagnostics)[id];
-    d->hasSourceLoc = false;
-    d->hasSourceRange = false;
+    d->sourceLoc.valid = 0;
+    d->sourceRange.start.valid = 0;
+    d->sourceRange.end.valid = 0;
     d->level = level;
     d->format = format;
     d->paramCount = 0;
@@ -116,14 +120,12 @@ void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param) {
 void orbit_diagAddSourceLoc(OrbitDiagID id, OrbitSLoc loc) {
     assert(id.manager && "Diagnostics manager does not exist");
     OrbitDiag* d = &((OrbitDiag*)id.manager->diagnostics)[id.id];
-    d->hasSourceLoc = true;
     d->sourceLoc = loc;
 }
 
 void orbit_diagAddSourceRange(OrbitDiagID id, OrbitSRange range) {
     assert(id.manager && "Diagnostics manager does not exist");
     OrbitDiag* d = &((OrbitDiag*)id.manager->diagnostics)[id.id];
-    d->hasSourceRange = true;
     d->sourceRange = range;
 }
 

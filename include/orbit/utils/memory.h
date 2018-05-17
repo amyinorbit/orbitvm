@@ -34,6 +34,7 @@ struct _ORCObject {
 
 #define ORBIT_ALLOC(type) (orbit_alloc(sizeof (type)))
 #define ORBIT_ALLOC_FLEX(type, arrayType, count) (orbit_alloc(sizeof(type) + ((count) * sizeof(arrayType))))
+#define ORBIT_REALLOC_FLEX(ptr, type, arrayType, count) (orbit_realloc((ptr), sizeof(type) + ((count) * sizeof(arrayType))))
 #define ORBIT_ALLOC_ARRAY(type, count) (orbit_allocMulti(sizeof (type), (count)))
 #define ORBIT_REALLOC_ARRAY(ptr, type, count) (orbit_realloc((ptr), sizeof (type) * (count)))
 

@@ -31,13 +31,13 @@ struct _OCLexer {
     /// have to store its unicode codepoint.
     /// We also keep a pointer to the start of the current line, to make error
     /// printing easier.
-    const char*     linePtr;
+    // const char*     linePtr;
     const char*     currentPtr;
     codepoint_t     currentChar;
     
     bool            startOfLine;
-    uint64_t        line;
-    uint64_t        column;
+    // uint64_t        line;
+    // uint64_t        column;
     
     /// Buffer used when lexing string literals
     OCStringBuffer  buffer;

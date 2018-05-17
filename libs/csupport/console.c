@@ -53,7 +53,6 @@ void console_printPooledString(FILE* out, OCStringID id) {
 
 void console_printSourceLocLine(FILE* out, const OrbitSource* source, OrbitSLoc loc) {
     const char* line = source->bytes + loc.offset;
-    
     // Backtrack until the beginning of the line...
     while(*(line-1) != '\n'&& line != source->bytes) {
         line -= 1;
@@ -61,7 +60,8 @@ void console_printSourceLocLine(FILE* out, const OrbitSource* source, OrbitSLoc 
     
     // ...then print the line itself.
     char utf[6];
-    fprintf(out, "%"PRIu32"|", loc.line);
+    OrbitPhysSLoc ploc = orbit_sourcePhysicalLoc(source, loc);
+    fprintf(out, "%"PRIu32"|", ploc.line);
     while(line < source->bytes + source->length) {
         uint64_t remaining = (source->bytes + source->length) - line;
         codepoint_t c = utf8_getCodepoint(line, remaining);
@@ -78,29 +78,33 @@ void console_printTokenLine(FILE* out, OrbitToken token) {
     console_printSourceLocLine(out, token.source, token.sourceLoc);
 }
 
-void console_printCaret(FILE* out, OrbitSLoc loc, CLIColor color) {
-    uint8_t offset = 2 + floor (log10 (loc.line));
-    for(uint64_t i = 0; i < loc.column + offset; ++i) {
+void console_printCaret(FILE* out, const OrbitSource* source, OrbitSLoc loc) {
+    
+    OrbitPhysSLoc ploc = orbit_sourcePhysicalLoc(source, loc);
+    uint8_t offset = 2 + floor (log10 (ploc.line));
+    for(uint64_t i = 0; i < ploc.column + offset; ++i) {
         fputc(' ', out);
     }
-    console_setColor(out, color);
+    console_setColor(out, CLI_GREEN);
     fputc('^', out);
     console_setColor(out, CLI_RESET);
     fputc('\n', out);
 }
 
-void console_printUnderlines(FILE* out, OrbitSLoc loc, OrbitSRange range, CLIColor color) {
-    assert(range.start.line == range.end.line && "underlines must be on a single line");
-    assert(loc.line == range.start.line && "caret must be on the underline's line");
-    assert(loc.column >= range.start.column && loc.column < range.end.column);
+void console_printUnderlines(FILE* out, const OrbitSource* source, OrbitSLoc loc, OrbitSRange range) {
+    assert(loc.offset >= range.start.offset && loc.offset < range.end.offset);
     
-    uint8_t offset = 2 + floor (log10 (loc.line));
-    for(uint64_t i = 0; i < range.start.column + offset; ++i) {
+    OrbitPhysSLoc start = orbit_sourcePhysicalLoc(source, range.start);
+    uint32_t end = start.column + (range.end.offset - range.start.offset);
+    uint32_t caret = start.column + (loc.offset - range.start.offset);
+    
+    uint8_t offset = 2 + floor (log10 (start.line));
+    for(uint64_t i = 0; i < start.column + offset; ++i) {
         fputc(' ', out);
     }
-    console_setColor(out, color);
-    for(uint64_t i = range.start.column; i < range.end.column; ++i) {
-        fputc(i == loc.column ? '^' : '~', out);
+    console_setColor(out, CLI_GREEN);
+    for(uint64_t i = start.column; i < end; ++i) {
+        fputc(i == caret ? '^' : '~', out);
     }
     console_setColor(out, CLI_RESET);
     fputc('\n', out);

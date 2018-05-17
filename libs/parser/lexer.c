@@ -12,45 +12,29 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <inttypes.h>
+#include <orbit/ast/diag.h>
 #include <orbit/csupport/console.h>
 #include <orbit/parser/lexer.h>
 #include <orbit/utils/wcwidth.h>
 
-
-static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
-    assert(lexer != NULL && "Null instance error");
-    
-    fprintf(stderr, "%s:%"PRIu64":%"PRIu64": error: ",
-                     lexer->source->path,
-                     lexer->line,
-                     lexer->column);
-    va_list va;
-    va_start(va, fmt);
-    vfprintf(stderr, fmt, va);
-    va_end(va);
-    fprintf(stderr, "\n");
-    console_printTokenLine(stderr, lexer->currentToken);
-    fprintf(stderr, "\n");
+OrbitSLoc lexer_loc(OCLexer* lexer) {
+    uint32_t offset = (lexer)->currentPtr - (lexer)->source->bytes;
+    return (OrbitSLoc){.offset=offset, .valid=1};
 }
 
 void lexer_init(OCLexer* lexer, OrbitSource* source) {
     assert(lexer != NULL && "Null instance error");
     
     lexer->source = source;
-
-    lexer->linePtr = source->bytes;
     lexer->currentPtr = source->bytes;
     lexer->currentChar = 0;
     
     lexer->startOfLine = true;
-    lexer->column = 0;
-    lexer->line = 1;
-    
-    //lexer->string = NULL;
     orbit_stringBufferInit(&lexer->buffer, 64);
     
     lexer->currentToken.kind = 0;
     lexer->currentToken.sourceLoc.offset = 0;
+    lexer->currentToken.sourceLoc.valid = 1;
     lexer->currentToken.length = 0;
     lexer->currentToken.source = lexer->source;
 }
@@ -69,18 +53,12 @@ static codepoint_t _nextChar(OCLexer* lexer) {
     
     // advance the current character pointer.
     int8_t size = utf8_codepointSize(lexer->currentChar);
-    int displayLength = mk_wcwidth(lexer->currentChar);
     if(size > 0 && lexer->currentChar != 0) {
         lexer->currentPtr += size;
     }
     
     if(lexer->currentChar == '\n') {
         lexer->startOfLine = true;
-        lexer->line += 1;
-        lexer->column = 0;
-        lexer->linePtr = lexer->currentPtr;
-    } else {
-        lexer->column += displayLength;
     }
     
     return lexer->currentChar;
@@ -106,8 +84,6 @@ static void _makeToken(OCLexer* lexer, int type) {
     lexer->currentToken.length = lexer->currentPtr - lexer->tokenStart;
 
     lexer->currentToken.isStartOfLine = lexer->startOfLine;
-    lexer->currentToken.displayLength = lexer->column - lexer->currentToken.sourceLoc.column;
-    
     lexer->currentToken.parsedStringLiteral = 0; // TODO: replace with invalid StringID constant
     
     // We reset the start of line marker after a token is produced.
@@ -191,7 +167,7 @@ static void _lexString(OCLexer* lexer) {
             break;
         }
         else if(c == '\0') {
-            _lexerError(lexer, "unterminated string literal");
+            orbit_diagEmitError(lexer_loc(lexer), "unterminated string literal", 0);
             break;
         }
         else if(c == '\\') {
@@ -207,7 +183,8 @@ static void _lexString(OCLexer* lexer) {
                 case 'v':  orbit_stringBufferAppend(&lexer->buffer, '\v'); break;
                 case '"':  orbit_stringBufferAppend(&lexer->buffer, '\"'); break;
                 default:
-                    _lexerError(lexer, "unknown escape sequence in literal");
+                    orbit_diagEmitError(lexer_loc(lexer),
+                                        "invalid escape sequence in string literal", 0);
                     break;
             }
         } else {
@@ -261,7 +238,7 @@ static void _lexBlockComment(OCLexer* lexer) {
             if(c == '*') { depth += 1; }
             break;
         case '\0':
-            _lexerError(lexer, "unterminated string literal");
+            orbit_diagEmitError(lexer_loc(lexer), "unterminated string literal", 0);
             return;
         default: break;
         }
@@ -271,8 +248,6 @@ static void _lexBlockComment(OCLexer* lexer) {
 
 static void _updateTokenStart(OCLexer* lexer) {
     lexer->tokenStart = lexer->currentPtr;
-    lexer->currentToken.sourceLoc.line = lexer->line;
-    lexer->currentToken.sourceLoc.column = lexer->column;
     lexer->currentToken.source = lexer->source;
 }
 
@@ -380,10 +355,7 @@ void lexer_nextToken(OCLexer* lexer) {
                     _lexNumber(lexer);
                 }
                 else {
-                    char point[6];
-                    int size = utf8_writeCodepoint(c, point, 6);
-                    point[size] = '\0';
-                    _lexerError(lexer, "invalid character '%.*s'", size, point);
+                    orbit_diagEmitError(lexer_loc(lexer), "invalid character", 0);
                     _makeToken(lexer, ORBIT_TOK_INVALID);
                 }
                 return;
