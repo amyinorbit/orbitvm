@@ -15,7 +15,7 @@
 #include <orbit/ast/ast.h>
 #include <orbit/csupport/source.h>
 
-void orbit_dumpTokens(OCSource* source);
-OrbitAST* orbit_parse(OCSource* source);
+void orbit_dumpTokens(OrbitSource* source);
+OrbitAST* orbit_parse(OrbitSource* source);
 
 #endif /* orbit_parser_h */

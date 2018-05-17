@@ -108,7 +108,7 @@ struct _OrbitAST {
     OrbitAST*       next;
     OrbitAST*       type;
     
-    OCSourceRange   sourceRange;
+    OrbitSourceRange   sourceRange;
     
     union {
         // --------------------------------------------------------------------

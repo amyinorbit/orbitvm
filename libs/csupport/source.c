@@ -11,48 +11,48 @@
 #include <orbit/csupport/source.h>
 #include <orbit/utils/memory.h>
 
-static inline OCSourceLoc minLoc(OCSourceLoc a, OCSourceLoc b) {
+static inline OrbitSourceLoc minLoc(OrbitSourceLoc a, OrbitSourceLoc b) {
     if(a.line != b.line) {
         return a.line < b.line ? a : b;
     }
     return a.column < b.column ? a : b;
 }
 
-static inline OCSourceLoc maxLoc(OCSourceLoc a, OCSourceLoc b) {
+static inline OrbitSourceLoc maxLoc(OrbitSourceLoc a, OrbitSourceLoc b) {
     if(a.line != b.line) {
         return a.line >= b.line ? a : b;
     }
     return a.column >= b.column ? a : b;
 }
 
-OCSourceRange source_rangeFromLength(OCSourceLoc start, uint64_t length) {
-    OCSourceLoc end = start;
+OrbitSourceRange source_rangeFromLength(OrbitSourceLoc start, uint64_t length) {
+    OrbitSourceLoc end = start;
     end.column += length;
-    return (OCSourceRange){.start=start, .end=end};
+    return (OrbitSourceRange){.start=start, .end=end};
 }
 
-OCSourceRange source_rangeUnion(OCSourceRange a, OCSourceRange b) {
-    return (OCSourceRange){.start=minLoc(a.start,b.start), .end=maxLoc(a.end,b.end)};
+OrbitSourceRange source_rangeUnion(OrbitSourceRange a, OrbitSourceRange b) {
+    return (OrbitSourceRange){.start=minLoc(a.start,b.start), .end=maxLoc(a.end,b.end)};
 }
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
-OCSource source_readFromPath(const char* path) {
+OrbitSource source_readFromPath(const char* path) {
     FILE* f = fopen(path, "r");
     if(!f) {
-        return (OCSource) {
+        return (OrbitSource) {
             .path = path,
             .length = 0,
             .bytes = NULL
         };
     }
-    OCSource source = source_readFromFile(f);
+    OrbitSource source = source_readFromFile(f);
     source.path = path;
     return source;
 }
 
 /// Creates a source handler by reading the bytes of [file].
-OCSource source_readFromFile(FILE* file) {
-    OCSource source;
+OrbitSource source_readFromFile(FILE* file) {
+    OrbitSource source;
     
     fseek(file, 0, SEEK_END);
     uint64_t length = ftell(file);
@@ -71,7 +71,7 @@ OCSource source_readFromFile(FILE* file) {
 }
 
 /// Deallocates the memory used to store the bytes in [source].
-void source_close(OCSource* source) {
+void source_close(OrbitSource* source) {
     free(source->bytes);
     source->bytes = NULL;
     source->path = "";

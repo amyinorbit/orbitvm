@@ -17,7 +17,7 @@
 
 OrbitDiagManager orbit_defaultDiagManager;
 
-void _orbit_defaultDiagConsumer(OCSource* source, OrbitDiag* diagnostic) {
+void _orbit_defaultDiagConsumer(OrbitSource* source, OrbitDiag* diagnostic) {
     
     // print basic stuff first:
     console_setColor(stderr, CLI_BOLD);
@@ -54,7 +54,7 @@ void _orbit_defaultDiagConsumer(OCSource* source, OrbitDiag* diagnostic) {
     orbit_dealloc(printed);
 }
 
-OrbitDiagID orbit_diagEmitError(OCSourceLoc loc, const char* format, int count, ...) {
+OrbitDiagID orbit_diagEmitError(OrbitSourceLoc loc, const char* format, int count, ...) {
     OrbitDiagID id = orbit_diagNew(
         &orbit_defaultDiagManager,
         ORBIT_DIAGLEVEL_ERROR,
@@ -72,7 +72,7 @@ OrbitDiagID orbit_diagEmitError(OCSourceLoc loc, const char* format, int count, 
     return id;
 }
 
-void orbit_diagManagerInit(OrbitDiagManager* manager, OCSource* source) {
+void orbit_diagManagerInit(OrbitDiagManager* manager, OrbitSource* source) {
     assert(manager && "Invalid Diagnostics Manager instance");
     manager->source = source;
     manager->consumer = &_orbit_defaultDiagConsumer;
@@ -113,14 +113,14 @@ void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param) {
     d->paramCount += 1;
 }
 
-void orbit_diagAddSourceLoc(OrbitDiagID id, OCSourceLoc loc) {
+void orbit_diagAddSourceLoc(OrbitDiagID id, OrbitSourceLoc loc) {
     assert(id.manager && "Diagnostics manager does not exist");
     OrbitDiag* d = &((OrbitDiag*)id.manager->diagnostics)[id.id];
     d->hasSourceLoc = true;
     d->sourceLoc = loc;
 }
 
-void orbit_diagAddSourceRange(OrbitDiagID id, OCSourceRange range) {
+void orbit_diagAddSourceRange(OrbitDiagID id, OrbitSourceRange range) {
     assert(id.manager && "Diagnostics manager does not exist");
     OrbitDiag* d = &((OrbitDiag*)id.manager->diagnostics)[id.id];
     d->hasSourceRange = true;
@@ -144,12 +144,12 @@ void orbit_diagEmitAbove(OrbitDiagManager* manager, OrbitDiagLevel level) {
 }
 
 
-OCSourceLoc orbit_diagGetLoc(OrbitDiag* diag) {
+OrbitSourceLoc orbit_diagGetLoc(OrbitDiag* diag) {
     assert(diag && "Cannot get source location of an invalid diagnostic");
     return diag->sourceLoc;
 }
 
-OCSourceRange orbit_diagGetRange(OrbitDiag* diag) {
+OrbitSourceRange orbit_diagGetRange(OrbitDiag* diag) {
     assert(diag && "Cannot get source range of an invalid diagnostic");
     return diag->sourceRange;
 }

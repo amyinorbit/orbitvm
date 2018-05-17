@@ -114,7 +114,7 @@ void sema_extractTypeAnnotations(OrbitAST* decl, void* data) {
         );
         
         if(!typeDecl) {
-            OCSourceLoc loc = decl->varDecl.typeAnnotation->sourceRange.start;
+            OrbitSourceLoc loc = decl->varDecl.typeAnnotation->sourceRange.start;
             orbit_diagEmitError(loc, "unkown type '$0'", 1, ORBIT_DIAG_STRING(symbol));
             //orbit_diagAddSourceRange(id, ...)
             return;
@@ -128,7 +128,7 @@ void sema_installUserTypes(OrbitAST* typeDecl, void* data) {
     OCStringID name = typeDecl->structDecl.name;
     
     if(orbit_rcMapGetP(&sema->typeTable, name)) {
-        OCSourceLoc loc = typeDecl->structDecl.symbol.sourceLoc;
+        OrbitSourceLoc loc = typeDecl->structDecl.symbol.sourceLoc;
         orbit_diagEmitError(loc, "type '$0' was declared before", 1, ORBIT_DIAG_STRING(name));
         //orbit_diagAddSourceRange(id, ...)
     } else {

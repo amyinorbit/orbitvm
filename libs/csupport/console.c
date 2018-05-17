@@ -51,7 +51,7 @@ void console_printPooledString(FILE* out, OCStringID id) {
     fprintf(out, "%.*s", (int)str->length, str->data);
 }
 
-void console_printSourceLocLine(FILE* out, const OCSource* source, OCSourceLoc loc) {
+void console_printSourceLocLine(FILE* out, const OrbitSource* source, OrbitSourceLoc loc) {
     const char* line = source->bytes + loc.offset;
     
     // Backtrack until the beginning of the line...
@@ -78,7 +78,7 @@ void console_printTokenLine(FILE* out, OrbitToken token) {
     console_printSourceLocLine(out, token.source, token.sourceLoc);
 }
 
-void console_printCaret(FILE* out, OCSourceLoc loc, CLIColor color) {
+void console_printCaret(FILE* out, OrbitSourceLoc loc, CLIColor color) {
     uint8_t offset = 2 + floor (log10 (loc.line));
     for(uint64_t i = 0; i < loc.column + offset; ++i) {
         fputc(' ', out);
@@ -89,7 +89,7 @@ void console_printCaret(FILE* out, OCSourceLoc loc, CLIColor color) {
     fputc('\n', out);
 }
 
-void console_printUnderlines(FILE* out, OCSourceLoc loc, OCSourceRange range, CLIColor color) {
+void console_printUnderlines(FILE* out, OrbitSourceLoc loc, OrbitSourceRange range, CLIColor color) {
     assert(range.start.line == range.end.line && "underlines must be on a single line");
     assert(loc.line == range.start.line && "caret must be on the underline's line");
     assert(loc.column >= range.start.column && loc.column < range.end.column);

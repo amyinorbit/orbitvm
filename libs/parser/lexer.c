@@ -33,7 +33,7 @@ static void _lexerError(OCLexer* lexer, const char* fmt, ...) {
     fprintf(stderr, "\n");
 }
 
-void lexer_init(OCLexer* lexer, OCSource* source) {
+void lexer_init(OCLexer* lexer, OrbitSource* source) {
     assert(lexer != NULL && "Null instance error");
     
     lexer->source = source;

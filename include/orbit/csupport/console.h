@@ -33,8 +33,8 @@ void console_setColor(FILE* out, CLIColor color);
 void console_printToken(FILE* out, OrbitToken token);
 void console_printPooledString(FILE* out, OCStringID id);
 void console_printTokenLine(FILE* out, OrbitToken token);
-void console_printSourceLocLine(FILE* out, const OCSource* source, OCSourceLoc loc);
-void console_printCaret(FILE* out, OCSourceLoc loc, CLIColor color);
-void console_printUnderlines(FILE* out, OCSourceLoc loc, OCSourceRange range, CLIColor color);
+void console_printSourceLocLine(FILE* out, const OrbitSource* source, OrbitSourceLoc loc);
+void console_printCaret(FILE* out, OrbitSourceLoc loc, CLIColor color);
+void console_printUnderlines(FILE* out, OrbitSourceLoc loc, OrbitSourceRange range, CLIColor color);
 
 #endif /* orbit_csupport_console_h */

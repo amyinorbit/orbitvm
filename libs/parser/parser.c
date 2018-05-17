@@ -9,8 +9,8 @@
 //===--------------------------------------------------------------------------------------------===
 #include <assert.h>
 #include <orbit/ast/builders.h>
+#include <orbit/ast/diag.h>
 #include <orbit/csupport/console.h>
-#include <orbit/csupport/diag.h>
 #include <orbit/parser/parser.h>
 #include <orbit/parser/lexer.h>
 
@@ -435,7 +435,7 @@ static OrbitAST* recMapType(OCParser* parser) {
     return orbit_astMakeMapType(keyType, elementType);
 }
 
-void orbit_dumpTokens(OCSource* source) {
+void orbit_dumpTokens(OrbitSource* source) {
     OCLexer lex;
     lexer_init(&lex, source);
     
@@ -454,7 +454,7 @@ void orbit_dumpTokens(OCSource* source) {
     }
 }
 
-OrbitAST* orbit_parse(OCSource* source) {
+OrbitAST* orbit_parse(OrbitSource* source) {
     
     OCParser parser;
     parser.recovering = false;

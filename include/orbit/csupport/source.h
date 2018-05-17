@@ -14,17 +14,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct _OCSource        OCSource;
-typedef struct _OCSourceLoc     OCSourceLoc;
-typedef struct _OCSourceRange   OCSourceRange;
+typedef struct _OrbitSource        OrbitSource;
+typedef struct _OrbitSourceLoc     OrbitSourceLoc;
+typedef struct _OrbitSourceRange   OrbitSourceRange;
 
-struct _OCSource {
+struct _OrbitSource {
     const char*     path;
     char*           bytes;
     uint64_t        length;
 };
 
-struct _OCSourceLoc {
+struct _OrbitSourceLoc {
     // This is replaced by an offset into the source, (safer and seasier to check)
     // const char*     location;
     uint64_t        offset;
@@ -33,24 +33,24 @@ struct _OCSourceLoc {
 };
 
 /// A simple type used to denote a range of characters in a source.
-struct _OCSourceRange {
-    const OCSourceLoc start;
-    const OCSourceLoc end;
+struct _OrbitSourceRange {
+    const OrbitSourceLoc start;
+    const OrbitSourceLoc end;
 };
 
-OCSourceRange source_rangeFromLength(OCSourceLoc start, uint64_t length);
-OCSourceRange source_rangeUnion(OCSourceRange a, OCSourceRange b);
+OrbitSourceRange source_rangeFromLength(OrbitSourceLoc start, uint64_t length);
+OrbitSourceRange source_rangeUnion(OrbitSourceRange a, OrbitSourceRange b);
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
-OCSource source_readFromPath(const char* path);
+OrbitSource source_readFromPath(const char* path);
 
 /// Creates a source handler by reading the bytes of [file].
-OCSource source_readFromFile(FILE* file);
+OrbitSource source_readFromFile(FILE* file);
 
 /// Deallocates the memory used to store the bytes in [source].
 ///
 /// !warning: any token and source location pointing to this source file
 /// will be invalidated.
-void source_close(OCSource* source);
+void source_close(OrbitSource* source);
 
 #endif /* orbit_csupport_source_h */

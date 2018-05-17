@@ -15,10 +15,10 @@ struct _OrbitDiag {
     OrbitDiagLevel  level;
     
     bool            hasSourceLoc;
-    OCSourceLoc     sourceLoc;
+    OrbitSourceLoc     sourceLoc;
     
     bool            hasSourceRange;
-    OCSourceRange   sourceRange;
+    OrbitSourceRange   sourceRange;
     
     const char*     format;
     
