@@ -81,6 +81,12 @@ void orbit_diagManagerInit(OrbitDiagManager* manager, OCSource* source) {
     manager->diagnostics = calloc(ORBIT_DIAG_MAXCOUNT, sizeof(OrbitDiag));
 }
 
+void orbit_diagManagerDeinit(OrbitDiagManager* manager) {
+    assert(manager && "Invalid Diagnostics Manager instance");
+    free(manager->diagnostics);
+    manager->diagnostics = NULL;
+}
+
 OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format) {
     assert(manager && "Diagnostics manager does not exist");
     assert(manager->diagnosticCount < ORBIT_DIAG_MAXCOUNT && "Diagnostics overflow");

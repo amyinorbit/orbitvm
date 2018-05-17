@@ -62,6 +62,7 @@ struct _OrbitDiagManager {
 extern OrbitDiagManager orbit_defaultDiagManager;
 
 void orbit_diagManagerInit(OrbitDiagManager* manager, OCSource* source);
+void orbit_diagManagerDeinit(OrbitDiagManager* manager);
 
 OrbitDiagID orbit_diagEmitError(OCSourceLoc loc, const char* format, int count, ...);
 OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format);

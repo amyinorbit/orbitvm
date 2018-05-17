@@ -54,6 +54,7 @@ int main(int argc, const char** args) {
     }
     
     ORCRELEASE(ast);
+    orbit_diagManagerDeinit(&orbit_defaultDiagManager);
     source_close(&source);
     orbit_stringPoolDeinit();
     return result;
