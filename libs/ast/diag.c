@@ -38,9 +38,13 @@ void _orbit_defaultDiagConsumer(OCSource* source, OrbitDiag* diagnostic) {
     fprintf(stderr, " in %s -----\n", source->path);
     
     console_setColor(stderr, CLI_RESET);
-    if(diagnostic->sourceLoc.line != 0) {
+    if(diagnostic->hasSourceLoc) {
         console_printSourceLocLine(stderr, source, diagnostic->sourceLoc);
-        console_printCaret(stderr, diagnostic->sourceLoc, CLI_GREEN);
+        
+        if(diagnostic->hasSourceRange)
+            console_printUnderlines(stderr, diagnostic->sourceLoc, diagnostic->sourceRange, CLI_GREEN);
+        else
+            console_printCaret(stderr, diagnostic->sourceLoc, CLI_GREEN);
     }
     
     char* printed = orbit_diagGetFormat(diagnostic);
@@ -82,7 +86,8 @@ OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const
     }
     uint32_t id = manager->diagnosticCount++;
     OrbitDiag* d = &manager->diagnostics[id];
-    d->sourceLoc.line = d->sourceLoc.column = 0;
+    d->hasSourceLoc = false;
+    d->hasSourceRange = false;
     d->level = level;
     d->format = format;
     d->paramCount = 0;
@@ -102,7 +107,15 @@ void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param) {
 void orbit_diagAddSourceLoc(OrbitDiagID id, OCSourceLoc loc) {
     assert(id.manager && "Diagnostics manager does not exist");
     OrbitDiag* d = &id.manager->diagnostics[id.id];
+    d->hasSourceLoc = true;
     d->sourceLoc = loc;
+}
+
+void orbit_diagAddSourceRange(OrbitDiagID id, OCSourceRange range) {
+    assert(id.manager && "Diagnostics manager does not exist");
+    OrbitDiag* d = &id.manager->diagnostics[id.id];
+    d->hasSourceRange = true;
+    d->sourceRange = range;
 }
 
 void orbit_diagEmitAll(OrbitDiagManager* manager) {

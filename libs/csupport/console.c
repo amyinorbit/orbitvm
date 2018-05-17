@@ -7,6 +7,7 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <inttypes.h>
 #include <math.h>
 #include <stdbool.h>
@@ -88,15 +89,18 @@ void console_printCaret(FILE* out, OCSourceLoc loc, CLIColor color) {
     fputc('\n', out);
 }
 
-void console_printUnderlines(FILE* out, OCToken tok, CLIColor color) {
-    uint8_t offset = 2 + tok.sourceLoc.line / 10;
-    for(uint64_t i = 1; i < tok.sourceLoc.column + offset; ++i) {
+void console_printUnderlines(FILE* out, OCSourceLoc loc, OCSourceRange range, CLIColor color) {
+    assert(range.start.line == range.end.line && "underlines must be on a single line");
+    assert(loc.line == range.start.line && "caret must be on the underline's line");
+    assert(loc.column >= range.start.column && loc.column < range.end.column);
+    
+    uint8_t offset = 2 + floor (log10 (loc.line));
+    for(uint64_t i = 0; i < range.start.column + offset; ++i) {
         fputc(' ', out);
     }
     console_setColor(out, color);
-    fputc('^', out);
-    for(uint64_t i = 0; i < tok.displayLength-1; ++i) {
-        fputc('~', out);
+    for(uint64_t i = range.start.column; i < range.end.column; ++i) {
+        fputc(i == loc.column ? '^' : '~', out);
     }
     console_setColor(out, CLI_RESET);
     fputc('\n', out);

@@ -116,10 +116,14 @@ bool expect(OCParser* parser, OCTokenKind kind) {
         return match(parser, kind);
     } else {
         if(match(parser, kind)) { return true; }
-        orbit_diagEmitError(
-            current(parser).sourceLoc, "$0 found while $1 was expected", 2, ORBIT_DIAG_CSTRING(source_tokenString(current(parser).kind)),
+        OCToken token = current(parser);
+        OrbitDiagID id = orbit_diagEmitError(
+            current(parser).sourceLoc, "$0 found while $1 was expected", 2,
+            ORBIT_DIAG_CSTRING(source_tokenString(current(parser).kind)),
             ORBIT_DIAG_CSTRING(source_tokenString(kind))
         );
+        orbit_diagAddSourceRange(id, source_rangeFromLength(token.sourceLoc, token.length));
+        parser->recovering = true;
         return false;
     }
 }

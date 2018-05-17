@@ -88,6 +88,7 @@ OrbitAST* orbit_astMakeModuleDecl(const char* symbol, OrbitAST* body) {
 
 OrbitAST* orbit_astMakeVarDecl(const OCToken* symbol, OrbitAST* typeAnnotation) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_VAR);
+    ast->sourceRange = source_rangeFromLength(symbol->sourceLoc, symbol->length);
     ast->varDecl.symbol = ast_copyToken(symbol);
     ast->varDecl.name = orbit_stringIntern(symbol->source->bytes+symbol->sourceLoc.offset,
                                            symbol->length);
@@ -97,6 +98,8 @@ OrbitAST* orbit_astMakeVarDecl(const OCToken* symbol, OrbitAST* typeAnnotation) 
 
 OrbitAST* orbit_astMakeFuncDecl(const OCToken* symbol, OrbitAST* returnType, OrbitAST* params, OrbitAST* body) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_FUNC);
+    // TODO: replace with union from name to return type?
+    ast->sourceRange = source_rangeFromLength(symbol->sourceLoc, symbol->length);
     ast->funcDecl.symbol = ast_copyToken(symbol);
     ast->funcDecl.name = orbit_stringIntern(symbol->source->bytes+symbol->sourceLoc.offset,
                                             symbol->length);
@@ -110,6 +113,7 @@ OrbitAST* orbit_astMakeFuncDecl(const OCToken* symbol, OrbitAST* returnType, Orb
 OrbitAST* orbit_astMakeStructDecl(const OCToken* symbol, OrbitAST* constructor, OrbitAST* destructor, OrbitAST* fields) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_STRUCT);
     
+    ast->sourceRange = source_rangeFromLength(symbol->sourceLoc, symbol->length);
     ast->structDecl.symbol = ast_copyToken(symbol);
     ast->structDecl.name = orbit_stringIntern(symbol->source->bytes+symbol->sourceLoc.offset,
                                               symbol->length);
@@ -134,6 +138,10 @@ OrbitAST* orbit_astMakeUnaryExpr(const OCToken* operator, OrbitAST* rhs) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_UNARY);
     ast->unaryExpr.operator = ast_copyToken(operator);
     ast->unaryExpr.rhs = ORCRETAIN(rhs);
+    ast->sourceRange = source_rangeUnion(
+        source_rangeFromLength(operator->sourceLoc, operator->length),
+        rhs->sourceRange
+    );
     // TODO: create source range here
     return ast;
 }

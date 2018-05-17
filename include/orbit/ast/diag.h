@@ -7,8 +7,8 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#ifndef orbit_csupport_diag_h
-#define orbit_csupport_diag_h
+#ifndef orbit_ast_diag_h
+#define orbit_ast_diag_h
 #include <stdint.h>
 #include <orbit/ast/ast.h>
 #include <orbit/csupport/source.h>
@@ -48,7 +48,12 @@ struct _OrbitDiagArg {
 
 struct _OrbitDiag {
     OrbitDiagLevel  level;
+    
+    bool            hasSourceLoc;
     OCSourceLoc     sourceLoc;
+    
+    bool            hasSourceRange;
+    OCSourceRange   sourceRange;
     
     const char*     format;
     
@@ -78,6 +83,7 @@ OrbitDiagID orbit_diagEmitError(OCSourceLoc loc, const char* format, int count, 
 OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format);
 void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param);
 void orbit_diagAddSourceLoc(OrbitDiagID id, OCSourceLoc loc);
+void orbit_diagAddSourceRange(OrbitDiagID id, OCSourceRange range);
 
 void orbit_diagEmitAll(OrbitDiagManager* manager);
 void orbit_diagEmitAbove(OrbitDiagManager* manager, OrbitDiagLevel level);
@@ -85,4 +91,4 @@ void orbit_diagEmitAbove(OrbitDiagManager* manager, OrbitDiagLevel level);
 char* orbit_diagGetFormat(OrbitDiag* diag);
 
 
-#endif /* orbit_csupport_diag_h */
+#endif /* orbit_ast_diag_h */
