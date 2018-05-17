@@ -122,7 +122,7 @@ bool expect(OCParser* parser, OrbitTokenKind kind) {
             ORBIT_DIAG_CSTRING(orbit_tokenString(current(parser).kind)),
             ORBIT_DIAG_CSTRING(orbit_tokenString(kind))
         );
-        orbit_diagAddSourceRange(id, source_rangeFromLength(token.sourceLoc, token.length));
+        orbit_diagAddSourceRange(id, orbit_srangeFromLength(token.sourceLoc, token.length));
         parser->recovering = true;
         return false;
     }

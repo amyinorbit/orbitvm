@@ -11,32 +11,32 @@
 #include <orbit/csupport/source.h>
 #include <orbit/utils/memory.h>
 
-static inline OrbitSourceLoc minLoc(OrbitSourceLoc a, OrbitSourceLoc b) {
+static inline OrbitSLoc minLoc(OrbitSLoc a, OrbitSLoc b) {
     if(a.line != b.line) {
         return a.line < b.line ? a : b;
     }
     return a.column < b.column ? a : b;
 }
 
-static inline OrbitSourceLoc maxLoc(OrbitSourceLoc a, OrbitSourceLoc b) {
+static inline OrbitSLoc maxLoc(OrbitSLoc a, OrbitSLoc b) {
     if(a.line != b.line) {
         return a.line >= b.line ? a : b;
     }
     return a.column >= b.column ? a : b;
 }
 
-OrbitSourceRange source_rangeFromLength(OrbitSourceLoc start, uint64_t length) {
-    OrbitSourceLoc end = start;
+OrbitSRange orbit_srangeFromLength(OrbitSLoc start, uint64_t length) {
+    OrbitSLoc end = start;
     end.column += length;
-    return (OrbitSourceRange){.start=start, .end=end};
+    return (OrbitSRange){.start=start, .end=end};
 }
 
-OrbitSourceRange source_rangeUnion(OrbitSourceRange a, OrbitSourceRange b) {
-    return (OrbitSourceRange){.start=minLoc(a.start,b.start), .end=maxLoc(a.end,b.end)};
+OrbitSRange orbit_srangeUnion(OrbitSRange a, OrbitSRange b) {
+    return (OrbitSRange){.start=minLoc(a.start,b.start), .end=maxLoc(a.end,b.end)};
 }
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
-OrbitSource source_readFromPath(const char* path) {
+OrbitSource orbit_sourceInitPath(const char* path) {
     FILE* f = fopen(path, "r");
     if(!f) {
         return (OrbitSource) {
@@ -45,13 +45,13 @@ OrbitSource source_readFromPath(const char* path) {
             .bytes = NULL
         };
     }
-    OrbitSource source = source_readFromFile(f);
+    OrbitSource source = orbit_sourceInitFile(f);
     source.path = path;
     return source;
 }
 
 /// Creates a source handler by reading the bytes of [file].
-OrbitSource source_readFromFile(FILE* file) {
+OrbitSource orbit_sourceInitFile(FILE* file) {
     OrbitSource source;
     
     fseek(file, 0, SEEK_END);
@@ -71,7 +71,7 @@ OrbitSource source_readFromFile(FILE* file) {
 }
 
 /// Deallocates the memory used to store the bytes in [source].
-void source_close(OrbitSource* source) {
+void orbit_sourceDeinit(OrbitSource* source) {
     free(source->bytes);
     source->bytes = NULL;
     source->path = "";

@@ -64,18 +64,18 @@ extern OrbitDiagManager orbit_defaultDiagManager;
 void orbit_diagManagerInit(OrbitDiagManager* manager, OrbitSource* source);
 void orbit_diagManagerDeinit(OrbitDiagManager* manager);
 
-OrbitDiagID orbit_diagEmitError(OrbitSourceLoc loc, const char* format, int count, ...);
+OrbitDiagID orbit_diagEmitError(OrbitSLoc loc, const char* format, int count, ...);
 OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format);
 void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param);
-void orbit_diagAddSourceLoc(OrbitDiagID id, OrbitSourceLoc loc);
-void orbit_diagAddSourceRange(OrbitDiagID id, OrbitSourceRange range);
+void orbit_diagAddSourceLoc(OrbitDiagID id, OrbitSLoc loc);
+void orbit_diagAddSourceRange(OrbitDiagID id, OrbitSRange range);
 
 void orbit_diagEmitAll(OrbitDiagManager* manager);
 void orbit_diagEmitAbove(OrbitDiagManager* manager, OrbitDiagLevel level);
 
 char* orbit_diagGetFormat(OrbitDiag* diag);
-OrbitSourceLoc orbit_diagGetLoc(OrbitDiag* diag);
-OrbitSourceRange orbit_diagGetRange(OrbitDiag* diag);
+OrbitSLoc orbit_diagGetLoc(OrbitDiag* diag);
+OrbitSRange orbit_diagGetRange(OrbitDiag* diag);
 
 
 #endif /* orbit_ast_diag_h */

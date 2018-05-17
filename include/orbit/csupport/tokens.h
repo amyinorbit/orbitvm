@@ -111,7 +111,7 @@ typedef enum  {
 struct _OrbitToken {
     OrbitTokenKind  kind;
     const OrbitSource* source;
-    OrbitSourceLoc     sourceLoc;
+    OrbitSLoc     sourceLoc;
     
     uint32_t        length;
     uint32_t        displayLength;

@@ -30,7 +30,7 @@ int main(int argc, const char** args) {
     
     orbit_stringPoolInit(1024);
     
-    OrbitSource source = source_readFromPath(args[1]);
+    OrbitSource source = orbit_sourceInitPath(args[1]);
     if(!source.bytes) {
         fprintf(stderr, "error: cannot open `%s`\n", args[1]);
         return -1;
@@ -40,7 +40,7 @@ int main(int argc, const char** args) {
     
     if(argc == 3 && strcmp(args[2], "-dump-tokens") == 0) {
         orbit_dumpTokens(&source);
-        source_close(&source);
+        orbit_sourceDeinit(&source);
         return 0;
     }
     
@@ -55,7 +55,7 @@ int main(int argc, const char** args) {
     
     ORCRELEASE(ast);
     orbit_diagManagerDeinit(&orbit_defaultDiagManager);
-    source_close(&source);
+    orbit_sourceDeinit(&source);
     orbit_stringPoolDeinit();
     return result;
 }
