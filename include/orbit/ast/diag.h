@@ -19,9 +19,8 @@
 typedef enum _OrbitDiagLevel        OrbitDiagLevel;
 typedef struct _OrbitDiagManager    OrbitDiagManager;
 typedef struct _OrbitDiag           OrbitDiag;
-typedef struct _OrbitDiagArg      OrbitDiagArg;
+typedef struct _OrbitDiagArg        OrbitDiagArg;
 
-//typedef uint32_t                    OrbitDiagID;
 
 typedef struct {
     OrbitDiagManager* manager;
@@ -42,23 +41,8 @@ struct _OrbitDiagArg {
         int         intValue;
         const char* cstringValue;
         OCStringID  stringValue;
-        OrbitAST*        typeValue;
+        OrbitAST*   typeValue;
     };
-};
-
-struct _OrbitDiag {
-    OrbitDiagLevel  level;
-    
-    bool            hasSourceLoc;
-    OCSourceLoc     sourceLoc;
-    
-    bool            hasSourceRange;
-    OCSourceRange   sourceRange;
-    
-    const char*     format;
-    
-    uint32_t        paramCount;
-    OrbitDiagArg    params[10];
 };
 
 struct _OrbitDiagManager {
@@ -66,7 +50,7 @@ struct _OrbitDiagManager {
     OrbitDiagConsumer   consumer;
     uint32_t            errorCount;
     uint32_t            diagnosticCount;
-    OrbitDiag           diagnostics[ORBIT_DIAG_MAXCOUNT];
+    void*               diagnostics;
 };
 
 #define ORBIT_DIAG_INT(val)     ((OrbitDiagArg){.kind=ORBIT_DPK_INT, .intValue=(val)})
@@ -89,6 +73,8 @@ void orbit_diagEmitAll(OrbitDiagManager* manager);
 void orbit_diagEmitAbove(OrbitDiagManager* manager, OrbitDiagLevel level);
 
 char* orbit_diagGetFormat(OrbitDiag* diag);
+OCSourceLoc orbit_diagGetLoc(OrbitDiag* diag);
+OCSourceRange orbit_diagGetRange(OrbitDiag* diag);
 
 
 #endif /* orbit_ast_diag_h */

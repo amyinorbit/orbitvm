@@ -14,6 +14,8 @@
 #include <orbit/ast/type.h>
 #include <orbit/csupport/string.h>
 
+#include "diag_private.h"
+
 static const char* scan(const char* str, const char* end, char value) {
     while(*str != value && str != end) {
         str += 1;

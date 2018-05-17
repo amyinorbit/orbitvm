@@ -13,6 +13,8 @@
 #include <orbit/ast/diag.h>
 #include <orbit/csupport/console.h>
 
+#include "diag_private.h"
+
 OrbitDiagManager orbit_defaultDiagManager;
 
 void _orbit_defaultDiagConsumer(OCSource* source, OrbitDiag* diagnostic) {
@@ -76,6 +78,7 @@ void orbit_diagManagerInit(OrbitDiagManager* manager, OCSource* source) {
     manager->consumer = &_orbit_defaultDiagConsumer;
     manager->errorCount = 0;
     manager->diagnosticCount = 0;
+    manager->diagnostics = calloc(ORBIT_DIAG_MAXCOUNT, sizeof(OrbitDiag));
 }
 
 OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format) {
@@ -85,7 +88,7 @@ OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const
         manager->errorCount += 1;
     }
     uint32_t id = manager->diagnosticCount++;
-    OrbitDiag* d = &manager->diagnostics[id];
+    OrbitDiag* d = &((OrbitDiag*)manager->diagnostics)[id];
     d->hasSourceLoc = false;
     d->hasSourceRange = false;
     d->level = level;
@@ -97,7 +100,7 @@ OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const
 void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param) {
     assert(id.manager && "Diagnostics manager does not exist");
     
-    OrbitDiag* d = &id.manager->diagnostics[id.id];
+    OrbitDiag* d = &((OrbitDiag*)id.manager->diagnostics)[id.id];
     assert(d->paramCount < 10 && "Diagnostics are limited 10 parameters");
     
     d->params[d->paramCount] = param;
@@ -106,14 +109,14 @@ void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param) {
 
 void orbit_diagAddSourceLoc(OrbitDiagID id, OCSourceLoc loc) {
     assert(id.manager && "Diagnostics manager does not exist");
-    OrbitDiag* d = &id.manager->diagnostics[id.id];
+    OrbitDiag* d = &((OrbitDiag*)id.manager->diagnostics)[id.id];
     d->hasSourceLoc = true;
     d->sourceLoc = loc;
 }
 
 void orbit_diagAddSourceRange(OrbitDiagID id, OCSourceRange range) {
     assert(id.manager && "Diagnostics manager does not exist");
-    OrbitDiag* d = &id.manager->diagnostics[id.id];
+    OrbitDiag* d = &((OrbitDiag*)id.manager->diagnostics)[id.id];
     d->hasSourceRange = true;
     d->sourceRange = range;
 }
@@ -128,9 +131,20 @@ void orbit_diagEmitAbove(OrbitDiagManager* manager, OrbitDiagLevel level) {
     // TODO: Sort diagnostics by severity, location?
     
     for(uint32_t i = 0; i < manager->diagnosticCount; ++i) {
-        OrbitDiag* d = &manager->diagnostics[i];
+        OrbitDiag* d = &((OrbitDiag*)manager->diagnostics)[i];
         if(d->level < level) { continue; }
         manager->consumer(manager->source, d);
     }
+}
+
+
+OCSourceLoc orbit_diagGetLoc(OrbitDiag* diag) {
+    assert(diag && "Cannot get source location of an invalid diagnostic");
+    return diag->sourceLoc;
+}
+
+OCSourceRange orbit_diagGetRange(OrbitDiag* diag) {
+    assert(diag && "Cannot get source range of an invalid diagnostic");
+    return diag->sourceRange;
 }
 
