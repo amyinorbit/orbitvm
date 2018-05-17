@@ -15,7 +15,7 @@
 #include <orbit/csupport/string.h>
 #include <orbit/csupport/source.h>
 
-typedef struct _OCToken OCToken;
+typedef struct _OrbitToken OrbitToken;
 
 typedef enum  {
     // Bracket types
@@ -105,11 +105,11 @@ typedef enum  {
     ORBIT_TOK_EOF,
     ORBIT_TOK_INVALID,
     
-} OCTokenKind;
+} OrbitTokenKind;
 
 
-struct _OCToken {
-    OCTokenKind     kind;
+struct _OrbitToken {
+    OrbitTokenKind  kind;
     const OCSource* source;
     OCSourceLoc     sourceLoc;
     
@@ -120,16 +120,15 @@ struct _OCToken {
     OCStringID      parsedStringLiteral;
 };
 
-const char* source_tokenName(OCTokenKind token);
-const char* source_tokenString(OCTokenKind token);
-// OCString* source_stringFromToken(OCToken* token);
+const char* orbit_tokenName(OrbitTokenKind token);
+const char* orbit_tokenString(OrbitTokenKind token);
 
-bool source_tokenEquals(OCToken* a, OCToken* b);
+bool orbit_tokenEquals(OrbitToken* a, OrbitToken* b);
 
-bool source_isBinaryOp(OCTokenKind token);
-bool source_isUnaryOp(OCTokenKind token);
+bool orbit_tokenIsBinaryOp(OrbitTokenKind token);
+bool orbit_tokenIsUnaryOp(OrbitTokenKind token);
 
-int source_binaryPrecedence(OCTokenKind token);
-int source_binaryRightAssoc(OCTokenKind token);
+int orbit_tokenBinaryPrecedence(OrbitTokenKind token);
+int orbit_tokenBinaryRightAssoc(OrbitTokenKind token);
 
 #endif /* orbit_csupport_tokens_h */

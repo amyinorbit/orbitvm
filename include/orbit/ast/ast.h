@@ -93,7 +93,7 @@ struct _OrbitASTType {
         } funcType;
         
         struct {
-            //OCToken     symbol;
+            //OrbitToken     symbol;
             OCStringID  symbol;
         } userType;
     };
@@ -121,7 +121,7 @@ struct _OrbitAST {
         } conditionalStmt;
         
         struct {
-            OCToken     variable;
+            OrbitToken     variable;
             OrbitAST*   collection;
             OrbitAST*   body;
         } forInLoop;
@@ -148,7 +148,7 @@ struct _OrbitAST {
         } moduleDecl;
         
         struct {
-            OCToken     symbol;
+            OrbitToken     symbol;
             OCStringID  name;
             OCStringID  mangledName;
             OrbitAST*   returnType;
@@ -157,13 +157,13 @@ struct _OrbitAST {
         } funcDecl;
         
         struct {
-            OCToken     symbol;
+            OrbitToken     symbol;
             OCStringID  name;
             OrbitAST*   typeAnnotation;
         } varDecl;
         
         struct {
-            OCToken     symbol;
+            OrbitToken     symbol;
             OCStringID  name;
             OrbitAST*   constructor;
             OrbitAST*   destructor;
@@ -174,12 +174,12 @@ struct _OrbitAST {
         // Expressions
         // --------------------------------------------------------------------
         struct  {
-            OCToken     operator;
+            OrbitToken     operator;
             OrbitAST*   rhs;
         } unaryExpr;
         
         struct {
-            OCToken     operator;
+            OrbitToken     operator;
             OrbitAST*   lhs;
             OrbitAST*   rhs;
         } binaryExpr;
@@ -195,11 +195,11 @@ struct _OrbitAST {
         } subscriptExpr;
         
         struct {
-            OCToken     symbol;
+            OrbitToken     symbol;
         } constantExpr;
         
         struct {
-            OCToken     symbol;
+            OrbitToken     symbol;
             OCStringID  name;
         } nameExpr;
         

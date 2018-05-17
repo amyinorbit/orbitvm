@@ -30,8 +30,8 @@ OrbitAST* orbit_astListClose(ASTListBuilder* builder) {
 }
 
 
-static OCToken ast_copyToken(const OCToken* token) {
-    OCToken copy = *token;
+static OrbitToken ast_copyToken(const OrbitToken* token) {
+    OrbitToken copy = *token;
     // TODO: deep copy of pointed-to string?
     return copy;
 }
@@ -44,7 +44,7 @@ OrbitAST* orbit_astMakeConditional(OrbitAST* condition, OrbitAST* ifBody, OrbitA
     return ast;
 }
 
-OrbitAST* orbit_astMakeForInLoop(const OCToken* var, OrbitAST* collection, OrbitAST* body) {
+OrbitAST* orbit_astMakeForInLoop(const OrbitToken* var, OrbitAST* collection, OrbitAST* body) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_FOR_IN);
     ast->forInLoop.variable = ast_copyToken(var);
     ast->forInLoop.collection = ORCRETAIN(collection);
@@ -86,7 +86,7 @@ OrbitAST* orbit_astMakeModuleDecl(const char* symbol, OrbitAST* body) {
     return ast;
 }
 
-OrbitAST* orbit_astMakeVarDecl(const OCToken* symbol, OrbitAST* typeAnnotation) {
+OrbitAST* orbit_astMakeVarDecl(const OrbitToken* symbol, OrbitAST* typeAnnotation) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_VAR);
     ast->sourceRange = source_rangeFromLength(symbol->sourceLoc, symbol->length);
     ast->varDecl.symbol = ast_copyToken(symbol);
@@ -96,7 +96,7 @@ OrbitAST* orbit_astMakeVarDecl(const OCToken* symbol, OrbitAST* typeAnnotation) 
     return ast;
 }
 
-OrbitAST* orbit_astMakeFuncDecl(const OCToken* symbol, OrbitAST* returnType, OrbitAST* params, OrbitAST* body) {
+OrbitAST* orbit_astMakeFuncDecl(const OrbitToken* symbol, OrbitAST* returnType, OrbitAST* params, OrbitAST* body) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_FUNC);
     // TODO: replace with union from name to return type?
     ast->sourceRange = source_rangeFromLength(symbol->sourceLoc, symbol->length);
@@ -110,7 +110,7 @@ OrbitAST* orbit_astMakeFuncDecl(const OCToken* symbol, OrbitAST* returnType, Orb
     return ast;
 }
 
-OrbitAST* orbit_astMakeStructDecl(const OCToken* symbol, OrbitAST* constructor, OrbitAST* destructor, OrbitAST* fields) {
+OrbitAST* orbit_astMakeStructDecl(const OrbitToken* symbol, OrbitAST* constructor, OrbitAST* destructor, OrbitAST* fields) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_STRUCT);
     
     ast->sourceRange = source_rangeFromLength(symbol->sourceLoc, symbol->length);
@@ -124,7 +124,7 @@ OrbitAST* orbit_astMakeStructDecl(const OCToken* symbol, OrbitAST* constructor, 
     return ast;
 }
 
-OrbitAST* orbit_astMakeBinaryExpr(const OCToken* operator, OrbitAST* lhs, OrbitAST* rhs) {
+OrbitAST* orbit_astMakeBinaryExpr(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_BINARY);
     
     ast->binaryExpr.operator = ast_copyToken(operator);
@@ -134,7 +134,7 @@ OrbitAST* orbit_astMakeBinaryExpr(const OCToken* operator, OrbitAST* lhs, OrbitA
     return ast;
 }
 
-OrbitAST* orbit_astMakeUnaryExpr(const OCToken* operator, OrbitAST* rhs) {
+OrbitAST* orbit_astMakeUnaryExpr(const OrbitToken* operator, OrbitAST* rhs) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_UNARY);
     ast->unaryExpr.operator = ast_copyToken(operator);
     ast->unaryExpr.rhs = ORCRETAIN(rhs);
@@ -164,7 +164,7 @@ OrbitAST* orbit_astMakeSubscriptExpr(OrbitAST* symbol, OrbitAST* subscript) {
     return ast;
 }
 
-OrbitAST* orbit_astMakeNameExpr(const OCToken* symbol) {
+OrbitAST* orbit_astMakeNameExpr(const OrbitToken* symbol) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_NAME);
     ast->nameExpr.symbol = ast_copyToken(symbol);
     ast->nameExpr.name = orbit_stringIntern(
@@ -175,7 +175,7 @@ OrbitAST* orbit_astMakeNameExpr(const OCToken* symbol) {
     return ast;
 }
 
-OrbitAST* orbit_astMakeConstantExpr(const OCToken* symbol, ASTKind kind) {
+OrbitAST* orbit_astMakeConstantExpr(const OrbitToken* symbol, ASTKind kind) {
     OrbitAST* ast = orbit_astMake(kind);
     ast->constantExpr.symbol = ast_copyToken(symbol);
     ast->sourceRange = source_rangeFromLength(symbol->sourceLoc, symbol->displayLength);
@@ -188,7 +188,7 @@ OrbitAST* orbit_astMakeUserTypePooled(OCStringID symbol) {
     return ast;
 }
 
-OrbitAST* orbit_astMakeUserType(const OCToken* symbol) {
+OrbitAST* orbit_astMakeUserType(const OrbitToken* symbol) {
     OCStringID id = orbit_stringIntern(
         symbol->source->bytes+symbol->sourceLoc.offset,
         symbol->length

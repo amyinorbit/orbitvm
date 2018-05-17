@@ -20,22 +20,22 @@ typedef struct {
 } OCParser;
 
 static inline int precedence(OCParser* parser) {
-    return source_binaryPrecedence(parser->lexer.currentToken.kind);
+    return orbit_tokenBinaryPrecedence(parser->lexer.currentToken.kind);
 }
 
 static inline bool rightAssoc(OCParser* parser) {
-    return source_binaryRightAssoc(parser->lexer.currentToken.kind);
+    return orbit_tokenBinaryRightAssoc(parser->lexer.currentToken.kind);
 }
 
-static inline OCToken current(OCParser* parser) {
+static inline OrbitToken current(OCParser* parser) {
     return parser->lexer.currentToken;
 }
 
 //void compilerError(OCParser* parser, const char* format, int count, ...);
 
-bool have(OCParser* parser, OCTokenKind kind);
+bool have(OCParser* parser, OrbitTokenKind kind);
 
-bool match(OCParser* parser, OCTokenKind kind);
+bool match(OCParser* parser, OrbitTokenKind kind);
 
 // MARK: - utility functions, mainly used to avoid typing long [have()] lists
 bool haveBinaryOp(OCParser* parser);
@@ -54,6 +54,6 @@ bool implicitTerminator(OCParser* parser);
 
 bool expectTerminator(OCParser* parser);
 
-bool expect(OCParser* parser, OCTokenKind kind);
+bool expect(OCParser* parser, OrbitTokenKind kind);
 
 #endif /* orbit_parser_recdescent_h */

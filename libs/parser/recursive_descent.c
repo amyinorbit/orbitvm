@@ -17,11 +17,11 @@
 
 // MARK: - RD Basics
 
-bool have(OCParser* parser, OCTokenKind kind) {
+bool have(OCParser* parser, OrbitTokenKind kind) {
     return current(parser).kind == kind;
 }
 
-bool match(OCParser* parser, OCTokenKind kind) {
+bool match(OCParser* parser, OrbitTokenKind kind) {
     if(have(parser, kind)) {
         lexer_nextToken(&parser->lexer);
         return true;
@@ -31,11 +31,11 @@ bool match(OCParser* parser, OCTokenKind kind) {
 
 // MARK: - utility functions, mainly used to avoid typing long [have()] lists
 bool haveBinaryOp(OCParser* parser) {
-    return source_isBinaryOp(current(parser).kind);
+    return orbit_tokenIsBinaryOp(current(parser).kind);
 }
 
 bool haveUnaryOp(OCParser* parser) {
-    return source_isUnaryOp(current(parser).kind);
+    return orbit_tokenIsUnaryOp(current(parser).kind);
 }
 
 bool haveConditional(OCParser* parser) {
@@ -104,7 +104,7 @@ bool expectTerminator(OCParser* parser) {
     }
 }
 
-bool expect(OCParser* parser, OCTokenKind kind) {
+bool expect(OCParser* parser, OrbitTokenKind kind) {
     if(parser->recovering) {
         while(!have(parser, kind) && !have(parser, ORBIT_TOK_EOF)) {
             lexer_nextToken(&parser->lexer);
@@ -116,11 +116,11 @@ bool expect(OCParser* parser, OCTokenKind kind) {
         return match(parser, kind);
     } else {
         if(match(parser, kind)) { return true; }
-        OCToken token = current(parser);
+        OrbitToken token = current(parser);
         OrbitDiagID id = orbit_diagEmitError(
             current(parser).sourceLoc, "$0 found while $1 was expected", 2,
-            ORBIT_DIAG_CSTRING(source_tokenString(current(parser).kind)),
-            ORBIT_DIAG_CSTRING(source_tokenString(kind))
+            ORBIT_DIAG_CSTRING(orbit_tokenString(current(parser).kind)),
+            ORBIT_DIAG_CSTRING(orbit_tokenString(kind))
         );
         orbit_diagAddSourceRange(id, source_rangeFromLength(token.sourceLoc, token.length));
         parser->recovering = true;

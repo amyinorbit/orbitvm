@@ -63,7 +63,7 @@ static OrbitAST* recBlock(OCParser* parser) {
 
 static OrbitAST* recTypeDecl(OCParser* parser) {
     expect(parser, ORBIT_TOK_TYPE);
-    OCToken symbol = current(parser);
+    OrbitToken symbol = current(parser);
     expect(parser, ORBIT_TOK_IDENTIFIER);
     
     ASTListBuilder fields;
@@ -82,7 +82,7 @@ static OrbitAST* recTypeDecl(OCParser* parser) {
 static OrbitAST* recVarDecl(OCParser* parser) {
     expect(parser, ORBIT_TOK_VAR);
     
-    OCToken symbol = current(parser);
+    OrbitToken symbol = current(parser);
     expect(parser, ORBIT_TOK_IDENTIFIER);
     OrbitAST* typeAnnotation = NULL;
     
@@ -92,7 +92,7 @@ static OrbitAST* recVarDecl(OCParser* parser) {
     
     OrbitAST* decl = orbit_astMakeVarDecl(&symbol, typeAnnotation);
     
-    OCToken operator = parser->lexer.currentToken;
+    OrbitToken operator = parser->lexer.currentToken;
     if(match(parser, ORBIT_TOK_EQUALS)) {
         OrbitAST* rhs = recExpression(parser, 0);
         return orbit_astMakeBinaryExpr(&operator, decl, rhs);
@@ -105,7 +105,7 @@ static OrbitAST* recVarDecl(OCParser* parser) {
 static OrbitAST* recFuncDecl(OCParser* parser) {
     expect(parser, ORBIT_TOK_FUN);
     
-    OCToken symbol = current(parser);
+    OrbitToken symbol = current(parser);
     expect(parser, ORBIT_TOK_IDENTIFIER);
     expect(parser, ORBIT_TOK_LPAREN);
     
@@ -130,7 +130,7 @@ static OrbitAST* recParameters(OCParser* parser) {
     orbit_astListStart(&params);
     
     do {
-        OCToken symbol = current(parser);
+        OrbitToken symbol = current(parser);
         expect(parser, ORBIT_TOK_IDENTIFIER);
         expect(parser, ORBIT_TOK_COLON);
         
@@ -216,7 +216,7 @@ static OrbitAST* recWhileLoop(OCParser* parser) {
 static OrbitAST* recForLoop(OCParser* parser) {
     expect(parser, ORBIT_TOK_FOR);
     
-    OCToken var = current(parser);
+    OrbitToken var = current(parser);
     expect(parser, ORBIT_TOK_IDENTIFIER);
     expect(parser, ORBIT_TOK_IN);
     OrbitAST* collection = recExpression(parser, 0);
@@ -235,7 +235,7 @@ static OrbitAST* recExpression(OCParser* parser, int minPrec) {
             break;
         }
         
-        OCToken operator = current(parser);
+        OrbitToken operator = current(parser);
         int prec = precedence(parser);
         bool right = rightAssoc(parser);
         
@@ -271,7 +271,7 @@ static OrbitAST* recExpression(OCParser* parser, int minPrec) {
 
 static OrbitAST* recTerm(OCParser* parser) {
     OrbitAST* term = NULL;
-    OCToken operator;
+    OrbitToken operator;
     bool unary = false;
     
     if(haveUnaryOp(parser)) {
@@ -280,7 +280,7 @@ static OrbitAST* recTerm(OCParser* parser) {
         lexer_nextToken(&parser->lexer);
     }
     
-    OCToken symbol = current(parser);
+    OrbitToken symbol = current(parser);
     
     if(match(parser, ORBIT_TOK_LPAREN)) {
         term = recExpression(parser, 0);
@@ -301,7 +301,7 @@ static OrbitAST* recTerm(OCParser* parser) {
 }
 
 static OrbitAST* recName(OCParser* parser) {
-    OCToken symbol = current(parser);
+    OrbitToken symbol = current(parser);
     OrbitAST* name = orbit_astMakeNameExpr(&symbol);
     expect(parser, ORBIT_TOK_IDENTIFIER);
     return name;
@@ -315,7 +315,7 @@ static OrbitAST* recSubscript(OCParser* parser) {
 
 static OrbitAST* recFieldAccess(OCParser* parser) {
     //expect(parser, ORBIT_TOK_DOT);
-    OCToken symbol = current(parser);
+    OrbitToken symbol = current(parser);
     expect(parser, ORBIT_TOK_IDENTIFIER);
     return orbit_astMakeNameExpr(&symbol);
 }
@@ -359,7 +359,7 @@ static OrbitAST* recTypename(OCParser* parser) {
     else if(have(parser, ORBIT_TOK_MAP))
         return recMapType(parser);
     else if(have(parser, ORBIT_TOK_IDENTIFIER)) {
-        OCToken symbol = current(parser);
+        OrbitToken symbol = current(parser);
         expect(parser, ORBIT_TOK_IDENTIFIER);
         return orbit_astMakeUserType(&symbol);
     }
@@ -388,7 +388,7 @@ static OrbitAST* recFuncType(OCParser* parser) {
 }
 
 static OrbitAST* recPrimitive(OCParser* parser) {
-    //OCToken symbol = current(parser);
+    //OrbitToken symbol = current(parser);
     if(have(parser, ORBIT_TOK_NUMBER)) {
         expect(parser, ORBIT_TOK_NUMBER);
         return orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_NUMBER);
@@ -441,9 +441,9 @@ void orbit_dumpTokens(OCSource* source) {
     
     lexer_nextToken(&lex);
     while(lex.currentToken.kind != ORBIT_TOK_EOF) {
-        OCToken tok = lex.currentToken;
+        OrbitToken tok = lex.currentToken;
         const char* bytes = source->bytes + tok.sourceLoc.offset;
-        printf("%20s\t'%.*s'", source_tokenName(tok.kind),
+        printf("%20s\t'%.*s'", orbit_tokenName(tok.kind),
                                (int)tok.length,
                                bytes);
         if(tok.isStartOfLine) {

@@ -40,7 +40,7 @@ void console_setColor(FILE* out, CLIColor color) {
     fprintf(out, "%s", _ansiCodes[color]);
 }
 
-void console_printToken(FILE* out, OCToken token) {
+void console_printToken(FILE* out, OrbitToken token) {
     const char* bytes = token.source->bytes + token.sourceLoc.offset;
     fprintf(out, "%.*s", (int)token.length, bytes);
 }
@@ -74,7 +74,7 @@ void console_printSourceLocLine(FILE* out, const OCSource* source, OCSourceLoc l
     fprintf(out, "\n");
 }
 
-void console_printTokenLine(FILE* out, OCToken token) {
+void console_printTokenLine(FILE* out, OrbitToken token) {
     console_printSourceLocLine(out, token.source, token.sourceLoc);
 }
 

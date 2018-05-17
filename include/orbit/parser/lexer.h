@@ -46,7 +46,7 @@ struct _OCLexer {
     const char*     tokenStart;
     
     /// The curent token
-    OCToken         currentToken;
+    OrbitToken         currentToken;
 };
 
 void lexer_init(OCLexer* lexer, OCSource* source);

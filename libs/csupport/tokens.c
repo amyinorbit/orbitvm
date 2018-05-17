@@ -12,7 +12,7 @@
 #include <orbit/csupport/tokens.h>
 #include <orbit/utils/utf8.h>
 
-void source_printTokenLine(FILE* out, const OCToken token) {
+void source_printTokenLine(FILE* out, const OrbitToken token) {
     const char* line = token.source->bytes + token.sourceLoc.offset;
     
     // Backtrack until the beginning of the line...
@@ -40,9 +40,9 @@ typedef struct {
     const char* string;
     bool        isBinaryOp;
     bool        isUnaryOp;
-} OCTokenData;
+} OrbitTokenData;
 
-static const OCTokenData _tokenData[] = {
+static const OrbitTokenData _tokenData[] = {
     [ORBIT_TOK_LPAREN] = {"l_paren", "(", true, false},
     [ORBIT_TOK_RPAREN] = {"r_paren", ")", false, false},
     [ORBIT_TOK_LBRACE] = {"l_brace", "{", false, false},
@@ -113,7 +113,7 @@ static const OCTokenData _tokenData[] = {
     [ORBIT_TOK_INVALID] = {"invalid", "invalid token", false, false},
 };
 
-bool source_tokenEquals(OCToken* a, OCToken* b) {
+bool orbit_tokenEquals(OrbitToken* a, OrbitToken* b) {
     // TODO: null instance check
     if(a == b) { return true; }
     const char* strA = a->source->bytes + a->sourceLoc.offset;
@@ -125,27 +125,27 @@ bool source_tokenEquals(OCToken* a, OCToken* b) {
             || (strncmp(strA, strB, a->length) == 0));
 }
 
-const char* source_tokenName(OCTokenKind token) {
+const char* orbit_tokenName(OrbitTokenKind token) {
     if(token > ORBIT_TOK_INVALID) { token = ORBIT_TOK_INVALID; }
     return _tokenData[token].name;
 }
-const char* source_tokenString(OCTokenKind token) {
+const char* orbit_tokenString(OrbitTokenKind token) {
     if(token > ORBIT_TOK_INVALID) { token = ORBIT_TOK_INVALID; }
     return _tokenData[token].string;
 }
 
-bool source_isBinaryOp(OCTokenKind token) {
+bool orbit_tokenIsBinaryOp(OrbitTokenKind token) {
     if(token > ORBIT_TOK_INVALID) { return false; }
     return _tokenData[token].isBinaryOp;
 }
 
-bool source_isUnaryOp(OCTokenKind token) {
+bool orbit_tokenIsUnaryOp(OrbitTokenKind token) {
     if(token > ORBIT_TOK_INVALID) { return false; }
     return _tokenData[token].isUnaryOp;
 }
 
 typedef struct {
-    OCTokenKind kind;
+    OrbitTokenKind kind;
     int         precedence;
     bool        rightAssoc;
 } OCOperator;
@@ -181,16 +181,16 @@ static OCOperator opTable[] = {
     {ORBIT_TOK_INVALID,     -1,     false},
 };
 
-int source_binaryPrecedence(OCTokenKind token) {
-    if(!source_isBinaryOp(token)) { return -1; }
+int orbit_tokenBinaryPrecedence(OrbitTokenKind token) {
+    if(!orbit_tokenIsBinaryOp(token)) { return -1; }
     for(int i = 0; opTable[i].kind != ORBIT_TOK_INVALID; ++i) {
         if(opTable[i].kind == token) { return opTable[i].precedence; }
     }
     return -1;
 }
 
-int source_binaryRightAssoc(OCTokenKind token) {
-    if(!source_isBinaryOp(token)) { return false; }
+int orbit_tokenBinaryRightAssoc(OrbitTokenKind token) {
+    if(!orbit_tokenIsBinaryOp(token)) { return false; }
     for(int i = 0; opTable[i].kind != ORBIT_TOK_INVALID; ++i) {
         if(opTable[i].kind == token) { return opTable[i].rightAssoc; }
     }
