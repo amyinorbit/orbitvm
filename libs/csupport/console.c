@@ -41,7 +41,7 @@ void console_setColor(FILE* out, CLIColor color) {
 }
 
 void console_printToken(FILE* out, OrbitToken token) {
-    const char* bytes = token.source->bytes + token.sourceLoc.offset;
+    const char* bytes = token.source->bytes + ORBIT_SLOC_OFFSET(token.sourceLoc);
     fprintf(out, "%.*s", (int)token.length, bytes);
 }
 
@@ -52,7 +52,7 @@ void console_printPooledString(FILE* out, OCStringID id) {
 }
 
 void console_printSourceLocLine(FILE* out, const OrbitSource* source, OrbitSLoc loc) {
-    const char* line = source->bytes + loc.offset;
+    const char* line = source->bytes + ORBIT_SLOC_OFFSET(loc);
     // Backtrack until the beginning of the line...
     while(*(line-1) != '\n'&& line != source->bytes) {
         line -= 1;
@@ -92,11 +92,11 @@ void console_printCaret(FILE* out, const OrbitSource* source, OrbitSLoc loc) {
 }
 
 void console_printUnderlines(FILE* out, const OrbitSource* source, OrbitSLoc loc, OrbitSRange range) {
-    assert(loc.offset >= range.start.offset && loc.offset < range.end.offset);
+    assert(orbit_srangeContainsLoc(range, loc) && "caret must be in the source range");
     
     OrbitPhysSLoc start = orbit_sourcePhysicalLoc(source, range.start);
-    uint32_t end = start.column + (range.end.offset - range.start.offset);
-    uint32_t caret = start.column + (loc.offset - range.start.offset);
+    uint32_t end = start.column + (ORBIT_SRANGE_END(range) - ORBIT_SRANGE_START(range));
+    uint32_t caret = start.column + (ORBIT_SLOC_OFFSET(loc) - ORBIT_SRANGE_START(range));
     
     uint8_t offset = 2 + floor (log10 (start.line));
     for(uint64_t i = 1; i < start.column + offset; ++i) {

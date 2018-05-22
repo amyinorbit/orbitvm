@@ -15,7 +15,7 @@
 #include <stdbool.h>
 
 typedef struct _OrbitSource     OrbitSource;
-typedef struct _OrbitSLoc       OrbitSLoc;
+typedef uint32_t                OrbitSLoc;
 typedef struct _OrbitSRange     OrbitSRange;
 typedef struct _OrbitPhysSLoc   OrbitPhysSLoc;
 
@@ -56,11 +56,21 @@ struct _OrbitSRange {
 };
 
 #define ORBIT_SOURCE_LOC(offset) ((OrbitSLoc){.offset=(offset), .valid=1})
-#define ORBIT_SLOC_VALID(loc) ((loc).valid == 1)
-#define ORBIT_SRANGE_VALID(range) ((range).start.valid == 1 && (range).end.valid == 1)
+
+#define ORBIT_SLOC_MAKE(offset)     ((offset) & 0x7fffffff)
+#define ORBIT_SLOC_INVALID          (0x80000000)
+#define ORBIT_SLOC_EQUAL(a,b)       ((a) == (b))
+
+#define ORBIT_SLOC_ISVALID(loc)     (((loc) >> 31) == 0)
+#define ORBIT_SLOC_OFFSET(loc)      (loc & 0x7fffffff)
+#define ORBIT_SRANGE_ISVALID(range) (ORBIT_SLOC_ISVALID((range).start) && ORBIT_SLOC_ISVALID((range).end))
+
+#define ORBIT_SRANGE_START(range)   (ORBIT_SLOC_OFFSET((range).start))
+#define ORBIT_SRANGE_END(range)     (ORBIT_SLOC_OFFSET((range).end))
 
 OrbitSRange orbit_srangeFromLength(OrbitSLoc start, uint32_t length);
 OrbitSRange orbit_srangeUnion(OrbitSRange a, OrbitSRange b);
+bool orbit_srangeContainsLoc(OrbitSRange range, OrbitSLoc sloc);
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
 bool orbit_sourceInitPath(OrbitSource* source, const char* path);

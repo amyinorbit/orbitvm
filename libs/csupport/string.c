@@ -10,6 +10,7 @@
 #include <string.h>
 #include <assert.h>
 #include <orbit/csupport/string.h>
+#include <orbit/utils/hashing.h>
 
 const OCStringID orbit_invalidStringID = UINT64_MAX;
 

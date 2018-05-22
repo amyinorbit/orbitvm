@@ -21,7 +21,7 @@
 OrbitDiagManager orbit_defaultDiagManager;
 
 void _orbit_defaultDiagConsumer(OrbitSource* source, OrbitDiag* diagnostic) {
-    assert(ORBIT_SLOC_VALID(diagnostic->sourceLoc) && "diagnostics should have a source location");
+    assert(ORBIT_SLOC_ISVALID(diagnostic->sourceLoc) && "diagnostics should have a source location");
     OrbitPhysSLoc ploc = orbit_sourcePhysicalLoc(source, diagnostic->sourceLoc);
     
     // print basic stuff first:
@@ -46,7 +46,7 @@ void _orbit_defaultDiagConsumer(OrbitSource* source, OrbitDiag* diagnostic) {
     
     console_printSourceLocLine(stderr, source, diagnostic->sourceLoc);
 
-    if(ORBIT_SRANGE_VALID(diagnostic->sourceRange)) {
+    if(ORBIT_SRANGE_ISVALID(diagnostic->sourceRange)) {
         console_printUnderlines(stderr, source, diagnostic->sourceLoc, diagnostic->sourceRange);
     } else {
         console_printCaret(stderr, source, diagnostic->sourceLoc);
@@ -101,9 +101,9 @@ OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const
     }
     uint32_t id = manager->diagnosticCount++;
     OrbitDiag* d = &((OrbitDiag*)manager->diagnostics)[id];
-    d->sourceLoc.valid = 0;
-    d->sourceRange.start.valid = 0;
-    d->sourceRange.end.valid = 0;
+    d->sourceLoc = ORBIT_SLOC_INVALID;
+    d->sourceRange.start = ORBIT_SLOC_INVALID;
+    d->sourceRange.end  = ORBIT_SLOC_INVALID;
     d->level = level;
     d->format = format;
     d->paramCount = 0;

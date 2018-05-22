@@ -18,8 +18,7 @@
 #include <orbit/utils/wcwidth.h>
 
 OrbitSLoc lexer_loc(OCLexer* lexer) {
-    uint32_t offset = (lexer)->currentPtr - (lexer)->source->bytes;
-    return (OrbitSLoc){.offset=offset, .valid=1};
+    return ORBIT_SLOC_MAKE((lexer)->currentPtr - (lexer)->source->bytes);
 }
 
 void lexer_init(OCLexer* lexer, OrbitSource* source) {
@@ -33,8 +32,7 @@ void lexer_init(OCLexer* lexer, OrbitSource* source) {
     orbit_stringBufferInit(&lexer->buffer, 64);
     
     lexer->currentToken.kind = 0;
-    lexer->currentToken.sourceLoc.offset = 0;
-    lexer->currentToken.sourceLoc.valid = 1;
+    lexer->currentToken.sourceLoc = ORBIT_SLOC_MAKE(0);
     lexer->currentToken.length = 0;
     lexer->currentToken.source = lexer->source;
 }
@@ -80,7 +78,7 @@ static inline codepoint_t _next2(OCLexer* lexer) {
 static void _makeToken(OCLexer* lexer, int type) {
     assert(lexer != NULL && "Null instance error");
     lexer->currentToken.kind = type;
-    lexer->currentToken.sourceLoc.offset = lexer->tokenStart - lexer->source->bytes;
+    lexer->currentToken.sourceLoc = ORBIT_SLOC_MAKE(lexer->tokenStart - lexer->source->bytes);
     lexer->currentToken.length = lexer->currentPtr - lexer->tokenStart;
 
     lexer->currentToken.isStartOfLine = lexer->startOfLine;
@@ -363,5 +361,5 @@ void lexer_nextToken(OCLexer* lexer) {
     }
     lexer->currentToken.kind = ORBIT_TOK_EOF;
     lexer->currentToken.length = 0;
-    lexer->currentToken.sourceLoc.offset = 0;
+    lexer->currentToken.sourceLoc = ORBIT_SLOC_MAKE(0);
 }

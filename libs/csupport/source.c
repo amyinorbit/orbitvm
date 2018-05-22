@@ -19,19 +19,28 @@ typedef struct {
     uint32_t data[ORBIT_FLEXIBLE_ARRAY_MEMB];
 } _OrbitLineMap;
 
-#define S_MAX(a, b) ((a).offset > (b).offset ? (a) : (b))
-#define S_MIN(a, b) ((a).offset < (b).offset ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 OrbitSRange orbit_srangeFromLength(OrbitSLoc start, uint32_t length) {
+    assert(ORBIT_SLOC_ISVALID(start) && "ranges should start with a valid location");
     OrbitSRange range;
     range.start = start;
-    range.end.valid = 1;
-    range.end.offset = start.offset+length;
+    range.end = ORBIT_SLOC_MAKE(ORBIT_SLOC_OFFSET(start) + length);
     return range;
 }
 
 OrbitSRange orbit_srangeUnion(OrbitSRange a, OrbitSRange b) {
-    return (OrbitSRange){.start=S_MIN(a.start, b.start), .end=S_MAX(a.end, b.end)};
+    assert(ORBIT_SRANGE_ISVALID(a) && "both ranges in a union must be valid");
+    assert(ORBIT_SRANGE_ISVALID(b) && "both ranges in a union must be valid");
+    return (OrbitSRange){.start=MIN(a.start, b.start), .end=MAX(a.end, b.end)};
+}
+
+bool orbit_srangeContainsLoc(OrbitSRange range, OrbitSLoc loc) {
+    if(!ORBIT_SRANGE_ISVALID(range)) { return false; }
+    if(!ORBIT_SLOC_ISVALID(loc)) { return false; }
+    return ORBIT_SLOC_OFFSET(loc) >= ORBIT_SRANGE_START(range)
+        && ORBIT_SLOC_OFFSET(loc) < ORBIT_SRANGE_END(range);
 }
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
@@ -84,7 +93,7 @@ static _OrbitLineMap* _orbit_lineMapEnsure(_OrbitLineMap* map, uint32_t size) {
 static uint32_t _orbit_insertLines(const OrbitSource* source, OrbitSLoc loc) {
     // Insert any newline we find up to [loc]
     assert(source && "invalid source passed");
-    assert(loc.offset < source->length && "location is out of range for this source");
+    assert(ORBIT_SLOC_OFFSET(loc) < source->length && "location is out of range for this source");
     
     _OrbitLineMap* map = (_OrbitLineMap*)source->lineMap;
     
@@ -93,18 +102,14 @@ static uint32_t _orbit_insertLines(const OrbitSource* source, OrbitSLoc loc) {
     
     bool stopAtNext = false;
     while(offset <= source->length) {
-        if(offset == loc.offset) {
-            stopAtNext = true;
-        }
+        if(offset == ORBIT_SLOC_OFFSET(loc)) { stopAtNext = true; }
         char c = source->bytes[offset++];
         if(c != '\n' || c == '\0') { continue; }
         map = _orbit_lineMapEnsure(map, map->count+1);
         map->data[map->count] = offset;
         map->count += 1;
         
-        if(stopAtNext) {
-            break;
-        }
+        if(stopAtNext) { break; }
         line += 1;
     }
     ((OrbitSource*)source)->lineMap = map;
@@ -114,7 +119,8 @@ static uint32_t _orbit_insertLines(const OrbitSource* source, OrbitSLoc loc) {
 uint32_t _orbit_lineMapSearch(_OrbitLineMap* map, OrbitSLoc loc, bool* found) {
     *found = false;
     for(uint32_t line = 0; line < map->count-1; ++line) {
-        if(loc.offset < map->data[line] || loc.offset >= map->data[line+1]) { continue; }
+        uint32_t offset = ORBIT_SLOC_OFFSET(loc);
+        if(offset < map->data[line] || offset >= map->data[line+1]) { continue; }
         *found = true;
         return line;
     }
@@ -123,22 +129,23 @@ uint32_t _orbit_lineMapSearch(_OrbitLineMap* map, OrbitSLoc loc, bool* found) {
 
 OrbitPhysSLoc orbit_sourcePhysicalLoc(const OrbitSource* source, OrbitSLoc loc) {
     assert(source && "invalid source passed");
-    assert(loc.valid && "invalid source locations have no physical locations");
+    assert(ORBIT_SLOC_ISVALID(loc) && "invalid source locations have no physical locations");
 
     _OrbitLineMap* map = (_OrbitLineMap*)source->lineMap;
     OrbitPhysSLoc ploc;
+    uint32_t offset = ORBIT_SLOC_OFFSET(loc);
     
     // Slow path, we need to insert lines
-    if(loc.offset >= LINEMAP_LAST(map)) {
+    if(offset >= LINEMAP_LAST(map)) {
         ploc.line = _orbit_insertLines(source, loc)+1;
-        ploc.column = 1 + (loc.offset - map->data[ploc.line-1]);
+        ploc.column = 1 + (offset - map->data[ploc.line-1]);
         return ploc;
     }
     
     bool found = false;
     ploc.line = _orbit_lineMapSearch(map, loc, &found)+1;
     assert(found && "source location line not found");
-    ploc.column = 1 + (loc.offset - map->data[ploc.line-1]);
+    ploc.column = 1 + (offset - map->data[ploc.line-1]);
     return ploc;
 }
 

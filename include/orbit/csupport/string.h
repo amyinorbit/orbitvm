@@ -34,10 +34,6 @@ struct _OCStringBuffer {
     char*           data;
 };
 
-// Computes the FNV-1a hash of [string].
-// This is O(n) complexity and should be used lightly.
-uint32_t orbit_hashString(const char* string, size_t length);
-
 void orbit_stringPoolInit(uint64_t capacity);
 void orbit_stringPoolDeinit();
 

@@ -90,8 +90,10 @@ OrbitAST* orbit_astMakeVarDecl(const OrbitToken* symbol, OrbitAST* typeAnnotatio
     OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_VAR);
     ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
     ast->varDecl.symbol = ast_copyToken(symbol);
-    ast->varDecl.name = orbit_stringIntern(symbol->source->bytes+symbol->sourceLoc.offset,
-                                           symbol->length);
+    ast->varDecl.name = orbit_stringIntern(
+        symbol->source->bytes+ORBIT_SLOC_OFFSET(symbol->sourceLoc),
+        symbol->length
+    );
     ast->varDecl.typeAnnotation = ORCRETAIN(typeAnnotation);
     return ast;
 }
@@ -101,8 +103,10 @@ OrbitAST* orbit_astMakeFuncDecl(const OrbitToken* symbol, OrbitAST* returnType, 
     // TODO: replace with union from name to return type?
     ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
     ast->funcDecl.symbol = ast_copyToken(symbol);
-    ast->funcDecl.name = orbit_stringIntern(symbol->source->bytes+symbol->sourceLoc.offset,
-                                            symbol->length);
+    ast->funcDecl.name = orbit_stringIntern(
+        symbol->source->bytes + ORBIT_SLOC_OFFSET(symbol->sourceLoc),
+        symbol->length
+    );
     ast->funcDecl.mangledName = orbit_invalidStringID;
     ast->funcDecl.returnType = ORCRETAIN(returnType);
     ast->funcDecl.params = ORCRETAIN(params);
@@ -115,8 +119,10 @@ OrbitAST* orbit_astMakeStructDecl(const OrbitToken* symbol, OrbitAST* constructo
     
     ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
     ast->structDecl.symbol = ast_copyToken(symbol);
-    ast->structDecl.name = orbit_stringIntern(symbol->source->bytes+symbol->sourceLoc.offset,
-                                              symbol->length);
+    ast->structDecl.name = orbit_stringIntern(
+        symbol->source->bytes + ORBIT_SLOC_OFFSET(symbol->sourceLoc),
+        symbol->length
+    );
     ast->structDecl.constructor = ORCRETAIN(constructor);
     ast->structDecl.destructor = ORCRETAIN(destructor);
     ast->structDecl.fields = ORCRETAIN(fields);
@@ -168,7 +174,7 @@ OrbitAST* orbit_astMakeNameExpr(const OrbitToken* symbol) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_NAME);
     ast->nameExpr.symbol = ast_copyToken(symbol);
     ast->nameExpr.name = orbit_stringIntern(
-        symbol->source->bytes + symbol->sourceLoc.offset,
+        symbol->source->bytes + ORBIT_SLOC_OFFSET(symbol->sourceLoc),
         symbol->length
     );
     ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
@@ -190,7 +196,7 @@ OrbitAST* orbit_astMakeUserTypePooled(OCStringID symbol) {
 
 OrbitAST* orbit_astMakeUserType(const OrbitToken* symbol) {
     OCStringID id = orbit_stringIntern(
-        symbol->source->bytes+symbol->sourceLoc.offset,
+        symbol->source->bytes + ORBIT_SLOC_OFFSET(symbol->sourceLoc),
         symbol->length
     );
     OrbitAST* ast = orbit_astMakeUserTypePooled(id);

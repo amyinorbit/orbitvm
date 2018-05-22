@@ -442,7 +442,7 @@ void orbit_dumpTokens(OrbitSource* source) {
     lexer_nextToken(&lex);
     while(lex.currentToken.kind != ORBIT_TOK_EOF) {
         OrbitToken tok = lex.currentToken;
-        const char* bytes = source->bytes + tok.sourceLoc.offset;
+        const char* bytes = source->bytes + ORBIT_SLOC_OFFSET(tok.sourceLoc);
         printf("%20s\t'%.*s'", orbit_tokenName(tok.kind),
                                (int)tok.length,
                                bytes);

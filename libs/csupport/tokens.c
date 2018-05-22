@@ -7,13 +7,14 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <orbit/csupport/tokens.h>
 #include <orbit/utils/utf8.h>
 
 void source_printTokenLine(FILE* out, const OrbitToken token) {
-    const char* line = token.source->bytes + token.sourceLoc.offset;
+    const char* line = token.source->bytes + ORBIT_SLOC_OFFSET(token.sourceLoc);
     
     // Backtrack until the beginning of the line...
     while(*line != '\n'&& line != token.source->bytes) {
@@ -115,13 +116,18 @@ static const OrbitTokenData _tokenData[] = {
 
 bool orbit_tokenEquals(OrbitToken* a, OrbitToken* b) {
     // TODO: null instance check
+    assert(a && "Invalid token given");
+    assert(b && "Invalid token given");
+    assert(ORBIT_SLOC_ISVALID(a->sourceLoc) && "Invalid token source location");
+    assert(ORBIT_SLOC_ISVALID(b->sourceLoc) && "Invalid token source location");
+    
     if(a == b) { return true; }
-    const char* strA = a->source->bytes + a->sourceLoc.offset;
-    const char* strB = b->source->bytes + b->sourceLoc.offset;
+    const char* strA = a->source->bytes + ORBIT_SLOC_OFFSET(a->sourceLoc);
+    const char* strB = b->source->bytes + ORBIT_SLOC_OFFSET(b->sourceLoc);
     return a->source == b->source
         && a->kind == b->kind
         && a->length == b->length
-        && ((a->sourceLoc.offset == b->sourceLoc.offset)
+        && ((ORBIT_SLOC_EQUAL(a->sourceLoc, b->sourceLoc))
             || (strncmp(strA, strB, a->length) == 0));
 }
 
