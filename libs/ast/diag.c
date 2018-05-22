@@ -8,10 +8,12 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <assert.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <orbit/ast/diag.h>
 #include <orbit/csupport/console.h>
+#include <orbit/csupport/source.h>
 #include <orbit/utils/memory.h>
 
 #include "diag_private.h"
@@ -19,42 +21,43 @@
 OrbitDiagManager orbit_defaultDiagManager;
 
 void _orbit_defaultDiagConsumer(OrbitSource* source, OrbitDiag* diagnostic) {
+    assert(ORBIT_SLOC_VALID(diagnostic->sourceLoc) && "diagnostics should have a source location");
+    OrbitPhysSLoc ploc = orbit_sourcePhysicalLoc(source, diagnostic->sourceLoc);
     
     // print basic stuff first:
     console_setColor(stderr, CLI_BOLD);
-    fputs("----- ", stderr);
     switch(diagnostic->level) {
         case ORBIT_DIAGLEVEL_INFO:
-            fputs("info", stderr);
+            fputs("Info", stderr);
             break;
         case ORBIT_DIAGLEVEL_WARN:
             console_setColor(stderr, CLI_YELLOW);
-            fputs("warning", stderr);
+            fputs("Warning", stderr);
             break;
         case ORBIT_DIAGLEVEL_ERROR:
             console_setColor(stderr, CLI_RED);
-            fputs("error", stderr); 
+            fputs("Error", stderr); 
             break;
     }
     console_setColor(stderr, CLI_RESET);
     console_setColor(stderr, CLI_BOLD);
-    fprintf(stderr, " in %s -----\n", source->path);
-    
+    fprintf(stderr, " in %s @ %"PRIu32":%"PRIu32":\n\n", source->path, ploc.line, ploc.column);
     console_setColor(stderr, CLI_RESET);
-    if(ORBIT_SLOC_VALID(diagnostic->sourceLoc)) {
-        console_printSourceLocLine(stderr, source, diagnostic->sourceLoc);
+    
+    console_printSourceLocLine(stderr, source, diagnostic->sourceLoc);
 
-        if(ORBIT_SRANGE_VALID(diagnostic->sourceRange)) {
-            console_printUnderlines(stderr, source, diagnostic->sourceLoc, diagnostic->sourceRange);
-        } else {
-            console_printCaret(stderr, source, diagnostic->sourceLoc);
-        }
-            
+    if(ORBIT_SRANGE_VALID(diagnostic->sourceRange)) {
+        console_printUnderlines(stderr, source, diagnostic->sourceLoc, diagnostic->sourceRange);
+    } else {
+        console_printCaret(stderr, source, diagnostic->sourceLoc);
     }
     
+    console_setColor(stderr, CLI_MAGENTA);
     char* printed = orbit_diagGetFormat(diagnostic);
-    fprintf(stderr, "%s\n\n", printed);
+    fprintf(stderr, "%s\n", printed);
+    console_setColor(stderr, CLI_RESET);
     orbit_dealloc(printed);
+    fputc('\n', stderr);
 }
 
 OrbitDiagID orbit_diagEmitError(OrbitSLoc loc, const char* format, int count, ...) {
