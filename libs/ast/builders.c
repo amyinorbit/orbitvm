@@ -171,14 +171,14 @@ OrbitAST* orbit_astMakeNameExpr(const OrbitToken* symbol) {
         symbol->source->bytes + symbol->sourceLoc.offset,
         symbol->length
     );
-    ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->displayLength);
+    ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
     return ast;
 }
 
 OrbitAST* orbit_astMakeConstantExpr(const OrbitToken* symbol, ASTKind kind) {
     OrbitAST* ast = orbit_astMake(kind);
     ast->constantExpr.symbol = ast_copyToken(symbol);
-    ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->displayLength);
+    ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
     return ast;
 }
 

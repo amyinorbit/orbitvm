@@ -81,13 +81,6 @@ static _OrbitLineMap* _orbit_lineMapEnsure(_OrbitLineMap* map, uint32_t size) {
     return ORBIT_REALLOC_FLEX(map, _OrbitLineMap, uint32_t, map->capacity);
 }
 
-static void _orbit_dumpLineMap(_OrbitLineMap* map) {
-    printf("--LINE MAP--\n");
-    for(uint32_t i = 0; i < map->count; ++i) {
-        printf("  %03u -> %u\n", i+1, map->data[i]);
-    }
-}
-
 static uint32_t _orbit_insertLines(const OrbitSource* source, OrbitSLoc loc) {
     // Insert any newline we find up to [loc]
     assert(source && "invalid source passed");
@@ -121,7 +114,7 @@ static uint32_t _orbit_insertLines(const OrbitSource* source, OrbitSLoc loc) {
 uint32_t _orbit_lineMapSearch(_OrbitLineMap* map, OrbitSLoc loc, bool* found) {
     *found = false;
     for(uint32_t line = 0; line < map->count-1; ++line) {
-        if(loc.offset <= map->data[line] || loc.offset > map->data[line+1]) { continue; }
+        if(loc.offset < map->data[line] || loc.offset >= map->data[line+1]) { continue; }
         *found = true;
         return line;
     }
@@ -134,19 +127,18 @@ OrbitPhysSLoc orbit_sourcePhysicalLoc(const OrbitSource* source, OrbitSLoc loc) 
 
     _OrbitLineMap* map = (_OrbitLineMap*)source->lineMap;
     OrbitPhysSLoc ploc;
-    //_orbit_dumpLineMap(map);
     
     // Slow path, we need to insert lines
-    if(loc.offset > LINEMAP_LAST(map)) {
+    if(loc.offset >= LINEMAP_LAST(map)) {
         ploc.line = _orbit_insertLines(source, loc)+1;
-        ploc.column = loc.offset - map->data[ploc.line-1];
+        ploc.column = 1 + (loc.offset - map->data[ploc.line-1]);
         return ploc;
     }
     
     bool found = false;
     ploc.line = _orbit_lineMapSearch(map, loc, &found)+1;
     assert(found && "source location line not found");
-    ploc.column = loc.offset - map->data[ploc.line-1];
+    ploc.column = 1 + (loc.offset - map->data[ploc.line-1]);
     return ploc;
 }
 

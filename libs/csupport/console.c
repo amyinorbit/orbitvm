@@ -82,7 +82,7 @@ void console_printCaret(FILE* out, const OrbitSource* source, OrbitSLoc loc) {
     
     OrbitPhysSLoc ploc = orbit_sourcePhysicalLoc(source, loc);
     uint8_t offset = 2 + floor (log10 (ploc.line));
-    for(uint64_t i = 0; i < ploc.column + offset; ++i) {
+    for(uint64_t i = 1; i < ploc.column + offset; ++i) {
         fputc(' ', out);
     }
     console_setColor(out, CLI_GREEN);
@@ -99,7 +99,7 @@ void console_printUnderlines(FILE* out, const OrbitSource* source, OrbitSLoc loc
     uint32_t caret = start.column + (loc.offset - range.start.offset);
     
     uint8_t offset = 2 + floor (log10 (start.line));
-    for(uint64_t i = 0; i < start.column + offset; ++i) {
+    for(uint64_t i = 1; i < start.column + offset; ++i) {
         fputc(' ', out);
     }
     console_setColor(out, CLI_GREEN);

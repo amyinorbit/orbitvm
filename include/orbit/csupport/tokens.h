@@ -111,13 +111,10 @@ typedef enum  {
 struct _OrbitToken {
     OrbitTokenKind  kind;
     const OrbitSource* source;
-    OrbitSLoc     sourceLoc;
-    
-    uint32_t        length;
-    uint32_t        displayLength;
-    bool            isStartOfLine;
-    
+    OrbitSLoc       sourceLoc;
     OCStringID      parsedStringLiteral;
+    uint32_t        length:31;
+    uint32_t        isStartOfLine:1;
 };
 
 const char* orbit_tokenName(OrbitTokenKind token);
