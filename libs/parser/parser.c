@@ -12,8 +12,8 @@
 #include <orbit/ast/diag.h>
 #include <orbit/csupport/console.h>
 #include <orbit/parser/parser.h>
-#include <orbit/parser/lexer.h>
 
+//#include "lexer.h"
 #include "recursive_descent.h"
 #include "recognizers.h"
 
@@ -92,7 +92,7 @@ static OrbitAST* recVarDecl(OCParser* parser) {
     
     OrbitAST* decl = orbit_astMakeVarDecl(&symbol, typeAnnotation);
     
-    OrbitToken operator = parser->lexer.currentToken;
+    OrbitToken operator = parser->currentToken;
     if(match(parser, ORBIT_TOK_EQUALS)) {
         OrbitAST* rhs = recExpression(parser, 0);
         return orbit_astMakeBinaryExpr(&operator, decl, rhs);
@@ -153,7 +153,7 @@ static OrbitAST* recStatement(OCParser* parser) {
     else if(have(parser, ORBIT_TOK_LBRACE))
         return recBlock(parser);
     else
-        orbit_diagEmitError(current(parser).sourceLoc, "expected a statement", 0);
+        simpleParseError(parser, "expected a statement");
     return NULL;
 }
 
@@ -165,7 +165,7 @@ static OrbitAST* recConditional(OCParser* parser) {
     else if(have(parser, ORBIT_TOK_FOR))
         return recForLoop(parser);
     else
-        orbit_diagEmitError(current(parser).sourceLoc, "expected an if statement or a loop", 0);
+        simpleParseError(parser, "expected an if statement or a loop");
     return NULL;
 }
 
@@ -181,7 +181,7 @@ static OrbitAST* recIfStatement(OCParser* parser) {
         else if(have(parser, ORBIT_TOK_IF))
             elseBody = recIfStatement(parser);
         else
-            orbit_diagEmitError(current(parser).sourceLoc, "expected block or if statement", 0);
+            simpleParseError(parser, "expected an else statement");
     }
     return orbit_astMakeConditional(condition, ifBody, elseBody);
 }
@@ -192,7 +192,8 @@ static OrbitAST* recFlowStatement(OCParser* parser) {
     else if(match(parser, ORBIT_TOK_CONTINUE))
         return orbit_astMakeContinue();
     else
-        orbit_diagEmitError(current(parser).sourceLoc, "expected break or continue", 0);
+        simpleParseError(parser, "expected 'break' or 'continue'");
+        // TODO: replace with UNREACHEABLE
     return NULL;
         
 }
@@ -240,7 +241,7 @@ static OrbitAST* recExpression(OCParser* parser, int minPrec) {
         bool right = rightAssoc(parser);
         
         int nextMinPrec = right ? prec : prec + 1;
-        lexer_nextToken(&parser->lexer);
+        orbit_parserNextToken(parser);
         
         OrbitAST* rhs = NULL;
         
@@ -277,7 +278,7 @@ static OrbitAST* recTerm(OCParser* parser) {
     if(haveUnaryOp(parser)) {
         operator = current(parser);
         unary = true;
-        lexer_nextToken(&parser->lexer);
+        orbit_parserNextToken(parser);
     }
     
     OrbitToken symbol = current(parser);
@@ -295,7 +296,7 @@ static OrbitAST* recTerm(OCParser* parser) {
     else if(match(parser, ORBIT_TOK_FLOAT_LITERAL))
         term = orbit_astMakeConstantExpr(&symbol, ORBIT_AST_EXPR_CONSTANT_FLOAT);
     else
-        orbit_diagEmitError(current(parser).sourceLoc, "expected an expression term", 0);
+        simpleParseError(parser, "expected an expression term");
     
     return unary ? orbit_astMakeUnaryExpr(&operator, term) : term;
 }
@@ -364,7 +365,7 @@ static OrbitAST* recTypename(OCParser* parser) {
         return orbit_astMakeUserType(&symbol);
     }
     else
-        orbit_diagEmitError(current(parser).sourceLoc, "missing type name", 0);
+        simpleParseError(parser, "missing type name");
     return NULL;
 }
 
@@ -409,10 +410,8 @@ static OrbitAST* recPrimitive(OCParser* parser) {
         expect(parser, ORBIT_TOK_ANY);
         return orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_ANY);
     }
-    
-    orbit_diagEmitError(current(parser).sourceLoc, "expected a primitive type", 0);
+    simpleParseError(parser, "expected a primitive type");
     return NULL;
-    //return orbit_astMakeTypeExpr(&symbol);
 }
 
 static OrbitAST* recArrayType(OCParser* parser) {
@@ -435,14 +434,14 @@ static OrbitAST* recMapType(OCParser* parser) {
     return orbit_astMakeMapType(keyType, elementType);
 }
 
-void orbit_dumpTokens(OrbitSource* source) {
-    OCLexer lex;
-    lexer_init(&lex, source);
+void orbit_dumpTokens(OrbitASTContext* context) {
+    OCParser parser;
+    orbit_parserInit(&parser, context);
     
-    lexer_nextToken(&lex);
-    while(lex.currentToken.kind != ORBIT_TOK_EOF) {
-        OrbitToken tok = lex.currentToken;
-        const char* bytes = source->bytes + ORBIT_SLOC_OFFSET(tok.sourceLoc);
+    orbit_parserNextToken(&parser);
+    while(parser.currentToken.kind != ORBIT_TOK_EOF) {
+        OrbitToken tok = parser.currentToken;
+        const char* bytes = context->source.bytes + ORBIT_SLOC_OFFSET(tok.sourceLoc);
         printf("%20s\t'%.*s'", orbit_tokenName(tok.kind),
                                (int)tok.length,
                                bytes);
@@ -450,18 +449,18 @@ void orbit_dumpTokens(OrbitSource* source) {
             printf(" [line start]");
         }
         putchar('\n');
-        lexer_nextToken(&lex);
+        orbit_parserNextToken(&parser);
     }
 }
 
-OrbitAST* orbit_parse(OrbitSource* source) {
+bool orbit_parse(OrbitASTContext* context) {
     
     OCParser parser;
-    parser.recovering = false;
-    lexer_init(&parser.lexer, source);
+    orbit_parserInit(&parser, context);
     
-    lexer_nextToken(&parser.lexer);
-    OrbitAST* ast = recProgram(&parser);
-    lexer_deinit(&parser.lexer);
-    return ast;
+    orbit_parserNextToken(&parser);
+    context->root = ORCRETAIN(recProgram(&parser));
+    
+    orbit_parserDeinit(&parser);
+    return context->root != NULL;
 }

@@ -12,10 +12,20 @@
 #include <stdarg.h>
 #include <inttypes.h>
 #include <orbit/ast/diag.h>
-#include <orbit/parser/lexer.h>
+
+#include "parser_private.h"
 #include "recursive_descent.h"
 
 // MARK: - RD Basics
+
+void simpleParseError(OCParser* parser, const char* message) {
+    OrbitToken token = current(parser);
+    OrbitDiagID id = orbit_diagError(
+        &parser->context->diagnostics, current(parser).sourceLoc,
+        message, 0
+    );
+    orbit_diagAddSourceRange(id, orbit_srangeFromLength(token.sourceLoc, token.length));
+}
 
 bool have(OCParser* parser, OrbitTokenKind kind) {
     return current(parser).kind == kind;
@@ -23,7 +33,7 @@ bool have(OCParser* parser, OrbitTokenKind kind) {
 
 bool match(OCParser* parser, OrbitTokenKind kind) {
     if(have(parser, kind)) {
-        lexer_nextToken(&parser->lexer);
+        orbit_parserNextToken(parser);
         return true;
     }
     return false;
@@ -77,7 +87,7 @@ bool haveType(OCParser* parser) {
 //
 
 bool implicitTerminator(OCParser* parser) {
-    return parser->lexer.currentToken.isStartOfLine
+    return parser->currentToken.isStartOfLine
         || have(parser, ORBIT_TOK_EOF)
         || have(parser, ORBIT_TOK_RBRACE);
 }
@@ -85,7 +95,7 @@ bool implicitTerminator(OCParser* parser) {
 bool expectTerminator(OCParser* parser) {
     if(parser->recovering) {
         while(!have(parser, ORBIT_TOK_SEMICOLON) && !have(parser, ORBIT_TOK_EOF) && !implicitTerminator(parser)) {
-            lexer_nextToken(&parser->lexer);
+            orbit_parserNextToken(parser);
         }
         if(have(parser, ORBIT_TOK_EOF)) {
             return false;
@@ -96,8 +106,8 @@ bool expectTerminator(OCParser* parser) {
         if(match(parser, ORBIT_TOK_SEMICOLON) || implicitTerminator(parser)) {
             return true;
         }
-        orbit_diagEmitError(
-            current(parser).sourceLoc,
+        orbit_diagError(
+            diag(parser), current(parser).sourceLoc,
             "consecutive statements on a line must be separated by ';'", 0
         );
         return true;
@@ -107,22 +117,23 @@ bool expectTerminator(OCParser* parser) {
 bool expect(OCParser* parser, OrbitTokenKind kind) {
     if(parser->recovering) {
         while(!have(parser, kind) && !have(parser, ORBIT_TOK_EOF)) {
-            lexer_nextToken(&parser->lexer);
+            orbit_parserNextToken(parser);
         }
-        if(have(parser, ORBIT_TOK_EOF)) {
-            return false;
-        }
+        if(have(parser, ORBIT_TOK_EOF)) { return false; }
+        
         parser->recovering = false;
         return match(parser, kind);
     } else {
         if(match(parser, kind)) { return true; }
         OrbitToken token = current(parser);
-        OrbitDiagID id = orbit_diagEmitError(
-            current(parser).sourceLoc, "$0 found while $1 was expected", 2,
+        OrbitDiagID id = orbit_diagError(
+            diag(parser), current(parser).sourceLoc,
+            "$0 found while $1 was expected", 2,
             ORBIT_DIAG_CSTRING(orbit_tokenString(current(parser).kind)),
             ORBIT_DIAG_CSTRING(orbit_tokenString(kind))
         );
         orbit_diagAddSourceRange(id, orbit_srangeFromLength(token.sourceLoc, token.length));
+        
         parser->recovering = true;
         return false;
     }

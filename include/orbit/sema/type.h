@@ -13,6 +13,6 @@
 #include <orbit/utils/platforms.h>
 #include <orbit/ast/ast.h>
 
-void sema_runTypeAnalysis(OrbitAST* ast);
+void sema_runTypeAnalysis(OrbitASTContext* context);
 
 #endif /* orbit_sema_type_h */

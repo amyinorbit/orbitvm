@@ -10,6 +10,7 @@
 #ifndef orbit_parser_recognizers_h
 #define orbit_parser_recognizers_h
 #include <orbit/ast/ast.h>
+#include <orbit/ast/context.h>
 #include "recursive_descent.h"
 
 static OrbitAST* recBlock(OCParser*);

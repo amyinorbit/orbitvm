@@ -46,7 +46,7 @@ struct _OrbitDiagArg {
 };
 
 struct _OrbitDiagManager {
-    OrbitSource*           source;
+    OrbitSource*        source;
     OrbitDiagConsumer   consumer;
     uint32_t            errorCount;
     uint32_t            diagnosticCount;
@@ -64,7 +64,7 @@ extern OrbitDiagManager orbit_defaultDiagManager;
 void orbit_diagManagerInit(OrbitDiagManager* manager, OrbitSource* source);
 void orbit_diagManagerDeinit(OrbitDiagManager* manager);
 
-OrbitDiagID orbit_diagEmitError(OrbitSLoc loc, const char* format, int count, ...);
+OrbitDiagID orbit_diagError(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...);
 OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format);
 void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param);
 void orbit_diagAddSourceLoc(OrbitDiagID id, OrbitSLoc loc);

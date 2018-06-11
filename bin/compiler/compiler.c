@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <orbit/ast/ast.h>
+#include <orbit/ast/context.h>
 #include <orbit/ast/diag.h>
 #include <orbit/csupport/source.h>
 #include <orbit/csupport/string.h>
@@ -30,32 +31,30 @@ int main(int argc, const char** args) {
     
     orbit_stringPoolInit(1024);
     
-    OrbitSource source;
-    if(!orbit_sourceInitPath(&source, args[1])) {
+    OrbitASTContext cont;
+    orbit_astContextInit(&cont);
+    
+    if(!orbit_sourceInitPath(&cont.source, args[1])) {
         fprintf(stderr, "error: cannot open `%s`\n", args[1]);
         return -1;
     }
     
-    orbit_diagManagerInit(&orbit_defaultDiagManager, &source);
-    
     if(argc == 3 && strcmp(args[2], "-dump-tokens") == 0) {
-        orbit_dumpTokens(&source);
-        orbit_sourceDeinit(&source);
-        return 0;
+        orbit_dumpTokens(&cont);
+    } else {
+        orbit_parse(&cont);
+        
+        //OrbitAST* ast = ORCRETAIN(orbit_parse(&source));
+        sema_runTypeAnalysis(&cont);
+        orbit_diagEmitAll(&cont.diagnostics);
+        result = cont.diagnostics.errorCount == 0 ? 0 : -1;
+        
+        if(argc == 3 && strcmp(args[2], "-dump-ast") == 0) {
+            orbit_astPrint(stdout, cont.root);
+        }
     }
     
-    OrbitAST* ast = ORCRETAIN(orbit_parse(&source));
-    sema_runTypeAnalysis(ast);
-    orbit_diagEmitAll(&orbit_defaultDiagManager);
-    result = orbit_defaultDiagManager.errorCount == 0 ? 0 : -1;
-    
-    if(argc == 3 && strcmp(args[2], "-dump-ast") == 0) {
-        orbit_astPrint(stdout, ast);
-    }
-    
-    ORCRELEASE(ast);
-    orbit_diagManagerDeinit(&orbit_defaultDiagManager);
-    orbit_sourceDeinit(&source);
+    orbit_astContextDeinit(&cont);
     orbit_stringPoolDeinit();
     return result;
 }

@@ -13,9 +13,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <orbit/ast/ast.h>
+#include <orbit/ast/context.h>
 #include <orbit/csupport/source.h>
 
-void orbit_dumpTokens(OrbitSource* source);
-OrbitAST* orbit_parse(OrbitSource* source);
+void orbit_dumpTokens(OrbitASTContext* context);
+bool orbit_parse(OrbitASTContext* context);
 
 #endif /* orbit_parser_h */

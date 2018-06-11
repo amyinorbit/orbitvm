@@ -1,5 +1,5 @@
 //===--------------------------------------------------------------------------------------------===
-// orbit/parser/lexer.h
+// orbit/parser/parser_private.h
 // This source is part of Orbit - Parser
 //
 // Created on 2017-03-01 by Amy Parent <amy@amyparent.com>
@@ -7,37 +7,28 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#ifndef orbit_lexer_h
-#define orbit_lexer_h
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
+#ifndef orbit_parser_parser_private_h
+#define orbit_parser_parser_private_h
+#include <orbit/ast/context.h>
 #include <orbit/csupport/source.h>
 #include <orbit/csupport/string.h>
 #include <orbit/csupport/tokens.h>
 #include <orbit/utils/utf8.h>
 
 typedef struct _OCLexer OCLexer;
-
+typedef struct _OCParser OCParser;
 
 /// A basic lexer
 struct _OCLexer {
-    /// The entire program's source - this allows nicer errors than fget()-ing
-    /// every time we need the next character.
-    OrbitSource*       source;
     
     /// Since we must handle UTF-8 source files (not every cahracter is a single
     /// byte), we can't just keep a pointer to the current character. We also
     /// have to store its unicode codepoint.
     /// We also keep a pointer to the start of the current line, to make error
     /// printing easier.
-    // const char*     linePtr;
     const char*     currentPtr;
     codepoint_t     currentChar;
-    
     bool            startOfLine;
-    // uint64_t        line;
-    // uint64_t        column;
     
     /// Buffer used when lexing string literals
     OCStringBuffer  buffer;
@@ -46,13 +37,34 @@ struct _OCLexer {
     const char*     tokenStart;
     
     /// The curent token
-    OrbitToken         currentToken;
+    OrbitToken      currentToken;
 };
 
-void lexer_init(OCLexer* lexer, OrbitSource* source);
-void lexer_deinit(OCLexer* lexer);
+struct _OCParser {
+    //OCLexer             lexer;
+    OrbitASTContext*    context;
+    bool                recovering;
+    
+    const char*         currentPtr;
+    codepoint_t         currentChar;
+    const char*         tokenStart;
+    bool                isStartOfLine;
+    
+    OrbitToken          currentToken;
+    OCStringBuffer      literalBuffer;
+    
+};
 
-/// Fetches the next token from the source.
-void lexer_nextToken(OCLexer* lexer);
+void orbit_parserInit(OCParser* parser, OrbitASTContext* context);
+void orbit_parserDeinit(OCParser* parser);
+void orbit_parserNextToken(OCParser* parser);
 
-#endif /* orbit_lexer_h_ */
+static inline OrbitDiagManager* diag(OCParser* parser) {
+    return &parser->context->diagnostics;
+}
+
+static inline OrbitSource* source(OCParser* parser) {
+    return &parser->context->source;
+}
+
+#endif /* orbit_parser_parser_private_h */

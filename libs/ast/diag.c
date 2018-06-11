@@ -60,17 +60,13 @@ void _orbit_defaultDiagConsumer(OrbitSource* source, OrbitDiag* diagnostic) {
     fputc('\n', stderr);
 }
 
-OrbitDiagID orbit_diagEmitError(OrbitSLoc loc, const char* format, int count, ...) {
-    OrbitDiagID id = orbit_diagNew(
-        &orbit_defaultDiagManager,
-        ORBIT_DIAGLEVEL_ERROR,
-        format
-    );
+OrbitDiagID orbit_diagError(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...) {
+    OrbitDiagID id = orbit_diagNew(manager, ORBIT_DIAGLEVEL_ERROR, fmt);
     orbit_diagAddSourceLoc(id, loc);
     
     va_list args;
-    va_start(args, count);
-    for(int i = 0; i < count; ++i) {
+    va_start(args, n);
+    for(int i = 0; i < n; ++i) {
         orbit_diagAddParam(id, va_arg(args, OrbitDiagArg));
     }
     va_end(args);

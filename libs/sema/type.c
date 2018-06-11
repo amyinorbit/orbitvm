@@ -9,9 +9,10 @@
 //===--------------------------------------------------------------------------------------------===
 #include <stdio.h>
 #include <orbit/ast/ast.h>
+#include <orbit/ast/context.h>
+#include <orbit/ast/diag.h>
 #include <orbit/ast/builders.h>
 #include <orbit/ast/traversal.h>
-#include <orbit/ast/diag.h>
 #include <orbit/csupport/tokens.h>
 #include <orbit/mangling/mangle.h>
 #include <orbit/sema/type.h>
@@ -104,18 +105,17 @@ bool sema_typeEquals(OrbitAST* a, OrbitAST* b) {
 
 void sema_extractTypeAnnotations(OrbitAST* decl, void* data) {
     if(!decl->varDecl.typeAnnotation) { return; }
+    OCSema* sema = (OCSema*)data;
+    
     if(decl->varDecl.typeAnnotation->kind == ORBIT_AST_TYPEEXPR_USER) {
         // If we have a user type we need to make sure it's been declared first
         OCStringID symbol = decl->varDecl.typeAnnotation->typeExpr.userType.symbol;
         
-        OrbitAST* typeDecl = sema_lookupType(
-            (OCSema*)data,
-            symbol
-        );
-        
+        OrbitAST* typeDecl = sema_lookupType(sema, symbol);
         if(!typeDecl) {
             OrbitSLoc loc = decl->varDecl.typeAnnotation->sourceRange.start;
-            OrbitDiagID id = orbit_diagEmitError(
+            OrbitDiagID id = orbit_diagError(
+                &sema->context->diagnostics,
                 loc, "unkown type '$0'", 1,
                 ORBIT_DIAG_STRING(symbol)
             );
@@ -132,7 +132,11 @@ void sema_installUserTypes(OrbitAST* typeDecl, void* data) {
     
     if(orbit_rcMapGetP(&sema->typeTable, name)) {
         OrbitSLoc loc = typeDecl->structDecl.symbol.sourceLoc;
-        orbit_diagEmitError(loc, "type '$0' was declared before", 1, ORBIT_DIAG_STRING(name));
+        orbit_diagError(
+            &sema->context->diagnostics, loc,
+            "type '$0' was declared before", 1,
+            ORBIT_DIAG_STRING(name)
+        );
         //orbit_diagAddSourceRange(id, ...)
     } else {
         sema_declareType(sema, name, typeDecl);
@@ -193,20 +197,21 @@ void sema_doScopeAnalysis(OrbitAST* func, void* data) {
     sema_checkBlock(func->funcDecl.body, (OCSema*)data);
 }
 
-void sema_runTypeAnalysis(OrbitAST* ast) {
+void sema_runTypeAnalysis(OrbitASTContext* context) {
     // Initialise a Sema object
     OCSema sema;
-    sema_init(&sema);
+    sema_init(&sema, context);
     
-    orbit_astTraverse(ast, ORBIT_AST_DECL_STRUCT, &sema, &sema_installUserTypes);
-    orbit_astTraverse(ast, ORBIT_AST_EXPR_CONSTANT_INTEGER
+    orbit_astTraverse(context->root, ORBIT_AST_DECL_STRUCT, &sema, &sema_installUserTypes);
+    orbit_astTraverse(context->root,
+                      ORBIT_AST_EXPR_CONSTANT_INTEGER
                     | ORBIT_AST_EXPR_CONSTANT_FLOAT
                     | ORBIT_AST_EXPR_CONSTANT_STRING, &sema, &sema_extractLiteralTypes);
     // Type all the declarations we can type easily
-    orbit_astTraverse(ast, ORBIT_AST_DECL_VAR, &sema, &sema_extractTypeAnnotations);
-    orbit_astTraverse(ast, ORBIT_AST_DECL_FUNC, &sema, &sema_extractFuncTypes);
+    orbit_astTraverse(context->root, ORBIT_AST_DECL_VAR, &sema, &sema_extractTypeAnnotations);
+    orbit_astTraverse(context->root, ORBIT_AST_DECL_FUNC, &sema, &sema_extractFuncTypes);
     
-    orbit_astTraverse(ast, ORBIT_AST_DECL_FUNC, &sema, &sema_doScopeAnalysis);
+    orbit_astTraverse(context->root, ORBIT_AST_DECL_FUNC, &sema, &sema_doScopeAnalysis);
     
     
     sema_deinit(&sema);

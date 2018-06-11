@@ -11,6 +11,7 @@
 #define orbit_sema_typeprivate_h
 
 #include <orbit/ast/ast.h>
+#include <orbit/ast/context.h>
 #include <orbit/utils/memory.h>
 #include <orbit/csupport/string.h>
 #include <orbit/csupport/rcarray.h>
@@ -28,12 +29,13 @@ struct _OCScope {
 
 struct _OCSema {
     //ORCArray    uniqueTypes;
-    ORCMap      typeTable; // Stores user-defined types (and type aliases in the future)
-    uint16_t    stackSize;
-    OCScope     stack[ORBIT_SEMA_SCOPESTACK_SIZE];
+    OrbitASTContext*    context;
+    ORCMap              typeTable; // Stores user-defined types (and type aliases in the future)
+    uint16_t            stackSize;
+    OCScope             stack[ORBIT_SEMA_SCOPESTACK_SIZE];
 };
 
-void sema_init(OCSema* sema);
+void sema_init(OCSema* sema, OrbitASTContext* context);
 void sema_deinit(OCSema* sema);
 
 OCScope* sema_pushScope(OCSema* sema);
