@@ -120,7 +120,7 @@ struct _OrbitToken {
 const char* orbit_tokenName(OrbitTokenKind token);
 const char* orbit_tokenString(OrbitTokenKind token);
 
-bool orbit_tokenEquals(OrbitToken* a, OrbitToken* b);
+//bool orbit_tokenEquals(OrbitToken* a, OrbitToken* b);
 
 bool orbit_tokenIsBinaryOp(OrbitTokenKind token);
 bool orbit_tokenIsUnaryOp(OrbitTokenKind token);

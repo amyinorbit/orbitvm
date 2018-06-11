@@ -13,29 +13,6 @@
 #include <orbit/csupport/tokens.h>
 #include <orbit/utils/utf8.h>
 
-void source_printTokenLine(FILE* out, const OrbitToken token) {
-    const char* line = token.source->bytes + ORBIT_SLOC_OFFSET(token.sourceLoc);
-    
-    // Backtrack until the beginning of the line...
-    while(*line != '\n'&& line != token.source->bytes) {
-        line -= 1;
-    }
-    
-    char utf[6];
-    
-    // ...then print the line itself.
-    while(line < token.source->bytes + token.source->length) {
-        uint64_t remaining = (token.source->bytes + token.source->length) - line;
-        codepoint_t c = utf8_getCodepoint(line, remaining);
-        if(c == '\0' || c == '\n') { break; }
-        int size = utf8_writeCodepoint(c, utf, 6);
-        line += size;
-        utf[size] = '\0';
-        fprintf(out, "%.*s", size, utf);
-    }
-    fprintf(out, "\n");
-}
-
 typedef struct {
     const char* name;
     const char* string;
@@ -114,22 +91,17 @@ static const OrbitTokenData _tokenData[] = {
     [ORBIT_TOK_INVALID] = {"invalid", "invalid token", false, false},
 };
 
-bool orbit_tokenEquals(OrbitToken* a, OrbitToken* b) {
-    // TODO: null instance check
-    assert(a && "Invalid token given");
-    assert(b && "Invalid token given");
-    assert(ORBIT_SLOC_ISVALID(a->sourceLoc) && "Invalid token source location");
-    assert(ORBIT_SLOC_ISVALID(b->sourceLoc) && "Invalid token source location");
-    
-    if(a == b) { return true; }
-    const char* strA = a->source->bytes + ORBIT_SLOC_OFFSET(a->sourceLoc);
-    const char* strB = b->source->bytes + ORBIT_SLOC_OFFSET(b->sourceLoc);
-    return a->source == b->source
-        && a->kind == b->kind
-        && a->length == b->length
-        && ((ORBIT_SLOC_EQUAL(a->sourceLoc, b->sourceLoc))
-            || (strncmp(strA, strB, a->length) == 0));
-}
+// bool orbit_tokenEquals(OrbitToken* a, OrbitToken* b) {
+//     assert(a && "Invalid token given");
+//     assert(b && "Invalid token given");
+//     assert(ORBIT_SLOC_ISVALID(a->sourceLoc) && "Invalid token source location");
+//     assert(ORBIT_SLOC_ISVALID(b->sourceLoc) && "Invalid token source location");
+// 
+//     if(a == b) { return true; }
+//     return a->kind == b->kind
+//         && a->length == b->length
+//         && ((ORBIT_SLOC_EQUAL(a->sourceLoc, b->sourceLoc)));
+// }
 
 const char* orbit_tokenName(OrbitTokenKind token) {
     if(token > ORBIT_TOK_INVALID) { token = ORBIT_TOK_INVALID; }
