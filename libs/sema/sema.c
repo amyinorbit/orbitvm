@@ -9,7 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <assert.h>
 #include <orbit/csupport/rcmap.h>
-#include "type_private.h"
+#include "sema_private.h"
 
 void sema_init(OCSema* sema, OrbitASTContext* context) {
     assert(sema != NULL && "Null instance error");

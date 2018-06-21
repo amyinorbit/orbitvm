@@ -15,10 +15,10 @@
 #include <orbit/ast/traversal.h>
 #include <orbit/csupport/tokens.h>
 #include <orbit/mangling/mangle.h>
-#include <orbit/sema/type.h>
+#include <orbit/sema/typecheck.h>
 #include <orbit/utils/memory.h>
 
-#include "type_private.h"
+#include "sema_private.h"
 
 
 /*
