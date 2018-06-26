@@ -15,6 +15,7 @@
 
 static OrbitAST* recBlock(OCParser*);
 static OrbitAST* recTypeDecl(OCParser*);
+static OrbitAST* recTypeInitDecl(OCParser* parser);
 static OrbitAST* recVarDecl(OCParser*);
 static OrbitAST* recFuncDecl(OCParser*);
 static OrbitAST* recParameters(OCParser*);

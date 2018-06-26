@@ -66,16 +66,31 @@ static OrbitAST* recTypeDecl(OCParser* parser) {
     OrbitToken symbol = current(parser);
     expect(parser, ORBIT_TOK_IDENTIFIER);
     
+    OrbitAST* init = NULL;
     ASTListBuilder fields;
     orbit_astListStart(&fields);
     
     expect(parser, ORBIT_TOK_LBRACE);
     do {
-        orbit_astListAdd(&fields, recVarDecl(parser));
+        if(have(parser, ORBIT_TOK_VAR)) {
+            orbit_astListAdd(&fields, recVarDecl(parser));
+        }
+        else if(have(parser, ORBIT_TOK_INIT)) {
+            // TODO: throw error if init is not null?
+            init = recTypeInitDecl(parser);
+        }
         expectTerminator(parser);
-    } while(have(parser, ORBIT_TOK_VAR));
+    } while(have(parser, ORBIT_TOK_VAR) || have(parser, ORBIT_TOK_INIT));
     expect(parser, ORBIT_TOK_RBRACE);
-    return orbit_astMakeStructDecl(&symbol, NULL, NULL, orbit_astListClose(&fields));
+    return orbit_astMakeStructDecl(&symbol, init, NULL, orbit_astListClose(&fields));
+}
+
+// type-init-decl  ::= 'init' '{' block '}'
+static OrbitAST* recTypeInitDecl(OCParser* parser) {
+    //OrbitToken symbol = current(parser);
+    expect(parser, ORBIT_TOK_INIT);
+    OrbitAST* block = recBlock(parser);
+    return block;
 }
 
 // 'var' identifier ((':', type) | ((':', type)? '=' expression))

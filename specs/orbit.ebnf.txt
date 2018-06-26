@@ -9,7 +9,9 @@ decl            ::= type-decl
 // Type Declarations
 
 type-decl       ::= 'type' identifier type-block
-type-block      ::= '{' (var-decl)+ '}'
+type-block      ::= '{' (type-member-decl)+ '}'
+type-member-decl::= (var-decl | type-init-decl)
+type-init-decl  ::= 'init' '{' block '}'
 
 // Variable Declarations
 
