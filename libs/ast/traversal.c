@@ -7,34 +7,63 @@
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <orbit/ast/traversal.h>
 
-void orbit_astTraverse(OrbitAST* ast, ASTKind filter, void* userData, ASTCallback callback) {
+OrbitASTVisitor orbit_astSimpleVisitor(OrbitASTCallback callback, ASTKind filter, void* data) {
+    return (OrbitASTVisitor){
+        .callback = callback,
+        .predicate = NULL,
+        .filter = filter,
+        .data = data
+    };
+}
+
+OrbitASTVisitor orbit_astVisitor(OrbitASTCallback callback, OrbitASTPredicate pred, void* data) {
+    return (OrbitASTVisitor){
+        .callback = callback,
+        .predicate = pred,
+        .filter = 0,
+        .data = data
+    };
+}
+
+static bool _ast_matchesPredicate(const OrbitASTVisitor* visitor, const OrbitAST* ast) {
+    assert(visitor && "null AST visitor instance given");
+    assert(ast && "null AST node given");
+    
+    if(!visitor->predicate) {
+        return (ast->kind & visitor->filter);
+    }
+    return visitor->predicate(visitor, ast);
+}
+
+static void _ast_doTraverse(OrbitASTContext* ctx, OrbitAST* ast, const OrbitASTVisitor* visitor) {
     
     if(ast == NULL) { return; }
-    if(ast->kind & filter) {
-        callback(ast, userData);
+    if(_ast_matchesPredicate(visitor, ast)) {
+        visitor->callback(ctx, ast, visitor->data);
     }
     
     switch(ast->kind) {
     case ORBIT_AST_CONDITIONAL:
-        orbit_astTraverse(ast->conditionalStmt.condition, filter, userData, callback);
-        orbit_astTraverse(ast->conditionalStmt.ifBody, filter, userData, callback);
-        orbit_astTraverse(ast->conditionalStmt.elseBody, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->conditionalStmt.condition, visitor);
+        _ast_doTraverse(ctx, ast->conditionalStmt.ifBody, visitor);
+        _ast_doTraverse(ctx, ast->conditionalStmt.elseBody, visitor);
         break;
     
     case ORBIT_AST_FOR_IN:
-        orbit_astTraverse(ast->forInLoop.collection, filter, userData, callback);
-        orbit_astTraverse(ast->forInLoop.body, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->forInLoop.collection, visitor);
+        _ast_doTraverse(ctx, ast->forInLoop.body, visitor);
         break;
     
     case ORBIT_AST_WHILE:
-        orbit_astTraverse(ast->whileLoop.condition, filter, userData, callback);
-        orbit_astTraverse(ast->whileLoop.body, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->whileLoop.condition, visitor);
+        _ast_doTraverse(ctx, ast->whileLoop.body, visitor);
         break;
         
     case ORBIT_AST_BLOCK:
-        orbit_astTraverse(ast->block.body, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->block.body, visitor);
         break;
     
     case ORBIT_AST_BREAK:
@@ -42,48 +71,48 @@ void orbit_astTraverse(OrbitAST* ast, ASTKind filter, void* userData, ASTCallbac
         break;
         
     case ORBIT_AST_RETURN:
-        orbit_astTraverse(ast->returnStmt.returnValue, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->returnStmt.returnValue, visitor);
         break;
     
     // DECLARATIONS
     case ORBIT_AST_DECL_MODULE:
-        orbit_astTraverse(ast->moduleDecl.body, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->moduleDecl.body, visitor);
         break;
     
     case ORBIT_AST_DECL_FUNC:
-        orbit_astTraverse(ast->funcDecl.returnType, filter, userData, callback);
-        orbit_astTraverse(ast->funcDecl.params, filter, userData, callback);
-        orbit_astTraverse(ast->funcDecl.body, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->funcDecl.returnType, visitor);
+        _ast_doTraverse(ctx, ast->funcDecl.params, visitor);
+        _ast_doTraverse(ctx, ast->funcDecl.body, visitor);
         break;
     
     case ORBIT_AST_DECL_VAR:
-        orbit_astTraverse(ast->varDecl.typeAnnotation, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->varDecl.typeAnnotation, visitor);
         break;
     
     case ORBIT_AST_DECL_STRUCT:
-        orbit_astTraverse(ast->structDecl.constructor, filter, userData, callback);
-        orbit_astTraverse(ast->structDecl.destructor, filter, userData, callback);
-        orbit_astTraverse(ast->structDecl.fields, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->structDecl.constructor, visitor);
+        _ast_doTraverse(ctx, ast->structDecl.destructor, visitor);
+        _ast_doTraverse(ctx, ast->structDecl.fields, visitor);
         break;
         
     // EXPRESSIONS
     case ORBIT_AST_EXPR_UNARY:
-        orbit_astTraverse(ast->unaryExpr.rhs, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->unaryExpr.rhs, visitor);
         break;
     
     case ORBIT_AST_EXPR_BINARY:
-        orbit_astTraverse(ast->binaryExpr.lhs, filter, userData, callback);
-        orbit_astTraverse(ast->binaryExpr.rhs, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->binaryExpr.lhs, visitor);
+        _ast_doTraverse(ctx, ast->binaryExpr.rhs, visitor);
         break;
     
     case ORBIT_AST_EXPR_CALL:
-        orbit_astTraverse(ast->callExpr.symbol, filter, userData, callback);
-        orbit_astTraverse(ast->callExpr.params, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->callExpr.symbol, visitor);
+        _ast_doTraverse(ctx, ast->callExpr.params, visitor);
         break;
         
     case ORBIT_AST_EXPR_SUBSCRIPT:
-        orbit_astTraverse(ast->subscriptExpr.symbol, filter, userData, callback);
-        orbit_astTraverse(ast->subscriptExpr.subscript, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->subscriptExpr.symbol, visitor);
+        _ast_doTraverse(ctx, ast->subscriptExpr.subscript, visitor);
         break;
     
     case ORBIT_AST_EXPR_CONSTANT_INTEGER:
@@ -100,18 +129,23 @@ void orbit_astTraverse(OrbitAST* ast, ASTKind filter, void* userData, ASTCallbac
         break;
         
     case ORBIT_AST_TYPEEXPR_FUNC:
-        orbit_astTraverse(ast->typeExpr.funcType.returnType, filter, userData, callback);
-        orbit_astTraverse(ast->typeExpr.funcType.params, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->typeExpr.funcType.returnType, visitor);
+        _ast_doTraverse(ctx, ast->typeExpr.funcType.params, visitor);
         break;
         
     case ORBIT_AST_TYPEEXPR_ARRAY:
-        orbit_astTraverse(ast->typeExpr.arrayType.elementType, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->typeExpr.arrayType.elementType, visitor);
         break;
         
     case ORBIT_AST_TYPEEXPR_MAP:
-        orbit_astTraverse(ast->typeExpr.mapType.keyType, filter, userData, callback);
-        orbit_astTraverse(ast->typeExpr.mapType.elementType, filter, userData, callback);
+        _ast_doTraverse(ctx, ast->typeExpr.mapType.keyType, visitor);
+        _ast_doTraverse(ctx, ast->typeExpr.mapType.elementType, visitor);
         break;
     }
-    orbit_astTraverse(ast->next, filter, userData, callback);
+    _ast_doTraverse(ctx, ast->next, visitor);
+}
+
+void orbit_astTraverse(OrbitASTContext* ctx, OrbitASTVisitor visitor) {
+    assert(ctx && "null AST Context given to traversal");
+    _ast_doTraverse(ctx, ctx->root, &visitor);
 }

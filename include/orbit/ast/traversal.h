@@ -12,12 +12,25 @@
 
 #include <stdbool.h>
 #include <orbit/ast/ast.h>
+#include <orbit/ast/context.h>
 
-typedef void (*ASTCallback)(OrbitAST*, void*);
+typedef struct sOrbitASTVisitor OrbitASTVisitor;
+typedef bool (*OrbitASTPredicate)(const OrbitASTVisitor*, const OrbitAST*);
+typedef void (*OrbitASTCallback)(OrbitASTContext* ctx, OrbitAST*, void*);
+
+struct sOrbitASTVisitor {
+    OrbitASTCallback    callback;
+    OrbitASTPredicate   predicate;
+    ASTKind             filter;
+    void*               data;
+};
+
+OrbitASTVisitor orbit_astSimpleVisitor(OrbitASTCallback callback, ASTKind filter, void* data);
+OrbitASTVisitor orbit_astVisitor(OrbitASTCallback callback, OrbitASTPredicate pred, void* data);
 
 /// Traverses the AST and invokes [callback] when a node which [kind] matches
 /// the [filter] mask is found. [userData] can be any arbitrary data required by
 /// the callback.
-void orbit_astTraverse(OrbitAST* ast, ASTKind filter, void* userData, ASTCallback callback);
+void orbit_astTraverse(OrbitASTContext* ctx, OrbitASTVisitor visitor);
 
 #endif /* orbit_ast_traversal_h */

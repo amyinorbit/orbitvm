@@ -103,7 +103,7 @@ bool sema_typeEquals(OrbitAST* a, OrbitAST* b) {
     return NULL;
 }
 
-void sema_extractTypeAnnotations(OrbitAST* decl, void* data) {
+void sema_extractTypeAnnotations(OrbitASTContext* ctx, OrbitAST* decl, void* data) {
     if(!decl->varDecl.typeAnnotation) { return; }
     OCSema* sema = (OCSema*)data;
     
@@ -115,8 +115,7 @@ void sema_extractTypeAnnotations(OrbitAST* decl, void* data) {
         if(!typeDecl) {
             OrbitSLoc loc = decl->varDecl.typeAnnotation->sourceRange.start;
             OrbitDiagID id = orbit_diagError(
-                &sema->context->diagnostics,
-                loc, "unkown type '$0'", 1,
+                &ctx->diagnostics, loc, "unkown type '$0'", 1,
                 ORBIT_DIAG_STRING(symbol)
             );
             orbit_diagAddSourceRange(id, decl->varDecl.typeAnnotation->sourceRange);
@@ -126,15 +125,14 @@ void sema_extractTypeAnnotations(OrbitAST* decl, void* data) {
     decl->type = ORCRETAIN(decl->varDecl.typeAnnotation);
 }
 
-void sema_installUserTypes(OrbitAST* typeDecl, void* data) {
+void sema_installUserTypes(OrbitASTContext* ctx, OrbitAST* typeDecl, void* data) {
     OCSema* sema = (OCSema*)data;
     OCStringID name = typeDecl->structDecl.name;
     
     if(orbit_rcMapGetP(&sema->typeTable, name)) {
         OrbitSLoc loc = typeDecl->structDecl.symbol.sourceLoc;
         orbit_diagError(
-            &sema->context->diagnostics, loc,
-            "type '$0' was declared before", 1,
+            &ctx->diagnostics, loc, "type '$0' was declared before", 1,
             ORBIT_DIAG_STRING(name)
         );
         //orbit_diagAddSourceRange(id, ...)
@@ -143,7 +141,7 @@ void sema_installUserTypes(OrbitAST* typeDecl, void* data) {
     }
 }
 
-void sema_extractLiteralTypes(OrbitAST* literal, void* data) {
+void sema_extractLiteralTypes(OrbitASTContext* ctx, OrbitAST* literal, void* data) {
     //OCSema* sema = (OCSema*)data;
     switch(literal->kind) {
     case ORBIT_AST_EXPR_CONSTANT_INTEGER:
@@ -160,7 +158,7 @@ void sema_extractLiteralTypes(OrbitAST* literal, void* data) {
     }
 }
 
-void sema_extractFuncTypes(OrbitAST* func, void* data) {
+void sema_extractFuncTypes(OrbitASTContext* ctx, OrbitAST* func, void* data) {
     
     OrbitAST* returnType = func->funcDecl.returnType ?
                         func->funcDecl.returnType :
@@ -183,35 +181,53 @@ void sema_extractFuncTypes(OrbitAST* func, void* data) {
     sema_declareSymbol((OCSema*)data, func->funcDecl.name, func->type);
 }
 
-void sema_checkExpression(OrbitAST* ast, void* sema) {
+void sema_checkExpression(OrbitASTContext* ctx, OrbitAST* ast, void* sema) {
     
 }
 
-void sema_checkBlock(OrbitAST* block, OCSema* sema) {
+void sema_checkBlock(OrbitASTContext* ctx, OrbitAST* block, OCSema* sema) {
     
 }
 
-void sema_doScopeAnalysis(OrbitAST* func, void* data) {
+void sema_doScopeAnalysis(OrbitASTContext* ctx, OrbitAST* func, void* data) {
     //OCSema* sema = (OCSema*)data;
     // TODO: sema should only contain the global scope right now.
-    sema_checkBlock(func->funcDecl.body, (OCSema*)data);
+    sema_checkBlock(ctx, func->funcDecl.body, (OCSema*)data);
 }
 
 void sema_runTypeAnalysis(OrbitASTContext* context) {
     // Initialise a Sema object
     OCSema sema;
-    sema_init(&sema, context);
+    sema_init(&sema);
     
-    orbit_astTraverse(context->root, ORBIT_AST_DECL_STRUCT, &sema, &sema_installUserTypes);
-    orbit_astTraverse(context->root,
-                      ORBIT_AST_EXPR_CONSTANT_INTEGER
-                    | ORBIT_AST_EXPR_CONSTANT_FLOAT
-                    | ORBIT_AST_EXPR_CONSTANT_STRING, &sema, &sema_extractLiteralTypes);
-    // Type all the declarations we can type easily
-    orbit_astTraverse(context->root, ORBIT_AST_DECL_VAR, &sema, &sema_extractTypeAnnotations);
-    orbit_astTraverse(context->root, ORBIT_AST_DECL_FUNC, &sema, &sema_extractFuncTypes);
+    orbit_astTraverse(
+        context,
+        orbit_astSimpleVisitor(&sema_installUserTypes, ORBIT_AST_DECL_STRUCT, &sema)
+    );
+    orbit_astTraverse(
+        context,
+        orbit_astSimpleVisitor(
+            &sema_extractLiteralTypes,
+            ORBIT_AST_EXPR_CONSTANT_INTEGER
+          | ORBIT_AST_EXPR_CONSTANT_FLOAT
+          | ORBIT_AST_EXPR_CONSTANT_STRING,
+            &sema
+        )
+    );
+    orbit_astTraverse(
+        context,
+        orbit_astSimpleVisitor(&sema_extractTypeAnnotations, ORBIT_AST_DECL_VAR, &sema)
+    );
     
-    orbit_astTraverse(context->root, ORBIT_AST_DECL_FUNC, &sema, &sema_doScopeAnalysis);
+    orbit_astTraverse(
+        context,
+        orbit_astSimpleVisitor(&sema_extractFuncTypes, ORBIT_AST_DECL_FUNC, &sema)
+    );
+    
+    orbit_astTraverse(
+        context,
+        orbit_astSimpleVisitor(&sema_doScopeAnalysis, ORBIT_AST_DECL_FUNC, &sema)
+    );
     
     
     sema_deinit(&sema);

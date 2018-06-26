@@ -11,12 +11,11 @@
 #include <orbit/csupport/rcmap.h>
 #include "sema_private.h"
 
-void sema_init(OCSema* sema, OrbitASTContext* context) {
+void sema_init(OCSema* sema) {
     assert(sema != NULL && "Null instance error");
     orbit_rcMapInit(&sema->typeTable);
     
     // Create stack[0], global scope
-    sema->context = context;
     sema->stackSize = 1;
     sema->stack[0].parent = NULL;
     orbit_rcMapInit(&sema->stack[0].symbolTable);
