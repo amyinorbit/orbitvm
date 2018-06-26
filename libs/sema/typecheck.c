@@ -13,6 +13,7 @@
 #include <orbit/ast/diag.h>
 #include <orbit/ast/builders.h>
 #include <orbit/ast/traversal.h>
+#include <orbit/ast/type.h>
 #include <orbit/csupport/tokens.h>
 #include <orbit/mangling/mangle.h>
 #include <orbit/sema/typecheck.h>
@@ -30,78 +31,6 @@ Type Analysis strategy
 x. scoped analysis. build symbol tables, from global to nested scopes
 
 */
-
-OrbitAST* sema_typeCopy(OrbitAST* src) {
-    if(src == NULL) { return NULL; }
-    OrbitAST* copy = NULL;
-    
-    switch (src->kind) {
-    case ORBIT_AST_TYPEEXPR_ANY:
-    case ORBIT_AST_TYPEEXPR_BOOL:
-    case ORBIT_AST_TYPEEXPR_STRING:
-    case ORBIT_AST_TYPEEXPR_NUMBER:
-    case ORBIT_AST_TYPEEXPR_VOID:
-        copy = orbit_astMakePrimitiveType(src->kind);
-        break;
-    case ORBIT_AST_TYPEEXPR_ARRAY:
-        copy = orbit_astMakeArrayType(sema_typeCopy(src->typeExpr.arrayType.elementType));
-        break;
-    case ORBIT_AST_TYPEEXPR_MAP:
-        copy = orbit_astMakeMapType(sema_typeCopy(src->typeExpr.mapType.keyType), 
-                               sema_typeCopy(src->typeExpr.mapType.elementType));
-        break;
-    case ORBIT_AST_TYPEEXPR_FUNC:
-        copy = orbit_astMakeFuncType(sema_typeCopy(src->typeExpr.funcType.returnType), 
-                                sema_typeCopy(src->typeExpr.funcType.params));
-        break;
-    case ORBIT_AST_TYPEEXPR_USER:
-        copy = orbit_astMakeUserTypePooled(src->typeExpr.userType.symbol);
-        break;
-    default:
-        // TODO: throw error here, we're not working with a type expression.
-        fprintf(stderr, "ERROR IN THERE\n");
-        break;
-    }
-    copy->next = src->next ? ORCRETAIN(sema_typeCopy(src->next)) : NULL;
-    return copy;
-}
-
-bool sema_typeEquals(OrbitAST* a, OrbitAST* b) {
-    if(a == b) { return true; }
-    if(!a && !b) { return true; }
-    if(!a || !b) { return false; }
-    if(!(a->kind & ASTTypeExprMask) || !(b->kind & ASTTypeExprMask)) { return false; }
-    
-    // TODO: refine, define and implement special `Any` semantics.
-    if(a->kind != b->kind) { return false; }
-    if(!sema_typeEquals(a->next, b->next)) { return false; }
-    
-    switch(a->kind) {
-    case ORBIT_AST_TYPEEXPR_ANY:
-    case ORBIT_AST_TYPEEXPR_BOOL:
-    case ORBIT_AST_TYPEEXPR_STRING:
-    case ORBIT_AST_TYPEEXPR_NUMBER:
-    case ORBIT_AST_TYPEEXPR_VOID:
-        return true;
-        
-    case ORBIT_AST_TYPEEXPR_ARRAY:
-        return sema_typeEquals(a->typeExpr.arrayType.elementType,
-                               b->typeExpr.arrayType.elementType);
-    case ORBIT_AST_TYPEEXPR_MAP:
-        return sema_typeEquals(a->typeExpr.mapType.elementType, b->typeExpr.mapType.elementType)
-            && sema_typeEquals(a->typeExpr.mapType.keyType, b->typeExpr.mapType.keyType);
-    case ORBIT_AST_TYPEEXPR_FUNC:
-        return sema_typeEquals(a->typeExpr.funcType.returnType, b->typeExpr.funcType.returnType)
-            && sema_typeEquals(a->typeExpr.funcType.params, b->typeExpr.funcType.params);
-        
-    case ORBIT_AST_TYPEEXPR_USER:
-        return a->typeExpr.userType.symbol == b->typeExpr.userType.symbol;
-    default:
-        break;
-    }
-    // TODO: add unreachable flag here
-    return NULL;
-}
 
 void sema_extractTypeAnnotations(OrbitASTContext* ctx, OrbitAST* decl, void* data) {
     if(!decl->varDecl.typeAnnotation) { return; }
@@ -168,7 +97,7 @@ void sema_extractFuncTypes(OrbitASTContext* ctx, OrbitAST* func, void* data) {
     orbit_astListStart(&params);
     OrbitAST* param = func->funcDecl.params;
     while(param) {
-        orbit_astListAdd(&params, sema_typeCopy(param->type));
+        orbit_astListAdd(&params, orbit_astTypeCopy(param->type));
         param = param->next;
     }
     func->type = ORCRETAIN(orbit_astMakeFuncType(returnType, orbit_astListClose(&params)));

@@ -9,9 +9,12 @@
 //===--------------------------------------------------------------------------------------------===
 #ifndef orbit_ast_type_h
 #define orbit_ast_type_h
+#include <stdbool.h>
 #include <orbit/ast/ast.h>
 #include <orbit/csupport/string.h>
 
+bool orbit_astTypeEquals(const OrbitAST* a, const OrbitAST* b);
+OrbitAST* orbit_astTypeCopy(const OrbitAST* src);
 void orbit_astTypeString(OCStringBuffer* buffer, OrbitAST* ast);
 
 #endif /* orbit_ast_type_h */
