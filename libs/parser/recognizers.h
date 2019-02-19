@@ -31,6 +31,7 @@ static OrbitAST* recReturnStatement(OCParser*);
 
 static OrbitAST* recExpression(OCParser*, int);
 static OrbitAST* recTerm(OCParser*);
+static OrbitAST* recInitExpr(OCParser*);
 static OrbitAST* recName(OCParser*);
 static OrbitAST* recSubscript(OCParser*);
 static OrbitAST* recFieldAccess(OCParser*);

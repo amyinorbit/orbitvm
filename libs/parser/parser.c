@@ -309,6 +309,8 @@ static OrbitAST* recTerm(OCParser* parser) {
         term = recExpression(parser, 0);
         expect(parser, ORBIT_TOK_RPAREN);
     }
+    else if(have(parser, ORBIT_TOK_INIT))
+        term = recInitExpr(parser);
     else if(have(parser, ORBIT_TOK_IDENTIFIER))
         term = recName(parser);
     else if(match(parser, ORBIT_TOK_STRING_LITERAL))
@@ -321,6 +323,18 @@ static OrbitAST* recTerm(OCParser* parser) {
         simpleParseError(parser, "expected an expression term");
     
     return unary ? orbit_astMakeUnaryExpr(&operator, term) : term;
+}
+
+
+static OrbitAST* recInitExpr(OCParser* parser) {
+    expect(parser, ORBIT_TOK_INIT);
+    OrbitAST* type = recTypename(parser);
+    OrbitAST* paramList = NULL;
+    if(match(parser, ORBIT_TOK_LPAREN)) {
+        paramList = recExprList(parser);
+        expect(parser, ORBIT_TOK_RPAREN);
+    }
+    return NULL; // TODO: add AST support for init operator
 }
 
 static OrbitAST* recName(OCParser* parser) {

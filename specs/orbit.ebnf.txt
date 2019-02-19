@@ -48,8 +48,10 @@ expression      ::= unary (binary-op unary) *
 unary           ::= (unary-op)? term
 term            ::= literal
                   | name-or-call
+                  | init-expr
                   | '(' expression ')'
 name-or-call    ::= identifier (suffix)*
+init-expr       ::= init typename ('(' expression-list ')')?
 suffix          ::= (subscript | func-call | field-access)?
 field-access    ::= '.' identifier                       // Orbit doesn't have member functions, but has first-order functions
 subscript       ::= identifier '[' expression ']'
