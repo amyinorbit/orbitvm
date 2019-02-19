@@ -2,11 +2,11 @@
 // expressions result) but should parse normally nonetheless, Sema can then throw a warning about
 // the unused result.
 
-fun getName() -> String {
+fun getName = () -> String {
     return "Jane Doe"
 }
 
-fun main() {
+fun main = () {
     getName() + ", Hello!"
     "Hello, " + getName()
 }

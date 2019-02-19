@@ -1,4 +1,4 @@
-fun main() {
+fun main = () {
     var test = 123
     
     {
