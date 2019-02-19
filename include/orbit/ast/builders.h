@@ -47,6 +47,7 @@ OrbitAST* orbit_astMakeCallExpr(OrbitAST* symbol, OrbitAST* params);
 OrbitAST* orbit_astMakeSubscriptExpr(OrbitAST* symbol, OrbitAST* subscript);
 OrbitAST* orbit_astMakeNameExpr(const OrbitToken* symbol);
 OrbitAST* orbit_astMakeConstantExpr(const OrbitToken* symbol, ASTKind kind);
+OrbitAST* orbit_astMakeInitExpr(OrbitAST* type, OrbitAST* params);
 
 // OrbitAST* orbit_astMakePrimitiveType(ASTKind kind);
 OrbitAST* orbit_astMakeUserType(const OrbitToken* symbol);

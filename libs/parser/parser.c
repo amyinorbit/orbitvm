@@ -334,7 +334,7 @@ static OrbitAST* recInitExpr(OCParser* parser) {
         paramList = recExprList(parser);
         expect(parser, ORBIT_TOK_RPAREN);
     }
-    return NULL; // TODO: add AST support for init operator
+    return orbit_astMakeInitExpr(type, paramList);
 }
 
 static OrbitAST* recName(OCParser* parser) {

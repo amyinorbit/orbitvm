@@ -189,6 +189,13 @@ OrbitAST* orbit_astMakeConstantExpr(const OrbitToken* symbol, ASTKind kind) {
     return ast;
 }
 
+OrbitAST* orbit_astMakeInitExpr(OrbitAST* type, OrbitAST* params) {
+    OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_INIT);
+    ast->initExpr.type = ORCRETAIN(type);
+    ast->initExpr.params = params;
+    return ast;
+}
+
 OrbitAST* orbit_astMakeUserTypePooled(OCStringID symbol) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_TYPEEXPR_USER);
     ast->typeExpr.userType.symbol = symbol;

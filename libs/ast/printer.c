@@ -288,6 +288,16 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_printPooledString(out, ast->nameExpr.name);
         break;
     
+    case ORBIT_AST_EXPR_INIT:
+        console_setColor(out, CLI_MAGENTA);
+        fputs("init:", out);
+        console_setColor(out, CLI_RESET);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        orbit_astPrintType(out, ast->initExpr.type); // TODO: replace with sema-generated type
+        console_setColor(out, CLI_RESET);
+        orbit_astPrintList(out, "ConstructorList", ast->callExpr.params, depth+1, true);
+        break;
+    
     case ORBIT_AST_TYPEEXPR_VOID:
     case ORBIT_AST_TYPEEXPR_BOOL:
     case ORBIT_AST_TYPEEXPR_NUMBER:

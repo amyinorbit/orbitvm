@@ -45,16 +45,17 @@ enum _ASTKind {
     ORBIT_AST_EXPR_CONSTANT_FLOAT     = 1 << 17,
     ORBIT_AST_EXPR_CONSTANT_STRING    = 1 << 18,
     ORBIT_AST_EXPR_NAME               = 1 << 19,
+    ORBIT_AST_EXPR_INIT               = 1 << 20,
     
-    ORBIT_AST_TYPEEXPR_VOID           = 1 << 20,
-    ORBIT_AST_TYPEEXPR_BOOL           = 1 << 21,
-    ORBIT_AST_TYPEEXPR_NUMBER         = 1 << 22,
-    ORBIT_AST_TYPEEXPR_STRING         = 1 << 23,
-    ORBIT_AST_TYPEEXPR_USER           = 1 << 24,
-    ORBIT_AST_TYPEEXPR_ARRAY          = 1 << 25,
-    ORBIT_AST_TYPEEXPR_MAP            = 1 << 26,
-    ORBIT_AST_TYPEEXPR_FUNC           = 1 << 27,
-    ORBIT_AST_TYPEEXPR_ANY            = 1 << 28,
+    ORBIT_AST_TYPEEXPR_VOID           = 1 << 21,
+    ORBIT_AST_TYPEEXPR_BOOL           = 1 << 22,
+    ORBIT_AST_TYPEEXPR_NUMBER         = 1 << 23,
+    ORBIT_AST_TYPEEXPR_STRING         = 1 << 24,
+    ORBIT_AST_TYPEEXPR_USER           = 1 << 25,
+    ORBIT_AST_TYPEEXPR_ARRAY          = 1 << 26,
+    ORBIT_AST_TYPEEXPR_MAP            = 1 << 27,
+    ORBIT_AST_TYPEEXPR_FUNC           = 1 << 28,
+    ORBIT_AST_TYPEEXPR_ANY            = 1 << 29,
 };
 
 extern const uint32_t ASTAllMask;
@@ -195,13 +196,18 @@ struct _OrbitAST {
         } subscriptExpr;
         
         struct {
-            OrbitToken     symbol;
+            OrbitToken  symbol;
         } constantExpr;
         
         struct {
-            OrbitToken     symbol;
+            OrbitToken  symbol;
             OCStringID  name;
         } nameExpr;
+        
+        struct {
+            OrbitAST*   type;
+            OrbitAST*   params;
+        } initExpr;
         
         // Type Expressions (necessary for a non-trivial type system)
         

@@ -114,6 +114,11 @@ static void _ast_doTraverse(OrbitASTContext* ctx, OrbitAST* ast, const OrbitASTV
         _ast_doTraverse(ctx, ast->subscriptExpr.symbol, visitor);
         _ast_doTraverse(ctx, ast->subscriptExpr.subscript, visitor);
         break;
+        
+    case ORBIT_AST_EXPR_INIT:
+        _ast_doTraverse(ctx, ast->initExpr.type, visitor);
+        _ast_doTraverse(ctx, ast->initExpr.params, visitor);
+        break;
     
     case ORBIT_AST_EXPR_CONSTANT_INTEGER:
     case ORBIT_AST_EXPR_CONSTANT_FLOAT:

@@ -32,7 +32,8 @@ const uint32_t ASTExprMask      = ORBIT_AST_EXPR_UNARY
                                 | ORBIT_AST_EXPR_CONSTANT_INTEGER
                                 | ORBIT_AST_EXPR_CONSTANT_FLOAT
                                 | ORBIT_AST_EXPR_CONSTANT_STRING
-                                | ORBIT_AST_EXPR_NAME;
+                                | ORBIT_AST_EXPR_NAME
+                                | ORBIT_AST_EXPR_INIT;
 
 const uint32_t ASTTypeExprMask  = ORBIT_AST_TYPEEXPR_VOID
                                 | ORBIT_AST_TYPEEXPR_BOOL
@@ -130,6 +131,11 @@ void orbit_astDestroy(void* ref) {
             break;
         
         case ORBIT_AST_EXPR_NAME:
+            break;
+            
+        case ORBIT_AST_EXPR_INIT:
+            ORCRELEASE(ast->initExpr.type);
+            ORCRELEASE(ast->initExpr.params);
             break;
             
         case ORBIT_AST_TYPEEXPR_VOID:
