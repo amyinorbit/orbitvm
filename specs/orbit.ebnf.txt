@@ -19,8 +19,9 @@ var-decl        ::= 'var' identifier ((':', type) | ((':', type)? '=' expression
 
 // Function Declarations
 
-func-decl       ::= func-proto '{' block '}'
-func-proto      ::= 'func' identifier parameters ('->' type)?
+func-decl       ::= 'fun' identifier '=' func-literal
+func-literal    ::= func-proto '{' block '}'
+func-proto      ::= parameters ('->' type)?
 parameters      ::= '(' (parameter-list)? ')'
 parameter-list  ::= formal-param (',' formal-param)*
 parameter       ::= identifier ':' type

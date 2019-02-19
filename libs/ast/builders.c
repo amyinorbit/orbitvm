@@ -136,7 +136,8 @@ OrbitAST* orbit_astMakeBinaryExpr(const OrbitToken* operator, OrbitAST* lhs, Orb
     ast->binaryExpr.operator = ast_copyToken(operator);
     ast->binaryExpr.lhs = ORCRETAIN(lhs);
     ast->binaryExpr.rhs = ORCRETAIN(rhs);
-    ast->sourceRange = orbit_srangeUnion(lhs->sourceRange, rhs->sourceRange);
+    if(lhs && rhs)
+        ast->sourceRange = orbit_srangeUnion(lhs->sourceRange, rhs->sourceRange);
     return ast;
 }
 
