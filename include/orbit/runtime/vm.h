@@ -3,7 +3,7 @@
 // This source is part of Orbit - Runtime
 //
 // Created on 2017-01-03 by Amy Parent <amy@amyparent.com>
-// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2019 Amy Parent <amy@amyparent.com>
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===

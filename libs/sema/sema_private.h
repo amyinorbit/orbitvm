@@ -3,7 +3,7 @@
 // This source is part of Orbit - Parser
 //
 // Created on 2018-04-16 by Amy Parent <amy@amyparent.com>
-// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2019 Amy Parent <amy@amyparent.com>
 // Available under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===

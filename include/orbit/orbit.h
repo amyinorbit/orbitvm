@@ -3,7 +3,7 @@
 // This source is part of Orbit
 //
 // Created on 2016-12-09 by Amy Parent <amy@amyparent.com>
-// Copyright (c) 2016-2018 Amy Parent <amy@amyparent.com>
+// Copyright (c) 2016-2019 Amy Parent <amy@amyparent.com>
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
