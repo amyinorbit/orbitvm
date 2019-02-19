@@ -143,21 +143,13 @@ void sema_runTypeAnalysis(OrbitASTContext* context) {
             &sema
         )
     );
-    orbit_astTraverse(
-        context,
-        orbit_astSimpleVisitor(&sema_extractTypeAnnotations, ORBIT_AST_DECL_VAR, &sema)
-    );
+    orbit_astTraverse(context,
+        orbit_astSimpleVisitor(&sema_extractTypeAnnotations, ORBIT_AST_DECL_VAR, &sema));
     
-    orbit_astTraverse(
-        context,
-        orbit_astSimpleVisitor(&sema_extractFuncTypes, ORBIT_AST_DECL_FUNC, &sema)
-    );
-    
-    orbit_astTraverse(
-        context,
-        orbit_astSimpleVisitor(&sema_doScopeAnalysis, ORBIT_AST_DECL_FUNC, &sema)
-    );
-    
+    orbit_astTraverse(context,
+        orbit_astSimpleVisitor(&sema_extractFuncTypes, ORBIT_AST_DECL_FUNC, &sema));
+    orbit_astTraverse(context,
+        orbit_astSimpleVisitor(&sema_doScopeAnalysis, ORBIT_AST_DECL_FUNC, &sema));
     
     sema_deinit(&sema);
 }
