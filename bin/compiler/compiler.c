@@ -17,7 +17,7 @@
 #include <orbit/csupport/source.h>
 #include <orbit/csupport/string.h>
 #include <orbit/parser/parser.h>
-#include <orbit/sema/type.h>
+#include <orbit/sema/typecheck.h>
 #include <orbit/utils/memory.h>
 
 int main(int argc, const char** args) {
