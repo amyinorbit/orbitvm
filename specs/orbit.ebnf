@@ -1,0 +1,130 @@
+(* Orbit Grammar (EBNF). *)
+(* copyright (c) 2017 Amy Parent <amy@amyparent.com> *)
+
+program         = {decl};
+decl            = type-decl
+                | var-decl
+                | func-decl;
+
+(* Type Declarations *)
+
+type-decl       = 'type', identifier, type-block;
+type-block      = '{', {type-member-decl}, '}';
+type-member-decl= var-decl
+                | type-init-decl;
+                
+type-init-decl  = 'init', '{', block, '}';
+
+(* Variable Declarations *)
+
+var-decl        = 'var', identifier, ((':', type) | ([':', type], '=', expression));
+
+(* Function Declarations *)
+
+func-decl       = 'fun', identifier, '=', func-literal;
+func-literal    = func-proto, '{', block, '}';
+func-proto      = '(', [parameter-list], ')', ['->', type];
+parameter-list  = parameter, {',', paramter};
+parameter       = identifier, ':', type;
+
+(* Statements *)
+
+block           = '{', {statement}, '}';
+statement       = (conditional | expression | flow-statement | return-statement), terminator;
+terminator      = '\n' | ';';
+
+conditional     = if-statement
+                | while-loop
+                | for-loop;
+                
+flow-statement  = 'continue'
+                | 'break';
+                
+return-statement= 'return', [expression];
+if-statement    = 'if', expression block, ['else', statement];
+while-loop      = 'while', expression block;
+for-loop        = 'for', identifier, 'in', expression block;
+
+(* Expressions - Variable assignments (compound or not) are expressions *)
+
+expression      = unary, {binary-op unary};
+unary           = [unary-op], term;
+term            = literal
+                | name-or-call
+                | init-expr
+                | ('(', expression, ')');
+                
+name-or-call    = identifier {suffix};
+init-expr       = init, typename, ['(', expression-list, ')'];
+suffix          = subscript
+                | func-call
+                | field-access;
+                
+field-access    = '.' name-or-call;     
+subscript       = name-or-call, '[', expression, ']';
+func-call       = '(', [expression-list], ')';
+expression-list = expression, {',', expression};
+
+binary-op       = '+'
+                | '-'
+                | '/'
+                | '*'
+                | '%'
+                | '**'
+                | '^'
+                | '|'
+                | '&'
+                | '>>'
+                | '<<'
+                | '<'
+                | '>'
+                | '<='
+                | '>='
+                | '=='
+                | '&&'
+                | '||'
+                | '!='
+                | '='
+                | '+='
+                | '-='
+                | '*='
+                | '/=';
+unary-op        = '!'
+                | '-'
+                | '~';
+
+// Type System
+
+type            = ['maybe'], typename;
+typename        = primitive
+                | array-type
+                | map-type
+                | user-type;
+                
+primitive       = 'Number'
+                | 'Boolean'
+                | 'String'
+                | 'Any'
+                | 'Void';
+                
+func-type       = '(', [type-list], ')', '->', type;
+type-list       = type, {',', type};
+array-type      = 'Array', '[', type, ']';
+map-type        = 'Map', '[', type, ':', type, ']';
+user-type       = identifier;
+
+
+// Literals
+
+number          = float-literal
+                | integer-literal;
+float-literal   = fractional
+                | exponential;
+integer-literal = sign, decimal;
+fractional      = sign, decimal, '.', decimal;
+exponential     = sign, decimal, 'e', sign decimal;
+
+decimal         = {0-9};
+sign            = ['+' | '-']
+string-literal = \" [^\r\n\\\"]* \"
+
