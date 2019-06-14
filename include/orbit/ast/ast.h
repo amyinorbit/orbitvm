@@ -47,6 +47,7 @@ enum _ASTKind {
     ORBIT_AST_EXPR_NAME               = 1 << 19,
     ORBIT_AST_EXPR_INIT               = 1 << 20,
     
+    // TODO: Add Maybe type node, template system?
     ORBIT_AST_TYPEEXPR_VOID           = 1 << 21,
     ORBIT_AST_TYPEEXPR_BOOL           = 1 << 22,
     ORBIT_AST_TYPEEXPR_NUMBER         = 1 << 23,
