@@ -129,13 +129,13 @@ static OrbitAST* recFuncDecl(OCParser* parser) {
 
 
 static OrbitAST* recFuncLiteral(OCParser* parser, const OrbitToken* symbol) {
-    expect(parser, ORBIT_TOK_LPAREN);
-    
     OrbitAST* params = NULL;
-    if(have(parser, ORBIT_TOK_IDENTIFIER)) {
-        params = recParameters(parser);
+    if(match(parser, ORBIT_TOK_LPAREN)) {
+        if(have(parser, ORBIT_TOK_IDENTIFIER)) {
+            params = recParameters(parser);
+        }
+        expect(parser, ORBIT_TOK_RPAREN);
     }
-    expect(parser, ORBIT_TOK_RPAREN);
     
     OrbitAST* returnType = NULL;
     if(match(parser, ORBIT_TOK_ARROW)) {
