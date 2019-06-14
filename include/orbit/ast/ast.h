@@ -19,51 +19,50 @@
 typedef struct _OrbitAST OrbitAST;
 typedef struct _OrbitASTType OrbitASTType;
 typedef enum _OrbitASTTypeFlags OrbitASTTypeFlags;
-typedef enum _ASTKind ASTKind;
+typedef uint64_t ASTKind;
 
-// Tag enum for AST nodes
-enum _ASTKind {
-    ORBIT_AST_CONDITIONAL             = 1 << 0,
-    ORBIT_AST_FOR_IN                  = 1 << 1,
-    ORBIT_AST_WHILE                   = 1 << 2,
-    ORBIT_AST_BREAK                   = 1 << 3,
-    ORBIT_AST_CONTINUE                = 1 << 4,
-    ORBIT_AST_RETURN                  = 1 << 5,
-    ORBIT_AST_BLOCK                   = 1 << 6,
-    
-    ORBIT_AST_DECL_MODULE             = 1 << 7,
-    ORBIT_AST_DECL_FUNC               = 1 << 8,
-    ORBIT_AST_DECL_VAR                = 1 << 9,
-    ORBIT_AST_DECL_STRUCT             = 1 << 10,
-    
-    ORBIT_AST_EXPR_UNARY              = 1 << 11,
-    ORBIT_AST_EXPR_BINARY             = 1 << 12,
-    ORBIT_AST_EXPR_CALL               = 1 << 13,
-    ORBIT_AST_EXPR_SUBSCRIPT          = 1 << 14,
-    ORBIT_AST_EXPR_CONSTANT           = 1 << 15,
-    ORBIT_AST_EXPR_CONSTANT_INTEGER   = 1 << 16,
-    ORBIT_AST_EXPR_CONSTANT_FLOAT     = 1 << 17,
-    ORBIT_AST_EXPR_CONSTANT_STRING    = 1 << 18,
-    ORBIT_AST_EXPR_NAME               = 1 << 19,
-    ORBIT_AST_EXPR_INIT               = 1 << 20,
-    
-    // TODO: Add Maybe type node, template system?
-    ORBIT_AST_TYPEEXPR_VOID           = 1 << 21,
-    ORBIT_AST_TYPEEXPR_BOOL           = 1 << 22,
-    ORBIT_AST_TYPEEXPR_NUMBER         = 1 << 23,
-    ORBIT_AST_TYPEEXPR_STRING         = 1 << 24,
-    ORBIT_AST_TYPEEXPR_USER           = 1 << 25,
-    ORBIT_AST_TYPEEXPR_ARRAY          = 1 << 26,
-    ORBIT_AST_TYPEEXPR_MAP            = 1 << 27,
-    ORBIT_AST_TYPEEXPR_FUNC           = 1 << 28,
-    ORBIT_AST_TYPEEXPR_ANY            = 1 << 29,
-};
+#define DECL_AST_KIND(name, num) static const ASTKind ORBIT_AST_##name = 1 << (num)
 
-extern const uint32_t ASTAllMask;
-extern const uint32_t ASTStmtMask;
-extern const uint32_t ASTDeclMask;
-extern const uint32_t ASTExprMask;
-extern const uint32_t ASTTypeExprMask;
+// We can't use enum because C restricts them to 32 bit. Could probably not rely on bitsets,
+// but that allows much faster pattern matching in AST visitors.
+DECL_AST_KIND(CONDITIONAL, 0);
+DECL_AST_KIND(FOR_IN, 1);
+DECL_AST_KIND(WHILE, 2);
+DECL_AST_KIND(BREAK, 3);
+DECL_AST_KIND(CONTINUE, 4);
+DECL_AST_KIND(RETURN, 5);
+DECL_AST_KIND(BLOCK, 6);
+DECL_AST_KIND(DECL_MODULE, 7);
+DECL_AST_KIND(DECL_FUNC, 8);
+DECL_AST_KIND(DECL_VAR, 9);
+DECL_AST_KIND(DECL_STRUCT, 10);
+DECL_AST_KIND(EXPR_UNARY, 11);
+DECL_AST_KIND(EXPR_BINARY, 12);
+DECL_AST_KIND(EXPR_CALL, 13);
+DECL_AST_KIND(EXPR_SUBSCRIPT, 14);
+DECL_AST_KIND(EXPR_CONSTANT, 15);
+DECL_AST_KIND(EXPR_CONSTANT_INTEGER, 16);
+DECL_AST_KIND(EXPR_CONSTANT_FLOAT, 17);
+DECL_AST_KIND(EXPR_CONSTANT_STRING, 18);
+DECL_AST_KIND(EXPR_NAME, 19);
+DECL_AST_KIND(EXPR_INIT, 20);
+    
+// TODO: Add Maybe type node, template system?
+DECL_AST_KIND(TYPEEXPR_VOID, 21);
+DECL_AST_KIND(TYPEEXPR_BOOL, 22);
+DECL_AST_KIND(TYPEEXPR_NUMBER, 23);
+DECL_AST_KIND(TYPEEXPR_STRING, 24);
+DECL_AST_KIND(TYPEEXPR_USER, 25);
+DECL_AST_KIND(TYPEEXPR_ARRAY, 26);
+DECL_AST_KIND(TYPEEXPR_MAP, 27);
+DECL_AST_KIND(TYPEEXPR_FUNC, 28);
+DECL_AST_KIND(TYPEEXPR_ANY, 29);
+
+extern const ASTKind ASTAllMask;
+extern const ASTKind ASTStmtMask;
+extern const ASTKind ASTDeclMask;
+extern const ASTKind ASTExprMask;
+extern const ASTKind ASTTypeExprMask;
 
 #define ORBIT_AST_IS_STMT(ast) ((ast) != NULL && ((ast).type & ASTStmtMask) != 0)
 #define ORBIT_AST_IS_DECL(ast) ((ast) != NULL && ((ast).type & ASTDeclMask) != 0)

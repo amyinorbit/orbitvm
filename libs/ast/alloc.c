@@ -12,19 +12,19 @@
 #include <orbit/utils/memory.h>
 #include <orbit/ast/ast.h>
 
-const uint32_t ASTStmtMask      = ORBIT_AST_CONDITIONAL
+const ASTKind ASTStmtMask       = ORBIT_AST_CONDITIONAL
                                 | ORBIT_AST_FOR_IN
                                 | ORBIT_AST_WHILE
                                 | ORBIT_AST_BREAK
                                 | ORBIT_AST_CONTINUE
                                 | ORBIT_AST_RETURN;
 
-const uint32_t ASTDeclMask      = ORBIT_AST_DECL_MODULE
+const ASTKind ASTDeclMask       = ORBIT_AST_DECL_MODULE
                                 | ORBIT_AST_DECL_FUNC
                                 | ORBIT_AST_DECL_VAR
                                 | ORBIT_AST_DECL_STRUCT;
 
-const uint32_t ASTExprMask      = ORBIT_AST_EXPR_UNARY
+const ASTKind ASTExprMask       = ORBIT_AST_EXPR_UNARY
                                 | ORBIT_AST_EXPR_BINARY
                                 | ORBIT_AST_EXPR_CALL
                                 | ORBIT_AST_EXPR_SUBSCRIPT
@@ -35,7 +35,7 @@ const uint32_t ASTExprMask      = ORBIT_AST_EXPR_UNARY
                                 | ORBIT_AST_EXPR_NAME
                                 | ORBIT_AST_EXPR_INIT;
 
-const uint32_t ASTTypeExprMask  = ORBIT_AST_TYPEEXPR_VOID
+const ASTKind ASTTypeExprMask   = ORBIT_AST_TYPEEXPR_VOID
                                 | ORBIT_AST_TYPEEXPR_BOOL
                                 | ORBIT_AST_TYPEEXPR_NUMBER
                                 | ORBIT_AST_TYPEEXPR_STRING
@@ -45,7 +45,7 @@ const uint32_t ASTTypeExprMask  = ORBIT_AST_TYPEEXPR_VOID
                                 | ORBIT_AST_TYPEEXPR_MAP
                                 | ORBIT_AST_TYPEEXPR_FUNC;
 
-const uint32_t ASTAllMask       = 0xffffffff;
+const ASTKind ASTAllMask       = 0xffffffffffffffff;
 
 void orbit_astDestroy(void* ref) {
     if(ref == NULL) { return; }
