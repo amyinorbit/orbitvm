@@ -56,6 +56,7 @@ bool haveConditional(OCParser* parser) {
 
 bool haveTerm(OCParser* parser) {
     return haveUnaryOp(parser)
+        || have(parser, ORBIT_TOK_RSLASH)
         || have(parser, ORBIT_TOK_LPAREN)
         || have(parser, ORBIT_TOK_IDENTIFIER)
         || have(parser, ORBIT_TOK_STRING_LITERAL)

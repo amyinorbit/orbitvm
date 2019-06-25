@@ -38,6 +38,8 @@ static OrbitAST* recFieldAccess(OCParser*);
 static OrbitAST* recFuncCall(OCParser*);
 static OrbitAST* recExprList(OCParser*);
 
+static OrbitAST* recLambda(OCParser*);
+
 static OrbitAST* recType(OCParser*);
 static OrbitAST* recFuncType(OCParser*);
 static OrbitAST* recTypename(OCParser*);

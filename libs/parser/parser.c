@@ -316,6 +316,8 @@ static OrbitAST* recTerm(OCParser* parser) {
         term = recExpression(parser, 0);
         expect(parser, ORBIT_TOK_RPAREN);
     }
+    else if(have(parser, ORBIT_TOK_RSLASH))
+        term = recLambda(parser);
     else if(have(parser, ORBIT_TOK_INIT))
         term = recInitExpr(parser);
     else if(have(parser, ORBIT_TOK_IDENTIFIER))
@@ -383,6 +385,23 @@ static OrbitAST* recExprList(OCParser* parser) {
         orbit_astListAdd(&list, recExpression(parser, 0));
     }
     return orbit_astListClose(&list);
+}
+
+static OrbitAST* recLambda(OCParser* parser) {
+    expect(parser, ORBIT_TOK_RSLASH);
+    
+    ASTListBuilder params;
+    orbit_astListStart(&params);
+    // TODO: we need to somehow stay "neutral" about the types in here, and 'instantiate' the
+    //          lambda as a concrete function later in the compilation process.
+    orbit_astListAdd(&params, recName(parser));
+    while(match(parser, ORBIT_TOK_COMMA)) {
+        orbit_astListAdd(&params, recName(parser));
+    }
+    
+    expect(parser, ORBIT_TOK_ARROW);
+    
+    return orbit_astMakeLambdaExpr(orbit_astListClose(&params), recExpression(parser, 0));
 }
 
 static OrbitAST* recType(OCParser* parser) {

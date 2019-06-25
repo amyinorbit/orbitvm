@@ -196,6 +196,13 @@ OrbitAST* orbit_astMakeInitExpr(OrbitAST* type, OrbitAST* params) {
     return ast;
 }
 
+OrbitAST* orbit_astMakeLambdaExpr(OrbitAST* params, OrbitAST* body) {
+    OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_LAMBDA);
+    ast->lambdaExpr.params = ORCRETAIN(params);
+    ast->lambdaExpr.body = ORCRETAIN(body);
+    return ast;
+}
+
 OrbitAST* orbit_astMakeUserTypePooled(OCStringID symbol) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_TYPEEXPR_USER);
     ast->typeExpr.userType.symbol = symbol;

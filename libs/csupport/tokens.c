@@ -30,6 +30,7 @@ static const OrbitTokenData _tokenData[] = {
     [ORBIT_TOK_PLUS] = {"plus", "+", true, false},
     [ORBIT_TOK_MINUS] = {"plus", "-", true, true},
     [ORBIT_TOK_SLASH] = {"slash", "/", true, false},
+    [ORBIT_TOK_RSLASH] = {"backslash", "\\", false, false},
     [ORBIT_TOK_STAR] = {"star", "*", true, false},
     [ORBIT_TOK_STARSTAR] = {"starstar", "**", true, false},
     [ORBIT_TOK_PERCENT] = {"percent", "%%", true, false},

@@ -116,6 +116,9 @@ user-type       = identifier;
 
 // Literals
 
+lambda-literal  = '\', lambda-params, '->', expression;
+lambda-params   = identifier, {',', identifier};
+
 number          = float-literal
                 | integer-literal;
 float-literal   = fractional

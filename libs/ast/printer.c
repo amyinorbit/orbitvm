@@ -280,6 +280,15 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
         orbit_astPrintType(out, ast->type);
         break;
+        
+    case ORBIT_AST_EXPR_LAMBDA:
+        console_setColor(out, CLI_MAGENTA);
+        fputs("lambda: ", out);
+        console_setColor(out, CLI_RESET);
+        fputs(": ", out);
+        orbit_astPrintList(out, "ParamList", ast->lambdaExpr.params, depth+1, false);
+        orbit_astPrintNode(out, ast->lambdaExpr.body, depth+1, true);
+        break;
     
     case ORBIT_AST_EXPR_NAME:
         console_setColor(out, CLI_MAGENTA);

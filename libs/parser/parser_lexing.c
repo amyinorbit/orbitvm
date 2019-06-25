@@ -305,6 +305,10 @@ void orbit_parserNextToken(OCParser* parser) {
                     _twoChars(parser, '=', ORBIT_TOK_STAREQ, ORBIT_TOK_STAR);
                 }
                 return;
+                
+            case '\\':
+                _makeToken(parser, ORBIT_TOK_RSLASH);
+                return;
             
             case '/':
                 if(_match(parser, '/')) {
