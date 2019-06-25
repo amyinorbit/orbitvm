@@ -60,6 +60,7 @@ static const OrbitTokenData _tokenData[] = {
     [ORBIT_TOK_COMMA] = {"comma", ",", false, false},
     [ORBIT_TOK_DOT] = {"dot", ".", true, false},
     [ORBIT_TOK_ARROW] = {"arrow", "->", false, false},
+    [ORBIT_TOK_THEN] = {"then_apply", "=>", true, false},
     [ORBIT_TOK_INTEGER_LITERAL] = {"integer_constant", "integer constant", false, false},
     [ORBIT_TOK_FLOAT_LITERAL] = {"float_constant", "floating-point constant", false, false},
     [ORBIT_TOK_STRING_LITERAL] = {"string_constant", "string constant", false, false},
@@ -91,18 +92,6 @@ static const OrbitTokenData _tokenData[] = {
     [ORBIT_TOK_INVALID] = {"invalid", "invalid token", false, false},
 };
 
-// bool orbit_tokenEquals(OrbitToken* a, OrbitToken* b) {
-//     assert(a && "Invalid token given");
-//     assert(b && "Invalid token given");
-//     assert(ORBIT_SLOC_ISVALID(a->sourceLoc) && "Invalid token source location");
-//     assert(ORBIT_SLOC_ISVALID(b->sourceLoc) && "Invalid token source location");
-// 
-//     if(a == b) { return true; }
-//     return a->kind == b->kind
-//         && a->length == b->length
-//         && ((ORBIT_SLOC_EQUAL(a->sourceLoc, b->sourceLoc)));
-// }
-
 const char* orbit_tokenName(OrbitTokenKind token) {
     if(token > ORBIT_TOK_INVALID) { token = ORBIT_TOK_INVALID; }
     return _tokenData[token].name;
@@ -128,35 +117,47 @@ typedef struct {
     bool        rightAssoc;
 } OCOperator;
 
+typedef enum {
+    ORBIT_PREC_ASSIGN,
+    ORBIT_PREC_OR,
+    ORBIT_PREC_AND,
+    ORBIT_PREC_COMPARE,
+    ORBIT_PREC_ADD,
+    ORBIT_PREC_MULT,
+    ORBIT_PREC_EXP,
+    ORBIT_PREC_CALL, 
+} OrbitPrecedence;
+
 static OCOperator opTable[] = {
-    {ORBIT_TOK_DOT,         110,    false},
-    {ORBIT_TOK_LBRACKET,    110,    false},
-    {ORBIT_TOK_LPAREN,      110,    false},
-    {ORBIT_TOK_STARSTAR,    100,    true},
-    {ORBIT_TOK_STAR,        90,     false},
-    {ORBIT_TOK_SLASH,       90,     false},
-    {ORBIT_TOK_PERCENT,     90,     false},
-    {ORBIT_TOK_PLUS,        80,     false},
-    {ORBIT_TOK_MINUS,       80,     false},
-    {ORBIT_TOK_LTLT,        70,     false},
-    {ORBIT_TOK_GTGT,        70,     false},
-    {ORBIT_TOK_LT,          60,     false},
-    {ORBIT_TOK_GT,          60,     false},
-    {ORBIT_TOK_LTEQ,        60,     false},
-    {ORBIT_TOK_GTEQ,        60,     false},
-    {ORBIT_TOK_EQEQ,        50,     false},
-    {ORBIT_TOK_BANGEQ,      50,     false},
-    {ORBIT_TOK_AMP,         40,     false},
-    {ORBIT_TOK_CARET,       30,     false},
-    {ORBIT_TOK_PIPE,        20,     false},
-    {ORBIT_TOK_AMPAMP,      10,     false},
-    {ORBIT_TOK_PIPEPIPE,    9,      false},
-    {ORBIT_TOK_EQUALS,      0,      false},
-    {ORBIT_TOK_PLUSEQ,      0,      false},
-    {ORBIT_TOK_MINUSEQ,     0,      false},
-    {ORBIT_TOK_STAREQ,      0,      false},
-    {ORBIT_TOK_SLASHEQ,     0,      false},
-    {ORBIT_TOK_INVALID,     -1,     false},
+    {ORBIT_TOK_DOT,         ORBIT_PREC_CALL,    false},
+    {ORBIT_TOK_LBRACKET,    ORBIT_PREC_CALL,    false},
+    {ORBIT_TOK_LPAREN,      ORBIT_PREC_CALL,    false},
+    {ORBIT_TOK_LTLT,        ORBIT_PREC_EXP,     false},
+    {ORBIT_TOK_GTGT,        ORBIT_PREC_EXP,     false},
+    {ORBIT_TOK_CARET,       ORBIT_PREC_EXP,     true},
+    {ORBIT_TOK_STARSTAR,    ORBIT_PREC_EXP,     true},
+    {ORBIT_TOK_AMP,         ORBIT_PREC_MULT,    false},
+    {ORBIT_TOK_STAR,        ORBIT_PREC_MULT,    false},
+    {ORBIT_TOK_SLASH,       ORBIT_PREC_MULT,    false},
+    {ORBIT_TOK_PERCENT,     ORBIT_PREC_MULT,    false},
+    {ORBIT_TOK_PLUS,        ORBIT_PREC_ADD,     false},
+    {ORBIT_TOK_MINUS,       ORBIT_PREC_ADD,     false},
+    {ORBIT_TOK_PIPE,        ORBIT_PREC_ADD,     false},
+    {ORBIT_TOK_LT,          ORBIT_PREC_COMPARE, false},
+    {ORBIT_TOK_GT,          ORBIT_PREC_COMPARE, false},
+    {ORBIT_TOK_LTEQ,        ORBIT_PREC_COMPARE, false},
+    {ORBIT_TOK_GTEQ,        ORBIT_PREC_COMPARE, false},
+    {ORBIT_TOK_EQEQ,        ORBIT_PREC_COMPARE, false},
+    {ORBIT_TOK_BANGEQ,      ORBIT_PREC_COMPARE, false},
+    {ORBIT_TOK_AMPAMP,      ORBIT_PREC_AND,     false},
+    {ORBIT_TOK_PIPEPIPE,    ORBIT_PREC_OR,      false},
+    {ORBIT_TOK_THEN,        ORBIT_PREC_OR,      false},
+    {ORBIT_TOK_EQUALS,      ORBIT_PREC_ASSIGN,  false},
+    {ORBIT_TOK_PLUSEQ,      ORBIT_PREC_ASSIGN,  false},
+    {ORBIT_TOK_MINUSEQ,     ORBIT_PREC_ASSIGN,  false},
+    {ORBIT_TOK_STAREQ,      ORBIT_PREC_ASSIGN,  false},
+    {ORBIT_TOK_SLASHEQ,     ORBIT_PREC_ASSIGN,  false},
+    {ORBIT_TOK_INVALID,     -1,                 false},
 };
 
 int orbit_tokenBinaryPrecedence(OrbitTokenKind token) {

@@ -66,6 +66,7 @@ typedef enum  {
     ORBIT_TOK_COMMA,
     ORBIT_TOK_DOT,
     ORBIT_TOK_ARROW,
+    ORBIT_TOK_THEN,
     
     // Language objects
     ORBIT_TOK_INTEGER_LITERAL,

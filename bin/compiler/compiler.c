@@ -21,7 +21,7 @@
 #include <orbit/utils/memory.h>
 
 int main(int argc, const char** args) {
-    fprintf(stderr, "orbitc built on %s @ %s\n", __DATE__, __TIME__);
+    fprintf(stderr, "orbitc built on %s @ %s by Amy Parent\n", __DATE__, __TIME__);
     int result = 0;
     
     if(argc < 2 || argc > 3) {
@@ -31,30 +31,30 @@ int main(int argc, const char** args) {
     
     orbit_stringPoolInit(1024);
     
-    OrbitASTContext cont;
-    orbit_astContextInit(&cont);
+    OrbitASTContext ctx;
+    orbit_astContextInit(&ctx);
     
-    if(!orbit_sourceInitPath(&cont.source, args[1])) {
+    if(!orbit_sourceInitPath(&ctx.source, args[1])) {
         fprintf(stderr, "error: cannot open `%s`\n", args[1]);
         return -1;
     }
     
     if(argc == 3 && strcmp(args[2], "-dump-tokens") == 0) {
-        orbit_dumpTokens(&cont);
+        orbit_dumpTokens(&ctx);
     } else {
-        orbit_parse(&cont);
+        orbit_parse(&ctx);
         
         //OrbitAST* ast = ORCRETAIN(orbit_parse(&source));
-        sema_runTypeAnalysis(&cont);
-        orbit_diagEmitAll(&cont.diagnostics);
-        result = cont.diagnostics.errorCount == 0 ? 0 : -1;
+        sema_runTypeAnalysis(&ctx);
+        orbit_diagEmitAll(&ctx.diagnostics);
+        result = ctx.diagnostics.errorCount == 0 ? 0 : -1;
         
         if(argc == 3 && strcmp(args[2], "-dump-ast") == 0) {
-            orbit_astPrint(stdout, cont.root);
+            orbit_astPrint(stdout, ctx.root);
         }
     }
     
-    orbit_astContextDeinit(&cont);
+    orbit_astContextDeinit(&ctx);
     orbit_stringPoolDeinit();
     return result;
 }

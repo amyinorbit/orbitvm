@@ -289,7 +289,14 @@ void orbit_parserNextToken(OCParser* parser) {
             case '&': _twoChars(parser, '&', ORBIT_TOK_AMPAMP, ORBIT_TOK_AMP);   return;
             case '|': _twoChars(parser, '|', ORBIT_TOK_PIPEPIPE, ORBIT_TOK_PIPE);return;
             case '!': _twoChars(parser, '=', ORBIT_TOK_BANGEQ, ORBIT_TOK_BANG);  return;
-            case '=': _twoChars(parser, '=', ORBIT_TOK_EQEQ, ORBIT_TOK_EQUALS);  return;
+            
+            case '=':
+                if(_match(parser, '=')) {
+                    _makeToken(parser, ORBIT_TOK_EQEQ);
+                } else {
+                    _twoChars(parser, '>', ORBIT_TOK_THEN, ORBIT_TOK_EQUALS);
+                }
+                return;
             
             case '*':
                 if(_match(parser, '*')) {

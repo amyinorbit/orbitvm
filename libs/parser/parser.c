@@ -46,6 +46,8 @@ static OrbitAST* recBlock(OCParser* parser) {
     for(;;) {
         if(have(parser, ORBIT_TOK_VAR))
             orbit_astListAdd(&block, recVarDecl(parser));
+        else if(have(parser, ORBIT_TOK_FUN))
+            orbit_astListAdd(&block, recFuncDecl(parser));
         else if(haveTerm(parser)
             || haveConditional(parser)
             || have(parser, ORBIT_TOK_RETURN)
@@ -281,6 +283,11 @@ static OrbitAST* recExpression(OCParser* parser, int minPrec) {
         case ORBIT_TOK_DOT:
             rhs = recFieldAccess(parser);
             expr = orbit_astMakeBinaryExpr(&operator, expr, rhs);
+            break;
+            
+        case ORBIT_TOK_THEN:
+            expr = orbit_astMakeCallExpr(recExpression(parser, nextMinPrec), expr);
+            //expr = recFuncApplication(parser, expr);
             break;
             
         default:
