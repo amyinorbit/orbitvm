@@ -176,3 +176,11 @@ int orbit_tokenBinaryRightAssoc(OrbitTokenKind token) {
     }
     return false;
 }
+
+double orbit_tokenDoubleValue(const OrbitToken* token) {
+    return strtod(token->source->bytes + token->sourceLoc, NULL);
+}
+
+int32_t orbit_tokenIntValue(const OrbitToken* token) {
+    return strtol(token->source->bytes + token->sourceLoc, NULL, 10);
+}
