@@ -10,9 +10,9 @@
 #ifndef orbit_chunk_h
 #define orbit_chunk_h
 #include <orbit/common.h>
+#include <orbit/rt2/value_array.h>
 
 typedef struct sOrbitChunk OrbitChunk;
-//typedef struct sOrbitLineData OrbitLineData;
 typedef uint32_t OrbitLineData;
 
 struct sOrbitLineData {
@@ -21,6 +21,8 @@ struct sOrbitLineData {
 };
 
 struct sOrbitChunk {
+    OrbitArray constants;
+    
     size_t count;
     size_t capacity;
     uint8_t* code;

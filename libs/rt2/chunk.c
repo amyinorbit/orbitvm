@@ -17,12 +17,14 @@ void orbit_chunkInit(OrbitChunk* self) {
     self->count = 0;
     self->code = NULL;
     self->lines = NULL;
+    orbit_arrayInit(&self->constants);
 }
 
 void orbit_chunkDeinit(OrbitChunk* self) {
     assert(self && "null chunk error");
     DEALLOC_ARRAY(self->code, uint8_t, self->capacity);
     DEALLOC_ARRAY(self->lines, OrbitLineData, self->capacity);
+    orbit_arrayDeinit(&self->constants);
     orbit_chunkInit(self);
 }
 

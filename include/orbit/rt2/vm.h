@@ -9,47 +9,30 @@
 //===--------------------------------------------------------------------------------------------===
 #ifndef orbit_vm_h
 #define orbit_vm_h
+#include <orbit/common.h>
+#include <orbit/rt2/chunk.h>
 
-#include <assert.h>
-#include <stdint.h>
-#include <orbit/orbit.h>
-#include <orbit/runtime/rtutils.h>
-#include <orbit/runtime/value.h>
-
-// We use the X-Macro to define the opcode enum
-#define OPCODE(code, idx, stack) CODE_##code,
+typedef struct sOrbitVM OrbitVM;
 typedef enum {
-#include <orbit/runtime/opcodes.h>
-} VMCode;
-#undef OPCODE
+    ORBIT_OK,
+    ORBIT_RUNTIME_ERROR,
+    ORBIT_COMPILE_ERROR,
+} OrbitResult;
 
-#define ORBIT_FIRST_GC (32 * 1024)
-#define ORBIT_GCSTACK_SIZE 32
+#define ORBIT_STACK_MAX 256
 
-struct _OrbitVM {
-    OrbitVMTask*    task;
-    OrbitGCObject*  gcHead;
-    uint64_t        allocated;
-    uint64_t        nextGC;
-    
-    OrbitGCMap*     dispatchTable;
-    OrbitGCMap*     classes;
-    OrbitGCMap*     modules;
-    
-    OrbitGCObject*  gcStack[ORBIT_GCSTACK_SIZE];
-    uint64_t        gcStackSize;
+struct sOrbitVM {
+    OrbitChunk* chunk;
+    uint8_t* ip;
+    OrbitValue* sp;
+    OrbitValue stack[ORBIT_STACK_MAX];
 };
 
-static inline void orbit_gcRetain(OrbitVM* vm, OrbitGCObject* object) {
-    assert(vm->gcStackSize < ORBIT_GCSTACK_SIZE-1 && "stack overflow");
-    vm->gcStack[vm->gcStackSize++] = object;
-}
+void orbit_vmInit(OrbitVM* self);
+void orbit_vmDeinit(OrbitVM* self);
 
-static inline void orbit_gcRelease(OrbitVM* vm) {
-    assert(vm->gcStackSize > 0 && "stack underflow");
-    vm->gcStackSize--;
-}
+// OrbitResult orbit_interpret(const char* source);
+OrbitResult orbit_run(OrbitVM* vm, OrbitChunk* chunk);
 
-void orbit_vmLoadModule(OrbitVM* vm, const char* module);
 
 #endif /* orbit_vm_h */

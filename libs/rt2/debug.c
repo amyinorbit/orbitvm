@@ -30,8 +30,15 @@ static const char* opcodeNames[] = {
 
 void orbit_debugChunk(const OrbitChunk* chunk, const char* name) {
     fprintf(stderr, "** chunk: %s **\n", name);
+    int oldLine = -1;
     for(int offset = 0; offset < chunk->count;) {
         fprintf(stderr, "%04d: ", offset);
+        int line = chunk->lines[offset];
+        if(line != oldLine)
+            fprintf(stderr, "%4d ", line);
+        else
+            fprintf(stderr, "   | ");
+        oldLine = line;
         offset = orbit_debugInstruction(chunk, offset);
     }
 }
