@@ -67,8 +67,12 @@ bool orbit_sourceInitFile(OrbitSource* source, FILE* file) {
     bytes[length] = '\0';
     fclose(file);
     
-    source->path = "";
-    source->bytes = bytes;
+    return orbit_sourceInitC(source, bytes, length);
+}
+
+bool orbit_sourceInitC(OrbitSource* source, char* string, uint32_t length) {
+    assert(source && "Invalid source manager instance passed");
+    source->bytes = string;
     source->length = length;
     
     _OrbitLineMap* map = ORBIT_ALLOC_FLEX(_OrbitLineMap, uint32_t, 100);
@@ -76,7 +80,6 @@ bool orbit_sourceInitFile(OrbitSource* source, FILE* file) {
     map->capacity = 100;
     map->data[0] = 0;
     source->lineMap = map;
-    
     return true;
 }
 
