@@ -51,6 +51,10 @@ static void orbit_astPrintType(FILE* out, OrbitAST* ast) {
     if(ast == NULL) { return; }
     if((ast->kind & ASTTypeExprMask) == 0) { return; }
     
+    if((ast->typeExpr.flags & ORBIT_TYPE_OPTIONAL)) {
+        fputs("maybe ", out);
+    }
+    
     switch(ast->kind) {
     case ORBIT_AST_TYPEEXPR_VOID:     fputs("Void", out);     break;
     case ORBIT_AST_TYPEEXPR_BOOL:     fputs("Bool", out);     break;
@@ -69,17 +73,17 @@ static void orbit_astPrintType(FILE* out, OrbitAST* ast) {
         break;
         
     case ORBIT_AST_TYPEEXPR_ARRAY:
-        fputs("Array[", out);
+        fputs("Array<", out);
         orbit_astPrintType(out, ast->typeExpr.arrayType.elementType);
-        fputs("]", out);
+        fputs(">", out);
         break;
         
     case ORBIT_AST_TYPEEXPR_MAP:
-        fputs("Map[", out);
+        fputs("Map<", out);
         orbit_astPrintType(out, ast->typeExpr.mapType.keyType);
         fputs(":", out);
         orbit_astPrintType(out, ast->typeExpr.mapType.elementType);
-        fputs("]", out);
+        fputs(">", out);
         break;
         
     default:

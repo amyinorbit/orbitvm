@@ -57,5 +57,7 @@ OrbitAST* orbit_astMakePrimitiveType(ASTKind kind);
 OrbitAST* orbit_astMakeFuncType(OrbitAST* returnType, OrbitAST* params);
 OrbitAST* orbit_astMakeArrayType(OrbitAST* elementType);
 OrbitAST* orbit_astMakeMapType(OrbitAST* keyType, OrbitAST* elementType);
+OrbitAST* orbit_astMakeOptional(OrbitAST* type, bool isOptional);
+OrbitAST* orbit_astMakeConst(OrbitAST* type, bool isConst);
 
 #endif /* orbit_ast_builders_h_ */

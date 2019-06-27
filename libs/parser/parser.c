@@ -35,7 +35,7 @@ static OrbitAST* recProgram(OCParser* parser) {
         expectTerminator(parser);
     }
     expect(parser, ORBIT_TOK_EOF);
-    return orbit_astMakeModuleDecl("TranslationUnit", orbit_astListClose(&program));
+    return orbit_astMakeModuleDecl("Module", orbit_astListClose(&program));
 }
 
 static OrbitAST* recBlock(OCParser* parser) {
@@ -405,10 +405,8 @@ static OrbitAST* recLambda(OCParser* parser) {
 }
 
 static OrbitAST* recType(OCParser* parser) {
-    if(match(parser, ORBIT_TOK_MAYBE)) {
-        //TODO: recognise optionals
-    }
-    return recTypename(parser);
+    bool isOptional = match(parser, ORBIT_TOK_MAYBE);
+    return orbit_astMakeOptional(recTypename(parser), isOptional);
 }
 
 

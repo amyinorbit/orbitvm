@@ -243,3 +243,19 @@ OrbitAST* orbit_astMakeMapType(OrbitAST* keyType, OrbitAST* elementType) {
     ast->typeExpr.mapType.elementType = ORCRETAIN(elementType);
     return ast;
 }
+
+OrbitAST* orbit_astMakeOptional(OrbitAST* type, bool isOptional) {
+    if(isOptional)
+        type->typeExpr.flags |= ORBIT_TYPE_OPTIONAL;
+    else
+        type->typeExpr.flags &= ~ORBIT_TYPE_OPTIONAL;
+    return type;
+}
+
+OrbitAST* orbit_astMakeConst(OrbitAST* type, bool isConst) {
+    if(isConst)
+        type->typeExpr.flags |= ORBIT_TYPE_CONST;
+    else
+        type->typeExpr.flags &= ~ORBIT_TYPE_CONST;
+    return type;
+}

@@ -82,6 +82,7 @@ OrbitAST* orbit_astTypeCopy(const OrbitAST* src) {
         break;
     }
     copy->next = src->next ? ORCRETAIN(orbit_astTypeCopy(src->next)) : NULL;
+    copy->typeExpr.flags = src->typeExpr.flags;
     return copy;
 }
 
@@ -89,6 +90,9 @@ void orbit_astTypeString(OCStringBuffer* buffer, OrbitAST* ast) {
     if(ast == NULL) { return; }
     if((ast->kind & ASTTypeExprMask) == 0) { return; }
     
+    if((ast->typeExpr.flags & ORBIT_TYPE_OPTIONAL)) {
+        orbit_stringBufferAppendC(buffer, "maybe ", 6);
+    }
     
     switch(ast->kind) {
     case ORBIT_AST_TYPEEXPR_VOID:     orbit_stringBufferAppendC(buffer, "Void", 4);   break;
@@ -108,17 +112,17 @@ void orbit_astTypeString(OCStringBuffer* buffer, OrbitAST* ast) {
         break;
         
     case ORBIT_AST_TYPEEXPR_ARRAY:
-        orbit_stringBufferAppendC(buffer, "Array[", 6);
+        orbit_stringBufferAppendC(buffer, "Array<", 6);
         orbit_astTypeString(buffer, ast->typeExpr.arrayType.elementType);
-        orbit_stringBufferAppend(buffer, ']');
+        orbit_stringBufferAppend(buffer, '>');
         break;
         
     case ORBIT_AST_TYPEEXPR_MAP:
-        orbit_stringBufferAppendC(buffer, "Map[", 4);
+        orbit_stringBufferAppendC(buffer, "Map<", 4);
         orbit_astTypeString(buffer, ast->typeExpr.mapType.keyType);
         orbit_stringBufferAppend(buffer, ':');
         orbit_astTypeString(buffer, ast->typeExpr.mapType.elementType);
-        orbit_stringBufferAppend(buffer, ']');
+        orbit_stringBufferAppend(buffer, '>');
         break;
         
     default:
