@@ -28,3 +28,9 @@ install(DIRECTORY include/orbit DESTINATION include)
 add_subdirectory(libs)
 add_subdirectory(bin)
 add_subdirectory(tests)
+
+add_custom_target(run
+    COMMAND orbit2
+    DEPENDS orbit2
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
