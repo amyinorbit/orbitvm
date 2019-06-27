@@ -30,6 +30,7 @@ struct sOrbitVM {
 
 void orbit_vmInit(OrbitVM* self);
 void orbit_vmDeinit(OrbitVM* self);
+void orbit_debugTOS(OrbitVM* self);
 
 // OrbitResult orbit_interpret(const char* source);
 OrbitResult orbit_run(OrbitVM* vm, OrbitChunk* chunk);

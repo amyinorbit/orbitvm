@@ -19,12 +19,14 @@
 typedef enum {
     CLI_RESET,
     CLI_BOLD,
+    CLI_BLACK,
     CLI_RED,
     CLI_GREEN,
     CLI_YELLOW,
     CLI_BLUE,
     CLI_MAGENTA,
     CLI_CYAN,
+    CLI_WHITE,
     CLI_BADCOLOR,
 } CLIColor;
 

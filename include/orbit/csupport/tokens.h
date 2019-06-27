@@ -77,6 +77,8 @@ typedef enum  {
     ORBIT_TOK_IDENTIFIER,
     
     // Language keywords
+    ORBIT_TOK_TRUE,
+    ORBIT_TOK_FALSE,
     ORBIT_TOK_FUN,
     ORBIT_TOK_VAR,
     ORBIT_TOK_CONST,

@@ -17,12 +17,14 @@
 static const char* _ansiCodes[] = {
     [CLI_RESET] = "\033[0m",
     [CLI_BOLD] = "\033[1m",
+    [CLI_BLACK] = "\033[30m",
     [CLI_RED] = "\033[31m",
     [CLI_GREEN] = "\033[32m",
     [CLI_YELLOW] = "\033[33m",
     [CLI_BLUE] = "\033[34m",
     [CLI_MAGENTA] = "\033[35m",
     [CLI_CYAN] = "\033[36m",
+    [CLI_WHITE] = "\033[37m",
     [CLI_BADCOLOR]  = "",
 };
 

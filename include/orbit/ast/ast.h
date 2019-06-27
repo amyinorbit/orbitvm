@@ -53,15 +53,17 @@ DECL_AST_KIND(EXPR_INIT,                21);
 DECL_AST_KIND(TYPEEXPR_VOID,            22);
 DECL_AST_KIND(TYPEEXPR_BOOL,            23);
 DECL_AST_KIND(TYPEEXPR_NUMBER,          24);
-DECL_AST_KIND(TYPEEXPR_STRING,          25);
-DECL_AST_KIND(TYPEEXPR_USER,            26);
-DECL_AST_KIND(TYPEEXPR_ARRAY,           27);
-DECL_AST_KIND(TYPEEXPR_MAP,             28);
-DECL_AST_KIND(TYPEEXPR_FUNC,            29);
-DECL_AST_KIND(TYPEEXPR_ANY,             30);
+// DECL_AST_KIND(TYPEEXPR_INT,            24);
+// DECL_AST_KIND(TYPEEXPR_FLOAT,          25);
+DECL_AST_KIND(TYPEEXPR_STRING,          26);
+DECL_AST_KIND(TYPEEXPR_USER,            27);
+DECL_AST_KIND(TYPEEXPR_ARRAY,           28);
+DECL_AST_KIND(TYPEEXPR_MAP,             29);
+DECL_AST_KIND(TYPEEXPR_FUNC,            30);
+DECL_AST_KIND(TYPEEXPR_ANY,             31);
 
-DECL_AST_KIND(GENERIC_PLACEHOLDER,      31);
-DECL_AST_KIND(GENERIC_PROTOCOL,         32);
+DECL_AST_KIND(GENERIC_PLACEHOLDER,      32);
+DECL_AST_KIND(GENERIC_PROTOCOL,         33);
 
 extern const ASTKind ASTAllMask;
 extern const ASTKind ASTStmtMask;
@@ -184,12 +186,12 @@ struct _OrbitAST {
         // Expressions
         // --------------------------------------------------------------------
         struct  {
-            OrbitToken     operator;
+            OrbitToken  operator;
             OrbitAST*   rhs;
         } unaryExpr;
         
         struct {
-            OrbitToken     operator;
+            OrbitToken  operator;
             OrbitAST*   lhs;
             OrbitAST*   rhs;
         } binaryExpr;
