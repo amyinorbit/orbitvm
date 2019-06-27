@@ -78,6 +78,9 @@ bool orbit_sourceInitPath(OrbitSource* source, const char* path);
 /// Creates a source handler by reading the bytes of [file].
 bool orbit_sourceInitFile(OrbitSource* source, FILE* file);
 
+// Creates a source handler from a string.
+bool orbit_sourceInitC(OrbitSource* source, char* string, uint32_t length);
+
 OrbitPhysSLoc orbit_sourcePhysicalLoc(const OrbitSource* source, OrbitSLoc loc);
 
 /// Deallocates the memory used to store the bytes in [source].
