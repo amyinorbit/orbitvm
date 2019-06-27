@@ -20,22 +20,29 @@
 // MARK: - Recognizer implementations
 
 static OrbitAST* recProgram(OCParser* parser) {
-    ASTListBuilder program;
-    orbit_astListStart(&program);
-    
+    ASTListBuilder block;
+    orbit_astListStart(&block);
+
     for(;;) {
         if(have(parser, ORBIT_TOK_VAR))
-            orbit_astListAdd(&program, recVarDecl(parser));
-        else if(have(parser, ORBIT_TOK_FUN)) 
-            orbit_astListAdd(&program, recFuncDecl(parser));
+            orbit_astListAdd(&block, recVarDecl(parser));
         else if(have(parser, ORBIT_TOK_TYPE))
-            orbit_astListAdd(&program, recTypeDecl(parser));
+            orbit_astListAdd(&block, recTypeDecl(parser));
+        else if(have(parser, ORBIT_TOK_FUN))
+            orbit_astListAdd(&block, recFuncDecl(parser));
+        else if(haveTerm(parser)
+            || haveConditional(parser)
+            || have(parser, ORBIT_TOK_RETURN)
+            || have(parser, ORBIT_TOK_BREAK)
+            || have(parser, ORBIT_TOK_CONTINUE)
+            || have(parser, ORBIT_TOK_LBRACE))
+             orbit_astListAdd(&block, recStatement(parser));
         else
             break;
         expectTerminator(parser);
     }
     expect(parser, ORBIT_TOK_EOF);
-    return orbit_astMakeModuleDecl("Module", orbit_astListClose(&program));
+    return orbit_astMakeModuleDecl("Module", orbit_astListClose(&block));
 }
 
 static OrbitAST* recBlock(OCParser* parser) {

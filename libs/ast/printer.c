@@ -167,7 +167,7 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("ModuleDecl '", out);
         console_printPooledString(out, ast->moduleDecl.symbol);
         fputs("'", out);
-        orbit_astPrintList(out, "DeclarationList", ast->moduleDecl.body, depth+1, true);
+        orbit_astPrintList(out, "Block", ast->moduleDecl.body, depth+1, true);
         break;
     
     case ORBIT_AST_DECL_FUNC:
