@@ -26,7 +26,7 @@
 
 void emitInteger(OrbitChunk* chunk, int line, OrbitToken literal) {
     uint8_t constant = chunk->constants.count;
-    orbit_arrayAppend(&chunk->constants, VALUE_INT(orbit_tokenDoubleValue(&literal)));
+    orbit_arrayAppend(&chunk->constants, ORBIT_VALUE_INT(orbit_tokenDoubleValue(&literal)));
     
     orbit_chunkWrite(chunk, OP_CONST, line);
     orbit_chunkWrite(chunk, constant, line);
@@ -34,7 +34,7 @@ void emitInteger(OrbitChunk* chunk, int line, OrbitToken literal) {
 
 void emitDouble(OrbitChunk* chunk, int line, OrbitToken literal) {
     uint8_t constant = chunk->constants.count;
-    orbit_arrayAppend(&chunk->constants, VALUE_FLOAT(orbit_tokenDoubleValue(&literal)));
+    orbit_arrayAppend(&chunk->constants, ORBIT_VALUE_FLOAT(orbit_tokenDoubleValue(&literal)));
     
     orbit_chunkWrite(chunk, OP_CONST, line);
     orbit_chunkWrite(chunk, constant, line);

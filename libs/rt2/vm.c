@@ -38,10 +38,11 @@ static inline OrbitValue peek(OrbitVM* vm, int distance) {
 }
 
 static inline void debugValue(OrbitValue value) {
-    switch(value.kind) {
-    case ORBIT_VK_BOOL: fprintf(stderr, "%s\n", AS_BOOL(value) ? "true":"false"); break;
-    case ORBIT_VK_INT: fprintf(stderr, "%d\n", AS_INT(value)); break;
-    case ORBIT_VK_FLOAT: fprintf(stderr, "%f\n", AS_FLOAT(value)); break;
+    uint32_t tag = ORBIT_GET_FLAGS(value);
+    switch(tag) {
+    case ORBIT_TAG_BOOL: fprintf(stderr, "%s\n", ORBIT_AS_BOOL(value) ? "true":"false"); break;
+    case ORBIT_TAG_INT: fprintf(stderr, "%d\n", ORBIT_AS_INT(value)); break;
+    case ORBIT_TAG_FLOAT: fprintf(stderr, "%f\n", ORBIT_AS_FLOAT(value)); break;
     }
 }
 
@@ -80,35 +81,35 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitChunk* chunk) {
         case OP_RETURN: return ORBIT_OK;
             
         case OP_CONST: push(vm, READ_CONSTANT()); NEXT();
-        case OP_TRUE: push(vm, VALUE_TRUE); NEXT();
-        case OP_FALSE: push(vm, VALUE_FALSE); NEXT();
+        case OP_TRUE: push(vm, ORBIT_VALUE_TRUE); NEXT();
+        case OP_FALSE: push(vm, ORBIT_VALUE_FALSE); NEXT();
             
         case OP_PRINT: debugValue(peek(vm, 0)); NEXT();
         
-        case OP_I2F: push(vm, VALUE_FLOAT((float)AS_INT(pop(vm))));
-        case OP_F2I: push(vm, VALUE_INT((int32_t)AS_FLOAT(pop(vm))));
+        case OP_I2F: push(vm, ORBIT_VALUE_FLOAT((float)ORBIT_AS_INT(pop(vm))));
+        case OP_F2I: push(vm, ORBIT_VALUE_INT((int32_t)ORBIT_AS_FLOAT(pop(vm))));
             
-        case OP_IADD: BINARY(AS_INT, VALUE_INT, +); NEXT();
-        case OP_ISUB: BINARY(AS_INT, VALUE_INT, -); NEXT();
-        case OP_IMUL: BINARY(AS_INT, VALUE_INT, *); NEXT();
-        case OP_IDIV: BINARY(AS_INT, VALUE_INT, /); NEXT();
+        case OP_IADD: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, +); NEXT();
+        case OP_ISUB: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, -); NEXT();
+        case OP_IMUL: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, *); NEXT();
+        case OP_IDIV: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, /); NEXT();
         
-        case OP_FADD: BINARY(AS_FLOAT, VALUE_FLOAT, +); NEXT();
-        case OP_FSUB: BINARY(AS_FLOAT, VALUE_FLOAT, -); NEXT();
-        case OP_FMUL: BINARY(AS_FLOAT, VALUE_FLOAT, *); NEXT();
-        case OP_FDIV: BINARY(AS_FLOAT, VALUE_FLOAT, /); NEXT();
+        case OP_FADD: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, +); NEXT();
+        case OP_FSUB: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, -); NEXT();
+        case OP_FMUL: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, *); NEXT();
+        case OP_FDIV: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, /); NEXT();
         
-        case OP_IEQ: BINARY(AS_INT, VALUE_BOOL, ==); NEXT();
-        case OP_ILT: BINARY(AS_INT, VALUE_BOOL, <); NEXT();
-        case OP_IGT: BINARY(AS_INT, VALUE_BOOL, >); NEXT();
-        case OP_ILTEQ: BINARY(AS_INT, VALUE_BOOL, <=); NEXT();
-        case OP_IGTEQ: BINARY(AS_INT, VALUE_BOOL, >=); NEXT();
+        case OP_IEQ: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, ==); NEXT();
+        case OP_ILT: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, <); NEXT();
+        case OP_IGT: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, >); NEXT();
+        case OP_ILTEQ: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, <=); NEXT();
+        case OP_IGTEQ: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, >=); NEXT();
         
-        case OP_FEQ: BINARY(AS_FLOAT, VALUE_BOOL, ==); NEXT();
-        case OP_FLT: BINARY(AS_FLOAT, VALUE_BOOL, <); NEXT();
-        case OP_FGT: BINARY(AS_FLOAT, VALUE_BOOL, >); NEXT();
-        case OP_FLTEQ: BINARY(AS_FLOAT, VALUE_BOOL, <=); NEXT();
-        case OP_FGTEQ: BINARY(AS_FLOAT, VALUE_BOOL, >=); NEXT();
+        case OP_FEQ: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, ==); NEXT();
+        case OP_FLT: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, <); NEXT();
+        case OP_FGT: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, >); NEXT();
+        case OP_FLTEQ: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, <=); NEXT();
+        case OP_FGTEQ: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, >=); NEXT();
         
             
         default:
