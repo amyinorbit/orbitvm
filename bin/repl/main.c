@@ -15,7 +15,7 @@
 #include <orbit/rt2/vm.h>
 #include <orbit/rt2/debug.h>
 #include <orbit/rt2/opcodes.h>
-#include <orbit/rt2/value_string.h>
+#include <orbit/rt2/value_object.h>
 
 #include <orbit/ast/context.h>
 #include <orbit/ast/diag.h>
@@ -51,7 +51,7 @@ void emitString(CodeGen codegen, int line, OrbitToken literal) {
     uint8_t constant = codegen.chunk->constants.count;
     
     OCString* parsed = orbit_stringPoolGet(literal.parsedStringLiteral);
-    OrbitString* string = orbit_stringNew(codegen.vm, parsed->data, parsed->length);
+    OrbitString* string = orbit_stringCopy(codegen.vm, parsed->data, parsed->length);
     
     orbit_arrayAppend(&codegen.chunk->constants, ORBIT_VALUE_REF(string));
     
@@ -121,7 +121,7 @@ OrbitResult repl_compile(CodeGen codegen, int line, const char* input) {
     orbit_diagEmitAll(&ctx.diagnostics);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
     
-    //orbit_astPrint(stdout, ctx.root);
+    orbit_astPrint(stdout, ctx.root);
     emit(codegen, line, ctx.root);
     // orbit_debugChunk(chunk, "repl");
     orbit_chunkWrite(codegen.chunk, OP_RETURN, line);
@@ -149,7 +149,7 @@ int main(int argc, const char** argv) {
         printf("%3d> ", lineNumber);
         console_setColor(stdout, CLI_RESET);
         
-        if (!fgets(line, sizeof(line), stdin)) {
+        if(!fgets(line, sizeof(line), stdin)) {
             printf("\n");
             break;                             
         }

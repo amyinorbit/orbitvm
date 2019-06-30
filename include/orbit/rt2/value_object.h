@@ -13,7 +13,6 @@
 #include <orbit/rt2/value.h>
 
 typedef struct sOrbitObject OrbitObject;
-typedef struct sOrbitClass OrbitClass;
 typedef struct sOrbitInstance OrbitInstance;
 typedef void (*OrbitDestructor)(void*);
 
@@ -23,20 +22,14 @@ typedef struct sOrbitString OrbitString;
 #define ORBIT_AS_REF(value) (OrbitObject*)((uintptr_t)((value) & ORBIT_MASK_REF))
 
 typedef enum {
-    ORBIT_OBJ_CLASS,
     ORBIT_OBJ_STRING,
 } OrbitObjectKind;
 
 struct sOrbitObject {
-    const OrbitClass* isa;
     OrbitObjectKind kind;
     OrbitObject* next;
     uint32_t mark:1;
     uint32_t retainCount:31;
-};
-
-struct sOrbitClass {
-    OrbitObject base;
 };
 
 struct sOrbitInstance {
@@ -52,10 +45,11 @@ struct sOrbitString {
     char data[];        // We use the flexible array member trick to avoid double-alloc
 };
 
-void orbit_objectInit(OrbitObject* self, OrbitVM* vm, const OrbitClass* isa);
-void orbit_objectFree(OrbitObject* self);
+OrbitObject* orbit_objectNew(OrbitVM* vm, OrbitObjectKind kind, size_t size);
 
-// OrbitObject* orbit_objectCopy(OrbitObject* other);
-// void orbit_objectTake(OrbitObject* self);
+OrbitString* orbit_stringCopy(OrbitVM* vm, const char* data, int32_t count);
+OrbitString* orbit_stringNew(OrbitVM* vm, int32_t count);
+
+void orbit_objectFree(OrbitObject* self);
 
 #endif

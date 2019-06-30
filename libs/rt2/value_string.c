@@ -12,17 +12,19 @@
 #include <orbit/rt2/vm.h>
 #include <unic/unic.h>
 #include <string.h>
+#include <assert.h>
 
-OrbitString* orbit_stringNew(OrbitVM* vm, const char* data, int32_t count) {
-    OrbitString* self = ALLOC_FLEX(OrbitString, char, count+1);
-    orbit_objectInit(&self->base, vm, NULL); // TODO: enable standard classes (String)
+OrbitString* orbit_stringConcat(OrbitVM* vm, const OrbitString* lhs, const OrbitString* rhs) {
+    assert(vm && "null VM pointer");
+    assert(lhs && rhs && "null string pointer");
     
-    self->base.kind = ORBIT_OBJ_STRING;
-    self->count = unic_countGraphemes(data, count);
-    self->utf8count = count;
+    size_t bytes = lhs->utf8count + rhs->utf8count;
+    OrbitString* string = orbit_stringNew(vm, bytes);
     
-    memcpy(self->data, data, count);
-    self->data[count] = '\0';
+    memcpy(string->data, lhs->data, lhs->utf8count);
+    memcpy(string->data + lhs->utf8count, rhs->data, rhs->utf8count);
     
-    return self;
+    string->count = unic_countGraphemes(string->data, bytes);
+    
+    return string;
 }

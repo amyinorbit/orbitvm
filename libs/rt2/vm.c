@@ -11,6 +11,7 @@
 #include <orbit/rt2/debug.h>
 #include <orbit/rt2/opcodes.h>
 #include <orbit/rt2/value_object.h>
+#include <orbit/rt2/value_string.h>
 #include <assert.h>
 #include <stdio.h>
 
@@ -41,9 +42,6 @@ static inline OrbitValue peek(OrbitVM* vm, int distance) {
 
 static inline void debugObject(OrbitObject* object) {
     switch(object->kind) {
-    case ORBIT_OBJ_CLASS:
-        fprintf(stderr, "<orbit class>\n");
-        break;
     case ORBIT_OBJ_STRING:
         {
             OrbitString* string = (OrbitString*)object;

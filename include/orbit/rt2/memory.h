@@ -12,8 +12,11 @@
 
 #include <orbit/common.h>
 
-#define ALLOC(type) \
-    orbit_allocator(NULL, 0, sizeof(type))
+#define ALLOC(T) \
+    orbit_allocator(NULL, 0, sizeof(T))
+
+#define ALLOC_OBJECT(vm, T, kind) \
+    (T*)orbit_objectNew(vm, kind, sizeof(T))
         
 #define ALLOC_ARRAY(T, count) \
     orbit_allocator(NULL, 0, sizeof(T) * (count))

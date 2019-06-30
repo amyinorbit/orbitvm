@@ -10,33 +10,57 @@
 #include <orbit/rt2/value_object.h>
 #include <orbit/rt2/vm.h>
 #include <orbit/rt2/memory.h>
+#include <unic/unic.h>
 #include <assert.h>
+#include <string.h>
 
-void orbit_objectInit(OrbitObject* self, OrbitVM* vm, const OrbitClass* isa) {
-    assert(self && "null object error");
+OrbitObject* orbit_objectNew(OrbitVM* vm, OrbitObjectKind kind, size_t size) {
     assert(vm && "null VM error");
     
-    self->isa = isa;
-    self->next = vm->head;
-    vm->head = self;
-    self->retainCount = 0;
-    self->mark = false;
+    OrbitObject* obj = (OrbitObject*)orbit_allocator(NULL, 0, size);
+    obj->kind = kind;
+    obj->retainCount = 0;
+    obj->mark = false;
+    
+    obj->next = vm->head;
+    vm->head = obj;
+    
+    return obj;
+}
+
+OrbitString* orbit_stringCopy(OrbitVM* vm, const char* data, int32_t count) {
+    assert(vm && "null VM error");
+    
+    OrbitString* self = ALLOC_OBJECT(vm, OrbitString, ORBIT_OBJ_STRING);
+    
+    self->count = unic_countGraphemes(data, count);
+    self->utf8count = count;
+    
+    memcpy(self->data, data, count);
+    self->data[count] = '\0';
+    
+    return self;
+}
+
+OrbitString* orbit_stringNew(OrbitVM* vm, int32_t count) {
+    assert(vm && "null VM error");
+    
+    OrbitString* self = ALLOC_OBJECT(vm, OrbitString, ORBIT_OBJ_STRING);
+    
+    self->count = 0;
+    self->utf8count = count;
+    self->data[count] = '\0';
+    
+    return self;
 }
 
 static void freeString(OrbitString* self) {
     DEALLOC_FLEX(self, OrbitString, char, self->utf8count+1);
 }
 
-static void freeClass(OrbitClass* self) {
-    DEALLOC(self, OrbitClass);
-}
-
 void orbit_objectFree(OrbitObject* self) {
     assert(self && "null object error");
     switch(self->kind) {
-        case ORBIT_OBJ_CLASS:
-            freeClass((OrbitClass*)self);
-            break;
         case ORBIT_OBJ_STRING: 
             freeString((OrbitString*)self);
             break;
