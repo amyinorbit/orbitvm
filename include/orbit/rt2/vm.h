@@ -11,8 +11,8 @@
 #define orbit_vm_h
 #include <orbit/common.h>
 #include <orbit/rt2/chunk.h>
+#include <orbit/rt2/value_object.h>
 
-typedef struct sOrbitVM OrbitVM;
 typedef enum {
     ORBIT_OK,
     ORBIT_RUNTIME_ERROR,
@@ -26,11 +26,15 @@ struct sOrbitVM {
     uint8_t* ip;
     OrbitValue* sp;
     OrbitValue stack[ORBIT_STACK_MAX];
+    
+    OrbitObject* head;
 };
 
 void orbit_vmInit(OrbitVM* self);
 void orbit_vmDeinit(OrbitVM* self);
 void orbit_debugTOS(OrbitVM* self);
+
+void orbit_vmCollect(OrbitVM* self);
 
 // OrbitResult orbit_interpret(const char* source);
 OrbitResult orbit_run(OrbitVM* vm, OrbitChunk* chunk);

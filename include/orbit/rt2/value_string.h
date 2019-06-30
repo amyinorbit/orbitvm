@@ -1,18 +1,17 @@
 //===--------------------------------------------------------------------------------------------===
-// common.h - [short description]
+// value_string.h - Orbit Runtime's string object API
 // This source is part of Orbit
 //
-// Created on 2019-06-27 by Amy Parent <amy@amyparent.com>
+// Created on 2019-06-28 by Amy Parent <amy@amyparent.com>
 // Copyright (c) 2016-2019 Amy Parent
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#ifndef orbit_common_h
-#define orbit_common_h
+#ifndef orbit_value_string_h
+#define orbit_value_string_h
+#include <orbit/common.h>
+#include <orbit/rt2/value_object.h>
 
-//#define ORBIT_DEBUG_TRACE
-#include <stdbool.h>
-#include <stdint.h>
-#include <stddef.h>
-typedef struct sOrbitVM OrbitVM;
+OrbitString* orbit_stringNew(OrbitVM* vm, const char* data, int32_t count);
+
 #endif

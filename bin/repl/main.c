@@ -10,10 +10,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 #include <orbit/rt2/chunk.h>
 #include <orbit/rt2/vm.h>
 #include <orbit/rt2/debug.h>
 #include <orbit/rt2/opcodes.h>
+#include <orbit/rt2/value_string.h>
 
 #include <orbit/ast/context.h>
 #include <orbit/ast/diag.h>
@@ -24,58 +26,79 @@
 #include <orbit/parser/parser.h>
 #include <orbit/sema/typecheck.h>
 
-void emitInteger(OrbitChunk* chunk, int line, OrbitToken literal) {
-    uint8_t constant = chunk->constants.count;
-    orbit_arrayAppend(&chunk->constants, ORBIT_VALUE_INT(orbit_tokenDoubleValue(&literal)));
+typedef struct {
+    OrbitVM* vm;
+    OrbitChunk* chunk;
+} CodeGen;
+
+void emitInteger(CodeGen codegen, int line, OrbitToken literal) {
+    uint8_t constant = codegen.chunk->constants.count;
+    orbit_arrayAppend(&codegen.chunk->constants, ORBIT_VALUE_INT(orbit_tokenIntValue(&literal)));
     
-    orbit_chunkWrite(chunk, OP_CONST, line);
-    orbit_chunkWrite(chunk, constant, line);
+    orbit_chunkWrite(codegen.chunk, OP_CONST, line);
+    orbit_chunkWrite(codegen.chunk, constant, line);
 }
 
-void emitDouble(OrbitChunk* chunk, int line, OrbitToken literal) {
-    uint8_t constant = chunk->constants.count;
-    orbit_arrayAppend(&chunk->constants, ORBIT_VALUE_FLOAT(orbit_tokenDoubleValue(&literal)));
+void emitDouble(CodeGen codegen, int line, OrbitToken literal) {
+    uint8_t constant = codegen.chunk->constants.count;
+    orbit_arrayAppend(&codegen.chunk->constants, ORBIT_VALUE_FLOAT(orbit_tokenDoubleValue(&literal)));
     
-    orbit_chunkWrite(chunk, OP_CONST, line);
-    orbit_chunkWrite(chunk, constant, line);
+    orbit_chunkWrite(codegen.chunk, OP_CONST, line);
+    orbit_chunkWrite(codegen.chunk, constant, line);
 }
 
-void emitBinary(OrbitChunk* chunk, int line, OrbitTokenKind operator) {
+void emitString(CodeGen codegen, int line, OrbitToken literal) {
+    uint8_t constant = codegen.chunk->constants.count;
+    
+    OCString* parsed = orbit_stringPoolGet(literal.parsedStringLiteral);
+    OrbitString* string = orbit_stringNew(codegen.vm, parsed->data, parsed->length);
+    
+    orbit_arrayAppend(&codegen.chunk->constants, ORBIT_VALUE_REF(string));
+    
+    orbit_chunkWrite(codegen.chunk, OP_CONST, line);
+    orbit_chunkWrite(codegen.chunk, constant, line);
+}
+
+void emitBinary(CodeGen codegen, int line, OrbitTokenKind operator) {
     switch(operator) {
-        case ORBIT_TOK_PLUS: orbit_chunkWrite(chunk, OP_IADD, line); break;
-        case ORBIT_TOK_MINUS: orbit_chunkWrite(chunk, OP_ISUB, line); break;
-        case ORBIT_TOK_STAR: orbit_chunkWrite(chunk, OP_IMUL, line); break;
-        case ORBIT_TOK_SLASH: orbit_chunkWrite(chunk, OP_IDIV, line); break;
-        case ORBIT_TOK_EQEQ: orbit_chunkWrite(chunk, OP_IEQ, line); break;
-        case ORBIT_TOK_LT: orbit_chunkWrite(chunk, OP_ILT, line); break;
-        case ORBIT_TOK_GT: orbit_chunkWrite(chunk, OP_IGT, line); break;
-        case ORBIT_TOK_LTEQ: orbit_chunkWrite(chunk, OP_ILTEQ, line); break;
-        case ORBIT_TOK_GTEQ: orbit_chunkWrite(chunk, OP_IGTEQ, line); break;
+        case ORBIT_TOK_PLUS: orbit_chunkWrite(codegen.chunk, OP_IADD, line); break;
+        case ORBIT_TOK_MINUS: orbit_chunkWrite(codegen.chunk, OP_ISUB, line); break;
+        case ORBIT_TOK_STAR: orbit_chunkWrite(codegen.chunk, OP_IMUL, line); break;
+        case ORBIT_TOK_SLASH: orbit_chunkWrite(codegen.chunk, OP_IDIV, line); break;
+        case ORBIT_TOK_EQEQ: orbit_chunkWrite(codegen.chunk, OP_IEQ, line); break;
+        case ORBIT_TOK_LT: orbit_chunkWrite(codegen.chunk, OP_ILT, line); break;
+        case ORBIT_TOK_GT: orbit_chunkWrite(codegen.chunk, OP_IGT, line); break;
+        case ORBIT_TOK_LTEQ: orbit_chunkWrite(codegen.chunk, OP_ILTEQ, line); break;
+        case ORBIT_TOK_GTEQ: orbit_chunkWrite(codegen.chunk, OP_IGTEQ, line); break;
         default: break;
     }
 }
 
-void codegen(OrbitChunk* chunk, int line, OrbitAST* node) {
+void emit(CodeGen codegen, int line, OrbitAST* node) {
     if(!node) return;
     switch(node->kind) {
     case ORBIT_AST_EXPR_CONSTANT_INTEGER:
-        emitInteger(chunk, line, node->constantExpr.symbol);
+        emitInteger(codegen, line, node->constantExpr.symbol);
         break;
         
     case ORBIT_AST_EXPR_CONSTANT_FLOAT:
-        emitDouble(chunk, line, node->constantExpr.symbol);
+        emitDouble(codegen, line, node->constantExpr.symbol);
+        break;
+        
+    case ORBIT_AST_EXPR_CONSTANT_STRING:
+        emitString(codegen, line, node->constantExpr.symbol);
         break;
         
         // case ORBIT_AST_EXPR_
         
     case ORBIT_AST_EXPR_BINARY:
-        codegen(chunk, line, node->binaryExpr.lhs);
-        codegen(chunk, line, node->binaryExpr.rhs);
-        emitBinary(chunk, line, node->binaryExpr.operator.kind);
+        emit(codegen, line, node->binaryExpr.lhs);
+        emit(codegen, line, node->binaryExpr.rhs);
+        emitBinary(codegen, line, node->binaryExpr.operator.kind);
         break;
         
     case ORBIT_AST_DECL_MODULE:
-        codegen(chunk, line, node->moduleDecl.body);
+        emit(codegen, line, node->moduleDecl.body);
         break;
         
         default:
@@ -83,7 +106,7 @@ void codegen(OrbitChunk* chunk, int line, OrbitAST* node) {
     }
 }
 
-OrbitResult repl_compile(OrbitChunk* chunk, int line, const char* input) {
+OrbitResult repl_compile(CodeGen codegen, int line, const char* input) {
     size_t length = strlen(input);
     char* src = malloc(length + 1);
     memcpy(src, input, length);
@@ -99,9 +122,9 @@ OrbitResult repl_compile(OrbitChunk* chunk, int line, const char* input) {
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
     
     //orbit_astPrint(stdout, ctx.root);
-    codegen(chunk, line, ctx.root);
+    emit(codegen, line, ctx.root);
     // orbit_debugChunk(chunk, "repl");
-    orbit_chunkWrite(chunk, OP_RETURN, line);
+    orbit_chunkWrite(codegen.chunk, OP_RETURN, line);
     orbit_astContextDeinit(&ctx);
     return ORBIT_OK;
 }
@@ -111,6 +134,7 @@ void repl_forward(const char* cmd) {
 }
 
 int main(int argc, const char** argv) {
+    setlocale(LC_ALL, NULL);
     orbit_stringPoolInit(1024);
     
     OrbitVM vm;
@@ -137,8 +161,9 @@ int main(int argc, const char** argv) {
         
         OrbitChunk chunk;
         orbit_chunkInit(&chunk);
+        CodeGen codegen = (CodeGen){&vm, &chunk};
         
-        if(repl_compile(&chunk, lineNumber, line) == ORBIT_OK) {
+        if(repl_compile(codegen, lineNumber, line) == ORBIT_OK) {
             orbit_run(&vm, &chunk);
             console_setColor(stderr, CLI_CYAN);
             orbit_debugTOS(&vm);

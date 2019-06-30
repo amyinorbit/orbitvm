@@ -15,17 +15,23 @@
 #define ALLOC(type) \
     orbit_allocator(NULL, 0, sizeof(type))
         
-#define ALLOC_ARRAY(type, count) \
-    orbit_allocator(NULL, 0, sizeof(type) * (count))
+#define ALLOC_ARRAY(T, count) \
+    orbit_allocator(NULL, 0, sizeof(T) * (count))
+
+#define ALLOC_FLEX(T, U, count) \
+    orbit_allocator(NULL, 0, sizeof(T) + (sizeof(U) * (count)))
         
-#define REALLOC_ARRAY(array, type, old, count) \
-    orbit_allocator(array, sizeof(type) * (old), sizeof(type) * (count))
+#define REALLOC_ARRAY(array, T, old, count) \
+    orbit_allocator(array, sizeof(T) * (old), sizeof(T) * (count))
         
-#define DEALLOC(ptr, type) \
-    orbit_allocator(ptr, sizeof(type), 0)
+#define DEALLOC(ptr, T) \
+    orbit_allocator(ptr, sizeof(T), 0)
+
+#define DEALLOC_FLEX(ptr, T, U, count) \
+    orbit_allocator(ptr, sizeof(T) + (sizeof(U) * count), 0)
         
-#define DEALLOC_ARRAY(ptr, type, count) \
-    orbit_allocator(ptr, sizeof(type) * count, 0)
+#define DEALLOC_ARRAY(ptr, T, count) \
+    orbit_allocator(ptr, sizeof(T) * count, 0)
 
 #define GROW_CAPACITY(capacity) \
     ((capacity) < 8 ? 8 : (capacity) * 2)

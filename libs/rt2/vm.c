@@ -10,17 +10,19 @@
 #include <orbit/rt2/vm.h>
 #include <orbit/rt2/debug.h>
 #include <orbit/rt2/opcodes.h>
+#include <orbit/rt2/value_object.h>
 #include <assert.h>
 #include <stdio.h>
 
 void orbit_vmInit(OrbitVM* self) {
     assert(self && "null vm error");
     self->sp = self->stack;
+    self->head = NULL;
 }
 
 void orbit_vmDeinit(OrbitVM* self) {
     assert(self && "null vm error");
-    
+    orbit_vmCollect(self);
 }
 
 static inline void push(OrbitVM* vm, OrbitValue value) {
@@ -37,7 +39,25 @@ static inline OrbitValue peek(OrbitVM* vm, int distance) {
     return vm->sp[-1 - distance];
 }
 
+static inline void debugObject(OrbitObject* object) {
+    switch(object->kind) {
+    case ORBIT_OBJ_CLASS:
+        fprintf(stderr, "<orbit class>\n");
+        break;
+    case ORBIT_OBJ_STRING:
+        {
+            OrbitString* string = (OrbitString*)object;
+            fprintf(stderr, "%.*s\n", string->utf8count, string->data);
+        }
+        break;
+    };
+}
+
 static inline void debugValue(OrbitValue value) {
+    if(ORBIT_IS_REF(value)) {
+        debugObject(ORBIT_AS_REF(value));
+        return;
+    }
     uint32_t tag = ORBIT_GET_FLAGS(value);
     switch(tag) {
     case ORBIT_TAG_BOOL: fprintf(stderr, "%s\n", ORBIT_AS_BOOL(value) ? "true":"false"); break;
