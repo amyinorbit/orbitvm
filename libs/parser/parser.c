@@ -26,8 +26,8 @@ static OrbitAST* recProgram(OCParser* parser) {
     for(;;) {
         if(have(parser, ORBIT_TOK_VAR))
             orbit_astListAdd(&block, recVarDecl(parser));
-        else if(have(parser, ORBIT_TOK_TYPE))
-            orbit_astListAdd(&block, recTypeDecl(parser));
+        // else if(have(parser, ORBIT_TOK_TYPE))
+        //     orbit_astListAdd(&block, recTypeDecl(parser));
         else if(have(parser, ORBIT_TOK_FUN))
             orbit_astListAdd(&block, recFuncDecl(parser));
         else if(haveTerm(parser)
@@ -70,37 +70,37 @@ static OrbitAST* recBlock(OCParser* parser) {
     return orbit_astMakeBlock(orbit_astListClose(&block));
 }
 
-static OrbitAST* recTypeDecl(OCParser* parser) {
-    expect(parser, ORBIT_TOK_TYPE);
-    OrbitToken symbol = current(parser);
-    expect(parser, ORBIT_TOK_IDENTIFIER);
-    
-    OrbitAST* init = NULL;
-    ASTListBuilder fields;
-    orbit_astListStart(&fields);
-    
-    expect(parser, ORBIT_TOK_LBRACE);
-    do {
-        if(have(parser, ORBIT_TOK_VAR)) {
-            orbit_astListAdd(&fields, recVarDecl(parser));
-        }
-        else if(have(parser, ORBIT_TOK_INIT)) {
-            // TODO: throw error if init is not null?
-            init = recTypeInitDecl(parser);
-        }
-        expectTerminator(parser);
-    } while(have(parser, ORBIT_TOK_VAR) || have(parser, ORBIT_TOK_INIT));
-    expect(parser, ORBIT_TOK_RBRACE);
-    return orbit_astMakeStructDecl(&symbol, init, NULL, orbit_astListClose(&fields));
-}
+// static OrbitAST* recTypeDecl(OCParser* parser) {
+//     expect(parser, ORBIT_TOK_TYPE);
+//     OrbitToken symbol = current(parser);
+//     expect(parser, ORBIT_TOK_IDENTIFIER);
+//
+//     OrbitAST* init = NULL;
+//     ASTListBuilder fields;
+//     orbit_astListStart(&fields);
+//
+//     expect(parser, ORBIT_TOK_LBRACE);
+//     do {
+//         if(have(parser, ORBIT_TOK_VAR)) {
+//             orbit_astListAdd(&fields, recVarDecl(parser));
+//         }
+//         else if(have(parser, ORBIT_TOK_INIT)) {
+//             // TODO: throw error if init is not null?
+//             init = recTypeInitDecl(parser);
+//         }
+//         expectTerminator(parser);
+//     } while(have(parser, ORBIT_TOK_VAR) || have(parser, ORBIT_TOK_INIT));
+//     expect(parser, ORBIT_TOK_RBRACE);
+//     return orbit_astMakeStructDecl(&symbol, init, NULL, orbit_astListClose(&fields));
+// }
 
 // type-init-decl  ::= 'init' '{' block '}'
-static OrbitAST* recTypeInitDecl(OCParser* parser) {
-    //OrbitToken symbol = current(parser);
-    expect(parser, ORBIT_TOK_INIT);
-    OrbitAST* block = recBlock(parser);
-    return block;
-}
+// static OrbitAST* recTypeInitDecl(OCParser* parser) {
+//     //OrbitToken symbol = current(parser);
+//     expect(parser, ORBIT_TOK_INIT);
+//     OrbitAST* block = recBlock(parser);
+//     return block;
+// }
 
 // 'var' identifier ((':', type) | ((':', type)? '=' expression))
 static OrbitAST* recVarDecl(OCParser* parser) {
@@ -282,15 +282,15 @@ static OrbitAST* recExpression(OCParser* parser, int minPrec) {
             expr = orbit_astMakeCallExpr(expr, rhs);
             break;
             
-        case ORBIT_TOK_LBRACKET:
-            rhs = recSubscript(parser);
-            expr = orbit_astMakeSubscriptExpr(expr, rhs);
-            break;
+        // case ORBIT_TOK_LBRACKET:
+        //     rhs = recSubscript(parser);
+        //     expr = orbit_astMakeSubscriptExpr(expr, rhs);
+        //     break;
             
-        case ORBIT_TOK_DOT:
-            rhs = recFieldAccess(parser);
-            expr = orbit_astMakeBinaryExpr(&operator, expr, rhs);
-            break;
+        // case ORBIT_TOK_DOT:
+        //     rhs = recFieldAccess(parser);
+        //     expr = orbit_astMakeBinaryExpr(&operator, expr, rhs);
+        //     break;
             
         case ORBIT_TOK_THEN:
             expr = orbit_astMakeCallExpr(recExpression(parser, nextMinPrec), expr);
@@ -325,8 +325,8 @@ static OrbitAST* recTerm(OCParser* parser) {
     }
     else if(have(parser, ORBIT_TOK_RSLASH))
         term = recLambda(parser);
-    else if(have(parser, ORBIT_TOK_INIT))
-        term = recInitExpr(parser);
+    // else if(have(parser, ORBIT_TOK_INIT))
+    //     term = recInitExpr(parser);
     else if(have(parser, ORBIT_TOK_IDENTIFIER))
         term = recName(parser);
     else if(match(parser, ORBIT_TOK_STRING_LITERAL))
@@ -342,16 +342,16 @@ static OrbitAST* recTerm(OCParser* parser) {
 }
 
 
-static OrbitAST* recInitExpr(OCParser* parser) {
-    expect(parser, ORBIT_TOK_INIT);
-    OrbitAST* type = recTypename(parser);
-    OrbitAST* paramList = NULL;
-    if(match(parser, ORBIT_TOK_LPAREN)) {
-        paramList = recExprList(parser);
-        expect(parser, ORBIT_TOK_RPAREN);
-    }
-    return orbit_astMakeInitExpr(type, paramList);
-}
+// static OrbitAST* recInitExpr(OCParser* parser) {
+//     expect(parser, ORBIT_TOK_INIT);
+//     OrbitAST* type = recTypename(parser);
+//     OrbitAST* paramList = NULL;
+//     if(match(parser, ORBIT_TOK_LPAREN)) {
+//         paramList = recExprList(parser);
+//         expect(parser, ORBIT_TOK_RPAREN);
+//     }
+//     return orbit_astMakeInitExpr(type, paramList);
+// }
 
 static OrbitAST* recName(OCParser* parser) {
     OrbitToken symbol = current(parser);
@@ -360,18 +360,18 @@ static OrbitAST* recName(OCParser* parser) {
     return name;
 }
 
-static OrbitAST* recSubscript(OCParser* parser) {
-    OrbitAST* subscript = recExpression(parser, 0);
-    expect(parser, ORBIT_TOK_RBRACKET);
-    return subscript;
-}
+// static OrbitAST* recSubscript(OCParser* parser) {
+//     OrbitAST* subscript = recExpression(parser, 0);
+//     expect(parser, ORBIT_TOK_RBRACKET);
+//     return subscript;
+// }
 
-static OrbitAST* recFieldAccess(OCParser* parser) {
-    //expect(parser, ORBIT_TOK_DOT);
-    OrbitToken symbol = current(parser);
-    expect(parser, ORBIT_TOK_IDENTIFIER);
-    return orbit_astMakeNameExpr(&symbol);
-}
+// static OrbitAST* recFieldAccess(OCParser* parser) {
+//     //expect(parser, ORBIT_TOK_DOT);
+//     OrbitToken symbol = current(parser);
+//     expect(parser, ORBIT_TOK_IDENTIFIER);
+//     return orbit_astMakeNameExpr(&symbol);
+// }
 
 static OrbitAST* recFuncCall(OCParser* parser) {
     OrbitAST* paramList = NULL;

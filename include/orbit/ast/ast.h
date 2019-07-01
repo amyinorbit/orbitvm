@@ -47,23 +47,25 @@ DECL_AST_KIND(EXPR_CONSTANT_STRING,     18);
 DECL_AST_KIND(EXPR_LAMBDA,              19);
 DECL_AST_KIND(EXPR_NAME,                20);
 DECL_AST_KIND(EXPR_INIT,                21);
+DECL_AST_KIND(EXPR_I2F,                 22);
+DECL_AST_KIND(EXPR_F2I,                 22);
 
     
 // TODO: Add Maybe type node, template system?
-DECL_AST_KIND(TYPEEXPR_VOID,            22);
-DECL_AST_KIND(TYPEEXPR_BOOL,            23);
-DECL_AST_KIND(TYPEEXPR_NUMBER,          24);
-// DECL_AST_KIND(TYPEEXPR_INT,            24);
-// DECL_AST_KIND(TYPEEXPR_FLOAT,          25);
-DECL_AST_KIND(TYPEEXPR_STRING,          26);
-DECL_AST_KIND(TYPEEXPR_USER,            27);
-DECL_AST_KIND(TYPEEXPR_ARRAY,           28);
-DECL_AST_KIND(TYPEEXPR_MAP,             29);
-DECL_AST_KIND(TYPEEXPR_FUNC,            30);
-DECL_AST_KIND(TYPEEXPR_ANY,             31);
+DECL_AST_KIND(TYPEEXPR_VOID,            23);
+DECL_AST_KIND(TYPEEXPR_BOOL,            24);
+// DECL_AST_KIND(TYPEEXPR_NUMBER,          24);
+DECL_AST_KIND(TYPEEXPR_INT,             25);
+DECL_AST_KIND(TYPEEXPR_FLOAT,           26);
+DECL_AST_KIND(TYPEEXPR_STRING,          27);
+DECL_AST_KIND(TYPEEXPR_USER,            28);
+DECL_AST_KIND(TYPEEXPR_ARRAY,           29);
+DECL_AST_KIND(TYPEEXPR_MAP,             30);
+DECL_AST_KIND(TYPEEXPR_FUNC,            31);
+DECL_AST_KIND(TYPEEXPR_ANY,             32);
 
-DECL_AST_KIND(GENERIC_PLACEHOLDER,      32);
-DECL_AST_KIND(GENERIC_PROTOCOL,         33);
+// DECL_AST_KIND(GENERIC_PLACEHOLDER,      33);
+// DECL_AST_KIND(GENERIC_PROTOCOL,         34);
 
 extern const ASTKind ASTAllMask;
 extern const ASTKind ASTStmtMask;
@@ -81,9 +83,9 @@ enum _OrbitASTTypeFlags {
     ORBIT_TYPE_OPTIONAL   = 1 << 1
 };
 
-struct _OrbitASTGeneric {
-    
-};
+// struct _OrbitASTGeneric {
+//
+// };
 
 struct _OrbitASTType {
     //OrbitAST*       canonicalType;

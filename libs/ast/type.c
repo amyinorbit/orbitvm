@@ -95,11 +95,12 @@ void orbit_astTypeString(OCStringBuffer* buffer, OrbitAST* ast) {
     }
     
     switch(ast->kind) {
-    case ORBIT_AST_TYPEEXPR_VOID:     orbit_stringBufferAppendC(buffer, "Void", 4);   break;
-    case ORBIT_AST_TYPEEXPR_BOOL:     orbit_stringBufferAppendC(buffer, "Bool", 4);   break;
-    case ORBIT_AST_TYPEEXPR_NUMBER:   orbit_stringBufferAppendC(buffer, "Number", 6); break;
-    case ORBIT_AST_TYPEEXPR_STRING:   orbit_stringBufferAppendC(buffer, "String", 6); break;
-    case ORBIT_AST_TYPEEXPR_ANY:      orbit_stringBufferAppendC(buffer, "Any", 3);    break;
+    case ORBIT_AST_TYPEEXPR_VOID:     orbit_stringBufferAppendC(buffer, "Void", 4);     break;
+    case ORBIT_AST_TYPEEXPR_BOOL:     orbit_stringBufferAppendC(buffer, "Bool", 4);     break;
+    case ORBIT_AST_TYPEEXPR_INT:      orbit_stringBufferAppendC(buffer, "Int", 3);      break;
+    case ORBIT_AST_TYPEEXPR_FLOAT:    orbit_stringBufferAppendC(buffer, "Float", 5);    break;
+    case ORBIT_AST_TYPEEXPR_STRING:   orbit_stringBufferAppendC(buffer, "String", 6);   break;
+    case ORBIT_AST_TYPEEXPR_ANY:      orbit_stringBufferAppendC(buffer, "Any", 3);      break;
     case ORBIT_AST_TYPEEXPR_USER:
         orbit_stringBufferAppendP(buffer, ast->typeExpr.userType.symbol);
         break;

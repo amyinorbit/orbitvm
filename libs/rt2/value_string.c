@@ -15,7 +15,7 @@
 #include <assert.h>
 
 OrbitString* orbit_stringConcat(OrbitGC* gc, const OrbitString* lhs, const OrbitString* rhs) {
-    assert(vm && "null VM pointer");
+    assert(gc && "null Garbage Collector pointer");
     assert(lhs && rhs && "null string pointer");
     
     size_t bytes = lhs->utf8count + rhs->utf8count;

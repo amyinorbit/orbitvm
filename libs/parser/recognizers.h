@@ -14,8 +14,8 @@
 #include "recursive_descent.h"
 
 static OrbitAST* recBlock(OCParser*);
-static OrbitAST* recTypeDecl(OCParser*);
-static OrbitAST* recTypeInitDecl(OCParser* parser);
+// static OrbitAST* recTypeDecl(OCParser*);
+// static OrbitAST* recTypeInitDecl(OCParser* parser);
 static OrbitAST* recVarDecl(OCParser*);
 static OrbitAST* recFuncDecl(OCParser*);
 static OrbitAST* recFuncLiteral(OCParser*, const OrbitToken*);
@@ -31,10 +31,10 @@ static OrbitAST* recReturnStatement(OCParser*);
 
 static OrbitAST* recExpression(OCParser*, int);
 static OrbitAST* recTerm(OCParser*);
-static OrbitAST* recInitExpr(OCParser*);
+// static OrbitAST* recInitExpr(OCParser*);
 static OrbitAST* recName(OCParser*);
-static OrbitAST* recSubscript(OCParser*);
-static OrbitAST* recFieldAccess(OCParser*);
+// static OrbitAST* recSubscript(OCParser*);
+// static OrbitAST* recFieldAccess(OCParser*);
 static OrbitAST* recFuncCall(OCParser*);
 static OrbitAST* recExprList(OCParser*);
 
