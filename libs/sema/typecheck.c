@@ -10,56 +10,35 @@
 #include <orbit/sema/typecheck.h>
 #include <orbit/utils/memory.h>
 #include <assert.h>
+#include "helpers.h"
 
-typedef struct sFnOverload FnOverload;
 
-typedef struct {
-    ORCObject base;
-    OrbitAST* decl;
-    FnOverload* next;
-} sFnOverload;
 
-static void initScope(OCScope* self, OCScope* parent) {
-    self->parent = parent;
-    orbit_rcMapInit(&self->types);
-    orbit_rcMapInit(&self->symbols);
-}
-
-static void deinitScope(OCScope* self) {
-    orbit_rcMapDeinit(&self->types);
-    orbit_rcMapDeinit(&self->symbols);
-}
-
-static OCScope* pushScope(OCSema* self) {
-    OCScope* scope = self->current++;
-    OCScope* parent = scope == self->stack ? &self->global : (scope-1);
-    initScope(scope, parent);
-    return scope;
-}
-
-static void popScope(OCSema* self) {
-    OCScope* scope = (--self->current);
-    deinitScope(scope);
-}
-
-void orbit_semaInit(OCSema* self) {
-    assert(self && "null semantic checker error");
-    initScope(&self->global, NULL);
-    self->context = NULL;
-    self->current = self->stack;
-}
-
-void orbit_semaDeinit(OCSema* self) {
-    assert(self && "null semantic checker error");
-    while(self->current > self->stack) {
-        deinitScope(self->current);
-        self->current -= 1;
-    }
-    deinitScope(&self->global);
-}
 
 void orbit_semaCheck(OCSema* self, OrbitASTContext* context) {
     assert(self && "null semantic checker error");
+    assert(context && "null syntax tree error");
+    
+    // We need to walk the tree and
+    //  1) declare symbols as we encounter them
+    //  2) infer type of symbols
+    //  3) deduce type of expressions and check them
+    //      3a) insert conversion nodes where needed (i2f, f2i)
+    //  4) Check function calls?
+    //
+    //
+    // As enticing as it is, not quite sure the AST walker/traversal API is the best tool for
+    // that job -- might be easier to roll our own here instead.
+    //
+    // We also need to match function overloads and implicit type conversions (not many really,
+    // only Int <-> Float).
+    // Overloads can be handled through a linked list of Symbol structs, which get stored in the
+    // symbol table. 
+    // The conversion system probably belongs in a sibling module with sort-of instruction
+    // selecting. Given that not all operations will be handled through native instructions
+    // (yay operator overloading), it's probably best to put all of that behind some layer of
+    // abstraction so we don't have to come in here and pull everything apart when we implement
+    // that.
     
 }
 

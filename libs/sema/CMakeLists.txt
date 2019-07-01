@@ -1,4 +1,4 @@
-add_library(OrbitSema typecheck.c)
+add_library(OrbitSema helpers.c typecheck.c)
 target_link_libraries(OrbitSema OrbitUtils)
 target_link_libraries(OrbitSema OrbitCSupport)
 target_link_libraries(OrbitSema OrbitAST)
