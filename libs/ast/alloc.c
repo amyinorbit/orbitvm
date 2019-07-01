@@ -37,7 +37,8 @@ const ASTKind ASTExprMask       = ORBIT_AST_EXPR_UNARY
 
 const ASTKind ASTTypeExprMask   = ORBIT_AST_TYPEEXPR_VOID
                                 | ORBIT_AST_TYPEEXPR_BOOL
-                                | ORBIT_AST_TYPEEXPR_NUMBER
+                                | ORBIT_AST_TYPEEXPR_INT
+                                | ORBIT_AST_TYPEEXPR_FLOAT
                                 | ORBIT_AST_TYPEEXPR_STRING
                                 | ORBIT_AST_TYPEEXPR_USER
                                 | ORBIT_AST_TYPEEXPR_ANY
@@ -140,7 +141,8 @@ void orbit_astDestroy(void* ref) {
             
         case ORBIT_AST_TYPEEXPR_VOID:
         case ORBIT_AST_TYPEEXPR_BOOL:
-        case ORBIT_AST_TYPEEXPR_NUMBER:
+        case ORBIT_AST_TYPEEXPR_INT:
+        case ORBIT_AST_TYPEEXPR_FLOAT:
         case ORBIT_AST_TYPEEXPR_STRING:
         case ORBIT_AST_TYPEEXPR_ANY:
         case ORBIT_AST_TYPEEXPR_USER:

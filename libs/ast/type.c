@@ -27,7 +27,8 @@ bool orbit_astTypeEquals(const OrbitAST* a, const OrbitAST* b) {
     case ORBIT_AST_TYPEEXPR_ANY:
     case ORBIT_AST_TYPEEXPR_BOOL:
     case ORBIT_AST_TYPEEXPR_STRING:
-    case ORBIT_AST_TYPEEXPR_NUMBER:
+    case ORBIT_AST_TYPEEXPR_INT:
+    case ORBIT_AST_TYPEEXPR_FLOAT:
     case ORBIT_AST_TYPEEXPR_VOID:
         return true;
         
@@ -58,7 +59,8 @@ OrbitAST* orbit_astTypeCopy(const OrbitAST* src) {
     case ORBIT_AST_TYPEEXPR_ANY:
     case ORBIT_AST_TYPEEXPR_BOOL:
     case ORBIT_AST_TYPEEXPR_STRING:
-    case ORBIT_AST_TYPEEXPR_NUMBER:
+    case ORBIT_AST_TYPEEXPR_INT:
+    case ORBIT_AST_TYPEEXPR_FLOAT:
     case ORBIT_AST_TYPEEXPR_VOID:
         copy = orbit_astMakePrimitiveType(src->kind);
         break;

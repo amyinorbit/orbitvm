@@ -1,0 +1,16 @@
+type VectorA { var x: Float; var y: Float }
+
+type VectorB {
+    var x: Float;
+    var y: Float
+}
+
+type VectorC {
+    var x: Float;
+    var y: Float;
+}
+
+type VectorD {
+    var x: Float
+    var y: Float
+}

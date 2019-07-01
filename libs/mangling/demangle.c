@@ -57,7 +57,8 @@ static void _recPrimitiveType(OCMParser* p, OCStringBuffer* d) {
     switch(peek(p)) {
         case '*': orbit_stringBufferAppendC(d, "Any", 3);       break;
         case 'b': orbit_stringBufferAppendC(d, "Bool", 4);      break;
-        case 'd': orbit_stringBufferAppendC(d, "Number", 6);    break;
+        case 'd': orbit_stringBufferAppendC(d, "Int", 3);       break;
+        case 'f': orbit_stringBufferAppendC(d, "Float", 5);     break;
         case 'i': orbit_stringBufferAppendC(d, "Int", 3);       break;
         case 's': orbit_stringBufferAppendC(d, "String", 6);    break;
         default: fail(p); return;

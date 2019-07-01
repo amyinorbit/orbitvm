@@ -65,8 +65,8 @@ bool haveTerm(OCParser* parser) {
 }
 
 bool havePrimitiveType(OCParser* parser) {
-    return have(parser, ORBIT_TOK_NUMBER)
-        || have(parser, ORBIT_TOK_BOOL)
+    return have(parser, ORBIT_TOK_INT)
+        || have(parser, ORBIT_TOK_FLOAT)
         || have(parser, ORBIT_TOK_BOOL)
         || have(parser, ORBIT_TOK_STRING)
         || have(parser, ORBIT_TOK_NIL)

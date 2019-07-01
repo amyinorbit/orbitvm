@@ -457,9 +457,14 @@ static OrbitAST* recFuncType(OCParser* parser) {
 
 static OrbitAST* recPrimitive(OCParser* parser) {
     //OrbitToken symbol = current(parser);
-    if(have(parser, ORBIT_TOK_NUMBER)) {
-        expect(parser, ORBIT_TOK_NUMBER);
-        return orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_NUMBER);
+    if(have(parser, ORBIT_TOK_INT)) {
+        expect(parser, ORBIT_TOK_INT);
+        // TODO: add support for int/float
+        return orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_INT);
+    }
+    else if(have(parser, ORBIT_TOK_FLOAT)) {
+        expect(parser, ORBIT_TOK_FLOAT);
+        return orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_FLOAT);
     }
     else if(have(parser, ORBIT_TOK_BOOL)) {
         expect(parser, ORBIT_TOK_BOOL);

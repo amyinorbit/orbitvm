@@ -67,11 +67,12 @@ void orbit_mangleType(OrbitAST* type, OCStringBuffer* buffer) {
     }
     
     switch (type->kind) {
-        case ORBIT_AST_TYPEEXPR_ANY:      orbit_stringBufferAppendC(buffer, "N*", 2); break;
-        case ORBIT_AST_TYPEEXPR_BOOL:     orbit_stringBufferAppendC(buffer, "Nb", 2); break;
-        case ORBIT_AST_TYPEEXPR_STRING:   orbit_stringBufferAppendC(buffer, "Ns", 2); break;
-        case ORBIT_AST_TYPEEXPR_NUMBER:   orbit_stringBufferAppendC(buffer, "Nd", 2); break;
-        case ORBIT_AST_TYPEEXPR_VOID:     orbit_stringBufferAppend(buffer, 'v');      break;
+        case ORBIT_AST_TYPEEXPR_ANY:    orbit_stringBufferAppendC(buffer, "N*", 2); break;
+        case ORBIT_AST_TYPEEXPR_BOOL:   orbit_stringBufferAppendC(buffer, "Nb", 2); break;
+        case ORBIT_AST_TYPEEXPR_STRING: orbit_stringBufferAppendC(buffer, "Ns", 2); break;
+        case ORBIT_AST_TYPEEXPR_INT:    orbit_stringBufferAppendC(buffer, "Nd", 2); break;
+        case ORBIT_AST_TYPEEXPR_FLOAT:  orbit_stringBufferAppendC(buffer, "Nf", 2); break;
+        case ORBIT_AST_TYPEEXPR_VOID:   orbit_stringBufferAppend(buffer, 'v');      break;
             
         case ORBIT_AST_TYPEEXPR_ARRAY:
             orbit_stringBufferAppendC(buffer, "at", 2);

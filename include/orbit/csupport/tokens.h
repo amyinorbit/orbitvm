@@ -97,7 +97,9 @@ typedef enum  {
     ORBIT_TOK_RANGE,
     
     // Types
-    ORBIT_TOK_NUMBER,
+    // ORBIT_TOK_NUMBER,
+    ORBIT_TOK_INT,
+    ORBIT_TOK_FLOAT,
     ORBIT_TOK_BOOL,
     ORBIT_TOK_STRING,
     ORBIT_TOK_NIL,

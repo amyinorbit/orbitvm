@@ -56,11 +56,12 @@ static void orbit_astPrintType(FILE* out, OrbitAST* ast) {
     }
     
     switch(ast->kind) {
-    case ORBIT_AST_TYPEEXPR_VOID:     fputs("Void", out);     break;
-    case ORBIT_AST_TYPEEXPR_BOOL:     fputs("Bool", out);     break;
-    case ORBIT_AST_TYPEEXPR_NUMBER:   fputs("Number", out);   break;
-    case ORBIT_AST_TYPEEXPR_STRING:   fputs("String", out);   break;
-    case ORBIT_AST_TYPEEXPR_ANY:      fputs("Any", out);      break;
+    case ORBIT_AST_TYPEEXPR_VOID:       fputs("Void", out);     break;
+    case ORBIT_AST_TYPEEXPR_BOOL:       fputs("Bool", out);     break;
+    case ORBIT_AST_TYPEEXPR_INT:        fputs("Int", out);      break;
+    case ORBIT_AST_TYPEEXPR_FLOAT:      fputs("Float", out);    break;
+    case ORBIT_AST_TYPEEXPR_STRING:     fputs("String", out);   break;
+    case ORBIT_AST_TYPEEXPR_ANY:        fputs("Any", out);      break;
     case ORBIT_AST_TYPEEXPR_USER:
         console_printPooledString(out, ast->typeExpr.userType.symbol);
         break;
@@ -313,7 +314,8 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
     
     case ORBIT_AST_TYPEEXPR_VOID:
     case ORBIT_AST_TYPEEXPR_BOOL:
-    case ORBIT_AST_TYPEEXPR_NUMBER:
+    case ORBIT_AST_TYPEEXPR_INT:
+    case ORBIT_AST_TYPEEXPR_FLOAT:
     case ORBIT_AST_TYPEEXPR_STRING:
     case ORBIT_AST_TYPEEXPR_USER:
     case ORBIT_AST_TYPEEXPR_ANY:

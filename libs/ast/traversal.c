@@ -132,7 +132,8 @@ static void _ast_doTraverse(OrbitASTContext* ctx, OrbitAST* ast, const OrbitASTV
     case ORBIT_AST_EXPR_NAME:
     case ORBIT_AST_TYPEEXPR_VOID:
     case ORBIT_AST_TYPEEXPR_BOOL:
-    case ORBIT_AST_TYPEEXPR_NUMBER:
+    case ORBIT_AST_TYPEEXPR_INT:
+    case ORBIT_AST_TYPEEXPR_FLOAT:
     case ORBIT_AST_TYPEEXPR_STRING:
     case ORBIT_AST_TYPEEXPR_USER:
     case ORBIT_AST_TYPEEXPR_ANY:

@@ -74,8 +74,10 @@ void sema_extractLiteralTypes(OrbitASTContext* ctx, OrbitAST* literal, void* dat
     //OCSema* sema = (OCSema*)data;
     switch(literal->kind) {
     case ORBIT_AST_EXPR_CONSTANT_INTEGER:
+        literal->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_INT));
+        break;
     case ORBIT_AST_EXPR_CONSTANT_FLOAT:
-        literal->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_NUMBER));
+        literal->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_FLOAT));
         break;
         
     case ORBIT_AST_EXPR_CONSTANT_STRING:
