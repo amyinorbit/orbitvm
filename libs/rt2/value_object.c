@@ -14,24 +14,24 @@
 #include <assert.h>
 #include <string.h>
 
-OrbitObject* orbit_objectNew(OrbitVM* vm, OrbitObjectKind kind, size_t size) {
-    assert(vm && "null VM error");
-    
+OrbitObject* orbit_objectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size) {
+    assert(gc && "null Garbage Collector error");
     OrbitObject* obj = (OrbitObject*)orbit_allocator(NULL, 0, size);
+    
     obj->kind = kind;
     obj->retainCount = 0;
     obj->mark = false;
     
-    obj->next = vm->head;
-    vm->head = obj;
+    obj->next = gc->head;
+    gc->head = obj;
+    gc->allocated += size;
     
     return obj;
 }
 
-OrbitString* orbit_stringCopy(OrbitVM* vm, const char* data, int32_t count) {
-    assert(vm && "null VM error");
-    
-    OrbitString* self = ALLOC_OBJECT(vm, OrbitString, ORBIT_OBJ_STRING);
+OrbitString* orbit_stringCopy(OrbitGC* gc, const char* data, int32_t count) {
+    assert(gc && "null Garbage Collector error");
+    OrbitString* self = ALLOC_OBJECT(gc, OrbitString, ORBIT_OBJ_STRING);
     
     self->count = unic_countGraphemes(data, count);
     self->utf8count = count;
@@ -42,10 +42,9 @@ OrbitString* orbit_stringCopy(OrbitVM* vm, const char* data, int32_t count) {
     return self;
 }
 
-OrbitString* orbit_stringNew(OrbitVM* vm, int32_t count) {
-    assert(vm && "null VM error");
-    
-    OrbitString* self = ALLOC_OBJECT(vm, OrbitString, ORBIT_OBJ_STRING);
+OrbitString* orbit_stringNew(OrbitGC* gc, int32_t count) {
+    assert(gc && "null Garbage Collector error");
+    OrbitString* self = ALLOC_OBJECT(gc, OrbitString, ORBIT_OBJ_STRING);
     
     self->count = 0;
     self->utf8count = count;

@@ -10,16 +10,11 @@
 #ifndef orbit_value_object_h
 #define orbit_value_object_h
 #include <orbit/common.h>
+#include <orbit/rt2/chunk.h>
 #include <orbit/rt2/value.h>
+#include <orbit/rt2/garbage.h>
 
-typedef struct sOrbitObject OrbitObject;
-typedef struct sOrbitInstance OrbitInstance;
 typedef void (*OrbitDestructor)(void*);
-
-typedef struct sOrbitString OrbitString;
-
-#define ORBIT_VALUE_REF(value) ((uint64_t)(value) & ORBIT_MASK_REF)
-#define ORBIT_AS_REF(value) (OrbitObject*)((uintptr_t)((value) & ORBIT_MASK_REF))
 
 typedef enum {
     ORBIT_OBJ_STRING,
@@ -45,10 +40,18 @@ struct sOrbitString {
     char data[];        // We use the flexible array member trick to avoid double-alloc
 };
 
-OrbitObject* orbit_objectNew(OrbitVM* vm, OrbitObjectKind kind, size_t size);
+struct sOrbitFunction {
+    OrbitObject base;
+    uint8_t arity;
+    uint8_t locals;
+    uint16_t requiredStack;
+    OrbitChunk chunk;
+};
 
-OrbitString* orbit_stringCopy(OrbitVM* vm, const char* data, int32_t count);
-OrbitString* orbit_stringNew(OrbitVM* vm, int32_t count);
+OrbitObject* orbit_objectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size);
+
+OrbitString* orbit_stringCopy(OrbitGC* gc, const char* data, int32_t count);
+OrbitString* orbit_stringNew(OrbitGC* gc, int32_t count);
 
 void orbit_objectFree(OrbitObject* self);
 

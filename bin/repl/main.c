@@ -27,7 +27,7 @@
 #include <orbit/sema/typecheck.h>
 
 typedef struct {
-    OrbitVM* vm;
+    OrbitGC* gc;
     OrbitChunk* chunk;
 } CodeGen;
 
@@ -51,7 +51,7 @@ void emitString(CodeGen codegen, int line, OrbitToken literal) {
     uint8_t constant = codegen.chunk->constants.count;
     
     OCString* parsed = orbit_stringPoolGet(literal.parsedStringLiteral);
-    OrbitString* string = orbit_stringCopy(codegen.vm, parsed->data, parsed->length);
+    OrbitString* string = orbit_stringCopy(codegen.gc, parsed->data, parsed->length);
     
     orbit_arrayAppend(&codegen.chunk->constants, ORBIT_VALUE_REF(string));
     
@@ -161,7 +161,7 @@ int main(int argc, const char** argv) {
         
         OrbitChunk chunk;
         orbit_chunkInit(&chunk);
-        CodeGen codegen = (CodeGen){&vm, &chunk};
+        CodeGen codegen = (CodeGen){&vm.gc, &chunk};
         
         if(repl_compile(codegen, lineNumber, line) == ORBIT_OK) {
             orbit_run(&vm, &chunk);

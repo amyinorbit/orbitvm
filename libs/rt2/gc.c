@@ -7,11 +7,12 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#include <orbit/rt2/vm.h>
+#include <orbit/rt2/garbage.h>
+#include <orbit/rt2/value_object.h>
 #include <assert.h>
 
-void orbit_vmCollect(OrbitVM* self) {
-    assert(self && "null VM error");
+void orbit_gcRun(OrbitGC* self) {
+    assert(self && "null Garbage Collector error");
     OrbitObject* object = self->head;
     while(object) {
         OrbitObject* next = object->next;

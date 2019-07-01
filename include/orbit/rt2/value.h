@@ -11,6 +11,11 @@
 #define orbit_value_h
 #include <orbit/common.h>
 
+typedef struct sOrbitObject OrbitObject;
+typedef struct sOrbitInstance OrbitInstance;
+typedef struct sOrbitString OrbitString;
+typedef struct sOrbitFunction OrbitFunction;
+
 #define ORBIT_VALUE_PACK 1
 #if ORBIT_VALUE_PACK
 // If ORBIT_VALUE_PACK is defined, we pack all values in 8-byte pointers
@@ -57,10 +62,12 @@ typedef uint64_t OrbitValue;
 #define ORBIT_VALUE_BOOL(value) ((OrbitValue)(((uintptr_t)((int32_t)value) << 32UL) | ORBIT_TAG_BOOL))
 #define ORBIT_VALUE_INT(value) ((OrbitValue)(((uintptr_t)((int32_t)value) << 32UL) | ORBIT_TAG_INT))
 #define ORBIT_VALUE_FLOAT(value) ((OrbitValue)(((uintptr_t)ORBIT_FLOAT_BITS(value) << 32UL) | ORBIT_TAG_FLOAT))
+#define ORBIT_VALUE_REF(value) ((uint64_t)(value) & ORBIT_MASK_REF)
 
 #define ORBIT_AS_BOOL(value) ((bool)((value) >> 32))
 #define ORBIT_AS_INT(value) ((int32_t)((value) >> 32))
 #define ORBIT_AS_FLOAT(value) (ORBIT_BITS_FLOAT(ORBIT_AS_INT(value)))
+#define ORBIT_AS_REF(value) (OrbitObject*)((uintptr_t)((value) & ORBIT_MASK_REF))
 
 //#define ORBIT_IS_OBJECT(value) (((value) & ORBIT_VALUE_MASK) == 0)
     //#define ORBIT_IS
