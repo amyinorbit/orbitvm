@@ -12,6 +12,6 @@
 #include <orbit/common.h>
 #include <orbit/rt2/value_object.h>
 
-OrbitString* orbit_stringConcat(OrbitVM* vm, const OrbitString* lhs, const OrbitString* rhs);
+OrbitString* orbit_stringConcat(OrbitGC* gc, const OrbitString* lhs, const OrbitString* rhs);
 
 #endif

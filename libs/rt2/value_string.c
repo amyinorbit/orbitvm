@@ -14,12 +14,12 @@
 #include <string.h>
 #include <assert.h>
 
-OrbitString* orbit_stringConcat(OrbitVM* vm, const OrbitString* lhs, const OrbitString* rhs) {
+OrbitString* orbit_stringConcat(OrbitGC* gc, const OrbitString* lhs, const OrbitString* rhs) {
     assert(vm && "null VM pointer");
     assert(lhs && rhs && "null string pointer");
     
     size_t bytes = lhs->utf8count + rhs->utf8count;
-    OrbitString* string = orbit_stringNew(vm, bytes);
+    OrbitString* string = orbit_stringNew(gc, bytes);
     
     memcpy(string->data, lhs->data, lhs->utf8count);
     memcpy(string->data + lhs->utf8count, rhs->data, rhs->utf8count);
