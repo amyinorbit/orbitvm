@@ -1,5 +1,4 @@
-file(GLOB SRC_FILES *.c)
-add_library(OrbitSema ${SRC_FILES})
+add_library(OrbitSema typecheck.c)
 target_link_libraries(OrbitSema OrbitUtils)
 target_link_libraries(OrbitSema OrbitCSupport)
 target_link_libraries(OrbitSema OrbitAST)

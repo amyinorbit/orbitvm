@@ -117,7 +117,7 @@ OrbitResult repl_compile(CodeGen codegen, int line, const char* input) {
     ctx.source.path = "repl.orbit";
     orbit_sourceInitC(&ctx.source, src, length);
     orbit_parse(&ctx);
-    sema_runTypeAnalysis(&ctx);
+    //sema_runTypeAnalysis(&ctx);
     orbit_diagEmitAll(&ctx.diagnostics);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
     

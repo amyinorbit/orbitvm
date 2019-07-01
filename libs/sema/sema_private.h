@@ -28,8 +28,6 @@ struct _OCScope {
 
 struct _OCSema {
     //ORCArray    uniqueTypes;
-    // TODO: replace the type table with a set? unique types, all that
-    // TODO: Add support for generics
     ORCMap              typeTable; // Stores user-defined types (and type aliases in the future)
     uint16_t            stackSize;
     OCScope             stack[ORBIT_SEMA_SCOPESTACK_SIZE];
