@@ -18,7 +18,10 @@
 #include "helpers.h"
 #include "errors.h"
 
-static OrbitAST* funcType(Sema* self, OrbitAST* func) {
+#define MATCH(type, block) case ORBIT_AST_##type: block break
+#define OTHERWISE(block) default: block break
+
+static OrbitAST* extractFuncType(Sema* self, OrbitAST* func) {
     OrbitAST* returnType = func->funcDecl.returnType ? func->funcDecl.returnType : orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_VOID);
     
     ASTListBuilder params;
@@ -28,128 +31,148 @@ static OrbitAST* funcType(Sema* self, OrbitAST* func) {
         orbit_astListAdd(&params, orbit_astTypeCopy(param->type));
         param = param->next;
     }
+    
     return orbit_astMakeFuncType(returnType, orbit_astListClose(&params));
 }
 
-static OrbitAST* varType(Sema* self, OrbitAST* var, bool mustAnnotate) {
-    // If there's a type annotation, we hoist that into the AST node type. If not,
-    // we punt until the assignment binary expression is typed, at which point it'll assign
-    // the resulting deduced type.
-    if(!var->varDecl.typeAnnotation) {
-    printf("varType(, , %s)\n", mustAnnotate ? "true" : "false");
-        if(mustAnnotate) {
-            errorNoType(self, var);
+static OrbitAST* extractVarType(Sema* self, OrbitAST* var) {
+    return var->varDecl.typeAnnotation;
+}
+
+static bool declareFunc(Sema* self, OrbitAST* func) {
+    func->type = ORCRETAIN(extractFuncType(self, func));
+    if(!func->type) return false;
+    return declareFunction(self, func);
+}
+
+static bool declareVar(Sema* self, OrbitAST* var) {
+    if(!var->type) {
+        errorNoType(self, var);
+        return false;
+    }
+    return declareVariable(self, var);
+}
+
+static bool isAssignOperator(OrbitTokenKind kind) {
+    return kind == ORBIT_TOK_EQUALS
+        || kind == ORBIT_TOK_PLUSEQ
+        || kind == ORBIT_TOK_MINUSEQ
+        || kind == ORBIT_TOK_STAREQ
+        || kind == ORBIT_TOK_SLASHEQ;
+}
+
+static bool checkAssign(Sema* self, OrbitAST* assign) {
+    // TODO: check that lhs is, in fact, an lvalue.
+    // This isn't a given, and is probably something that will have to go in the resolver. At
+    // first glance it seems like something that is composition of lvalues should be an lvalue,
+    // but I have doubts (we must handle [] and () operators).
+    
+    OrbitAST* lhs = assign->binaryExpr.lhs;
+    OrbitAST* rhs = assign->binaryExpr.rhs;
+    
+    // if [lhs] doesn't have a type, we are free to set it to [expr]'s type
+    if(!lhs->type) {
+        lhs->type = ORCRETAIN(orbit_astTypeCopy(rhs->type));
+        return true;
+    }
+    
+    // Else, we need to check that the types match (or can be converted)
+    // if the types are strictly equal, roll on
+    if(orbit_astTypeEquals(lhs->type, rhs->type)) return true;
+    
+    // else we must check that rhs -> lhs is a valid conversion, and if yes add a cast node.
+    const Conversion* cast = findCast(rhs->type, lhs->type);
+    if(!cast) {
+        errorAssign(self, assign);
+        return false;
+    }
+    assign->binaryExpr.rhs = ORCRETAIN(orbit_astMakeCastExpr(rhs, cast->nodeKind));
+    ORCRELEASE(rhs);
+    return true;
+}
+
+static void check(Sema* self, OrbitAST* node) {
+    while(node) {
+        switch(node->kind) {
+        
+            // MARK: - Declarations
+            MATCH(DECL_MODULE, {
+                check(self, node->moduleDecl.body);
+            });
+            
+            MATCH(DECL_FUNC, {
+                if(declareFunc(self, node)) check(self, node->funcDecl.body);
+            });
+            
+            MATCH(DECL_VAR, {
+                node->type = ORCRETAIN(extractVarType(self, node));
+                declareVar(self, node);
+            });
+            
+            // MARK: - Statements
+            
+        
+            // MARK: - Expression Handling
+            MATCH(EXPR_UNARY, {
+                check(self, node->unaryExpr.rhs);
+                // TODO: implement resolver
+            });
+        
+            MATCH(EXPR_BINARY, {
+                OrbitAST* lhs = node->binaryExpr.lhs;
+                OrbitAST* rhs = node->binaryExpr.rhs;
+                
+                if(isAssignOperator(node->binaryExpr.operator.kind)) {
+                    if(lhs->kind == ORBIT_AST_DECL_VAR) {
+                        lhs->type = ORCRETAIN(extractVarType(self, lhs));
+                        check(self, rhs);
+                        if(checkAssign(self, node)) declareVariable(self, lhs);
+                    } else {
+                        check(self, lhs);
+                        check(self, rhs);
+                        checkAssign(self, node);
+                    }
+                } else {
+                    check(self, lhs);
+                    check(self, rhs);
+                    resolveBinaryExpr(self, node);
+                }
+            });
+        
+            MATCH(EXPR_CALL, {
+                OrbitAST* callee = node->callExpr.symbol;
+                check(self, node->callExpr.params);
+                if(callee->kind == ORBIT_AST_EXPR_NAME) {
+                    // checkNameCall(callee, expr->callExpr.params);
+                } else {
+                    // checkCallable(callee, expr->callExpr.params);
+                }
+            });
+        
+            MATCH(EXPR_NAME, {
+                Symbol* sym = lookupSymbol(self, node->nameExpr.name);
+                if(!sym) errorNameLookup(self, node);
+                else node->type = ORCRETAIN(orbit_astTypeCopy(sym->decl->type));
+            });
+        
+            MATCH(EXPR_CONSTANT_INTEGER, {
+                node->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_INT));
+            });
+        
+            MATCH(EXPR_CONSTANT_FLOAT, {
+                node->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_FLOAT));
+            });
+        
+            MATCH(EXPR_CONSTANT_STRING, {
+                node->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_STRING));
+            });
+        
+            // MARK: - Default, do nothing
+            OTHERWISE({
+                warnUnimplemented(self, node);
+            });
         }
-        return NULL;
-    }
-    
-    // TODO: canonical-ise the type if possible, which should speed up comparisons/etc.
-    return orbit_astTypeCopy(var->varDecl.typeAnnotation);
-}
-
-static OrbitAST* exprType(Sema* self, OrbitAST* expr) {
-    
-#define MATCH(type, block) case ORBIT_AST_##type: block break
-#define OTHERWISE(block) default: block break
-    
-    switch(expr->kind) {
-        MATCH(EXPR_UNARY, {
-            OrbitAST* rhs = exprType(self, expr->unaryExpr.rhs);
-            // TODO: this is just wrong. Like actually wrong.
-            expr->type = ORCRETAIN(orbit_astTypeCopy(rhs));
-            // expr->type = resolve(self, node->unaryExpr.operator, rhs);
-        });
-        
-        MATCH(EXPR_BINARY, {
-            OrbitAST* lhs = expr->binaryExpr.lhs;
-            if(lhs->kind == ORBIT_AST_DECL_VAR) {
-                lhs->type = ORCRETAIN(varType(self, lhs, false));
-            } else {
-                exprType(self, lhs);
-            }
-            
-            exprType(self, expr->binaryExpr.rhs);
-            
-            resolveBinaryExpr(self, expr);
-        });
-        
-        MATCH(EXPR_CALL, {
-            OrbitAST* callee = expr->callExpr.symbol;
-            if(callee->kind == ORBIT_AST_EXPR_NAME) {
-                
-            } else {
-                
-            }
-        });
-        
-        MATCH(EXPR_NAME, {
-            Symbol* decl = lookupSymbol(self, expr->nameExpr.name);
-            if(decl) {
-                
-            } else {
-                
-            }
-        });
-        
-        MATCH(EXPR_CONSTANT_INTEGER, {
-            expr->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_INT));
-        });
-        
-        MATCH(EXPR_CONSTANT_FLOAT, {
-            expr->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_FLOAT));
-        });
-        
-        MATCH(EXPR_CONSTANT_STRING, {
-            expr->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_STRING));
-        });
-        
-        OTHERWISE({});
-     }
-    
-     return expr->type;
-}
-
-static void checkStmt(Sema* self, OrbitAST* node) {
-    if(node->kind & ASTExprMask) {
-        exprType(self, node);
-        return;
-    }
-    
-    switch(node->kind) {
-        MATCH(DECL_VAR, {
-            node->type = ORCRETAIN(varType(self, node, true));
-        });
-        
-        OTHERWISE({});
-    }
-    
-}
-
-
-static void checkNode(Sema* self, OrbitAST* node) {
-    switch(node->kind) {
-
-        MATCH(BLOCK, {
-            pushScope(self);
-            checkStmt(self, node->block.body);
-            popScope(self);
-        });
-        
-        MATCH(DECL_MODULE, {
-            pushScope(self);
-            checkStmt(self, node->moduleDecl.body);
-            popScope(self);
-        });
-        
-        MATCH(DECL_FUNC, {
-            node->type = ORCRETAIN(funcType(self, node));
-        });
-        
-        MATCH(DECL_VAR, {
-            node->type = ORCRETAIN(varType(self, node, true));
-        });
-        
-        OTHERWISE({});
+        node = node->next;
     }
 }
 
@@ -182,7 +205,7 @@ void orbit_semaCheck(OrbitASTContext* context) {
     // (yay operator overloading), it's probably best to put all of that behind some layer of
     // abstraction so we don't have to come in here and pull everything apart when we implement
     // that.
-    checkNode(&sema, context->root);
+    check(&sema, context->root);
     orbit_semaDeinit(&sema);
 }
 

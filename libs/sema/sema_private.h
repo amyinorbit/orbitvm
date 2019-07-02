@@ -30,8 +30,8 @@ typedef struct {
 } OperatorSemData;
 
 typedef struct {
-    OrbitAST* fromType;
-    OrbitAST* toType;
+    OrbitAST* from;
+    OrbitAST* to;
     bool isImplicit;
     ASTKind nodeKind;
 } Conversion;

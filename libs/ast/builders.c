@@ -203,6 +203,12 @@ OrbitAST* orbit_astMakeLambdaExpr(OrbitAST* params, OrbitAST* body) {
     return ast;
 }
 
+OrbitAST* orbit_astMakeCastExpr(OrbitAST* expr, ASTKind kind) {
+    OrbitAST* ast = orbit_astMake(kind);
+    ast->conversionExpr.expr = ORCRETAIN(expr);
+    return ast;
+}
+
 OrbitAST* orbit_astMakeI2F(OrbitAST* expr) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_I2F);
     ast->conversionExpr.expr = ORCRETAIN(expr);

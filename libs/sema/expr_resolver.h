@@ -15,6 +15,10 @@
 void declareDefaultOperators(Sema* self);
 void declareOperator(Sema* self, OperatorSemData op);
 
+const Conversion* findCast(OrbitAST* from, OrbitAST* to);
+
+
+
 // bool canConvert(OrbitAST* from, OrbitAST* to);
 // OrbitAST* convertType(OrbitAST* node, OrbitAST* to);
 OrbitAST* resolveBinaryExpr(Sema* self, OrbitAST* expr);
