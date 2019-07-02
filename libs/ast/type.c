@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 
-bool orbit_astTypeEquals(const OrbitAST* a, const OrbitAST* b) {
+static bool typeEqualsImpl(const OrbitAST* a, const OrbitAST* b, bool inList) {
     if(a == b) { return true; }
     if(!a && !b) { return true; }
     if(!a || !b) { return false; }
@@ -21,7 +21,7 @@ bool orbit_astTypeEquals(const OrbitAST* a, const OrbitAST* b) {
     
     // TODO: refine, define and implement special `Any` semantics.
     if(a->kind != b->kind) { return false; }
-    if(!orbit_astTypeEquals(a->next, b->next)) { return false; }
+    if(inList && !typeEqualsImpl(a->next, b->next, true)) { return false; }
     
     switch(a->kind) {
     case ORBIT_AST_TYPEEXPR_ANY:
@@ -33,14 +33,15 @@ bool orbit_astTypeEquals(const OrbitAST* a, const OrbitAST* b) {
         return true;
         
     case ORBIT_AST_TYPEEXPR_ARRAY:
-        return orbit_astTypeEquals(a->typeExpr.arrayType.elementType,
-                                   b->typeExpr.arrayType.elementType);
+        return typeEqualsImpl(a->typeExpr.arrayType.elementType,
+                              b->typeExpr.arrayType.elementType,
+                              false);
     case ORBIT_AST_TYPEEXPR_MAP:
-        return orbit_astTypeEquals(a->typeExpr.mapType.elementType, b->typeExpr.mapType.elementType)
-            && orbit_astTypeEquals(a->typeExpr.mapType.keyType, b->typeExpr.mapType.keyType);
+        return typeEqualsImpl(a->typeExpr.mapType.elementType, b->typeExpr.mapType.elementType, false)
+            && typeEqualsImpl(a->typeExpr.mapType.keyType, b->typeExpr.mapType.keyType, false);
     case ORBIT_AST_TYPEEXPR_FUNC:
-        return orbit_astTypeEquals(a->typeExpr.funcType.returnType, b->typeExpr.funcType.returnType)
-            && orbit_astTypeEquals(a->typeExpr.funcType.params, b->typeExpr.funcType.params);
+        return typeEqualsImpl(a->typeExpr.funcType.returnType, b->typeExpr.funcType.returnType, false)
+            && typeEqualsImpl(a->typeExpr.funcType.params, b->typeExpr.funcType.params, true);
         
     case ORBIT_AST_TYPEEXPR_USER:
         return a->typeExpr.userType.symbol == b->typeExpr.userType.symbol;
@@ -49,6 +50,10 @@ bool orbit_astTypeEquals(const OrbitAST* a, const OrbitAST* b) {
     }
     // TODO: add unreachable flag here
     return NULL;
+}
+
+bool orbit_astTypeEquals(const OrbitAST* a, const OrbitAST* b) {
+    return typeEqualsImpl(a, b, false);
 }
 
 OrbitAST* orbit_astTypeCopy(const OrbitAST* src) {

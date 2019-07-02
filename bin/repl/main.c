@@ -120,7 +120,7 @@ OrbitResult repl_compile(CodeGen codegen, int line, const char* input) {
     
     orbit_semaCheck(&ctx);
     orbit_diagEmitAll(&ctx.diagnostics);
-    // orbit_astPrint(stdout, ctx.root);
+    orbit_astPrint(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
     
     emit(codegen, line, ctx.root);

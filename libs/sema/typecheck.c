@@ -22,7 +22,8 @@
 #define OTHERWISE(block) default: block break
 
 static OrbitAST* extractFuncType(Sema* self, OrbitAST* func) {
-    OrbitAST* returnType = func->funcDecl.returnType ? func->funcDecl.returnType : orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_VOID);
+    OrbitAST* returnType = func->funcDecl.returnType ?
+        func->funcDecl.returnType : orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_VOID);
     
     ASTListBuilder params;
     orbit_astListStart(&params);
@@ -74,16 +75,16 @@ static bool isAssignOperator(OrbitTokenKind kind) {
 typedef enum {MATCH_NONE, MATCH_CAST, MATCH_STRICT} ParamMatch;
 
 static ParamMatch checkArgTypes(const OrbitAST* paramTypes, const OrbitAST* args) {
-    const OrbitAST* arg = args;
     const OrbitAST* paramType = paramTypes;
     
     ParamMatch match = MATCH_STRICT;
     
-    for(; arg != NULL; arg = arg->next, paramType = paramType->next) {
-        if(!paramType) return MATCH_NONE;
+    for(const OrbitAST* arg = args; arg != NULL; arg = arg->next, paramType = paramType->next) {
+        printf("[arg->%p]\n", arg->next);
+        if(!paramType) {puts("noParam\n");return MATCH_NONE;}
         if(orbit_astTypeEquals(arg->type, paramType)) continue;
         match = MATCH_CAST;
-        if(!findCast(arg->type, paramType)) return MATCH_NONE;
+        if(!findCast(arg->type, paramType)) {puts("noCast\n"); return MATCH_NONE; }
     }
     // we must be at the end of the parameter type list too.
     return paramType == NULL ? match : MATCH_NONE; 
@@ -205,7 +206,9 @@ static void check(Sema* self, OrbitAST* node) {
             });
             
             MATCH(BLOCK, {
+                pushScope(self);
                 check(self, node->block.body);
+                popScope(self);
             });
             
             // MARK: - Declarations
@@ -308,27 +311,6 @@ void orbit_semaCheck(OrbitASTContext* context) {
     orbit_semaInit(&sema);
     sema.context = context;
     declareDefaultOperators(&sema);
-    
-    // We need to walk the tree and
-    //  1) declare symbols as we encounter them
-    //  2) infer type of symbols
-    //  3) deduce type of expressions and check them
-    //      3a) insert conversion nodes where needed (i2f, f2i)
-    //  4) Check function calls?
-    //
-    //
-    // As enticing as it is, not quite sure the AST walker/traversal API is the best tool for
-    // that job -- might be easier to roll our own here instead.
-    //
-    // We also need to match function overloads and implicit type conversions (not many really,
-    // only Int <-> Float).
-    // Overloads can be handled through a linked list of Symbol structs, which get stored in the
-    // symbol table. 
-    // The conversion system probably belongs in a sibling module with sort-of instruction
-    // selecting. Given that not all operations will be handled through native instructions
-    // (yay operator overloading), it's probably best to put all of that behind some layer of
-    // abstraction so we don't have to come in here and pull everything apart when we implement
-    // that.
     check(&sema, context->root);
     orbit_semaDeinit(&sema);
 }
