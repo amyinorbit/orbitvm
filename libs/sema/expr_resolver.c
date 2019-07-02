@@ -58,10 +58,6 @@ static inline void declComp(Sema* self, OrbitAST* T, OrbitTokenKind op, OrbitAST
     declareOperator(self, (OperatorSemData){OP_BINARY, ORCRETAIN(T), ORCRETAIN(T), (op), ORCRETAIN(U), NULL});
 }
 
-static inline void declAssign(Sema* self, OrbitAST* T) {
-    declareOperator(self, (OperatorSemData){OP_BINARY, ORCRETAIN(T), ORCRETAIN(T), ORBIT_TOK_EQUALS, ORCRETAIN(T), NULL});
-}
-
 void declareDefaultOperators(Sema* self) {
     
     static const OrbitTokenKind mathBinary[] = {
@@ -93,7 +89,7 @@ void declareOperator(Sema* self, OperatorSemData op) {
     self->resolver.count += 1;
 }
 
-const Conversion* findCast(OrbitAST* from, OrbitAST* to) {
+const Conversion* findCast(const OrbitAST* from, const OrbitAST* to) {
     if(!from || !to) return NULL;
     const Conversion conversions[] = {
         {intType, floatType, true, ORBIT_AST_EXPR_I2F},

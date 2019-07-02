@@ -74,6 +74,20 @@ OrbitDiagID orbit_diagError(OrbitDiagManager* manager, OrbitSLoc loc, const char
     return id;
 }
 
+OrbitDiagID orbit_diagWarn(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...) {
+    OrbitDiagID id = orbit_diagNew(manager, ORBIT_DIAGLEVEL_WARN, fmt);
+    orbit_diagAddSourceLoc(id, loc);
+    
+    va_list args;
+    va_start(args, n);
+    for(int i = 0; i < n; ++i) {
+        orbit_diagAddParam(id, va_arg(args, OrbitDiagArg));
+    }
+    va_end(args);
+    
+    return id;
+}
+
 OrbitDiagID orbit_diagInfo(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...) {
     OrbitDiagID id = orbit_diagNew(manager, ORBIT_DIAGLEVEL_INFO, fmt);
     orbit_diagAddSourceLoc(id, loc);
@@ -87,6 +101,8 @@ OrbitDiagID orbit_diagInfo(OrbitDiagManager* manager, OrbitSLoc loc, const char*
     
     return id;
 }
+
+
 
 void orbit_diagManagerInit(OrbitDiagManager* manager, OrbitSource* source) {
     assert(manager && "Invalid Diagnostics Manager instance");

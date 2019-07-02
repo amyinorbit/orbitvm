@@ -149,7 +149,6 @@ OrbitAST* orbit_astMakeUnaryExpr(const OrbitToken* operator, OrbitAST* rhs) {
         orbit_srangeFromLength(operator->sourceLoc, operator->length),
         rhs->sourceRange
     );
-    // TODO: create source range here
     return ast;
 }
 
@@ -200,6 +199,10 @@ OrbitAST* orbit_astMakeLambdaExpr(OrbitAST* params, OrbitAST* body) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_LAMBDA);
     ast->lambdaExpr.params = ORCRETAIN(params);
     ast->lambdaExpr.body = ORCRETAIN(body);
+    if(params && body) {
+        ast->sourceRange = orbit_srangeUnion(params->sourceRange, body->sourceRange);
+        ast->sourceRange.start -= 1;
+    }
     return ast;
 }
 

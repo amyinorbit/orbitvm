@@ -65,6 +65,7 @@ void orbit_diagManagerInit(OrbitDiagManager* manager, OrbitSource* source);
 void orbit_diagManagerDeinit(OrbitDiagManager* manager);
 
 OrbitDiagID orbit_diagError(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...);
+OrbitDiagID orbit_diagWarn(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...);
 OrbitDiagID orbit_diagInfo(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...);
 OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format);
 void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param);

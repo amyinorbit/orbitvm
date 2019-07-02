@@ -234,8 +234,15 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
     case ORBIT_AST_EXPR_CALL:
         console_setColor(out, CLI_MAGENTA);
         fputs("CallExpr", out);
+        console_setColor(out, CLI_RESET);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        orbit_astPrintType(out, ast->type);
         orbit_astPrintNode(out, ast->callExpr.symbol, depth+1, ast->callExpr.params == NULL);
         orbit_astPrintList(out, "CallParamList", ast->callExpr.params, depth+1, true);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        orbit_astPrintType(out, ast->type);
         break;
         
     case ORBIT_AST_EXPR_SUBSCRIPT:
@@ -300,6 +307,9 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("NameRefExpr ", out);
         console_setColor(out, CLI_RESET);
         console_printPooledString(out, ast->nameExpr.name);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        orbit_astPrintType(out, ast->type);
         break;
     
     case ORBIT_AST_EXPR_INIT:

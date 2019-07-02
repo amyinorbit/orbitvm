@@ -13,6 +13,10 @@
 #include <orbit/ast/ast.h>
 #include "sema_private.h"
 
+// void errorConditional(Sema* self, OrbitAST* expr);
+void errorNotCallable(Sema* self, OrbitAST* call);
+void errorInvalidCall(Sema* self, OrbitAST* call);
+
 void errorAssign(Sema* self, OrbitAST* expr);
 void errorNameLookup(Sema* self, OrbitAST* expr);
 void errorNoType(Sema* self, OrbitAST* ast);

@@ -14,6 +14,27 @@ static inline OrbitDiagManager* diag(Sema* self) {
     return &self->context->diagnostics;
 }
 
+
+void errorNotCallable(Sema* self, OrbitAST* call) {
+    OrbitSRange rng = call->callExpr.symbol->sourceRange;
+    OrbitDiagID id = orbit_diagError(
+        diag(self), rng.start,
+        "cannot invoke a value of type '$0'", 1,
+        ORBIT_DIAG_TYPE(call->callExpr.symbol->type)
+    );
+    orbit_diagAddSourceRange(id, rng);
+}
+
+void errorInvalidCall(Sema* self, OrbitAST* call) {
+    OrbitSRange rng = call->sourceRange;
+    OrbitDiagID id = orbit_diagError(
+        diag(self), rng.start,
+        "cannot invoke a value of type '$0' with these arguments", 1,
+        ORBIT_DIAG_TYPE(call->callExpr.symbol->type)
+    );
+    orbit_diagAddSourceRange(id, rng);
+}
+
 void errorAssign(Sema* self, OrbitAST* expr) {
     OrbitSRange rng = expr->sourceRange;
     OrbitSLoc loc = expr->binaryExpr.operator.sourceLoc;
@@ -81,8 +102,8 @@ void errorBinary(Sema* self, OrbitAST* expr) {
 
 void warnUnimplemented(Sema* self, OrbitAST* node) {
     OrbitSRange rng = node->sourceRange;
-    OrbitDiagID id = orbit_diagError(
+    OrbitDiagID id = orbit_diagWarn(
         diag(self), rng.start, "language feature not implemented", 0
     );
-    orbit_diagAddSourceRange(id, rng);
+    //orbit_diagAddSourceRange(id, rng);
 }

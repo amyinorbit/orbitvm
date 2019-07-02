@@ -12,6 +12,7 @@
 #include <orbit/ast/type.h>
 #include <assert.h>
 #include "helpers.h"
+#include "errors.h"
 
 void symbolDeinit(void* ptr) {
     Symbol* symbol = (Symbol*)ptr;
@@ -106,7 +107,7 @@ bool declareFunction(Sema* self, OrbitAST* decl) {
         OrbitAST* conflicting = findOverload(existing, funcParamTypes(decl));
         // We compare the types in the parameter list. 
         if(conflicting) {
-            // TODO: throw an error here
+            errorAlreadyDeclared(self, decl, conflicting);
             return false;
         }
         
@@ -142,7 +143,7 @@ bool declareVariable(Sema* self, OrbitAST* decl) {
     Symbol* existing = orbit_rcMapGetP(&scope->symbols, name);
     
     if(existing) {
-        // TODO: throw an error here
+        errorAlreadyDeclared(self, decl, existing->decl);
         return false;
     }
     
