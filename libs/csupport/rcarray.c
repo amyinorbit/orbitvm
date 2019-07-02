@@ -30,10 +30,10 @@ ORCArray* orbit_rcArrayInit(ORCArray* array, uint64_t capacity) {
 
 static void _arrayReserve(ORCArray* array, uint64_t newSize) {
     if(newSize < array->capacity) { return; }
-    while(newSize >= array->capacity) {
-        array->capacity *= 2;
-    }
-    array->data = ORBIT_REALLOC_ARRAY(array->data, void*, array->capacity);
+    uint64_t oldCapacity = array->capacity;
+    while(newSize >= array->capacity)
+        array->capacity = ORBIT_GROW_CAPACITY(array->capacity);
+    array->data = ORBIT_REALLOC_ARRAY(array->data, void*, oldCapacity, array->capacity);
 }
 
 void orbit_rcArrayAppend(ORCArray* array, void* item) {

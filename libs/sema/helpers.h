@@ -7,17 +7,24 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#include <orbit/sema/typecheck.h>
-#include <orbit/utils/memory.h>
+#include <orbit/ast/ast.h>
+#include "sema_private.h"
 
-typedef struct {
+typedef struct Symbol {
     ORCObject base;
+    
+    enum {SYM_VARIABLE, SYM_FUNCTION, SYM_TYPE} kind;
     
     OrbitAST* decl;
     struct Symbol* next;
 } Symbol;
 
-void initScope(OCScope* self, OCScope* parent);
-void deinitScope(OCScope* self);
-OCScope* pushScope(OCSema* self);
-void popScope(OCSema* self);
+void initScope(Scope* self, Scope* parent);
+void deinitScope(Scope* self);
+
+Scope* pushScope(Sema* self);
+void popScope(Sema* self);
+
+Symbol* lookupSymbol(Sema* self, OCStringID name);
+bool declareFunction(Sema* self, OrbitAST* decl);
+bool declareVariable(Sema* self, OrbitAST* decl);

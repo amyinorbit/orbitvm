@@ -62,7 +62,7 @@ bool orbit_sourceInitFile(OrbitSource* source, FILE* file) {
     uint64_t length = ftell(file);
     fseek(file, 0, SEEK_SET);
     
-    char* bytes = orbit_alloc((length+1) * sizeof(char));
+    char* bytes = ORBIT_ALLOC_ARRAY(char, length+1);
     fread(bytes, sizeof(char), length, file);
     bytes[length] = '\0';
     fclose(file);
@@ -87,10 +87,10 @@ bool orbit_sourceInitC(OrbitSource* source, char* string, uint32_t length) {
 
 static _OrbitLineMap* _orbit_lineMapEnsure(_OrbitLineMap* map, uint32_t size) {
     if(size < map->capacity) { return map; }
-    while(map->capacity < size) {
-        map->capacity *= 2;
-    }
-    return ORBIT_REALLOC_FLEX(map, _OrbitLineMap, uint32_t, map->capacity);
+    uint32_t oldCapacity = map->capacity;
+    while(map->capacity < size)
+        map->capacity = ORBIT_GROW_CAPACITY(map->capacity);
+    return ORBIT_REALLOC_FLEX(map, _OrbitLineMap, uint32_t, oldCapacity, map->capacity);
 }
 
 static uint32_t _orbit_insertLines(const OrbitSource* source, OrbitSLoc loc) {

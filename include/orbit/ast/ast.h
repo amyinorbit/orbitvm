@@ -48,21 +48,20 @@ DECL_AST_KIND(EXPR_LAMBDA,              19);
 DECL_AST_KIND(EXPR_NAME,                20);
 DECL_AST_KIND(EXPR_INIT,                21);
 DECL_AST_KIND(EXPR_I2F,                 22);
-DECL_AST_KIND(EXPR_F2I,                 22);
+DECL_AST_KIND(EXPR_F2I,                 23);
 
     
 // TODO: Add Maybe type node, template system?
-DECL_AST_KIND(TYPEEXPR_VOID,            23);
-DECL_AST_KIND(TYPEEXPR_BOOL,            24);
-// DECL_AST_KIND(TYPEEXPR_NUMBER,          24);
-DECL_AST_KIND(TYPEEXPR_INT,             25);
-DECL_AST_KIND(TYPEEXPR_FLOAT,           26);
-DECL_AST_KIND(TYPEEXPR_STRING,          27);
-DECL_AST_KIND(TYPEEXPR_USER,            28);
-DECL_AST_KIND(TYPEEXPR_ARRAY,           29);
-DECL_AST_KIND(TYPEEXPR_MAP,             30);
-DECL_AST_KIND(TYPEEXPR_FUNC,            31);
-DECL_AST_KIND(TYPEEXPR_ANY,             32);
+DECL_AST_KIND(TYPEEXPR_VOID,            24);
+DECL_AST_KIND(TYPEEXPR_BOOL,            25);
+DECL_AST_KIND(TYPEEXPR_INT,             26);
+DECL_AST_KIND(TYPEEXPR_FLOAT,           27);
+DECL_AST_KIND(TYPEEXPR_STRING,          28);
+DECL_AST_KIND(TYPEEXPR_USER,            29);
+DECL_AST_KIND(TYPEEXPR_ARRAY,           30);
+DECL_AST_KIND(TYPEEXPR_MAP,             31);
+DECL_AST_KIND(TYPEEXPR_FUNC,            32);
+DECL_AST_KIND(TYPEEXPR_ANY,             33);
 
 // DECL_AST_KIND(GENERIC_PLACEHOLDER,      33);
 // DECL_AST_KIND(GENERIC_PROTOCOL,         34);
@@ -162,7 +161,7 @@ struct _OrbitAST {
         } moduleDecl;
         
         struct {
-            OrbitToken     symbol;
+            OrbitToken  symbol;
             OCStringID  name;
             OCStringID  mangledName;
             OrbitAST*   returnType;
@@ -171,13 +170,13 @@ struct _OrbitAST {
         } funcDecl;
         
         struct {
-            OrbitToken     symbol;
+            OrbitToken  symbol;
             OCStringID  name;
             OrbitAST*   typeAnnotation;
         } varDecl;
         
         struct {
-            OrbitToken     symbol;
+            OrbitToken  symbol;
             OCStringID  name;
             OrbitAST*   constructor;
             OrbitAST*   destructor;
@@ -226,6 +225,10 @@ struct _OrbitAST {
             OrbitAST*   type;
             OrbitAST*   params;
         } initExpr;
+        
+        struct {
+            OrbitAST*   expr;
+        } conversionExpr;
         
         // Type Expressions (necessary for a non-trivial type system)
         

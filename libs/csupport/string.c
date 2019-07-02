@@ -23,13 +23,13 @@ static struct OCStringPool {
 void orbit_stringPoolInit(uint64_t capacity) {
     StringPool.capacity = capacity;
     StringPool.size = 0;
-    StringPool.data = orbit_alloc(StringPool.capacity);
+    StringPool.data = ORBIT_ALLOC_ARRAY(char, StringPool.capacity);
 }
 
 void orbit_stringPoolDeinit() {
+    ORBIT_DEALLOC_ARRAY(StringPool.data, char, StringPool.capacity);
     StringPool.capacity = 0;
     StringPool.size = 0;
-    orbit_dealloc(StringPool.data);
 }
 
 bool orbit_stringEquals(OCString* a, const char* b, uint64_t length) {
@@ -55,10 +55,10 @@ OCStringID orbit_stringIntern(const char* data, uint64_t length) {
     OCString* str = orbit_stringPoolSearch(data, length);
     if(str) { return (OCStringID)((void*)str - StringPool.data); }
     
-    while(StringPool.size + length > StringPool.capacity) {
-        StringPool.capacity *= 2;
-        StringPool.data = orbit_realloc(StringPool.data, StringPool.capacity);
-    }
+    uint64_t oldCapacity = StringPool.capacity;
+    while(StringPool.size + length >= StringPool.capacity)
+        StringPool.capacity = ORBIT_GROW_CAPACITY(StringPool.capacity);
+    StringPool.data = ORBIT_REALLOC_ARRAY(StringPool.data, char, oldCapacity, StringPool.capacity);
     
     uint64_t id = StringPool.size;
     str = (OCString*)(StringPool.data + StringPool.size);
@@ -104,7 +104,7 @@ void orbit_stringBufferReset(OCStringBuffer* buffer) {
 
 void orbit_stringBufferDeinit(OCStringBuffer* buffer) {
     assert(buffer != NULL && "Null instance error");
-    orbit_dealloc(buffer->data);
+    ORBIT_DEALLOC_ARRAY(buffer->data, char, buffer->capacity);
     buffer->capacity = 0;
     buffer->length = 0;
 }
@@ -113,10 +113,11 @@ static void _bufferReserve(OCStringBuffer* buffer, size_t newSize) {
     assert(buffer != NULL && "Null instance error");
     
     if(newSize < buffer->capacity) { return; }
-    while(newSize >= buffer->capacity) {
-        buffer->capacity *= 2;
-    }
-    buffer->data = ORBIT_REALLOC_ARRAY(buffer->data, char, buffer->capacity);
+    
+    size_t oldCapacity = buffer->capacity;
+    while(newSize >= buffer->capacity)
+        buffer->capacity = ORBIT_GROW_CAPACITY(buffer->capacity);
+    buffer->data = ORBIT_REALLOC_ARRAY(buffer->data, char, oldCapacity, buffer->capacity);
 }
 
 void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t c) {

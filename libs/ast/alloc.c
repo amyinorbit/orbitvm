@@ -168,7 +168,7 @@ void orbit_astDestroy(void* ref) {
 }
 
 OrbitAST* orbit_astMake(ASTKind kind) {
-    OrbitAST* ast = orbit_alloc(sizeof (OrbitAST));
+    OrbitAST* ast = ORBIT_ALLOC(OrbitAST);
     memset(ast, 0, sizeof (OrbitAST));
     ORCINIT(ast, &orbit_astDestroy);
     

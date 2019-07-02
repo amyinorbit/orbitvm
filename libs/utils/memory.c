@@ -8,6 +8,7 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <stdio.h>
+#include <stdlib.h>
 #include <orbit/utils/memory.h>
 
 noreturn void orbit_die(const char* message) {
@@ -15,25 +16,13 @@ noreturn void orbit_die(const char* message) {
     abort();
 }
 
-void* orbit_alloc(size_t size) {
-    void* mem = malloc(size);
-    if(!mem) { orbit_die("out of memory");  }
+void* orbit_allocator(void* ptr, size_t oldSize, size_t newSize) {
+    if(newSize == 0) {
+        free(ptr);
+        return NULL;
+    }
+    
+    void* mem = realloc(ptr, newSize);
+    if(!mem) orbit_die("Error reallocating memory");
     return mem;
-}
-
-void* orbit_allocMulti(size_t count, size_t size) {
-    void* mem = calloc(count, size);
-    if(!mem) { orbit_die("out of memory");  }
-    return mem;
-}
-
-void* orbit_realloc(void* memory, size_t size) {
-    void* mem = realloc(memory, size);
-    if(!mem) { orbit_die("out of memory");  }
-    return mem;
-}
-
-void orbit_dealloc(void* memory) {
-    if(!memory) { return; }
-    free(memory);
 }

@@ -56,7 +56,7 @@ void _orbit_defaultDiagConsumer(OrbitSource* source, OrbitDiag* diagnostic) {
     char* printed = orbit_diagGetFormat(diagnostic);
     fprintf(stderr, "%s\n", printed);
     console_setColor(stderr, CLI_RESET);
-    orbit_dealloc(printed);
+    ORBIT_DEALLOC_NOSIZE(printed);
     fputc('\n', stderr);
 }
 
@@ -80,7 +80,7 @@ void orbit_diagManagerInit(OrbitDiagManager* manager, OrbitSource* source) {
     manager->consumer = &_orbit_defaultDiagConsumer;
     manager->errorCount = 0;
     manager->diagnosticCount = 0;
-    manager->diagnostics = orbit_allocMulti(sizeof(OrbitDiag), ORBIT_DIAG_MAXCOUNT);
+    manager->diagnostics = ORBIT_ALLOC_ARRAY(OrbitDiag, ORBIT_DIAG_MAXCOUNT);
 }
 
 void orbit_diagManagerDeinit(OrbitDiagManager* manager) {

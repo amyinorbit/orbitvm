@@ -29,19 +29,40 @@ struct _ORCObject {
 };
 
 #define ORCRETAIN(ref) ((__typeof__(ref))orbit_rcRetain((ORCObject*)(ref)))
-#define ORCRELEASE(ref) (orbit_rcRelease((ORCObject*)(ref)))
+#define ORCRELEASE(ref) (orbit_rcRelease((ORCObject*)(ref), sizeof(__typeof__(*ref))))
 #define ORCINIT(ref, destructor) ((__typeof__(ref))orbit_rcInit((ORCObject*)(ref), (destructor)))
 
-#define ORBIT_ALLOC(type) (orbit_alloc(sizeof (type)))
-#define ORBIT_ALLOC_FLEX(type, arrayType, count) (orbit_alloc(sizeof(type) + ((count) * sizeof(arrayType))))
-#define ORBIT_REALLOC_FLEX(ptr, type, arrayType, count) (orbit_realloc((ptr), sizeof(type) + ((count) * sizeof(arrayType))))
-#define ORBIT_ALLOC_ARRAY(type, count) (orbit_allocMulti(sizeof (type), (count)))
-#define ORBIT_REALLOC_ARRAY(ptr, type, count) (orbit_realloc((ptr), sizeof (type) * (count)))
+#define ORBIT_ALLOC(T) \
+    orbit_allocator(NULL, 0, sizeof(T))
+        
+#define ORBIT_ALLOC_ARRAY(T, count) \
+    orbit_allocator(NULL, 0, sizeof(T) * (count))
 
-void* orbit_alloc(size_t size);
-void* orbit_allocMulti(size_t size, size_t count);
-void* orbit_realloc(void* memory, size_t size);
-void orbit_dealloc(void* memory);
+#define ORBIT_ALLOC_FLEX(T, U, count) \
+    orbit_allocator(NULL, 0, sizeof(T) + (sizeof(U) * (count)))
+        
+#define ORBIT_REALLOC_FLEX(ptr, T, U, old, count) \
+    orbit_allocator(ptr, sizeof(T) + sizeof(U) * (old), sizeof(T) + sizeof(U) * (count))
+        
+#define ORBIT_REALLOC_ARRAY(array, T, old, count) \
+    orbit_allocator(array, sizeof(T) * (old), sizeof(T) * (count))
+        
+#define ORBIT_DEALLOC(ptr, T) \
+    orbit_allocator(ptr, sizeof(T), 0)
+
+#define ORBIT_DEALLOC_NOSIZE(ptr) \
+    orbit_allocator(ptr, 0, 0)
+
+#define orbit_DEALLOC_FLEX(ptr, T, U, count) \
+    orbit_allocator(ptr, sizeof(T) + (sizeof(U) * count), 0)
+        
+#define ORBIT_DEALLOC_ARRAY(ptr, T, count) \
+    orbit_allocator(ptr, sizeof(T) * count, 0)
+
+#define ORBIT_GROW_CAPACITY(capacity) \
+    ((capacity) < 8 ? 8 : (capacity) * 2)
+
+void* orbit_allocator(void* ptr, size_t oldSize, size_t newSize);
 
 /// Initialises the object at [ref] with a [retainCount] of 0 and [destructor]. [ref] must
 /// point to a valid ORCObject. [ref] is returned for convenience.
@@ -62,12 +83,12 @@ static inline void* orbit_rcRetain(ORCObject* ref) {
 
 /// Give up ownership of the object pointed to by [ref] by dropping its retain count by 1. If
 /// the object is not owned by anything anymore, it is immediately deallocated.
-static inline void orbit_rcRelease(ORCObject* ref) {
+static inline void orbit_rcRelease(ORCObject* ref, size_t size) {
     if(ref == NULL) { return; }
     ref->retainCount -= 1;
     if(ref->retainCount) { return; }
     if(ref->destructor) { ref->destructor(ref); }
-    orbit_dealloc(ref);
+    orbit_allocator(ref, size, 0);
 }
 
 #endif /* orbit_utils_memory_h */

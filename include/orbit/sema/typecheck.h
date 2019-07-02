@@ -11,35 +11,8 @@
 #define orbit_sema_type_h
 
 #include <orbit/common.h>
-#include <orbit/utils/platforms.h>
 #include <orbit/ast/context.h>
 
-#include <orbit/csupport/string.h>
-#include <orbit/csupport/rcarray.h>
-#include <orbit/csupport/rcmap.h>
+void orbit_semaCheck(OrbitASTContext* context);
 
-typedef struct sOCSema OCSema;
-typedef struct sOCScope OCScope;
-
-struct sOCScope {
-    OCScope* parent;
-    ORCMap types;
-    ORCMap symbols;
-};
-
-#define ORBIT_SCOPE_MAX 128
-
-struct sOCSema {
-    OrbitASTContext* context;
-    OCScope global;
-    
-    OCScope* current;
-    OCScope stack[ORBIT_SCOPE_MAX];
-};
-
-void orbit_semaInit(OCSema* sema);
-void orbit_semaDeinit(OCSema* sema);
-
-void orbit_semaCheck(OCSema* self, OrbitASTContext* context);
-
-#endif /* orbit_sema_type_h */
+#endif

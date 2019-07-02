@@ -311,6 +311,26 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_setColor(out, CLI_RESET);
         orbit_astPrintList(out, "ConstructorList", ast->callExpr.params, depth+1, true);
         break;
+        
+    case ORBIT_AST_EXPR_I2F:
+        console_setColor(out, CLI_MAGENTA);
+        fputs("IntToFloat", out);
+        console_setColor(out, CLI_RESET);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        orbit_astPrintType(out, ast->type);
+        orbit_astPrintNode(out, ast->conversionExpr.expr, depth+1, true);
+        break;
+    
+    case ORBIT_AST_EXPR_F2I:
+        console_setColor(out, CLI_MAGENTA);
+        fputs("FloatToInt", out);
+        console_setColor(out, CLI_RESET);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        orbit_astPrintType(out, ast->type);
+        orbit_astPrintNode(out, ast->conversionExpr.expr, depth+1, true);
+        break;
     
     case ORBIT_AST_TYPEEXPR_VOID:
     case ORBIT_AST_TYPEEXPR_BOOL:
