@@ -39,5 +39,4 @@ void errorBinary(Sema* self, OrbitAST* expr) {
         ORBIT_DIAG_TYPE(expr->binaryExpr.rhs->type)
     );
     orbit_diagAddSourceRange(id, rng);
-    abort();
 }
