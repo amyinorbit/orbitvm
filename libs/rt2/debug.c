@@ -16,13 +16,13 @@ typedef struct {
     int8_t effect;
 } OpcodeData;
 
-#define OPCODE(inst, length, effect) [ inst ] = {length, effect},
+#define OPCODE(inst, length, effect) [ OP_##inst ] = {length, effect},
 static const OpcodeData opcodeData[] = {
 #include <orbit/rt2/opcodes.inl>
 };
 #undef OPCODE
 
-#define OPCODE(name, _, __) [ name ] = #name ,
+#define OPCODE(name, _, __) [ OP_##name ] = #name ,
 static const char* opcodeNames[] = {
 #include <orbit/rt2/opcodes.inl>
 };
@@ -30,15 +30,15 @@ static const char* opcodeNames[] = {
 
 void orbit_debugChunk(const OrbitChunk* chunk, const char* name) {
     fprintf(stderr, "** chunk: %s **\n", name);
-    int oldLine = -1;
+    // int oldLine = -1;
     for(int offset = 0; offset < chunk->count;) {
-        fprintf(stderr, "%04d: ", offset);
-        int line = chunk->lines[offset];
-        if(line != oldLine)
-            fprintf(stderr, "%4d ", line);
-        else
-            fprintf(stderr, "   | ");
-        oldLine = line;
+        fprintf(stderr, "[%4d] ", offset);
+        // int line = chunk->lines[offset];
+        // if(line != oldLine)
+        //     fprintf(stderr, "%4d ", line);
+        // else
+        //     fprintf(stderr, "   | ");
+        // oldLine = line;
         offset = orbit_debugInstruction(chunk, offset);
     }
 }
@@ -48,10 +48,10 @@ int orbit_debugInstruction(const OrbitChunk* chunk, int offset) {
     OpcodeData data = opcodeData[code];
     switch(data.length) {
         case 0:
-            fprintf(stderr, "%-16s\n", opcodeNames[code]);
+            fprintf(stderr, "%-10s\n", opcodeNames[code]);
             break;
         case 1:
-            fprintf(stderr, "%-16s %-4d\n", opcodeNames[code], chunk->code[offset+1]);
+            fprintf(stderr, "%-10s val%3d\n", opcodeNames[code], chunk->code[offset+1]);
             break;
         default: break;
     }

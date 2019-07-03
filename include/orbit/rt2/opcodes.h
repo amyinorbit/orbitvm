@@ -10,7 +10,7 @@
 #ifndef orbit_opcode_enum_h
 #define orbit_opcode_enum_h
 
-#define OPCODE(code, _, __) code,
+#define OPCODE(code, _, __) OP_##code,
 
 typedef enum {
 #include <orbit/rt2/opcodes.inl>

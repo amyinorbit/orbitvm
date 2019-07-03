@@ -95,38 +95,38 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitChunk* chunk) {
         
         uint8_t instruction;
         switch(instruction = READ_BYTE()) {
-        case OP_RETURN: return ORBIT_OK;
+        case OP_return: return ORBIT_OK;
             
-        case OP_CONST: push(vm, READ_CONSTANT()); NEXT();
-        case OP_TRUE: push(vm, ORBIT_VALUE_TRUE); NEXT();
-        case OP_FALSE: push(vm, ORBIT_VALUE_FALSE); NEXT();
+        case OP_const: push(vm, READ_CONSTANT()); NEXT();
+        case OP_true: push(vm, ORBIT_VALUE_TRUE); NEXT();
+        case OP_false: push(vm, ORBIT_VALUE_FALSE); NEXT();
             
-        case OP_PRINT: debugValue(peek(vm, 0)); NEXT();
+        case OP_print: debugValue(peek(vm, 0)); NEXT();
         
-        case OP_I2F: push(vm, ORBIT_VALUE_FLOAT((float)ORBIT_AS_INT(pop(vm))));
-        case OP_F2I: push(vm, ORBIT_VALUE_INT((int32_t)ORBIT_AS_FLOAT(pop(vm))));
+        case OP_i2f: push(vm, ORBIT_VALUE_FLOAT((float)ORBIT_AS_INT(pop(vm))));
+        case OP_f2i: push(vm, ORBIT_VALUE_INT((int32_t)ORBIT_AS_FLOAT(pop(vm))));
             
-        case OP_IADD: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, +); NEXT();
-        case OP_ISUB: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, -); NEXT();
-        case OP_IMUL: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, *); NEXT();
-        case OP_IDIV: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, /); NEXT();
+        case OP_iadd: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, +); NEXT();
+        case OP_isub: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, -); NEXT();
+        case OP_imul: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, *); NEXT();
+        case OP_idiv: BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, /); NEXT();
         
-        case OP_FADD: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, +); NEXT();
-        case OP_FSUB: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, -); NEXT();
-        case OP_FMUL: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, *); NEXT();
-        case OP_FDIV: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, /); NEXT();
+        case OP_fadd: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, +); NEXT();
+        case OP_fsub: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, -); NEXT();
+        case OP_fmul: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, *); NEXT();
+        case OP_fdiv: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, /); NEXT();
         
-        case OP_IEQ: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, ==); NEXT();
-        case OP_ILT: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, <); NEXT();
-        case OP_IGT: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, >); NEXT();
-        case OP_ILTEQ: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, <=); NEXT();
-        case OP_IGTEQ: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, >=); NEXT();
+        case OP_ieq: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, ==); NEXT();
+        case OP_ilt: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, <); NEXT();
+        case OP_igt: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, >); NEXT();
+        case OP_ilteq: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, <=); NEXT();
+        case OP_igteq: BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, >=); NEXT();
         
-        case OP_FEQ: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, ==); NEXT();
-        case OP_FLT: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, <); NEXT();
-        case OP_FGT: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, >); NEXT();
-        case OP_FLTEQ: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, <=); NEXT();
-        case OP_FGTEQ: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, >=); NEXT();
+        case OP_feq: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, ==); NEXT();
+        case OP_flt: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, <); NEXT();
+        case OP_fgt: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, >); NEXT();
+        case OP_flteq: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, <=); NEXT();
+        case OP_fgteq: BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, >=); NEXT();
         
             
         default:
