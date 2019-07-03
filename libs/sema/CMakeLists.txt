@@ -1,7 +1,4 @@
 add_library(OrbitSema helpers.c typecheck.c errors.c expr_resolver.c)
-target_link_libraries(OrbitSema OrbitUtils)
-target_link_libraries(OrbitSema OrbitCSupport)
-target_link_libraries(OrbitSema OrbitAST)
-target_link_libraries(OrbitSema OrbitMangling)
-
+target_include_directories(OrbitRT2 PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(OrbitSema OrbitUtils OrbitCSupport OrbitAST OrbitMangling)
 install(TARGETS OrbitSema DESTINATION lib)

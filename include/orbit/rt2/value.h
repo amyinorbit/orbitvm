@@ -69,7 +69,7 @@ typedef uint64_t OrbitValue;
 #define ORBIT_AS_INT(value) ((int32_t)((value) >> 32))
 #define ORBIT_AS_FLOAT(value) (ORBIT_BITS_FLOAT(ORBIT_AS_INT(value)))
 #define ORBIT_AS_REF(value) ((OrbitObject*)((uintptr_t)((value) & ORBIT_MASK_REF)))
-#define ORBIT_AS_STRING(value) (OrbitString*)((uintptr_t)((value) & ORBIT_MASK_REF)))
+#define ORBIT_AS_STRING(value) ((OrbitString*)((uintptr_t)((value) & ORBIT_MASK_REF)))
 
 #else
 typedef struct sOrbitValue OrbitValue;

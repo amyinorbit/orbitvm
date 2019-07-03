@@ -32,7 +32,7 @@ OrbitObject* orbit_objectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size) {
 
 OrbitString* orbit_stringCopy(OrbitGC* gc, const char* data, int32_t count) {
     assert(gc && "null Garbage Collector error");
-    OrbitString* self = ALLOC_OBJECT(gc, OrbitString, ORBIT_OBJ_STRING);
+    OrbitString* self = (OrbitString*)orbit_objectNew(gc, ORBIT_OBJ_STRING, sizeof(OrbitString) + (count+1)*sizeof(char));
     
     self->count = unic_countGraphemes(data, count);
     self->utf8count = count;

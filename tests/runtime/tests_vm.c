@@ -8,11 +8,22 @@
 #include <stdio.h>
 #include <string.h>
 #include <orbit/rt2/value.h>
+#include <orbit/rt2/value_string.h>
 #include <orbit/rt2/vm.h>
 #include <orbit/rt2/garbage.h>
 #include <orbit/utils/pack.h>
 #include <orbit/utils/hashing.h>
 #include <unity.h>
+
+OrbitGC gc;
+
+void setUp(void) {
+    orbit_gcInit(&gc);
+}
+
+void tearDown(void) {
+    orbit_gcDeinit(&gc);
+}
 
 void pack_uint8(void) {
     FILE* f = fopen("/tmp/test", "w+");
@@ -115,6 +126,45 @@ void pack_ieee754(void) {
     fclose(f);
 }
 
+void test_valueInt(void) {
+    OrbitValue a = ORBIT_VALUE_INT(INT32_MAX);
+    OrbitValue b = ORBIT_VALUE_INT(-1);
+    
+    TEST_ASSERT_TRUE(orbit_valueEquals(a, a));
+    TEST_ASSERT_FALSE(orbit_valueEquals(a, b));
+    
+    TEST_ASSERT_EQUAL(ORBIT_AS_INT(a), INT32_MAX);
+    TEST_ASSERT_EQUAL(ORBIT_AS_INT(b), -1);
+}
+
+void test_valueFloat(void) {
+    OrbitValue a = ORBIT_VALUE_FLOAT(12.3456f);
+    OrbitValue b = ORBIT_VALUE_FLOAT(65.4321f);
+    
+    TEST_ASSERT_TRUE(orbit_valueEquals(a, a));
+    TEST_ASSERT_FALSE(orbit_valueEquals(a, b));
+    
+    TEST_ASSERT_EQUAL(12.3456f, ORBIT_AS_FLOAT(a));
+    TEST_ASSERT_EQUAL(65.4321f, ORBIT_AS_FLOAT(b));
+}
+
+void test_valueString(void) {
+    const char basicC[] = "Hello, world!";
+    const char clustersC[] = "🏴󠁧󠁢󠁳󠁣󠁴󠁿🏳️‍🌈😁";
+    
+    OrbitValue basic = ORBIT_VALUE_REF(orbit_stringCopy(&gc, basicC, strlen(basicC)));
+    OrbitValue clusters = ORBIT_VALUE_REF(orbit_stringCopy(&gc, clustersC, strlen(clustersC)));
+    
+    TEST_ASSERT_TRUE(ORBIT_IS_STRING(basic));
+    TEST_ASSERT_TRUE(ORBIT_IS_STRING(clusters));
+    
+    TEST_ASSERT_EQUAL_INT32(13, ORBIT_AS_STRING(basic)->count);
+    TEST_ASSERT_EQUAL_INT32(3, ORBIT_AS_STRING(clusters)->count);
+    
+    TEST_ASSERT_TRUE(orbit_valueEquals(basic, basic));
+}
+
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(pack_uint8);
@@ -123,5 +173,8 @@ int main(void) {
     RUN_TEST(pack_uint64);
     RUN_TEST(pack_bytes);
     RUN_TEST(pack_ieee754);
+    RUN_TEST(test_valueInt);
+    RUN_TEST(test_valueFloat);
+    RUN_TEST(test_valueString);
     return UNITY_END();
 }

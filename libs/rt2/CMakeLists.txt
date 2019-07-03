@@ -2,6 +2,7 @@ add_library(OrbitRT2 STATIC
     chunk.c
     memory.c
     debug.c
+    value.c
     value_array.c
     value_object.c
     value_string.c

@@ -13,6 +13,7 @@
 #include <unic/unic.h>
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
 
 OrbitString* orbit_stringConcat(OrbitGC* gc, const OrbitString* lhs, const OrbitString* rhs) {
     assert(gc && "null Garbage Collector pointer");
@@ -25,6 +26,7 @@ OrbitString* orbit_stringConcat(OrbitGC* gc, const OrbitString* lhs, const Orbit
     memcpy(string->data + lhs->utf8count, rhs->data, rhs->utf8count);
     
     string->count = unic_countGraphemes(string->data, bytes);
+    fprintf(stderr, "'%.*s': %d\n", string->count, string->data, string->count);
     
     return string;
 }

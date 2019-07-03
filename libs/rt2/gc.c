@@ -11,6 +11,19 @@
 #include <orbit/rt2/value_object.h>
 #include <assert.h>
 
+void orbit_gcInit(OrbitGC* self) {
+    assert(self && "null Garbage Collector error");
+    self->allocated = 0;
+    self->nextCollection = (1 << 16);
+    self->head = NULL;
+}
+
+void orbit_gcDeinit(OrbitGC* self) {
+    assert(self && "null Garbage Collector error");
+    orbit_gcRun(self);
+    orbit_gcInit(self);
+}
+
 void orbit_gcRun(OrbitGC* self) {
     assert(self && "null Garbage Collector error");
     OrbitObject* object = self->head;

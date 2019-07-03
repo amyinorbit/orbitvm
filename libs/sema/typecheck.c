@@ -11,6 +11,7 @@
 #include <orbit/utils/memory.h>
 #include <orbit/ast/builders.h>
 #include <orbit/ast/type.h>
+#include <orbit/mangling/mangle.h>
 #include <assert.h>
 
 #include "sema_private.h"
@@ -44,6 +45,7 @@ static OrbitAST* extractVarType(Sema* self, OrbitAST* var) {
 static bool declareFunc(Sema* self, OrbitAST* func) {
     func->type = ORCRETAIN(extractFuncType(self, func));
     if(!func->type) return false;
+    func->funcDecl.mangledName = orbit_mangleFuncName(func);
     return declareFunction(self, func);
 }
 
