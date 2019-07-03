@@ -20,6 +20,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_GENERATOR STREQUAL "Ni
 endif()
 
 add_subdirectory(packages/UniC)
+add_subdirectory(packages/unity)
 add_subdirectory(libs)
 add_subdirectory(bin)
 add_subdirectory(tests)
