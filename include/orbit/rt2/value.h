@@ -33,7 +33,6 @@ clear. We can use this to our advantage by setting that bit when a pointer is, i
 Orbit value types occupy at most 4 bytes, giving us 3 bytes to use for tagging values with their
 primitive type.
 
-
 */
 typedef union {
     float value;
@@ -49,10 +48,12 @@ typedef uint64_t OrbitValue;
 #define ORBIT_TAG_MAYBE (ORBIT_TAG_VALUE | (1 << 4))
 
 #define ORBIT_IS_REF(value) (((value) & ORBIT_TAG_VALUE) == 0)
+#define ORBIT_IS_BOOL(value) (((value) & ORBIT_TAG_BOOL) == ORBIT_TAG_BOOL)
+#define ORBIT_IS_INT(value) (((value) & ORBIT_TAG_INT) == ORBIT_TAG_INT)
+#define ORBIT_IS_FLOAT(value) (((value) & ORBIT_TAG_FLOAT) == ORBIT_TAG_FLOAT)
 
 #define ORBIT_MASK_REF   (~ORBIT_TAG_VALUE)
-
-#define ORBIT_GET_FLAGS(value) ((value) & 0x0000ffff)
+#define ORBIT_GET_FLAGS(value) ((value) & 0x00000000ffffffff)
 
 #define ORBIT_FLOAT_BITS(num) (((FloatBits){.value=num}).bits)
 #define ORBIT_BITS_FLOAT(val) (((FloatBits){.bits=(val)}).value)
@@ -67,10 +68,8 @@ typedef uint64_t OrbitValue;
 #define ORBIT_AS_BOOL(value) ((bool)((value) >> 32))
 #define ORBIT_AS_INT(value) ((int32_t)((value) >> 32))
 #define ORBIT_AS_FLOAT(value) (ORBIT_BITS_FLOAT(ORBIT_AS_INT(value)))
-#define ORBIT_AS_REF(value) (OrbitObject*)((uintptr_t)((value) & ORBIT_MASK_REF))
-
-//#define ORBIT_IS_OBJECT(value) (((value) & ORBIT_VALUE_MASK) == 0)
-    //#define ORBIT_IS
+#define ORBIT_AS_REF(value) ((OrbitObject*)((uintptr_t)((value) & ORBIT_MASK_REF)))
+#define ORBIT_AS_STRING(value) (OrbitString*)((uintptr_t)((value) & ORBIT_MASK_REF)))
 
 #else
 typedef struct sOrbitValue OrbitValue;
@@ -105,5 +104,6 @@ struct sOrbitValue {
 
 #endif
 
+bool orbit_valueEquals(OrbitValue lhs, OrbitValue rhs);
 
 #endif

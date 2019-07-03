@@ -10,6 +10,7 @@
 #include <orbit/rt2/value_object.h>
 #include <orbit/rt2/vm.h>
 #include <orbit/rt2/memory.h>
+#include <orbit/utils/hashing.h>
 #include <unic/unic.h>
 #include <assert.h>
 #include <string.h>
@@ -38,7 +39,7 @@ OrbitString* orbit_stringCopy(OrbitGC* gc, const char* data, int32_t count) {
     
     memcpy(self->data, data, count);
     self->data[count] = '\0';
-    
+    self->hash = orbit_hashString(self->data, self->utf8count);
     return self;
 }
 
@@ -49,6 +50,7 @@ OrbitString* orbit_stringNew(OrbitGC* gc, int32_t count) {
     self->count = 0;
     self->utf8count = count;
     self->data[count] = '\0';
+    self->hash = orbit_hashString(self->data, self->utf8count);
     
     return self;
 }
