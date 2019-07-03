@@ -148,20 +148,28 @@ void test_valueFloat(void) {
     TEST_ASSERT_EQUAL(65.4321f, ORBIT_AS_FLOAT(b));
 }
 
-void test_valueString(void) {
-    const char basicC[] = "Hello, world!";
-    const char clustersC[] = "🏴󠁧󠁢󠁳󠁣󠁴󠁿🏳️‍🌈😁";
+void test_stringCount(void) {
+    const char string[] = "Hi! 여보세요 🏴󠁧󠁢󠁳󠁣󠁴󠁿🏳️‍🌈😁";
+    OrbitValue val = ORBIT_VALUE_REF(orbit_stringCopy(&gc, string, strlen(string)));
     
-    OrbitValue basic = ORBIT_VALUE_REF(orbit_stringCopy(&gc, basicC, strlen(basicC)));
-    OrbitValue clusters = ORBIT_VALUE_REF(orbit_stringCopy(&gc, clustersC, strlen(clustersC)));
+    TEST_ASSERT_EQUAL(12, ORBIT_AS_STRING(val)->count);
+}
+
+void test_stringEquality(void) {
+    OrbitValue a = ORBIT_VALUE_REF(orbit_stringCopy(&gc, "Hello!", 6));
+    OrbitValue b = ORBIT_VALUE_REF(orbit_stringCopy(&gc, "Hello!", 6));
     
-    TEST_ASSERT_TRUE(ORBIT_IS_STRING(basic));
-    TEST_ASSERT_TRUE(ORBIT_IS_STRING(clusters));
+    TEST_ASSERT_TRUE(orbit_valueEquals(a, b));
+}
+
+void test_stringConcat(void) {
+    OrbitString* a = orbit_stringCopy(&gc, "Hello!", 6);
+    OrbitString* b = orbit_stringCopy(&gc, " 👋", strlen(" 👋"));
+    OrbitString* c = orbit_stringConcat(&gc, a, b);
     
-    TEST_ASSERT_EQUAL_INT32(13, ORBIT_AS_STRING(basic)->count);
-    TEST_ASSERT_EQUAL_INT32(3, ORBIT_AS_STRING(clusters)->count);
-    
-    TEST_ASSERT_TRUE(orbit_valueEquals(basic, basic));
+    TEST_ASSERT_EQUAL(8, c->count);
+    TEST_ASSERT_EQUAL(strlen("Hello! 👋"), c->utf8count);
+    TEST_ASSERT_EQUAL_HEX8_ARRAY("Hello! 👋", c->data, c->utf8count);
 }
 
 
@@ -175,6 +183,8 @@ int main(void) {
     RUN_TEST(pack_ieee754);
     RUN_TEST(test_valueInt);
     RUN_TEST(test_valueFloat);
-    RUN_TEST(test_valueString);
+    RUN_TEST(test_stringCount);
+    RUN_TEST(test_stringEquality);
+    RUN_TEST(test_stringConcat);
     return UNITY_END();
 }

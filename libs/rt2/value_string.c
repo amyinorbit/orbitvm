@@ -10,6 +10,7 @@
 #include <orbit/rt2/value_string.h>
 #include <orbit/rt2/memory.h>
 #include <orbit/rt2/vm.h>
+#include <orbit/utils/hashing.h>
 #include <unic/unic.h>
 #include <string.h>
 #include <assert.h>
@@ -19,14 +20,15 @@ OrbitString* orbit_stringConcat(OrbitGC* gc, const OrbitString* lhs, const Orbit
     assert(gc && "null Garbage Collector pointer");
     assert(lhs && rhs && "null string pointer");
     
-    size_t bytes = lhs->utf8count + rhs->utf8count;
-    OrbitString* string = orbit_stringNew(gc, bytes);
+    size_t utf8count = lhs->utf8count + rhs->utf8count;
+    OrbitString* string = orbit_stringNew(gc, utf8count);
     
     memcpy(string->data, lhs->data, lhs->utf8count);
     memcpy(string->data + lhs->utf8count, rhs->data, rhs->utf8count);
     
-    string->count = unic_countGraphemes(string->data, bytes);
-    fprintf(stderr, "'%.*s': %d\n", string->count, string->data, string->count);
+    string->utf8count = utf8count;
+    string->count = unic_countGraphemes(string->data, utf8count);
+    string->hash = orbit_hashString(string->data, string->utf8count);
     
     return string;
 }
