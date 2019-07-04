@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 project(Orbit VERSION 2019.6 LANGUAGES C)
 
-enable_testing()
-
 include_directories(PUBLIC include)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -20,8 +18,10 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_GENERATOR STREQUAL "Ni
 endif()
 
 # Add packages/libraries
-add_subdirectory(packages/UniC EXCLUDE_FROM_ALL)
+add_subdirectory(packages/UniC)
 add_subdirectory(packages/unity EXCLUDE_FROM_ALL)
+
+enable_testing()
 
 # Orbit Components
 add_subdirectory(libs)
