@@ -19,8 +19,11 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_GENERATOR STREQUAL "Ni
     set(CMAKE_CXX_FLAGS "-fcolor-diagnostics ${CMAKE_CXX_FLAGS}")
 endif()
 
-add_subdirectory(packages/UniC)
-add_subdirectory(packages/unity)
+# Add packages/libraries
+add_subdirectory(packages/UniC EXCLUDE_FROM_ALL)
+add_subdirectory(packages/unity EXCLUDE_FROM_ALL)
+
+# Orbit Components
 add_subdirectory(libs)
 add_subdirectory(bin)
 add_subdirectory(tests)
