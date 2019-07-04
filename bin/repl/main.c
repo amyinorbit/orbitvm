@@ -16,6 +16,7 @@
 #include <orbit/rt2/debug.h>
 #include <orbit/rt2/opcodes.h>
 #include <orbit/rt2/value_object.h>
+#include <orbit/rt2/invocation.h>
 
 #include <orbit/ast/context.h>
 #include <orbit/ast/diag.h>
@@ -28,48 +29,48 @@
 
 typedef struct {
     OrbitGC* gc;
-    OrbitChunk* chunk;
+    OrbitFunction* fn;
 } CodeGen;
 
 void emitInteger(CodeGen codegen, int line, OrbitToken literal) {
-    uint8_t constant = codegen.chunk->constants.count;
-    orbit_arrayAppend(&codegen.chunk->constants, ORBIT_VALUE_INT(orbit_tokenIntValue(&literal)));
+    uint8_t constant = codegen.fn->constants.count;
+    orbit_ValueBufferWrite(codegen.gc, &codegen.fn->constants, ORBIT_VALUE_INT(orbit_tokenIntValue(&literal)));
     
-    orbit_chunkWrite(codegen.chunk, OP_const, line);
-    orbit_chunkWrite(codegen.chunk, constant, line);
+    orbit_functionWrite(codegen.gc, codegen.fn, OP_const, line);
+    orbit_functionWrite(codegen.gc, codegen.fn, constant, line);
 }
 
 void emitDouble(CodeGen codegen, int line, OrbitToken literal) {
-    uint8_t constant = codegen.chunk->constants.count;
-    orbit_arrayAppend(&codegen.chunk->constants, ORBIT_VALUE_FLOAT(orbit_tokenDoubleValue(&literal)));
+    uint8_t constant = codegen.fn->constants.count;
+    orbit_ValueBufferWrite(codegen.gc, &codegen.fn->constants, ORBIT_VALUE_FLOAT(orbit_tokenDoubleValue(&literal)));
     
-    orbit_chunkWrite(codegen.chunk, OP_const, line);
-    orbit_chunkWrite(codegen.chunk, constant, line);
+    orbit_functionWrite(codegen.gc, codegen.fn, OP_const, line);
+    orbit_functionWrite(codegen.gc, codegen.fn, constant, line);
 }
 
 void emitString(CodeGen codegen, int line, OrbitToken literal) {
-    uint8_t constant = codegen.chunk->constants.count;
+    uint8_t constant = codegen.fn->constants.count;
     
     OCString* parsed = orbit_stringPoolGet(literal.parsedStringLiteral);
     OrbitString* string = orbit_stringCopy(codegen.gc, parsed->data, parsed->length);
     
-    orbit_arrayAppend(&codegen.chunk->constants, ORBIT_VALUE_REF(string));
+    orbit_ValueBufferWrite(codegen.gc, &codegen.fn->constants, ORBIT_VALUE_REF(string));
     
-    orbit_chunkWrite(codegen.chunk, OP_const, line);
-    orbit_chunkWrite(codegen.chunk, constant, line);
+    orbit_functionWrite(codegen.gc, codegen.fn, OP_const, line);
+    orbit_functionWrite(codegen.gc, codegen.fn, constant, line);
 }
 
 void emitBinary(CodeGen codegen, int line, OrbitTokenKind operator) {
     switch(operator) {
-        case ORBIT_TOK_PLUS: orbit_chunkWrite(codegen.chunk, OP_iadd, line); break;
-        case ORBIT_TOK_MINUS: orbit_chunkWrite(codegen.chunk, OP_isub, line); break;
-        case ORBIT_TOK_STAR: orbit_chunkWrite(codegen.chunk, OP_imul, line); break;
-        case ORBIT_TOK_SLASH: orbit_chunkWrite(codegen.chunk, OP_idiv, line); break;
-        case ORBIT_TOK_EQEQ: orbit_chunkWrite(codegen.chunk, OP_ieq, line); break;
-        case ORBIT_TOK_LT: orbit_chunkWrite(codegen.chunk, OP_ilt, line); break;
-        case ORBIT_TOK_GT: orbit_chunkWrite(codegen.chunk, OP_igt, line); break;
-        case ORBIT_TOK_LTEQ: orbit_chunkWrite(codegen.chunk, OP_ilteq, line); break;
-        case ORBIT_TOK_GTEQ: orbit_chunkWrite(codegen.chunk, OP_igteq, line); break;
+        case ORBIT_TOK_PLUS: orbit_functionWrite(codegen.gc, codegen.fn, OP_iadd, line); break;
+        case ORBIT_TOK_MINUS: orbit_functionWrite(codegen.gc, codegen.fn, OP_isub, line); break;
+        case ORBIT_TOK_STAR: orbit_functionWrite(codegen.gc, codegen.fn, OP_imul, line); break;
+        case ORBIT_TOK_SLASH: orbit_functionWrite(codegen.gc, codegen.fn, OP_idiv, line); break;
+        case ORBIT_TOK_EQEQ: orbit_functionWrite(codegen.gc, codegen.fn, OP_ieq, line); break;
+        case ORBIT_TOK_LT: orbit_functionWrite(codegen.gc, codegen.fn, OP_ilt, line); break;
+        case ORBIT_TOK_GT: orbit_functionWrite(codegen.gc, codegen.fn, OP_igt, line); break;
+        case ORBIT_TOK_LTEQ: orbit_functionWrite(codegen.gc, codegen.fn, OP_ilteq, line); break;
+        case ORBIT_TOK_GTEQ: orbit_functionWrite(codegen.gc, codegen.fn, OP_igteq, line); break;
         default: break;
     }
 }
@@ -124,8 +125,8 @@ OrbitResult repl_compile(CodeGen codegen, int line, const char* input) {
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
     
     emit(codegen, line, ctx.root);
-    orbit_debugChunk(codegen.chunk, "repl");
-    orbit_chunkWrite(codegen.chunk, OP_return, line);
+    orbit_debugFunction(codegen.fn, "repl");
+    orbit_functionWrite(codegen.gc, codegen.fn, OP_return, 1);
     
     orbit_astContextDeinit(&ctx);
     return ORBIT_OK;
@@ -148,26 +149,27 @@ void repl(OrbitVM* vm) {
             break;                             
         }
         
-        OrbitChunk chunk;
-        orbit_chunkInit(&chunk);
-        CodeGen codegen = (CodeGen){&vm->gc, &chunk};
+        OrbitFunction* fn = orbit_functionNew(&vm->gc);
+        orbit_gcPush(&vm->gc, (OrbitObject*)fn);
+        CodeGen codegen = (CodeGen){&vm->gc, fn};
         
         if(repl_compile(codegen, lineNumber, line) == ORBIT_OK) {
-            orbit_run(vm, &chunk);
+            orbit_run(vm, fn);
             console_setColor(stderr, CLI_CYAN);
             orbit_debugTOS(vm);
             console_setColor(stderr, CLI_RESET);
         }
         
-        orbit_chunkDeinit(&chunk);
+        orbit_gcPop(&vm->gc);
+        orbit_gcRun(&vm->gc);
         lineNumber += 1;
     }
 }
 
 OrbitResult compileFile(OrbitVM* vm, const char* path) {
-    OrbitChunk chunk;
-    orbit_chunkInit(&chunk);
-    CodeGen codegen = (CodeGen){&vm->gc, &chunk};
+    OrbitFunction* fn = orbit_functionNew(&vm->gc);
+    orbit_gcPush(&vm->gc, (OrbitObject*)fn);
+    CodeGen codegen = (CodeGen){&vm->gc, fn};
     
     OrbitASTContext ctx;
     orbit_astContextInit(&ctx);
@@ -181,8 +183,8 @@ OrbitResult compileFile(OrbitVM* vm, const char* path) {
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
     
     emit(codegen, 1, ctx.root);
-    orbit_debugChunk(&chunk, "repl");
-    orbit_chunkWrite(&chunk, OP_return, 1);
+    orbit_debugFunction(fn, path);
+    orbit_functionWrite(&vm->gc, fn, OP_return, 1);
     
     orbit_astContextDeinit(&ctx);
     return ORBIT_OK;

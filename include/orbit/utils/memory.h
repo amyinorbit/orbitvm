@@ -53,7 +53,7 @@ struct _ORCObject {
 #define ORBIT_DEALLOC_NOSIZE(ptr) \
     orbit_allocator(ptr, 0, 0)
 
-#define orbit_DEALLOC_FLEX(ptr, T, U, count) \
+#define ORBIT_DEALLOC_FLEX(ptr, T, U, count) \
     orbit_allocator(ptr, sizeof(T) + (sizeof(U) * count), 0)
         
 #define ORBIT_DEALLOC_ARRAY(ptr, T, count) \

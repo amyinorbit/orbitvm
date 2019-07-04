@@ -23,11 +23,11 @@ typedef enum {
 #define ORBIT_STACK_MAX 256
 
 struct sOrbitVM {
-    OrbitChunk* chunk;
+    OrbitFunction* function;
     uint8_t* ip;
     OrbitValue* sp;
     OrbitValue stack[ORBIT_STACK_MAX];
-    
+
     OrbitGC gc;
 };
 
@@ -36,7 +36,7 @@ void orbit_vmDeinit(OrbitVM* self);
 void orbit_debugTOS(OrbitVM* self);
 
 // OrbitResult orbit_interpret(const char* source);
-OrbitResult orbit_run(OrbitVM* vm, OrbitChunk* chunk);
+OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* chunk);
 
 
 #endif /* orbit_vm_h */

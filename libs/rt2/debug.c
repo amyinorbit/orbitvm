@@ -9,6 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #include <orbit/rt2/debug.h>
 #include <orbit/rt2/opcodes.h>
+#include <orbit/rt2/value_object.h>
 #include <stdio.h>
 
 typedef struct {
@@ -28,10 +29,10 @@ static const char* opcodeNames[] = {
 };
 #undef OPCODE
 
-void orbit_debugChunk(const OrbitChunk* chunk, const char* name) {
-    fprintf(stderr, "** chunk: %s **\n", name);
+void orbit_debugFunction(const OrbitFunction* fn, const char* name) {
+    fprintf(stderr, "** function: %s **\n", name);
     // int oldLine = -1;
-    for(int offset = 0; offset < chunk->count;) {
+    for(int offset = 0; offset < fn->code.count;) {
         fprintf(stderr, "[%4d] ", offset);
         // int line = chunk->lines[offset];
         // if(line != oldLine)
@@ -39,19 +40,19 @@ void orbit_debugChunk(const OrbitChunk* chunk, const char* name) {
         // else
         //     fprintf(stderr, "   | ");
         // oldLine = line;
-        offset = orbit_debugInstruction(chunk, offset);
+        offset = orbit_debugInstruction(fn, offset);
     }
 }
 
-int orbit_debugInstruction(const OrbitChunk* chunk, int offset) {
-    uint8_t code = chunk->code[offset];
+int orbit_debugInstruction(const OrbitFunction* fn, int offset) {
+    uint8_t code = fn->code.data[offset];
     OpcodeData data = opcodeData[code];
     switch(data.length) {
     case 0:
         fprintf(stderr, "%-10s\n", opcodeNames[code]);
         break;
     case 1:
-        fprintf(stderr, "%-10s val%d\n", opcodeNames[code], chunk->code[offset + 1]);
+        fprintf(stderr, "%-10s val%d\n", opcodeNames[code], fn->code.data[offset + 1]);
         break;
     default:
         break;

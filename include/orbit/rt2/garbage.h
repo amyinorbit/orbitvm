@@ -14,7 +14,6 @@
 
 #define ORBIT_GC_MAXROOTS (256)
 
-typedef struct sOrbitGC OrbitGC;
 struct sOrbitGC {
     size_t allocated;
     size_t nextCollection;

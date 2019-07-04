@@ -9,19 +9,20 @@
 //===--------------------------------------------------------------------------------------------===
 #ifndef orbit_invocation_h
 #define orbit_invocation_h
-#include <orbit/rt2/value.h>
+#include <orbit/common.h>
 #include <orbit/rt2/garbage.h>
+#include <orbit/rt2/value.h>
 
 typedef struct sOrbitTask OrbitTask;
 typedef struct sOrbitFrame OrbitFrame;
 
 struct sOrbitTask {
     uint8_t* ip;
-    
+
     size_t stackCapacity;
     OrbitValue* stack;
     OrbitValue* stackTop;
-    
+
     size_t framesCapacity;
     OrbitFrame* frames;
     OrbitFrame* framesTop;
@@ -32,6 +33,8 @@ struct sOrbitFrame {
     uint8_t* ip;
     OrbitValue* base;
 };
+
+void orbit_functionWrite(OrbitGC* gc, OrbitFunction* func, uint8_t code, int32_t line);
 
 void orbit_taskInit(OrbitTask* self);
 void orbit_taskDeinit(OrbitTask* self);

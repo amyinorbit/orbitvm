@@ -15,4 +15,5 @@
 #include <stdint.h>
 #include <stddef.h>
 typedef struct sOrbitVM OrbitVM;
+typedef struct sOrbitGC OrbitGC;
 #endif

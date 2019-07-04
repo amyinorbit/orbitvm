@@ -7,11 +7,11 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include <assert.h>
 #include <orbit/rt2/garbage.h>
 #include <orbit/rt2/value_object.h>
-#include <assert.h>
 #include <string.h>
-    
+
 typedef OrbitObject* ObjRef;
 
 void orbit_gcInit(OrbitGC* self) {
@@ -47,13 +47,13 @@ void orbit_gcRun(OrbitGC* self) {
     markRoots(self);
     assert(self && "null Garbage Collector error");
     // OrbitObject* object = self->head;
-    
+
     ObjRef* ptr = &self->head;
     while(*ptr) {
         if(!(*ptr)->mark) {
             OrbitObject* garbage = *ptr;
             *ptr = garbage->next;
-            orbit_objectFree(garbage);
+            orbit_objectFree(self, garbage);
         } else {
             (*ptr)->mark = false;
             ptr = &(*ptr)->next;
@@ -78,20 +78,19 @@ void orbit_gcRelease(OrbitGC* self, OrbitObject* ref) {
     assert(ref && "can't remove a null object from the root stack");
     assert(self->rootCount > 0);
     // This is a bit trickier, we need to do a search in the array
-    
+
     ObjRef* shouldBeRemoved = NULL;
     ObjRef* end = self->roots + self->rootCount;
-    
+
     for(ObjRef* root = self->roots; root != end; ++root) {
         if(*root != ref) continue;
         shouldBeRemoved = root;
         break;
     }
-    
-    size_t distance = end - (shouldBeRemoved+1);
-    
+
+    size_t distance = end - (shouldBeRemoved + 1);
+
     assert(shouldBeRemoved && "object is not on the root stack");
-    memmove(shouldBeRemoved, shouldBeRemoved+1, distance * sizeof(ObjRef));
+    memmove(shouldBeRemoved, shouldBeRemoved + 1, distance * sizeof(ObjRef));
     self->rootCount -= 1;
 }
-

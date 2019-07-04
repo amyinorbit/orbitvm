@@ -13,11 +13,13 @@
 #include <orbit/rt2/chunk.h>
 #include <orbit/rt2/value.h>
 #include <orbit/rt2/garbage.h>
+#include <orbit/rt2/buffer.h>
 
 typedef void (*OrbitDestructor)(void*);
 
 typedef enum {
     ORBIT_OBJ_STRING,
+    ORBIT_OBJ_FUNCTION,
 } OrbitObjectKind;
 
 struct sOrbitObject {
@@ -45,7 +47,10 @@ struct sOrbitFunction {
     uint8_t arity;
     uint8_t locals;
     uint16_t requiredStack;
-    OrbitChunk chunk;
+    
+    OrbitByteBuffer code;
+    OrbitIntBuffer lines;
+    OrbitValueBuffer constants;
 };
 
 static inline bool ORBIT_IS_STRING(OrbitValue value) {
@@ -57,6 +62,9 @@ OrbitObject* orbit_objectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size);
 OrbitString* orbit_stringCopy(OrbitGC* gc, const char* data, int32_t count);
 OrbitString* orbit_stringNew(OrbitGC* gc, int32_t count);
 
-void orbit_objectFree(OrbitObject* self);
+OrbitFunction* orbit_functionNew(OrbitGC* gc);
+
+void orbit_objectMark(OrbitGC* gc, OrbitObject* self);
+void orbit_objectFree(OrbitGC* gc, OrbitObject* self);
 
 #endif

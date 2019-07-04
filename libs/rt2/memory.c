@@ -10,14 +10,10 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <orbit/rt2/memory.h>
+#include <orbit/rt2/garbage.h>
 
-void* orbit_allocator(void* ptr, size_t oldSize, size_t newSize) {
-    if(newSize == 0) {
-        free(ptr);
-        return NULL;
-    }
-    
-    void* mem = realloc(ptr, newSize);
-    assert(mem != NULL && "Error reallocating memory");
-    return mem;
+void* orbit_gcalloc(OrbitGC* gc, void* ptr, size_t oldSize, size_t newSize) {
+    assert(gc && "can't GC-allocate with a null collector");
+    gc->allocated += (newSize - oldSize);
+    return orbit_allocator(ptr, oldSize, newSize);
 }
