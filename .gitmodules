@@ -3,4 +3,4 @@
 	url = git@github.com:amyinorbit/UniC.git
 [submodule "packages/Unity"]
 	path = packages/Unity
-	url = git@github.com:ThrowTheSwitch/Unity.git
+	url = git@github.com:amyinorbit/Unity.git

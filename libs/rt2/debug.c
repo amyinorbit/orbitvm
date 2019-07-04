@@ -16,13 +16,13 @@ typedef struct {
     int8_t effect;
 } OpcodeData;
 
-#define OPCODE(inst, length, effect) [ OP_##inst ] = {length, effect},
+#define OPCODE(inst, length, effect) [OP_##inst] = {length, effect},
 static const OpcodeData opcodeData[] = {
 #include <orbit/rt2/opcodes.inl>
 };
 #undef OPCODE
 
-#define OPCODE(name, _, __) [ OP_##name ] = #name ,
+#define OPCODE(name, _, __) [OP_##name] = #name,
 static const char* opcodeNames[] = {
 #include <orbit/rt2/opcodes.inl>
 };
@@ -47,15 +47,15 @@ int orbit_debugInstruction(const OrbitChunk* chunk, int offset) {
     uint8_t code = chunk->code[offset];
     OpcodeData data = opcodeData[code];
     switch(data.length) {
-        case 0:
-            fprintf(stderr, "%-10s\n", opcodeNames[code]);
-            break;
-        case 1:
-            fprintf(stderr, "%-10s val%3d\n", opcodeNames[code], chunk->code[offset+1]);
-            break;
-        default: break;
+    case 0:
+        fprintf(stderr, "%-10s\n", opcodeNames[code]);
+        break;
+    case 1:
+        fprintf(stderr, "%-10s val%d\n", opcodeNames[code], chunk->code[offset + 1]);
+        break;
+    default:
+        break;
     }
-    
+
     return offset + data.length + 1;
 }
-
