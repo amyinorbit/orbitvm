@@ -172,6 +172,39 @@ void test_stringConcat(void) {
     TEST_ASSERT_EQUAL_HEX8_ARRAY("Hello! 👋", c->data, c->utf8count);
 }
 
+void test_gcRootsPush(void) {
+    OrbitString* a = orbit_stringCopy(&gc, "Hello!", 6);
+    orbit_gcPush(&gc, (OrbitObject*)a);
+    TEST_ASSERT_EQUAL(1, gc.rootCount);
+}
+
+void test_gcRootsPop(void) {
+    OrbitString* a = orbit_stringCopy(&gc, "Hello!", 6);
+    orbit_gcPush(&gc, (OrbitObject*)a);
+    orbit_gcPop(&gc);
+    TEST_ASSERT_EQUAL(0, gc.rootCount);
+}
+
+void test_gcRootRelease(void) {
+    OrbitString* a = orbit_stringCopy(&gc, "Hello!", 6);
+    OrbitString* b = orbit_stringCopy(&gc, "Hello!", 6);
+    OrbitString* c = orbit_stringCopy(&gc, "Hello!", 6);
+    
+    orbit_gcPush(&gc, (OrbitObject*)a);
+    orbit_gcPush(&gc, (OrbitObject*)b);
+    orbit_gcPush(&gc, (OrbitObject*)c);
+    orbit_gcPush(&gc, (OrbitObject*)a);
+    orbit_gcPush(&gc, (OrbitObject*)a);
+    
+    orbit_gcRelease(&gc, (OrbitObject*)b);
+    
+    TEST_ASSERT_EQUAL(4, gc.rootCount);
+    TEST_ASSERT_EQUAL_HEX(a, gc.roots[0]);
+    TEST_ASSERT_EQUAL_HEX(b, gc.roots[1]);
+    TEST_ASSERT_EQUAL_HEX(a, gc.roots[2]);
+    TEST_ASSERT_EQUAL_HEX(a, gc.roots[3]);
+}
+
 
 int main(void) {
     UNITY_BEGIN();
@@ -186,5 +219,7 @@ int main(void) {
     RUN_TEST(test_stringCount);
     RUN_TEST(test_stringEquality);
     RUN_TEST(test_stringConcat);
+    RUN_TEST(test_gcRootsPush);
+    RUN_TEST(test_gcRootsPop);
     return UNITY_END();
 }

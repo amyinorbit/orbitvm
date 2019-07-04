@@ -56,6 +56,5 @@ int orbit_debugInstruction(const OrbitChunk* chunk, int offset) {
     default:
         break;
     }
-
     return offset + data.length + 1;
 }
