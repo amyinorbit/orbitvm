@@ -123,6 +123,10 @@ struct _OrbitAST {
     
     OrbitSRange sourceRange;
     
+    struct {
+        uint32_t line;
+    } debug;
+    
     union {
         // --------------------------------------------------------------------
         // Statements

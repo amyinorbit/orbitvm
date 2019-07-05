@@ -10,7 +10,7 @@
 #ifndef orbit_common_h
 #define orbit_common_h
 
-//#define ORBIT_DEBUG_TRACE
+#define ORBIT_DEBUG_TRACE
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>

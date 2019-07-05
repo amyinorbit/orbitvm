@@ -68,12 +68,22 @@ static inline void debugValue(OrbitValue value) {
     case ORBIT_TAG_FLOAT:
         fprintf(stderr, "%f\n", ORBIT_AS_FLOAT(value));
         break;
+    default:
+        fprintf(stderr, "UNKOWN VALUE TYPE\n");
+        break;
     }
 }
 
 void orbit_debugTOS(OrbitVM* self) {
     if(self->sp == self->stack) return;
     debugValue(peek(self, 0));
+}
+
+void orbit_debugStack(OrbitVM* self) {
+    printf("== vm stack ==\n");
+    for(OrbitValue* sp = self->stack; sp != self->sp; ++sp) {
+        debugValue(*sp);
+    }
 }
 
 OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
@@ -121,8 +131,10 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
 
         case OP_i2f:
             push(vm, ORBIT_VALUE_FLOAT((float)ORBIT_AS_INT(pop(vm))));
+            NEXT();
         case OP_f2i:
             push(vm, ORBIT_VALUE_INT((int32_t)ORBIT_AS_FLOAT(pop(vm))));
+            NEXT();
 
         case OP_iadd:
             BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, +);

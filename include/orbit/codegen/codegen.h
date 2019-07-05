@@ -11,9 +11,9 @@
 #define orbit_codegen_h
 
 #include <orbit/ast/context.h>
-#include <orbit/rt2/chunk.h>
+#include <orbit/rt2/value.h>
 #include <orbit/rt2/garbage.h>
 
-void orbit_codegen(OrbitGC* gc, OrbitChunk* chunk, OrbitASTContext* context);
+void orbit_codegen(OrbitGC* gc, OrbitFunction* chunk, OrbitASTContext* context);
 
 #endif

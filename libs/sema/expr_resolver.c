@@ -79,7 +79,7 @@ void declareDefaultOperators(Sema* self) {
     for(int i = 0; i < compCount; ++i) {
         declComp(self, intType, comparison[i], boolType);
         declComp(self, floatType, comparison[i], boolType);
-        declComp(self, stringType, comparison[i], boolType);
+        // declComp(self, stringType, comparison[i], boolType);
     }
 }
 
@@ -112,6 +112,7 @@ bool canConvert(OrbitAST* from, OrbitAST* to) {
 OrbitAST* convertExprType(OrbitAST* node, OrbitAST* to) {
     if(!canConvert(node->type, to)) return node;
     OrbitAST* converted = orbit_astMakeI2F(node);
+    converted->type = ORCRETAIN(floatType);
     ORCRELEASE(node);
     return converted;
 }
