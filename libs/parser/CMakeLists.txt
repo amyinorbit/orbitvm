@@ -1,7 +1,5 @@
-file(GLOB SRC_FILES *.c)
-add_library(OrbitParser ${SRC_FILES})
-target_link_libraries(OrbitParser OrbitUtils)
-target_link_libraries(OrbitParser OrbitCSupport)
-target_link_libraries(OrbitParser OrbitAST)
+add_library(OrbitParser STATIC parser_lexing.c parser_private.c parser.c recursive_descent.c)
+target_include_directories(OrbitParser PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(OrbitParser OrbitUtils OrbitCSupport OrbitAST)
 
-install(TARGETS OrbitParser DESTINATION lib)
+install(TARGETS OrbitParser ARCHIVE)

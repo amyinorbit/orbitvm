@@ -1,7 +1,5 @@
-file(GLOB SRC_FILES *.c)
-add_library(OrbitMangling ${SRC_FILES})
-target_link_libraries(OrbitMangling OrbitAST)
-target_link_libraries(OrbitMangling OrbitUtils)
-target_link_libraries(OrbitMangling OrbitCSupport)
+add_library(OrbitMangling STATIC demangle.c mangle.c)
+target_include_directories(OrbitMangling PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(OrbitMangling OrbitAST OrbitUtils OrbitCSupport)
 
-install(TARGETS OrbitMangling DESTINATION lib)
+install(TARGETS OrbitMangling ARCHIVE)

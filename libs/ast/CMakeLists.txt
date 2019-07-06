@@ -1,7 +1,13 @@
-file(GLOB SRC_FILES *.c)
+add_library(OrbitAST STATIC
+    alloc.c
+    builders.c
+    context.c
+    diag_formatter.c
+    diag.c printer.c
+    traversal.c
+    type.c
+)
+target_include_directories(OrbitAST PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(OrbitAST OrbitUtils OrbitCSupport)
 
-add_library(OrbitAST ${SRC_FILES})
-target_link_libraries(OrbitAST OrbitUtils)
-target_link_libraries(OrbitAST OrbitCSupport)
-
-install(TARGETS OrbitAST DESTINATION lib)
+install(TARGETS OrbitAST ARCHIVE)

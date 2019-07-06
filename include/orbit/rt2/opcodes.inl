@@ -21,13 +21,12 @@
 #endif
 
 OPCODE(return, 0, 0)
+OPCODE(return_val, 0, -1)
 OPCODE(print, 0, 0)
 
 OPCODE(const, 1, 1)
 OPCODE(true, 0, 1)
 OPCODE(false, 0, 1)
-// OPCODE(istore, 1, -1)
-//
     
 OPCODE(i2f, 0, 0)
 OPCODE(f2i, 0, 0)
@@ -53,6 +52,9 @@ OPCODE(flt, 0, -1)
 OPCODE(fgt, 0, -1)
 OPCODE(flteq, 0, -1)
 OPCODE(fgteq, 0, -1)
+    
+OPCODE(call, 1, 0)
+OPCODE(call_sym, 1, 0)
 //
 // OPCODE(retain, 0, 0)
 // OPCODE(release, 0, -1)

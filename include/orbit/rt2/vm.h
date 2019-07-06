@@ -12,7 +12,9 @@
 #include <orbit/common.h>
 #include <orbit/rt2/chunk.h>
 #include <orbit/rt2/garbage.h>
-#include <orbit/rt2/value_object.h>
+#include <orbit/rt2/value.h>
+#include <orbit/rt2/invocation.h>
+
 
 typedef enum {
     ORBIT_OK,
@@ -24,10 +26,11 @@ typedef enum {
 
 struct sOrbitVM {
     OrbitFunction* function;
-    uint8_t* ip;
-    OrbitValue* sp;
-    OrbitValue stack[ORBIT_STACK_MAX];
-
+    // uint8_t* ip;
+    // OrbitValue* sp;
+    // OrbitValue stack[ORBIT_STACK_MAX];
+    
+    OrbitTask* task;
     OrbitGC gc;
 };
 
@@ -37,7 +40,7 @@ void orbit_debugTOS(OrbitVM* self);
 void orbit_debugStack(OrbitVM* self);
 
 // OrbitResult orbit_interpret(const char* source);
-OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* chunk);
+OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function);
 
 
 #endif /* orbit_vm_h */

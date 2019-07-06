@@ -11,7 +11,10 @@
 #include <orbit/rt2/buffer.h>
 #include <orbit/rt2/invocation.h>
 #include <orbit/rt2/memory.h>
+#include <orbit/rt2/vm.h>
 #include <orbit/rt2/value_object.h>
+
+DEFINE_BUFFER(Frame, OrbitFrame);
 
 #define ORBIT_STACK_START 1024
 #define ORBIT_FRAMES_START 64
@@ -23,28 +26,28 @@ void orbit_functionWrite(OrbitGC* gc, OrbitFunction* func, uint8_t code, int32_t
     orbit_IntBufferWrite(gc, &func->lines, line);
 }
 
-void orbit_taskInit(OrbitTask* self) {
+void orbit_taskInit(OrbitVM* vm, OrbitTask* self) {
+    assert(vm && "tasks must be attached to a valid VM");
     assert(self && "null task error");
 
     self->stackCapacity = ORBIT_STACK_START;
     self->stack = ORBIT_ALLOC_ARRAY(OrbitValue, self->stackCapacity);
     self->stackTop = self->stack;
 
-    self->framesCapacity = ORBIT_FRAMES_START;
-    self->frames = ORBIT_ALLOC_ARRAY(OrbitFrame, self->framesCapacity);
-    self->framesTop = self->frames;
+    orbit_FrameBufferInit(&self->frames);
 }
 
-void orbit_taskDeinit(OrbitTask* self) {
+void orbit_taskDeinit(OrbitVM* vm, OrbitTask* self) {
+    assert(vm && "tasks must be attached to a valid VM");
     assert(self && "null task error");
     ORBIT_DEALLOC_ARRAY(self->stack, OrbitValue, self->stackCapacity);
-    ORBIT_DEALLOC_ARRAY(self->frames, OrbitFrame, self->framesCapacity);
     self->stack = self->stackTop = NULL;
-    self->frames = self->framesTop = NULL;
-    self->stackCapacity = self->framesCapacity = 0;
+    self->stackCapacity = 0;
+    
+    orbit_FrameBufferDeinit(&vm->gc, &self->frames);
 }
 
-static void ensureStack(OrbitTask* self, size_t addedSize) {
+void orbit_taskEnsureStack(OrbitTask* self, size_t addedSize) {
     assert(self && "null task error");
     size_t required = (self->stackTop - self->stack) + addedSize;
     if(required < self->stackCapacity) return;
@@ -61,41 +64,30 @@ static void ensureStack(OrbitTask* self, size_t addedSize) {
     ptrdiff_t offset = self->stack - oldStack;
 
     self->stackTop += offset;
-    for(OrbitFrame* frame = self->frames; frame < self->framesTop; ++frame)
-        frame->base += offset;
+    for(int i = 0; i < self->frames.count; ++i) {
+        self->frames.data[i].base += offset;
+    }
 }
 
-static inline void ensureFrames(OrbitTask* self, size_t required) {
-    if(required < self->framesCapacity) return;
-    size_t oldCapacity = self->framesCapacity;
-    while(self->framesCapacity < required)
-        self->framesCapacity = ORBIT_GROW_CAPACITY(self->framesCapacity);
-
-    OrbitFrame* oldFrames = self->frames;
-    self->frames = ORBIT_REALLOC_ARRAY(self->frames, OrbitFrame, oldCapacity, self->framesCapacity);
-    self->framesTop += (self->frames - oldFrames);
-}
-
-// It might be worth hoisting that into the interpreter's main loop for speed?
-// @@PROFILE
-OrbitFrame* orbit_taskPushFrame(OrbitTask* self, OrbitFunction* function) {
+//It might be worth hoisting that into the interpreter's main loop for speed?
+//@@PROFILE
+OrbitFrame* orbit_taskPushFrame(OrbitVM* vm, OrbitTask* self, OrbitFunction* function) {
     assert(self && "null task error");
-    assert(self && "null function error");
-    ensureFrames(self, self->framesCapacity + 1);
-    ensureStack(self, self->stackCapacity + function->requiredStack);
-
-    OrbitFrame* frame = self->framesTop++;
-    frame->function = function;
-    frame->base = self->stackTop - function->arity;
-    frame->ip = function->code.data;
-    return frame;
+    assert(function && "null function error");
+    orbit_FrameBufferWrite(&vm->gc, &self->frames, (OrbitFrame){
+        function,
+        function->code.data,
+        self->stackTop - function->arity
+    });
+    orbit_taskEnsureStack(self, self->stackCapacity + function->requiredStack);
+    return &self->frames.data[self->frames.count-1];
 }
 
 // TODO: this will *have* to be moved to the run loop to handle returning values
-void orbit_taskPopFrame(OrbitTask* self) {
+void orbit_taskPopFrame(OrbitVM* vm, OrbitTask* self) {
     assert(self && "null task error");
-    assert(self->framesTop > self->frames && "call stack underflow");
-    OrbitFrame* popped = --self->framesTop;
+    assert(self->frames.count > 0 && "call stack underflow");
+    OrbitFrame* popped = &self->frames.data[--self->frames.count];
 
     self->stackTop = popped->base;
 }
