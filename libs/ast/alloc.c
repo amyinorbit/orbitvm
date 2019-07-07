@@ -17,7 +17,8 @@ const ASTKind ASTStmtMask       = ORBIT_AST_CONDITIONAL
                                 | ORBIT_AST_WHILE
                                 | ORBIT_AST_BREAK
                                 | ORBIT_AST_CONTINUE
-                                | ORBIT_AST_RETURN;
+                                | ORBIT_AST_RETURN
+                                | ORBIT_AST_PRINT;
 
 const ASTKind ASTDeclMask       = ORBIT_AST_DECL_MODULE
                                 | ORBIT_AST_DECL_FUNC
@@ -91,6 +92,10 @@ void orbit_astDestroy(void* ref) {
             
             case ORBIT_AST_RETURN:
                 ORCRELEASE(ast->returnStmt.returnValue);
+                break;
+                
+            case ORBIT_AST_PRINT:
+                ORCRELEASE(ast->printStmt.expr);
                 break;
         
             // DECLARATIONS

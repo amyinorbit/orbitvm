@@ -100,6 +100,18 @@ void errorBinary(Sema* self, OrbitAST* expr) {
     orbit_diagAddSourceRange(id, rng);
 }
 
+
+void errorCondition(Sema* self, const char* type, OrbitAST* expr) {
+    OrbitSRange rng = expr->sourceRange;
+    OrbitDiagID id = orbit_diagError(
+        diag(self), rng.start,
+        "$0 condition is of type '$1' instead of Bool", 2,
+        ORBIT_DIAG_CSTRING(type),
+        ORBIT_DIAG_TYPE(expr->type)
+    );
+    orbit_diagAddSourceRange(id, rng);
+}
+
 void warnUnimplemented(Sema* self, OrbitAST* node) {
     OrbitSRange rng = node->sourceRange;
     orbit_diagWarn(

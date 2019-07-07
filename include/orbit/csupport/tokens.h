@@ -95,6 +95,7 @@ typedef enum  {
     ORBIT_TOK_INIT,
     ORBIT_TOK_FAIL,
     ORBIT_TOK_RANGE,
+    ORBIT_TOK_PRINT, // TODO: remove when FFI/native functions allow print() to be impl.
     
     // Types
     // ORBIT_TOK_NUMBER,

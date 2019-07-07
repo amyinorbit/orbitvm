@@ -35,6 +35,7 @@ OrbitAST* orbit_astMakeBlock(OrbitAST* body);
 OrbitAST* orbit_astMakeBreak();
 OrbitAST* orbit_astMakeContinue();
 OrbitAST* orbit_astMakeReturn(OrbitAST* returned);
+OrbitAST* orbit_astMakePrint(OrbitAST* expr);
 
 OrbitAST* orbit_astMakeModuleDecl(const char* symbol, OrbitAST* body);
 OrbitAST* orbit_astMakeStructDecl(const OrbitToken* symbol, OrbitAST* constructor, OrbitAST* destructor, OrbitAST* fields);

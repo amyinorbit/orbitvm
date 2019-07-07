@@ -61,7 +61,9 @@ bool haveTerm(OCParser* parser) {
         || have(parser, ORBIT_TOK_IDENTIFIER)
         || have(parser, ORBIT_TOK_STRING_LITERAL)
         || have(parser, ORBIT_TOK_INTEGER_LITERAL)
-        || have(parser, ORBIT_TOK_FLOAT_LITERAL);
+        || have(parser, ORBIT_TOK_FLOAT_LITERAL)
+        || have(parser, ORBIT_TOK_TRUE)
+        || have(parser, ORBIT_TOK_FALSE);
 }
 
 bool havePrimitiveType(OCParser* parser) {

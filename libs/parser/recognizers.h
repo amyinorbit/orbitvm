@@ -28,6 +28,7 @@ static OrbitAST* recWhileLoop(OCParser*);
 static OrbitAST* recForLoop(OCParser*);
 static OrbitAST* recFlowStatement(OCParser*);
 static OrbitAST* recReturnStatement(OCParser*);
+static OrbitAST* recPrintStatement(OCParser*);
 
 static OrbitAST* recExpression(OCParser*, int);
 static OrbitAST* recTerm(OCParser*);

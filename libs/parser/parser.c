@@ -33,6 +33,7 @@ static OrbitAST* recProgram(OCParser* parser) {
         else if(haveTerm(parser)
             || haveConditional(parser)
             || have(parser, ORBIT_TOK_RETURN)
+            || have(parser, ORBIT_TOK_PRINT)
             || have(parser, ORBIT_TOK_BREAK)
             || have(parser, ORBIT_TOK_CONTINUE)
             || have(parser, ORBIT_TOK_LBRACE))
@@ -58,6 +59,7 @@ static OrbitAST* recBlock(OCParser* parser) {
         else if(haveTerm(parser)
             || haveConditional(parser)
             || have(parser, ORBIT_TOK_RETURN)
+            || have(parser, ORBIT_TOK_PRINT)
             || have(parser, ORBIT_TOK_BREAK)
             || have(parser, ORBIT_TOK_CONTINUE)
             || have(parser, ORBIT_TOK_LBRACE))
@@ -179,6 +181,8 @@ static OrbitAST* recStatement(OCParser* parser) {
         return recExpression(parser, 0);
     else if(have(parser, ORBIT_TOK_RETURN))
         return recReturnStatement(parser);
+    else if(have(parser, ORBIT_TOK_PRINT))
+        return recPrintStatement(parser);
     else if(have(parser, ORBIT_TOK_BREAK) || have(parser, ORBIT_TOK_CONTINUE))
         return recFlowStatement(parser);
     else if(have(parser, ORBIT_TOK_LBRACE))
@@ -236,6 +240,11 @@ static OrbitAST* recReturnStatement(OCParser* parser) {
         returnValue = recExpression(parser, 0);
     }
     return orbit_astMakeReturn(returnValue);
+}
+
+static OrbitAST* recPrintStatement(OCParser* parser) {
+    expect(parser, ORBIT_TOK_PRINT);
+    return orbit_astMakePrint(recExpression(parser, 0));
 }
 
 static OrbitAST* recWhileLoop(OCParser* parser) {
@@ -335,6 +344,8 @@ static OrbitAST* recTerm(OCParser* parser) {
         term = orbit_astMakeConstantExpr(&symbol, ORBIT_AST_EXPR_CONSTANT_INTEGER);
     else if(match(parser, ORBIT_TOK_FLOAT_LITERAL))
         term = orbit_astMakeConstantExpr(&symbol, ORBIT_AST_EXPR_CONSTANT_FLOAT);
+    else if(match(parser, ORBIT_TOK_TRUE) || match(parser, ORBIT_TOK_FALSE))
+        term = orbit_astMakeConstantExpr(&symbol, ORBIT_AST_EXPR_CONSTANT_BOOL);
     else
         simpleParseError(parser, "expected an expression term");
     

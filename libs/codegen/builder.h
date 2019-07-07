@@ -50,9 +50,13 @@ void builderDeinit(Builder* builder);
 
 int findConstant(OrbitValueBuffer* constants, OrbitValue value);
 uint8_t emitConstant(Builder* builder, OrbitValue value);
+
+int offset(Builder* builder);
 int emitInst(Builder* builder, OrbitCode code);
 int emitConstInst(Builder* builder, OrbitCode code, OrbitValue value);
 int emitJump(Builder* builder, OrbitCode code);
+void patchJump(Builder* builder, int patch);
+int emitRJump(Builder* builder, OrbitCode code, int target);
 
 OrbitCode instSelect(Builder* builder, OrbitTokenKind op, const OrbitAST* lhs, const OrbitAST* rhs);
 

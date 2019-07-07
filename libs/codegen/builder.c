@@ -71,6 +71,10 @@ int findConstant(OrbitValueBuffer* constants, OrbitValue value) {
     return -1;
 }
 
+int offset(Builder* builder) {
+    return builder->function->code.count;
+}
+
 uint8_t emitConstant(Builder* builder, OrbitValue value) {
     OrbitValueBuffer* constants = &builder->function->constants;;
     int existing = findConstant(constants, value);
@@ -100,6 +104,28 @@ int emitJump(Builder* builder, OrbitCode code) {
     orbit_functionWrite(builder->gc, builder->function, 0xff, line);
     orbit_functionWrite(builder->gc, builder->function, 0xff, line);
     return patchOffset;
+}
+
+int emitRJump(Builder* builder, OrbitCode code, int target) {
+    int line = currentLine(builder);
+    int offset = emitInst(builder, code);
+    int current = builder->function->code.count + 2; // To account for the two byte jump offset
+    uint16_t jump = current - target;
+    
+    orbit_functionWrite(builder->gc, builder->function, (jump >> 8) & 0x00ff, line);
+    orbit_functionWrite(builder->gc, builder->function, jump & 0x00ff, line);
+    return offset;
+}
+
+void patchJump(Builder* builder, int patch) {
+    assert(patch < UINT16_MAX && "jump offset too long");
+    int current = builder->function->code.count - 2;
+    int offset = current - patch;
+    
+    uint16_t jump = offset;
+    
+    builder->function->code.data[patch++] = (jump >> 8) & 0x00ff;
+    builder->function->code.data[patch++] = jump & 0x00ff;
 }
 
 OrbitCode instSelect(Builder* builder, OrbitTokenKind op, const OrbitAST* lhs, const OrbitAST* rhs) {

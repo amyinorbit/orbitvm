@@ -27,38 +27,39 @@ void orbit_vmDeinit(OrbitVM* self) {
     orbit_gcRun(&self->gc);
 }
 
-static inline void push(OrbitTask* task, OrbitValue value) {
-    *(task->stackTop) = value;
-    task->stackTop += 1;
+static inline void push(OrbitVM* vm, OrbitValue value) {
+    *(vm->task->stackTop++) = value;
 }
 
-static inline OrbitValue pop(OrbitTask* task) {
-    task->stackTop -= 1;
-    return *(task->stackTop);
+static inline OrbitValue pop(OrbitVM* vm) {
+    return *(--vm->task->stackTop);
 }
 
-static inline OrbitValue peek(OrbitTask* task, int distance) {
-    return task->stackTop[-1 - distance];
+static inline OrbitValue peek(OrbitVM* vm, int distance) {
+    return vm->task->stackTop[-1 - distance];
 }
 
 static inline void debugObject(OrbitObject* object) {
     switch(object->kind) {
     case ORBIT_OBJ_STRING: {
         OrbitString* string = (OrbitString*)object;
-        fprintf(stderr, "%.*s\n", string->utf8count, string->data);
+        printf("%.*s\n", string->utf8count, string->data);
     } break;
     case ORBIT_OBJ_FUNCTION: {
         OrbitFunction* func = (OrbitFunction*)object;
-        fprintf(stderr, "<func: %p>\n", func);
+        printf("<func: %p>\n", func);
     } break;
     case ORBIT_OBJ_TASK: {
         OrbitTask* task = (OrbitTask*)object;
-        fprintf(stderr, "<task: %p>\n", task);
+        printf("<task: %p>\n", task);
     } break;
+    default:
+        printf("<object: %p>\n", object);
+        break;
     };
 }
 
-static inline void debugValue(OrbitValue value) {
+static void debugValue(OrbitValue value) {
     if(ORBIT_IS_REF(value)) {
         debugObject(ORBIT_AS_REF(value));
         return;
@@ -66,16 +67,16 @@ static inline void debugValue(OrbitValue value) {
     uint32_t tag = ORBIT_GET_FLAGS(value);
     switch(tag) {
     case ORBIT_TAG_BOOL:
-        fprintf(stderr, "%s\n", ORBIT_AS_BOOL(value) ? "true" : "false");
+        printf("%s\n", ORBIT_AS_BOOL(value) ? "true" : "false");
         break;
     case ORBIT_TAG_INT:
-        fprintf(stderr, "%d\n", ORBIT_AS_INT(value));
+        printf("%d\n", ORBIT_AS_INT(value));
         break;
     case ORBIT_TAG_FLOAT:
-        fprintf(stderr, "%f\n", ORBIT_AS_FLOAT(value));
+        printf("%f\n", ORBIT_AS_FLOAT(value));
         break;
     default:
-        fprintf(stderr, "UNKOWN VALUE TYPE\n");
+        printf("UNKOWN VALUE TYPE\n");
         break;
     }
 }
@@ -83,17 +84,33 @@ static inline void debugValue(OrbitValue value) {
 void orbit_debugTOS(OrbitVM* self) {
     if(!self->task) return;
     if(self->task->stackTop == self->task->stack) return;
-    debugValue(peek(self->task, 0));
+    debugValue(peek(self, 0));
 }
 
 void orbit_debugStack(OrbitVM* self) {
     if(!self->task) return;
-    printf("== vm stack ==\n");
+    printf("    --stack--\n");
+    
     for(OrbitValue* sp = self->task->stack; sp != self->task->stackTop; ++sp) {
+        printf("    * ");
         debugValue(*sp);
     }
+    printf("    ---------\n");
 }
 
+static inline uint8_t read8(OrbitVM* vm) {
+    return *(vm->task->ip++);
+}
+
+static inline uint16_t read16(OrbitVM* vm) {
+    vm->task->ip += 2;
+    return ((uint16_t)vm->task->ip[-2] << 8) | ((uint16_t)vm->task->ip[-1]);
+}
+
+static inline OrbitValue readConst(OrbitVM* vm) {
+    return vm->function->constants.data[read8(vm)];
+}
+// #define ORBIT_DEBUG_TRACE
 OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
     assert(vm && "null vm error");
     assert(function && "null chunk error");
@@ -103,48 +120,44 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
     vm->task = orbit_taskNew(&vm->gc, function);
 
 #define NEXT() break
-
-
-#define READ_BYTE() (*vm->task->ip++)
-#define READ_CONSTANT() (vm->function->constants.data[READ_BYTE()])
-
 #define BINARY(T, U, op)                                                                           \
     do {                                                                                           \
-        int32_t b = T(pop(vm->task));                                                              \
-        int32_t a = T(pop(vm->task));                                                              \
-        push(vm->task, U(a op b));                                                                 \
+        int32_t b = T(pop(vm));                                                                    \
+        int32_t a = T(pop(vm));                                                                    \
+        push(vm, U(a op b));                                                                       \
     } while(false)
 
     for(;;) {
 #ifdef ORBIT_DEBUG_TRACE
-        orbit_debugInstruction(vm->function, vm->ip - vm->function->code.data);
-        orbit_debugTOS(vm);
+        orbit_debugInstruction(vm->function, vm->task->ip - vm->function->code.data);
+        orbit_debugStack(vm);
+        // orbit_debugTOS(vm);
 #endif
 
         uint8_t instruction;
-        switch(instruction = READ_BYTE()) {
+        switch(instruction = read8(vm)) {
         case OP_return:
             return ORBIT_OK;
 
         case OP_const:
-            push(vm->task, READ_CONSTANT());
+            push(vm, readConst(vm));
             NEXT();
         case OP_true:
-            push(vm->task, ORBIT_VALUE_TRUE);
+            push(vm, ORBIT_VALUE_TRUE);
             NEXT();
         case OP_false:
-            push(vm->task, ORBIT_VALUE_FALSE);
+            push(vm, ORBIT_VALUE_FALSE);
             NEXT();
 
         case OP_print:
-            debugValue(peek(vm->task, 0));
+            debugValue(pop(vm));
             NEXT();
 
         case OP_i2f:
-            push(vm->task, ORBIT_VALUE_FLOAT((float)ORBIT_AS_INT(pop(vm->task))));
+            push(vm, ORBIT_VALUE_FLOAT((float)ORBIT_AS_INT(pop(vm))));
             NEXT();
         case OP_f2i:
-            push(vm->task, ORBIT_VALUE_INT((int32_t)ORBIT_AS_FLOAT(pop(vm->task))));
+            push(vm, ORBIT_VALUE_INT((int32_t)ORBIT_AS_FLOAT(pop(vm))));
             NEXT();
 
         case OP_iadd:
@@ -204,8 +217,22 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
         case OP_fgteq:
             BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, >=);
             NEXT();
-
-
+            
+        case OP_jump:
+            vm->task->ip += read16(vm);
+            NEXT();
+            
+        case OP_rjump:
+            vm->task->ip -= read16(vm);
+            NEXT();
+            
+        case OP_jump_if: {
+            OrbitValue tos = pop(vm);
+            uint16_t offset = read16(vm);
+            if(ORBIT_IS_BOOL(tos) && ORBIT_AS_BOOL(tos))
+                vm->task->ip += offset;
+        } NEXT();
+        
         default:
             return ORBIT_RUNTIME_ERROR;
         }

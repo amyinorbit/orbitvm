@@ -200,12 +200,37 @@ static void check(Sema* self, OrbitAST* node) {
     while(node) {
         switch(node->kind) {
             
+            MATCH(CONDITIONAL, {
+                OrbitAST* expr = node->conditionalStmt.condition;
+                check(self, expr);
+                if(!orbit_astTypeEqualsPrimitive(expr->type, ORBIT_AST_TYPEEXPR_BOOL)) {
+                    errorCondition(self, "if statement", expr);
+                }
+                check(self, node->conditionalStmt.ifBody);
+                check(self, node->conditionalStmt.elseBody);
+            });
+            
+            MATCH(WHILE, {
+                OrbitAST* expr = node->whileLoop.condition;
+                check(self, expr);
+                if(!orbit_astTypeEqualsPrimitive(expr->type, ORBIT_AST_TYPEEXPR_BOOL)) {
+                    errorCondition(self, "while loop", expr);
+                }
+                check(self, node->whileLoop.body);
+            });
+            
+            // TODO: we should be checking that the expression's type does match the function being
+            // checked.
             MATCH(RETURN, {
                 OrbitAST* expr = node->returnStmt.returnValue;
                 check(self, expr);
                 if(expr) {
                     node->type = ORCRETAIN(orbit_astTypeCopy(expr->type));
                 }
+            });
+            
+            MATCH(PRINT, {
+                check(self, node->printStmt.expr);
             });
             
             MATCH(BLOCK, {
@@ -295,10 +320,13 @@ static void check(Sema* self, OrbitAST* node) {
             MATCH(EXPR_CONSTANT_STRING, {
                 node->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_STRING));
             });
+            
+            MATCH(EXPR_CONSTANT_BOOL, {
+                node->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_BOOL));
+            });
         
             // MARK: - Default, do nothing
             OTHERWISE({
-                abort();
                 warnUnimplemented(self, node);
             });
         }

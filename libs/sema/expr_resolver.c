@@ -75,13 +75,14 @@ void declareOperator(Sema* self, OperatorSemData op) {
     self->resolver.count += 1;
 }
 
+static const Conversion conversions[] = {
+    {ORBIT_AST_TYPEEXPR_INT, ORBIT_AST_TYPEEXPR_FLOAT, true, ORBIT_AST_EXPR_I2F},
+    {ORBIT_AST_TYPEEXPR_FLOAT, ORBIT_AST_TYPEEXPR_INT, true, ORBIT_AST_EXPR_F2I},
+};
+static const size_t count = sizeof(conversions)/sizeof(Conversion);
+
 const Conversion* findCast(const OrbitAST* from, const OrbitAST* to) {
     if(!from || !to) return NULL;
-    static const Conversion conversions[] = {
-        {ORBIT_AST_TYPEEXPR_INT, ORBIT_AST_TYPEEXPR_FLOAT, true, ORBIT_AST_EXPR_I2F},
-        {ORBIT_AST_TYPEEXPR_FLOAT, ORBIT_AST_TYPEEXPR_INT, true, ORBIT_AST_EXPR_F2I},
-    };
-    static const size_t count = sizeof(conversions)/sizeof(Conversion);
     
     for(const Conversion* cast = conversions; cast != conversions + count; ++cast) {
         if(orbit_astTypeEqualsPrimitive(from, cast->from)
@@ -93,12 +94,7 @@ const Conversion* findCast(const OrbitAST* from, const OrbitAST* to) {
 }
 
 static const Conversion* findCastPrimitive(const OrbitAST* from, ASTKind to) {
-    if(!from || !to) return NULL;
-    static const Conversion conversions[] = {
-        {ORBIT_AST_TYPEEXPR_INT, ORBIT_AST_TYPEEXPR_FLOAT, true, ORBIT_AST_EXPR_I2F},
-        {ORBIT_AST_TYPEEXPR_FLOAT, ORBIT_AST_TYPEEXPR_INT, true, ORBIT_AST_EXPR_F2I},
-    };
-    static const size_t count = sizeof(conversions)/sizeof(Conversion);
+    if(!from) return NULL;
     
     for(const Conversion* cast = conversions; cast != conversions + count; ++cast) {
         if(orbit_astTypeEqualsPrimitive(from, cast->from)
@@ -116,24 +112,25 @@ bool canConvert(OrbitAST* from, OrbitAST* to) {
 bool canConvertPrimitive(OrbitAST* from, ASTKind to) {
     return findCastPrimitive(from, to) != NULL;
 }
-    
 
 OrbitAST* convertExprType(OrbitAST* node, OrbitAST* to) {
+    if(orbit_astTypeEquals(node->type, to)) return node;
     const Conversion* cast = findCast(node->type, to);
     if(!cast) return NULL;
     
     OrbitAST* converted = ORCRETAIN(orbit_astMakeCastExpr(node, cast->nodeKind));
-    converted->type = ORCRETAIN(orbit_astMakePrimitiveType(cast->nodeKind));
+    converted->type = ORCRETAIN(orbit_astMakePrimitiveType(cast->to));
     ORCRELEASE(node);
     return converted;
 }
 
 OrbitAST* convertExprTypePrimitive(OrbitAST* node, ASTKind to) {
+    if(orbit_astTypeEqualsPrimitive(node->type, to)) return node;
     const Conversion* cast = findCastPrimitive(node->type, to);
-    if(!cast) return NULL;
+    if(!cast) return NULL; // TODO: we should probably signal, here
     
     OrbitAST* converted = ORCRETAIN(orbit_astMakeCastExpr(node, cast->nodeKind));
-    converted->type = ORCRETAIN(orbit_astMakePrimitiveType(cast->nodeKind));
+    converted->type = ORCRETAIN(orbit_astMakePrimitiveType(cast->to));
     ORCRELEASE(node);
     return converted;
 }

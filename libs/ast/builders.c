@@ -79,6 +79,12 @@ OrbitAST* orbit_astMakeReturn(OrbitAST* returned) {
     return ast;
 }
 
+OrbitAST* orbit_astMakePrint(OrbitAST* expr) {
+    OrbitAST* ast = orbit_astMake(ORBIT_AST_PRINT);
+    ast->printStmt.expr = ORCRETAIN(expr);
+    return ast;
+}
+
 OrbitAST* orbit_astMakeModuleDecl(const char* symbol, OrbitAST* body) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_MODULE);
     ast->moduleDecl.symbol = orbit_stringIntern(symbol, strlen(symbol));

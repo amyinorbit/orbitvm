@@ -73,6 +73,10 @@ static void _ast_doTraverse(OrbitASTContext* ctx, OrbitAST* ast, const OrbitASTV
     case ORBIT_AST_RETURN:
         _ast_doTraverse(ctx, ast->returnStmt.returnValue, visitor);
         break;
+        
+    case ORBIT_AST_PRINT:
+        _ast_doTraverse(ctx, ast->printStmt.expr, visitor);
+        break;
     
     // DECLARATIONS
     case ORBIT_AST_DECL_MODULE:
@@ -123,6 +127,11 @@ static void _ast_doTraverse(OrbitASTContext* ctx, OrbitAST* ast, const OrbitASTV
     case ORBIT_AST_EXPR_LAMBDA:
         _ast_doTraverse(ctx, ast->lambdaExpr.params, visitor);
         _ast_doTraverse(ctx, ast->lambdaExpr.body, visitor);
+        break;
+        
+    case ORBIT_AST_EXPR_I2F:
+    case ORBIT_AST_EXPR_F2I:
+        _ast_doTraverse(ctx, ast->conversionExpr.expr, visitor);
         break;
     
     case ORBIT_AST_EXPR_CONSTANT_INTEGER:

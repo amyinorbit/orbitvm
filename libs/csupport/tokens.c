@@ -83,7 +83,8 @@ static const OrbitTokenData _tokenData[] = {
     [ORBIT_TOK_INIT] = {"init_kw", "init", false, false},
     [ORBIT_TOK_FAIL] = {"fail_kw", "fail", false, false},
     [ORBIT_TOK_RANGE] = {"range_kw", "range", false, false},
-    //[ORBIT_TOK_NUMBER] = {"number_kw", "Number", false, false},
+    [ORBIT_TOK_PRINT] = {"print_kw", "print", false, false},
+    
     [ORBIT_TOK_INT] = {"int_kw", "Int", false, false},
     [ORBIT_TOK_FLOAT] = {"float_kw", "Float", false, false},
     [ORBIT_TOK_BOOL] = {"bool_kw", "Bool", false, false},

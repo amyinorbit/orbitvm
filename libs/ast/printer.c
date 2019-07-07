@@ -161,6 +161,12 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("ReturnStmt", out);
         orbit_astPrintNode(out, ast->returnStmt.returnValue, depth+1, true);
         break;
+        
+    case ORBIT_AST_PRINT:
+        console_setColor(out, CLI_MAGENTA);
+        fputs("PrintStmt", out);
+        orbit_astPrintNode(out, ast->printStmt.expr, depth+1, true);
+        break;
     
     // DECLARATIONS
     case ORBIT_AST_DECL_MODULE:
@@ -250,6 +256,16 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("SubscriptExpr", out);
         orbit_astPrintNode(out, ast->subscriptExpr.symbol, depth+1, false);
         orbit_astPrintNode(out, ast->subscriptExpr.subscript, depth+1, true);
+        break;
+        
+    case ORBIT_AST_EXPR_CONSTANT_BOOL:
+        console_setColor(out, CLI_MAGENTA);
+        fputs("BoolLiteralExpr ", out);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->constantExpr.symbol);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        orbit_astPrintType(out, ast->type);
         break;
     
     case ORBIT_AST_EXPR_CONSTANT_INTEGER:

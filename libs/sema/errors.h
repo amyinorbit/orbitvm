@@ -23,5 +23,7 @@ void errorNoType(Sema* self, OrbitAST* ast);
 void errorAlreadyDeclared(Sema* self, OrbitAST* decl, OrbitAST* prev);
 void errorBinary(Sema* self, OrbitAST* expr);
 
+void errorCondition(Sema* self, const char* type, OrbitAST* expr);
+
 void warnUnimplemented(Sema* self, OrbitAST* ast);
 #endif

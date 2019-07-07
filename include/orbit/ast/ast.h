@@ -31,37 +31,39 @@ DECL_AST_KIND(WHILE,                    2);
 DECL_AST_KIND(BREAK,                    3);
 DECL_AST_KIND(CONTINUE,                 4);
 DECL_AST_KIND(RETURN,                   5);
-DECL_AST_KIND(BLOCK,                    6);
-DECL_AST_KIND(DECL_MODULE,              7);
-DECL_AST_KIND(DECL_FUNC,                8);
-DECL_AST_KIND(DECL_VAR,                 9);
-DECL_AST_KIND(DECL_STRUCT,              10);
-DECL_AST_KIND(EXPR_UNARY,               11);
-DECL_AST_KIND(EXPR_BINARY,              12);
-DECL_AST_KIND(EXPR_CALL,                13);
-DECL_AST_KIND(EXPR_SUBSCRIPT,           14);
-DECL_AST_KIND(EXPR_CONSTANT,            15);
-DECL_AST_KIND(EXPR_CONSTANT_INTEGER,    16);
-DECL_AST_KIND(EXPR_CONSTANT_FLOAT,      17);
-DECL_AST_KIND(EXPR_CONSTANT_STRING,     18);
-DECL_AST_KIND(EXPR_LAMBDA,              19);
-DECL_AST_KIND(EXPR_NAME,                20);
-DECL_AST_KIND(EXPR_INIT,                21);
-DECL_AST_KIND(EXPR_I2F,                 22);
-DECL_AST_KIND(EXPR_F2I,                 23);
+DECL_AST_KIND(PRINT,                    6);
+DECL_AST_KIND(BLOCK,                    7);
+DECL_AST_KIND(DECL_MODULE,              8);
+DECL_AST_KIND(DECL_FUNC,                9);
+DECL_AST_KIND(DECL_VAR,                 10);
+DECL_AST_KIND(DECL_STRUCT,              11);
+DECL_AST_KIND(EXPR_UNARY,               12);
+DECL_AST_KIND(EXPR_BINARY,              13);
+DECL_AST_KIND(EXPR_CALL,                14);
+DECL_AST_KIND(EXPR_SUBSCRIPT,           15);
+DECL_AST_KIND(EXPR_CONSTANT,            16);
+DECL_AST_KIND(EXPR_CONSTANT_INTEGER,    17);
+DECL_AST_KIND(EXPR_CONSTANT_FLOAT,      18);
+DECL_AST_KIND(EXPR_CONSTANT_STRING,     19);
+DECL_AST_KIND(EXPR_CONSTANT_BOOL,       20);
+DECL_AST_KIND(EXPR_LAMBDA,              21);
+DECL_AST_KIND(EXPR_NAME,                22);
+DECL_AST_KIND(EXPR_INIT,                23);
+DECL_AST_KIND(EXPR_I2F,                 24);
+DECL_AST_KIND(EXPR_F2I,                 25);
 
     
 // TODO: Add Maybe type node, template system?
-DECL_AST_KIND(TYPEEXPR_VOID,            24);
-DECL_AST_KIND(TYPEEXPR_BOOL,            25);
-DECL_AST_KIND(TYPEEXPR_INT,             26);
-DECL_AST_KIND(TYPEEXPR_FLOAT,           27);
-DECL_AST_KIND(TYPEEXPR_STRING,          28);
-DECL_AST_KIND(TYPEEXPR_USER,            29);
-DECL_AST_KIND(TYPEEXPR_ARRAY,           30);
-DECL_AST_KIND(TYPEEXPR_MAP,             31);
-DECL_AST_KIND(TYPEEXPR_FUNC,            32);
-DECL_AST_KIND(TYPEEXPR_ANY,             33);
+DECL_AST_KIND(TYPEEXPR_VOID,            26);
+DECL_AST_KIND(TYPEEXPR_BOOL,            27);
+DECL_AST_KIND(TYPEEXPR_INT,             28);
+DECL_AST_KIND(TYPEEXPR_FLOAT,           29);
+DECL_AST_KIND(TYPEEXPR_STRING,          30);
+DECL_AST_KIND(TYPEEXPR_USER,            31);
+DECL_AST_KIND(TYPEEXPR_ARRAY,           32);
+DECL_AST_KIND(TYPEEXPR_MAP,             33);
+DECL_AST_KIND(TYPEEXPR_FUNC,            34);
+DECL_AST_KIND(TYPEEXPR_ANY,             35);
 
 // DECL_AST_KIND(GENERIC_PLACEHOLDER,      33);
 // DECL_AST_KIND(GENERIC_PROTOCOL,         34);
@@ -139,7 +141,7 @@ struct _OrbitAST {
         } conditionalStmt;
         
         struct {
-            OrbitToken     variable;
+            OrbitToken  variable;
             OrbitAST*   collection;
             OrbitAST*   body;
         } forInLoop;
@@ -156,6 +158,10 @@ struct _OrbitAST {
         struct {
             OrbitAST*   returnValue;
         } returnStmt;
+        
+        struct {
+            OrbitAST*   expr;
+        } printStmt;
         
         // --------------------------------------------------------------------
         // Declarations

@@ -53,6 +53,10 @@ OPCODE(fgt, 0, -1)
 OPCODE(flteq, 0, -1)
 OPCODE(fgteq, 0, -1)
     
+OPCODE(jump, 2, 0)
+OPCODE(rjump, 2, 0)
+OPCODE(jump_if, 2, -1)
+    
 OPCODE(call, 1, 0)
 OPCODE(call_sym, 1, 0)
 //

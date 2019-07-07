@@ -54,6 +54,10 @@ int orbit_debugInstruction(const OrbitFunction* fn, int offset) {
     case 1:
         fprintf(stderr, "%-10s val%d\n", opcodeNames[code], fn->code.data[offset + 1]);
         break;
+    case 2:
+        fprintf(stderr, "%-10s %02hhx %02hhx\n", opcodeNames[code],
+        fn->code.data[offset + 1], fn->code.data[offset + 2]);
+        break;
     default:
         break;
     }

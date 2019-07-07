@@ -43,6 +43,46 @@ void codegen(Builder* builder, const OrbitAST* node) {
         switch(node->kind) {
             MATCH(DECL_MODULE, {
                 codegen(builder, node->moduleDecl.body);
+                emitInst(builder, OP_return);
+            });
+            
+            MATCH(BLOCK, {
+                codegen(builder, node->block.body);
+            });
+            
+            MATCH(CONDITIONAL, {
+                codegen(builder, node->conditionalStmt.condition);
+                // if the condition evaluates to false, we jump over the else-jump
+                int ifJump = emitJump(builder, OP_jump_if);
+                int elseJump = emitJump(builder, OP_jump);
+                patchJump(builder, ifJump);
+                codegen(builder, node->conditionalStmt.ifBody);
+                
+                if(node->conditionalStmt.elseBody) {
+                    int endJump = emitJump(builder, OP_jump);
+                    patchJump(builder, elseJump);
+                    codegen(builder, node->conditionalStmt.elseBody);
+                    patchJump(builder, endJump);
+                } else {
+                    patchJump(builder, elseJump);
+                }
+            });
+            
+            MATCH(WHILE, {
+                
+                int loopJump = offset(builder);
+                codegen(builder, node->whileLoop.condition);
+                int ifJump = emitJump(builder, OP_jump_if);
+                int endJump = emitJump(builder, OP_jump);
+                patchJump(builder, ifJump);
+                codegen(builder, node->whileLoop.body);
+                emitRJump(builder, OP_rjump, loopJump);
+                patchJump(builder, endJump);
+            });
+            
+            MATCH(PRINT, {
+                codegen(builder, node->printStmt.expr);
+                emitInst(builder, OP_print);
             });
             
             MATCH(EXPR_CONSTANT_INTEGER, {
@@ -55,6 +95,13 @@ void codegen(Builder* builder, const OrbitAST* node) {
         
             MATCH(EXPR_CONSTANT_STRING, {
                 emitConstInst(builder, OP_const, constantString(builder, node));
+            });
+            
+            MATCH(EXPR_CONSTANT_BOOL, {
+                if(node->constantExpr.symbol.kind == ORBIT_TOK_TRUE)
+                    emitInst(builder, OP_true);
+                else
+                    emitInst(builder, OP_false);
             });
         
             MATCH(EXPR_UNARY, {

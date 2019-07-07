@@ -110,14 +110,16 @@ OrbitResult compileFile(OrbitVM* vm, const char* path) {
     
     orbit_semaCheck(&ctx);
     orbit_diagEmitAll(&ctx.diagnostics);
-    orbit_astPrint(stdout, ctx.root);
+    // orbit_astPrint(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
     
     orbit_codegen(comp.gc, comp.fn, &ctx);
-    orbit_debugFunction(fn, path);
+    // orbit_debugFunction(fn, path);
     orbit_functionWrite(&vm->gc, fn, OP_return, 1);
     
     orbit_astContextDeinit(&ctx);
+    orbit_run(vm, fn);
+    orbit_gcRun(&vm->gc);
     return ORBIT_OK;
 }
 
