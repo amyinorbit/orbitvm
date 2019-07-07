@@ -20,6 +20,7 @@ typedef void (*OrbitDestructor)(void*);
 typedef enum {
     ORBIT_OBJ_STRING,
     ORBIT_OBJ_FUNCTION,
+    ORBIT_OBJ_TASK,
 } OrbitObjectKind;
 
 struct sOrbitObject {
@@ -53,6 +54,24 @@ struct sOrbitFunction {
     OrbitValueBuffer constants;
 };
 
+struct sOrbitFrame {
+    OrbitFunction* function;
+    OrbitValue* base;
+};
+
+DECLARE_BUFFER(Frame, OrbitFrame);
+
+struct sOrbitTask {
+    OrbitObject base;
+    uint8_t* ip;
+
+    size_t stackCapacity;
+    OrbitValue* stack;
+    OrbitValue* stackTop;
+    
+    OrbitFrameBuffer frames;
+};
+
 static inline bool ORBIT_IS_STRING(OrbitValue value) {
     return ((value & ORBIT_TAG_VALUE) == 0) && ORBIT_AS_REF(value)->kind == ORBIT_OBJ_STRING;
 }
@@ -63,6 +82,8 @@ OrbitString* orbit_stringCopy(OrbitGC* gc, const char* data, int32_t count);
 OrbitString* orbit_stringNew(OrbitGC* gc, int32_t count);
 
 OrbitFunction* orbit_functionNew(OrbitGC* gc);
+// TODO: replace function with Module?
+OrbitTask* orbit_taskNew(OrbitGC* gc, OrbitFunction* function); 
 
 void orbit_objectMark(OrbitGC* gc, OrbitObject* self);
 void orbit_objectFree(OrbitGC* gc, OrbitObject* self);

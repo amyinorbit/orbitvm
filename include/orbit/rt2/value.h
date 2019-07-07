@@ -15,6 +15,8 @@ typedef struct sOrbitObject OrbitObject;
 typedef struct sOrbitInstance OrbitInstance;
 typedef struct sOrbitString OrbitString;
 typedef struct sOrbitFunction OrbitFunction;
+typedef struct sOrbitTask OrbitTask;
+typedef struct sOrbitFrame OrbitFrame;
 
 #define ORBIT_VALUE_PACK 1
 #if ORBIT_VALUE_PACK

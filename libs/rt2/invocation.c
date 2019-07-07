@@ -17,7 +17,6 @@
 DEFINE_BUFFER(Frame, OrbitFrame);
 
 #define ORBIT_STACK_START 1024
-#define ORBIT_FRAMES_START 64
 
 void orbit_functionWrite(OrbitGC* gc, OrbitFunction* func, uint8_t code, int32_t line) {
     assert(gc && "can't manipulate function without a garbage context");
@@ -26,31 +25,10 @@ void orbit_functionWrite(OrbitGC* gc, OrbitFunction* func, uint8_t code, int32_t
     orbit_IntBufferWrite(gc, &func->lines, line);
 }
 
-void orbit_taskInit(OrbitVM* vm, OrbitTask* self) {
-    assert(vm && "tasks must be attached to a valid VM");
-    assert(self && "null task error");
-
-    self->stackCapacity = ORBIT_STACK_START;
-    self->stack = ORBIT_ALLOC_ARRAY(OrbitValue, self->stackCapacity);
-    self->stackTop = self->stack;
-
-    orbit_FrameBufferInit(&self->frames);
-}
-
-void orbit_taskDeinit(OrbitVM* vm, OrbitTask* self) {
-    assert(vm && "tasks must be attached to a valid VM");
-    assert(self && "null task error");
-    ORBIT_DEALLOC_ARRAY(self->stack, OrbitValue, self->stackCapacity);
-    self->stack = self->stackTop = NULL;
-    self->stackCapacity = 0;
-    
-    orbit_FrameBufferDeinit(&vm->gc, &self->frames);
-}
-
 void orbit_taskEnsureStack(OrbitTask* self, size_t addedSize) {
     assert(self && "null task error");
     size_t required = (self->stackTop - self->stack) + addedSize;
-    if(required < self->stackCapacity) return;
+    if(required <= self->stackCapacity) return;
 
     size_t oldCapacity = self->stackCapacity;
     while(self->stackCapacity < required)
@@ -71,20 +49,20 @@ void orbit_taskEnsureStack(OrbitTask* self, size_t addedSize) {
 
 //It might be worth hoisting that into the interpreter's main loop for speed?
 //@@PROFILE
-OrbitFrame* orbit_taskPushFrame(OrbitVM* vm, OrbitTask* self, OrbitFunction* function) {
+OrbitFrame* orbit_taskPushFrame(OrbitGC* gc, OrbitTask* self, OrbitFunction* function) {
     assert(self && "null task error");
     assert(function && "null function error");
-    orbit_FrameBufferWrite(&vm->gc, &self->frames, (OrbitFrame){
+    orbit_FrameBufferWrite(gc, &self->frames, (OrbitFrame){
         function,
-        function->code.data,
         self->stackTop - function->arity
     });
     orbit_taskEnsureStack(self, self->stackCapacity + function->requiredStack);
+    self->ip = function->code.data;
     return &self->frames.data[self->frames.count-1];
 }
 
 // TODO: this will *have* to be moved to the run loop to handle returning values
-void orbit_taskPopFrame(OrbitVM* vm, OrbitTask* self) {
+void orbit_taskPopFrame(OrbitGC* gc, OrbitTask* self) {
     assert(self && "null task error");
     assert(self->frames.count > 0 && "call stack underflow");
     OrbitFrame* popped = &self->frames.data[--self->frames.count];

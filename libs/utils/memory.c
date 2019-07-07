@@ -10,13 +10,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <orbit/utils/memory.h>
+#include <assert.h>
 
 noreturn void orbit_die(const char* message) {
     fprintf(stderr, "fatal error: %s\n", message);
     abort();
 }
 
+static size_t total_mem = 0;
+
 void* orbit_allocator(void* ptr, size_t oldSize, size_t newSize) {
+    assert(oldSize != newSize && "reallocating same size");
+    total_mem += (newSize - oldSize);
+    
     if(newSize == 0) {
         free(ptr);
         return NULL;

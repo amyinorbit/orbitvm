@@ -51,14 +51,17 @@ OCString* orbit_stringPoolSearch(const char* data, uint64_t length) {
     return NULL;
 }
 
+
 OCStringID orbit_stringIntern(const char* data, uint64_t length) {
     OCString* str = orbit_stringPoolSearch(data, length);
     if(str) { return (OCStringID)((void*)str - StringPool.data); }
     
-    uint64_t oldCapacity = StringPool.capacity;
-    while(StringPool.size + length >= StringPool.capacity)
-        StringPool.capacity = ORBIT_GROW_CAPACITY(StringPool.capacity);
-    StringPool.data = ORBIT_REALLOC_ARRAY(StringPool.data, char, oldCapacity, StringPool.capacity);
+    if(StringPool.size + length >= StringPool.capacity) {
+        uint64_t oldCapacity = StringPool.capacity;
+        while(StringPool.size + length >= StringPool.capacity)
+            StringPool.capacity = ORBIT_GROW_CAPACITY(StringPool.capacity);
+        StringPool.data = ORBIT_REALLOC_ARRAY(StringPool.data, char, oldCapacity, StringPool.capacity);
+    }
     
     uint64_t id = StringPool.size;
     str = (OCString*)(StringPool.data + StringPool.size);

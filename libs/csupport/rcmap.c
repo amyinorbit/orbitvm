@@ -26,6 +26,7 @@ void orbit_rcMapDeinit(void* ref) {
         //ORCRELEASE(map->data[i].key);
         ORCRELEASE(map->data[i].value);
     }
+    ORBIT_DEALLOC_ARRAY(map->data, ORCMapEntry, map->capacity);
 }
 
 ORCMap* orbit_rcMapInit(ORCMap* map) {
@@ -106,6 +107,7 @@ static void _rcMapGrow(ORCMap* map) {
         orbit_rcMapInsertP(map, oldData[i].key, oldData[i].value);
         ORCRELEASE(oldData[i].value);
     }
+    ORBIT_DEALLOC_ARRAY(oldData, ORCMapEntry, oldCapacity);
 }
 
 void orbit_rcMapInsertP(ORCMap* map, OCStringID key, void* item) {

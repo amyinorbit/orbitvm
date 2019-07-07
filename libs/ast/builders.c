@@ -191,7 +191,7 @@ OrbitAST* orbit_astMakeConstantExpr(const OrbitToken* symbol, ASTKind kind) {
 OrbitAST* orbit_astMakeInitExpr(OrbitAST* type, OrbitAST* params) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_INIT);
     ast->initExpr.type = ORCRETAIN(type);
-    ast->initExpr.params = params;
+    ast->initExpr.params = ORCRETAIN(params);
     return ast;
 }
 

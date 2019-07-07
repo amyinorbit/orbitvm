@@ -11,6 +11,7 @@
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdarg.h>
+#include <string.h>
 #include <orbit/ast/diag.h>
 #include <orbit/csupport/console.h>
 #include <orbit/csupport/source.h>
@@ -56,7 +57,7 @@ void _orbit_defaultDiagConsumer(OrbitSource* source, OrbitDiag* diagnostic) {
     char* printed = orbit_diagGetFormat(diagnostic);
     fprintf(stderr, "%s\n", printed);
     console_setColor(stderr, CLI_RESET);
-    ORBIT_DEALLOC_NOSIZE(printed);
+    ORBIT_DEALLOC_ARRAY(printed, char, strlen(printed)+1);
     fputc('\n', stderr);
 }
 
@@ -115,7 +116,7 @@ void orbit_diagManagerInit(OrbitDiagManager* manager, OrbitSource* source) {
 
 void orbit_diagManagerDeinit(OrbitDiagManager* manager) {
     assert(manager && "Invalid Diagnostics Manager instance");
-    free(manager->diagnostics);
+    ORBIT_DEALLOC_ARRAY(manager->diagnostics, OrbitDiag, ORBIT_DIAG_MAXCOUNT);
     manager->diagnostics = NULL;
 }
 

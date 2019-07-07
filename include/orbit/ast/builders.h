@@ -53,7 +53,7 @@ OrbitAST* orbit_astMakeCastExpr(OrbitAST* expr, ASTKind kind);
 OrbitAST* orbit_astMakeI2F(OrbitAST* expr);
 OrbitAST* orbit_astMakeF2I(OrbitAST* expr);
 
-// OrbitAST* orbit_astMakePrimitiveType(ASTKind kind);
+// OrbitAST* ,(ASTKind kind);
 OrbitAST* orbit_astMakeUserType(const OrbitToken* symbol);
 OrbitAST* orbit_astMakeUserTypePooled(OCStringID symbol);
 OrbitAST* orbit_astMakePrimitiveType(ASTKind kind);

@@ -40,10 +40,17 @@ void resolverDeinit(ExprResolver* self) {
         ORCRELEASE(op->impl);
     }
     ORBIT_DEALLOC_ARRAY(self->operators, OperatorSemData, self->capacity);
-    resolverInit(self);
+    ORCRELEASE(boolType);
+    ORCRELEASE(intType);
+    ORCRELEASE(floatType);
+    ORCRELEASE(stringType);
+    self->operators = NULL;
+    self->count = 0;
+    self->capacity = 0;
 }
 
 static void resolverEnsure(ExprResolver* self, size_t required) {
+    if(required <= self->capacity) return;
     size_t oldCapacity = self->capacity;
     while(required > self->capacity)
         self->capacity = ORBIT_GROW_CAPACITY(self->capacity);
@@ -111,7 +118,7 @@ bool canConvert(OrbitAST* from, OrbitAST* to) {
 
 OrbitAST* convertExprType(OrbitAST* node, OrbitAST* to) {
     if(!canConvert(node->type, to)) return node;
-    OrbitAST* converted = orbit_astMakeI2F(node);
+    OrbitAST* converted = ORCRETAIN(orbit_astMakeI2F(node));
     converted->type = ORCRETAIN(floatType);
     ORCRELEASE(node);
     return converted;
@@ -148,8 +155,8 @@ static OperatorSemData* matchBinaryOp(Sema* self, OrbitAST* expr) {
     }
     if(!nonStrict) return NULL;
     
-    expr->binaryExpr.lhs = ORCRETAIN(convertExprType(expr->binaryExpr.lhs, nonStrict->lhsType));
-    expr->binaryExpr.rhs = ORCRETAIN(convertExprType(expr->binaryExpr.rhs, nonStrict->rhsType));
+    expr->binaryExpr.lhs = convertExprType(expr->binaryExpr.lhs, nonStrict->lhsType);
+    expr->binaryExpr.rhs = convertExprType(expr->binaryExpr.rhs, nonStrict->rhsType);
     return nonStrict;
 }
 

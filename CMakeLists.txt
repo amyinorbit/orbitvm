@@ -32,3 +32,9 @@ add_custom_target(run
     DEPENDS orbit
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
+
+add_custom_target(debug
+    COMMAND lldb orbit
+    DEPENDS orbit
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)

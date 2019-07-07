@@ -8,8 +8,9 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <orbit/rt2/value_object.h>
-#include <orbit/rt2/vm.h>
+#include <orbit/rt2/garbage.h>
 #include <orbit/rt2/memory.h>
+#include <orbit/rt2/invocation.h>// TODO: don't like that too much.
 #include <orbit/utils/hashing.h>
 #include <unic/unic.h>
 #include <assert.h>
@@ -25,7 +26,6 @@ OrbitObject* orbit_objectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size) {
     
     obj->next = gc->head;
     gc->head = obj;
-    
     return obj;
 }
 
@@ -50,6 +50,7 @@ OrbitString* orbit_stringNew(OrbitGC* gc, int32_t count) {
     self->count = 0;
     self->utf8count = 0;
     self->data[0] = '\0';
+    self->hash = orbit_hashString(self->data, self->utf8count);
     
     return self;
 }
@@ -67,10 +68,26 @@ OrbitFunction* orbit_functionNew(OrbitGC* gc) {
     return self;
 }
 
+#define ORBIT_STACK_START 1024
+
+OrbitTask* orbit_taskNew(OrbitGC* gc, OrbitFunction* function) {
+    assert(gc && "can't create a task with no garbage collector");
+    assert(function && "can't create a task with no function");
+
+    OrbitTask* self = (OrbitTask*)orbit_objectNew(gc, ORBIT_OBJ_TASK, sizeof(OrbitTask));
+    self->stackCapacity = ORBIT_STACK_START;
+    self->stack = ORBIT_ALLOC_ARRAY(OrbitValue, self->stackCapacity);
+    self->stackTop = self->stack;
+
+    orbit_FrameBufferInit(&self->frames);
+    orbit_taskPushFrame(gc, self, function);
+    return self;
+}
+
 // GC: Marking
 
 static inline void markString(OrbitGC* gc, OrbitString* self) {
-    gc->allocated += sizeof(OrbitString) + (self->utf8count+1);
+    // gc->allocated += sizeof(OrbitString) + (self->utf8count+1);
 }
 
 static inline void markFunction(OrbitGC* gc, OrbitFunction* self) {
@@ -81,6 +98,17 @@ static inline void markFunction(OrbitGC* gc, OrbitFunction* self) {
     for(int i = 0; i < self->constants.count; ++i) {
         if(!ORBIT_IS_REF(self->constants.data[i])) continue;
         orbit_objectMark(gc, ORBIT_AS_REF(self->constants.data[i]));
+    }
+}
+
+static inline void markTask(OrbitGC* gc, OrbitTask* self) {
+    for(OrbitValue* val = self->stack; val != self->stackTop; ++val) {
+        if(ORBIT_IS_REF(*val))
+            orbit_objectMark(gc, ORBIT_AS_REF(*val));
+    }
+    
+    for(int i = 0; i < self->frames.count; ++i) {
+        orbit_objectMark(gc, (OrbitObject*)self->frames.data[i].function);
     }
 }
 
@@ -96,20 +124,33 @@ void orbit_objectMark(OrbitGC* gc, OrbitObject* self) {
         case ORBIT_OBJ_FUNCTION:
             markFunction(gc, (OrbitFunction*)self);
             break;
+        case ORBIT_OBJ_TASK:
+            markTask(gc, (OrbitTask*)self);
+            break;
     }
 }
 
 // GC: deallocation
 
 static inline void freeString(OrbitGC* gc, OrbitString* self) {
-    ORBIT_DEALLOC_FLEX(self, OrbitString, char, self->utf8count+1);
+    // ORBIT_DEALLOC_FLEX(self, OrbitString, char, self->utf8count+1);
+    orbit_gcalloc(gc, self, sizeof(OrbitString) + self->utf8count + 1, 0);
 }
 
 static inline void freeFunction(OrbitGC* gc, OrbitFunction* self) {
     orbit_ByteBufferDeinit(gc, &self->code);
     orbit_IntBufferDeinit(gc, &self->lines);
     orbit_ValueBufferDeinit(gc, &self->constants);
-    ORBIT_DEALLOC(self, OrbitFunction);
+    orbit_gcalloc(gc, self, sizeof(OrbitFunction), 0);
+}
+
+static inline void freeTask(OrbitGC* gc, OrbitTask* self) {
+    orbit_gcalloc(gc, self->stack, sizeof(OrbitValue) * self->stackCapacity, 0);
+    self->stack = self->stackTop = NULL;
+    self->stackCapacity = 0;
+    
+    orbit_FrameBufferDeinit(gc, &self->frames);
+    orbit_gcalloc(gc, self, sizeof(OrbitTask), 0);
 }
 
 void orbit_objectFree(OrbitGC* gc, OrbitObject* self) {
@@ -120,6 +161,9 @@ void orbit_objectFree(OrbitGC* gc, OrbitObject* self) {
             break;
         case ORBIT_OBJ_FUNCTION:
             freeFunction(gc, (OrbitFunction*)self);
+            break;
+        case ORBIT_OBJ_TASK:
+            freeTask(gc, (OrbitTask*)self);
             break;
     }
 }

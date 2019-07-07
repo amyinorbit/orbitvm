@@ -16,6 +16,7 @@ void orbit_rcArrayDeinit(void* ref) {
     for(uint64_t i = 0; i < array->size; ++i) {
         ORCRELEASE(array->data[i]);
     }
+    ORBIT_DEALLOC_ARRAY(array->data, sizeof(void*), array->capacity);
 }
 
 ORCArray* orbit_rcArrayInit(ORCArray* array, uint64_t capacity) {

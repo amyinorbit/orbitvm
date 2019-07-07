@@ -111,7 +111,8 @@ static bool finishCallExpr(Sema* self, OrbitAST* decl, OrbitAST* call, bool stri
         const Conversion* cast = findCast((*argPtr)->type, paramType);
         assert(cast && "invalid function binding");
         
-        OrbitAST* wrapped = orbit_astMakeCastExpr(*argPtr, cast->nodeKind);
+        OrbitAST* wrapped = ORCRETAIN(orbit_astMakeCastExpr(*argPtr, cast->nodeKind));
+        ORCRELEASE(*argPtr);
         wrapped->next = (*argPtr)->next;
         wrapped->type = ORCRETAIN(orbit_astTypeCopy(paramType));
         (*argPtr)->next = NULL;

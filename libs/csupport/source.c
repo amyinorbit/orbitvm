@@ -154,8 +154,8 @@ OrbitPhysSLoc orbit_sourcePhysicalLoc(const OrbitSource* source, OrbitSLoc loc) 
 
 /// Deallocates the memory used to store the bytes in [source].
 void orbit_sourceDeinit(OrbitSource* source) {
-    free(source->bytes);
-    source->bytes = NULL;
+    source->bytes = ORBIT_DEALLOC_ARRAY(source->bytes, char, (source->length+1));
     source->path = "";
-    source->length = 0;
+    _OrbitLineMap* map = (_OrbitLineMap*)source->lineMap;
+    ORBIT_DEALLOC_FLEX(map, _OrbitLineMap, uint32_t, map->capacity);
 }

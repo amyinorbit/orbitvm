@@ -102,7 +102,7 @@ void errorBinary(Sema* self, OrbitAST* expr) {
 
 void warnUnimplemented(Sema* self, OrbitAST* node) {
     OrbitSRange rng = node->sourceRange;
-    OrbitDiagID id = orbit_diagWarn(
+    orbit_diagWarn(
         diag(self), rng.start, "language feature not implemented", 0
     );
     //orbit_diagAddSourceRange(id, rng);

@@ -33,7 +33,7 @@
     }                                                                                              \
                                                                                                    \
     void orbit_##name##BufferDeinit(OrbitGC* gc, Orbit##name##Buffer* buffer) {                    \
-        orbit_gcalloc(gc, buffer->data, 0, 0);                                                     \
+        orbit_gcalloc(gc, buffer->data, buffer->capacity * sizeof(type), 0);                       \
         orbit_##name##BufferInit(buffer);                                                          \
     }                                                                                              \
                                                                                                    \

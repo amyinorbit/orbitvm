@@ -21,6 +21,9 @@ static int32_t currentLine(const Builder* builder) {
     return 1; // TODO: implementation (call into source::physicalLoc)
 }
 
+static OrbitAST* intType = NULL;
+OrbitAST* floatType = NULL;
+
 void builderInit(Builder* builder, OrbitGC* gc) {
     builder->gc = gc;
     builder->function = NULL;
@@ -32,12 +35,12 @@ void builderInit(Builder* builder, OrbitGC* gc) {
     // two in a common library?
     // OTOH do we want to have to pull in the runtime every time we want to perform semantic
     // analysis? might not be worth it.
-    OrbitAST* intType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_INT));
-    OrbitAST* floatType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_FLOAT));
+    intType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_INT));
+    floatType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_FLOAT));
     // OrbitAST* stringType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_STRING));
     // OrbitAST* boolType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_BOOL));
     
-#define BINARY_OP(T, op, code) ((OpSelectData){(op), (T), (T), (code)})
+#define BINARY_OP(T, op, code) ((OpSelectData){(op), ORCRETAIN(T), ORCRETAIN(T), (code)})
     
     orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(intType, ORBIT_TOK_PLUS, OP_iadd));
     orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(intType, ORBIT_TOK_MINUS, OP_isub));
@@ -65,7 +68,13 @@ void builderInit(Builder* builder, OrbitGC* gc) {
 }
 
 void builderDeinit(Builder* builder) {
+    for(int i = 0; i < builder->selector.count; ++i) {
+        ORCRELEASE(builder->selector.data[i].lhsType);
+        ORCRELEASE(builder->selector.data[i].rhsType);
+    }
     orbit_SelectorBufferDeinit(builder->gc, &builder->selector);
+    ORCRELEASE(intType);
+    ORCRELEASE(floatType);
 }
 
 int findConstant(OrbitValueBuffer* constants, OrbitValue value) {

@@ -85,8 +85,7 @@ static inline void* orbit_rcRetain(ORCObject* ref) {
 /// the object is not owned by anything anymore, it is immediately deallocated.
 static inline void orbit_rcRelease(ORCObject* ref, size_t size) {
     if(ref == NULL) { return; }
-    ref->retainCount -= 1;
-    if(ref->retainCount) { return; }
+    if(ref->retainCount && --ref->retainCount) { return; }
     if(ref->destructor) { ref->destructor(ref); }
     orbit_allocator(ref, size, 0);
 }

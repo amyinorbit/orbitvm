@@ -25,6 +25,7 @@
 #include <orbit/csupport/console.h>
 #include <orbit/csupport/tokens.h>
 #include <orbit/csupport/string.h>
+#include <orbit/utils/memory.h>
 #include <orbit/parser/parser.h>
 #include <orbit/sema/typecheck.h>
 #include <orbit/codegen/codegen.h>
@@ -36,7 +37,7 @@ typedef struct {
 
 OrbitResult repl_compile(Compiler comp, int line, const char* input) {
     size_t length = strlen(input);
-    char* src = malloc(length + 1);
+    char* src = orbit_allocator(NULL, 0, length + 1);
     memcpy(src, input, length);
     src[length] = '\0';
     
@@ -45,16 +46,16 @@ OrbitResult repl_compile(Compiler comp, int line, const char* input) {
     ctx.source.path = "repl.orbit";
     orbit_sourceInitC(&ctx.source, src, length);
     orbit_parse(&ctx);
-    
+
     orbit_semaCheck(&ctx);
     orbit_diagEmitAll(&ctx.diagnostics);
     orbit_astPrint(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
-    
+
     orbit_codegen(comp.gc, comp.fn, &ctx);
     // orbit_debugFunction(comp.fn, "repl");
     orbit_functionWrite(comp.gc, comp.fn, OP_return, 1);
-    
+
     orbit_astContextDeinit(&ctx);
     return ORBIT_OK;
 }
@@ -86,6 +87,7 @@ void repl(OrbitVM* vm) {
             orbit_debugTOS(vm);
             // orbit_debugStack(vm);
             console_setColor(stderr, CLI_RESET);
+            orbit_gcRun(&vm->gc);
         }
         
         orbit_gcPop(&vm->gc);
@@ -121,6 +123,7 @@ OrbitResult compileFile(OrbitVM* vm, const char* path) {
 int main(int argc, const char** argv) {
     setlocale(LC_ALL, NULL);
     orbit_stringPoolInit(1024);
+
     OrbitVM vm;
     orbit_vmInit(&vm);
     
