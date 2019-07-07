@@ -49,7 +49,7 @@ OrbitResult repl_compile(Compiler comp, int line, const char* input) {
 
     orbit_semaCheck(&ctx);
     orbit_diagEmitAll(&ctx.diagnostics);
-    orbit_astPrint(stdout, ctx.root);
+    // orbit_astPrint(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
 
     orbit_codegen(comp.gc, comp.fn, &ctx);
@@ -63,7 +63,8 @@ OrbitResult repl_compile(Compiler comp, int line, const char* input) {
 
 void repl(OrbitVM* vm) {
     
-    printf("Orbit 2019.6 ** REPL\n");
+    printf("Welcome to Orbit version 2019.6 repl (" __DATE__ ")\n");
+    printf("[built with " __COMPILER_NAME__ "]\n");
     int lineNumber = 1;
     char line[1024];
     for(;;) {

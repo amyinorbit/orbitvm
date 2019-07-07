@@ -14,36 +14,14 @@
 #include <orbit/utils/memory.h>
 #include <string.h>
 
-
-// Create shared primitives
-static OrbitAST* boolType = NULL;
-static OrbitAST* intType = NULL;
-static OrbitAST* floatType = NULL;
-static OrbitAST* stringType = NULL;
-
 void resolverInit(ExprResolver* self) {
     self->operators = NULL;
     self->count = 0;
     self->capacity = 0;
-    
-    boolType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_BOOL));
-    intType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_INT));
-    floatType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_FLOAT));
-    stringType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_STRING));
 }
 
 void resolverDeinit(ExprResolver* self) {
-    for(OperatorSemData* op = self->operators; op != self->operators + self->count; ++op) {
-        ORCRELEASE(op->lhsType);
-        ORCRELEASE(op->rhsType);
-        ORCRELEASE(op->result);
-        ORCRELEASE(op->impl);
-    }
     ORBIT_DEALLOC_ARRAY(self->operators, OperatorSemData, self->capacity);
-    ORCRELEASE(boolType);
-    ORCRELEASE(intType);
-    ORCRELEASE(floatType);
-    ORCRELEASE(stringType);
     self->operators = NULL;
     self->count = 0;
     self->capacity = 0;
@@ -57,13 +35,14 @@ static void resolverEnsure(ExprResolver* self, size_t required) {
     self->operators = ORBIT_REALLOC_ARRAY(self->operators, OperatorSemData, oldCapacity, self->capacity);
 }
 
-static inline void declBinaryMath(Sema* self, OrbitAST* T, OrbitTokenKind op) {
-    declareOperator(self, (OperatorSemData){OP_BINARY, ORCRETAIN(T), ORCRETAIN(T), (op), ORCRETAIN(T), NULL});
+static inline void declBinaryMath(Sema* self, ASTKind T, OrbitTokenKind op) {
+    declareOperator(self, (OperatorSemData){OP_BINARY, T, T, op, T});
 }
 
-static inline void declComp(Sema* self, OrbitAST* T, OrbitTokenKind op, OrbitAST* U) {
-    declareOperator(self, (OperatorSemData){OP_BINARY, ORCRETAIN(T), ORCRETAIN(T), (op), ORCRETAIN(U), NULL});
+static inline void declComp(Sema* self, ASTKind T, OrbitTokenKind op) {
+    declareOperator(self, (OperatorSemData){OP_BINARY, T, T, op, ORBIT_AST_TYPEEXPR_BOOL});
 }
+
 
 void declareDefaultOperators(Sema* self) {
     
@@ -79,13 +58,13 @@ void declareDefaultOperators(Sema* self) {
     
     // This gets quite boring, we could probably automate even more, or use a code generator
     for(int i = 0; i < mathBinCount; ++i) {
-        declBinaryMath(self, intType, mathBinary[i]);
-        declBinaryMath(self, floatType, mathBinary[i]);
+        declBinaryMath(self, ORBIT_AST_TYPEEXPR_INT, mathBinary[i]);
+        declBinaryMath(self, ORBIT_AST_TYPEEXPR_FLOAT, mathBinary[i]);
     }
     
     for(int i = 0; i < compCount; ++i) {
-        declComp(self, intType, comparison[i], boolType);
-        declComp(self, floatType, comparison[i], boolType);
+        declComp(self, ORBIT_AST_TYPEEXPR_INT, comparison[i]);
+        declComp(self, ORBIT_AST_TYPEEXPR_FLOAT, comparison[i]);
         // declComp(self, stringType, comparison[i], boolType);
     }
 }
@@ -98,28 +77,63 @@ void declareOperator(Sema* self, OperatorSemData op) {
 
 const Conversion* findCast(const OrbitAST* from, const OrbitAST* to) {
     if(!from || !to) return NULL;
-    const Conversion conversions[] = {
-        {intType, floatType, true, ORBIT_AST_EXPR_I2F},
-        {floatType, intType, true, ORBIT_AST_EXPR_F2I},
+    static const Conversion conversions[] = {
+        {ORBIT_AST_TYPEEXPR_INT, ORBIT_AST_TYPEEXPR_FLOAT, true, ORBIT_AST_EXPR_I2F},
+        {ORBIT_AST_TYPEEXPR_FLOAT, ORBIT_AST_TYPEEXPR_INT, true, ORBIT_AST_EXPR_F2I},
     };
     static const size_t count = sizeof(conversions)/sizeof(Conversion);
     
     for(const Conversion* cast = conversions; cast != conversions + count; ++cast) {
-        if(orbit_astTypeEquals(from, cast->from) && orbit_astTypeEquals(to, cast->to))
+        if(orbit_astTypeEqualsPrimitive(from, cast->from)
+           && orbit_astTypeEqualsPrimitive(to, cast->to)) {
             return cast;
+        }
+    }
+    return NULL;
+}
+
+static const Conversion* findCastPrimitive(const OrbitAST* from, ASTKind to) {
+    if(!from || !to) return NULL;
+    static const Conversion conversions[] = {
+        {ORBIT_AST_TYPEEXPR_INT, ORBIT_AST_TYPEEXPR_FLOAT, true, ORBIT_AST_EXPR_I2F},
+        {ORBIT_AST_TYPEEXPR_FLOAT, ORBIT_AST_TYPEEXPR_INT, true, ORBIT_AST_EXPR_F2I},
+    };
+    static const size_t count = sizeof(conversions)/sizeof(Conversion);
+    
+    for(const Conversion* cast = conversions; cast != conversions + count; ++cast) {
+        if(orbit_astTypeEqualsPrimitive(from, cast->from)
+           && to == cast->to) {
+            return cast;
+        }
     }
     return NULL;
 }
 
 bool canConvert(OrbitAST* from, OrbitAST* to) {
-    if(!from || !to) return false;
-    return orbit_astTypeEquals(from, intType) && orbit_astTypeEquals(to, floatType);
+    return findCast(from, to) != NULL;
 }
 
+bool canConvertPrimitive(OrbitAST* from, ASTKind to) {
+    return findCastPrimitive(from, to) != NULL;
+}
+    
+
 OrbitAST* convertExprType(OrbitAST* node, OrbitAST* to) {
-    if(!canConvert(node->type, to)) return node;
-    OrbitAST* converted = ORCRETAIN(orbit_astMakeI2F(node));
-    converted->type = ORCRETAIN(floatType);
+    const Conversion* cast = findCast(node->type, to);
+    if(!cast) return NULL;
+    
+    OrbitAST* converted = ORCRETAIN(orbit_astMakeCastExpr(node, cast->nodeKind));
+    converted->type = ORCRETAIN(orbit_astMakePrimitiveType(cast->nodeKind));
+    ORCRELEASE(node);
+    return converted;
+}
+
+OrbitAST* convertExprTypePrimitive(OrbitAST* node, ASTKind to) {
+    const Conversion* cast = findCastPrimitive(node->type, to);
+    if(!cast) return NULL;
+    
+    OrbitAST* converted = ORCRETAIN(orbit_astMakeCastExpr(node, cast->nodeKind));
+    converted->type = ORCRETAIN(orbit_astMakePrimitiveType(cast->nodeKind));
     ORCRELEASE(node);
     return converted;
 }
@@ -130,14 +144,14 @@ static bool binaryOpMatches(bool strict, OperatorSemData* data, OrbitAST* expr) 
     const OrbitAST* lhs = expr->binaryExpr.lhs;
     const OrbitAST* rhs = expr->binaryExpr.rhs;
     if(strict) {
-        return orbit_astTypeEquals(data->lhsType, lhs->type)
-            && orbit_astTypeEquals(data->rhsType, rhs->type);
+        return orbit_astTypeEqualsPrimitive(lhs->type, data->lhsType)
+            && orbit_astTypeEqualsPrimitive(rhs->type, data->rhsType);
     }
     
-    bool lhsMatches = orbit_astTypeEquals(data->lhsType, lhs->type)
-                    || (canConvert(lhs->type, data->lhsType));
-    bool rhsMatches = orbit_astTypeEquals(data->rhsType, rhs->type)
-                    || (canConvert(rhs->type, data->rhsType));
+    bool lhsMatches = orbit_astTypeEqualsPrimitive(lhs->type, data->lhsType)
+                      || (canConvertPrimitive(lhs->type, data->lhsType));
+    bool rhsMatches = orbit_astTypeEqualsPrimitive(rhs->type, data->rhsType)
+                      || (canConvertPrimitive(rhs->type, data->rhsType));
     return lhsMatches && rhsMatches;
 }
 
@@ -155,8 +169,8 @@ static OperatorSemData* matchBinaryOp(Sema* self, OrbitAST* expr) {
     }
     if(!nonStrict) return NULL;
     
-    expr->binaryExpr.lhs = convertExprType(expr->binaryExpr.lhs, nonStrict->lhsType);
-    expr->binaryExpr.rhs = convertExprType(expr->binaryExpr.rhs, nonStrict->rhsType);
+    expr->binaryExpr.lhs = convertExprTypePrimitive(expr->binaryExpr.lhs, nonStrict->lhsType);
+    expr->binaryExpr.rhs = convertExprTypePrimitive(expr->binaryExpr.rhs, nonStrict->rhsType);
     return nonStrict;
 }
 
@@ -166,7 +180,7 @@ OrbitAST* resolveBinaryExpr(Sema* self, OrbitAST* expr) {
         errorBinary(self, expr); 
         return expr->binaryExpr.lhs;
     }
-    expr->type = ORCRETAIN(orbit_astTypeCopy(op->result));
+    expr->type = ORCRETAIN(orbit_astMakePrimitiveType(op->result));
     return expr->type;
 }
 

@@ -21,9 +21,6 @@ static int32_t currentLine(const Builder* builder) {
     return 1; // TODO: implementation (call into source::physicalLoc)
 }
 
-static OrbitAST* intType = NULL;
-OrbitAST* floatType = NULL;
-
 void builderInit(Builder* builder, OrbitGC* gc) {
     builder->gc = gc;
     builder->function = NULL;
@@ -35,46 +32,36 @@ void builderInit(Builder* builder, OrbitGC* gc) {
     // two in a common library?
     // OTOH do we want to have to pull in the runtime every time we want to perform semantic
     // analysis? might not be worth it.
-    intType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_INT));
-    floatType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_FLOAT));
-    // OrbitAST* stringType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_STRING));
-    // OrbitAST* boolType = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_BOOL));
     
-#define BINARY_OP(T, op, code) ((OpSelectData){(op), ORCRETAIN(T), ORCRETAIN(T), (code)})
+#define BINARY_OP(T, op, code) ((OpSelectData){(op), ORBIT_AST_TYPEEXPR_##T, ORBIT_AST_TYPEEXPR_##T, (code)})
     
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(intType, ORBIT_TOK_PLUS, OP_iadd));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(intType, ORBIT_TOK_MINUS, OP_isub));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(intType, ORBIT_TOK_STAR, OP_imul));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(intType, ORBIT_TOK_SLASH, OP_idiv));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_PLUS, OP_iadd));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_MINUS, OP_isub));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_STAR, OP_imul));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_SLASH, OP_idiv));
 
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(intType, ORBIT_TOK_EQEQ, OP_ieq));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(intType, ORBIT_TOK_LT, OP_ilt));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(intType, ORBIT_TOK_GT, OP_igt));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(intType, ORBIT_TOK_LTEQ, OP_ilteq));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(intType, ORBIT_TOK_GT, OP_igteq));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_EQEQ, OP_ieq));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_LT, OP_ilt));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_GT, OP_igt));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_LTEQ, OP_ilteq));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_GT, OP_igteq));
     
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(floatType, ORBIT_TOK_PLUS, OP_fadd));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(floatType, ORBIT_TOK_MINUS, OP_fsub));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(floatType, ORBIT_TOK_STAR, OP_fmul));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(floatType, ORBIT_TOK_SLASH, OP_fdiv));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_PLUS, OP_fadd));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_MINUS, OP_fsub));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_STAR, OP_fmul));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_SLASH, OP_fdiv));
 
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(floatType, ORBIT_TOK_EQEQ, OP_feq));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(floatType, ORBIT_TOK_LT, OP_flt));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(floatType, ORBIT_TOK_GT, OP_fgt));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(floatType, ORBIT_TOK_LTEQ, OP_flteq));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(floatType, ORBIT_TOK_GT, OP_fgteq));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_EQEQ, OP_feq));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_LT, OP_flt));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_GT, OP_fgt));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_LTEQ, OP_flteq));
+    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_GT, OP_fgteq));
     
 #undef BINARY_OP
 }
 
 void builderDeinit(Builder* builder) {
-    for(int i = 0; i < builder->selector.count; ++i) {
-        ORCRELEASE(builder->selector.data[i].lhsType);
-        ORCRELEASE(builder->selector.data[i].rhsType);
-    }
     orbit_SelectorBufferDeinit(builder->gc, &builder->selector);
-    ORCRELEASE(intType);
-    ORCRELEASE(floatType);
 }
 
 int findConstant(OrbitValueBuffer* constants, OrbitValue value) {
@@ -118,8 +105,11 @@ int emitJump(Builder* builder, OrbitCode code) {
 OrbitCode instSelect(Builder* builder, OrbitTokenKind op, const OrbitAST* lhs, const OrbitAST* rhs) {
     for(int i = 0; i < builder->selector.count; ++i) {
         OpSelectData data = builder->selector.data[i];
-        if(op == data.op && orbit_astTypeEquals(lhs->type, data.lhsType) && orbit_astTypeEquals(rhs->type, data.rhsType))
+        if(op == data.op
+           && orbit_astTypeEqualsPrimitive(lhs->type, data.lhsType)
+           && orbit_astTypeEqualsPrimitive(rhs->type, data.rhsType)) {
             return data.instruction;
+        }
     }
     // TODO: throw error
     return OP_return;

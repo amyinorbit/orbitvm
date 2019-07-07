@@ -20,8 +20,8 @@
 
 typedef struct {
     OrbitTokenKind op;
-    const OrbitAST* lhsType;
-    const OrbitAST* rhsType;
+    ASTKind lhsType;
+    ASTKind rhsType;
     OrbitCode instruction;
 } OpSelectData;
 

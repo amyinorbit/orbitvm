@@ -46,6 +46,12 @@ const ASTKind ASTTypeExprMask   = ORBIT_AST_TYPEEXPR_VOID
                                 | ORBIT_AST_TYPEEXPR_MAP
                                 | ORBIT_AST_TYPEEXPR_FUNC;
 
+const ASTKind ASTPrimitiveMask  = ORBIT_AST_TYPEEXPR_VOID
+                                | ORBIT_AST_TYPEEXPR_BOOL
+                                | ORBIT_AST_TYPEEXPR_INT
+                                | ORBIT_AST_TYPEEXPR_FLOAT
+                                | ORBIT_AST_TYPEEXPR_STRING;
+
 const ASTKind ASTAllMask       = 0xffffffffffffffff;
 
 void orbit_astDestroy(void* ref) {

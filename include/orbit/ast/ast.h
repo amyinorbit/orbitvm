@@ -71,6 +71,7 @@ extern const ASTKind ASTStmtMask;
 extern const ASTKind ASTDeclMask;
 extern const ASTKind ASTExprMask;
 extern const ASTKind ASTTypeExprMask;
+extern const ASTKind ASTPrimitiveMask;
 
 #define ORBIT_AST_IS_STMT(ast) ((ast) != NULL && ((ast).type & ASTStmtMask) != 0)
 #define ORBIT_AST_IS_DECL(ast) ((ast) != NULL && ((ast).type & ASTDeclMask) != 0)

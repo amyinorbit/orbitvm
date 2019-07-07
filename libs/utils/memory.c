@@ -20,7 +20,6 @@ noreturn void orbit_die(const char* message) {
 static size_t total_mem = 0;
 
 void* orbit_allocator(void* ptr, size_t oldSize, size_t newSize) {
-    assert(oldSize != newSize && "reallocating same size");
     total_mem += (newSize - oldSize);
     
     if(newSize == 0) {

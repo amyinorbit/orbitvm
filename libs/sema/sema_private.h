@@ -17,21 +17,19 @@
 
 #define ORBIT_SCOPE_MAX 128
 
+// OperatorSemData only works for primitive types at the moment. We'll see later how
+// we implement operator overloading with complex types
 typedef struct {
     enum {OP_UNARY, OP_BINARY} kind;
-    OrbitAST* lhsType;
-    OrbitAST* rhsType;
+    ASTKind lhsType;
+    ASTKind rhsType;
     OrbitTokenKind operator;
-    OrbitAST* result;
-    
-    // Operation::impl is NULL when using bytecode operators, and point to the operator overload
-    // function declaration otherwise
-    OrbitAST* impl;
+    ASTKind result;
 } OperatorSemData;
 
 typedef struct {
-    OrbitAST* from;
-    OrbitAST* to;
+    ASTKind from;
+    ASTKind to;
     bool isImplicit;
     ASTKind nodeKind;
 } Conversion;

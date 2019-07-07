@@ -10,8 +10,18 @@
 #include <orbit/ast/builders.h>
 #include <orbit/ast/type.h>
 #include <orbit/csupport/string.h>
-
+#include <assert.h>
 #include <stdio.h>
+
+bool orbit_astTypeIsPrimitive(const OrbitAST* a) {
+    return (a && (a->kind & ASTPrimitiveMask));
+}
+
+bool orbit_astTypeEqualsPrimitive(const OrbitAST* a, ASTKind b) {
+    assert((b & ASTPrimitiveMask) && "Cannot compare to a non primitive type");
+    if(!orbit_astTypeIsPrimitive(a)) return false;
+    return a->kind == b;
+}
 
 static bool typeEqualsImpl(const OrbitAST* a, const OrbitAST* b, bool inList) {
     if(a == b) { return true; }

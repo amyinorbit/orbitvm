@@ -16,6 +16,8 @@ if (${CMAKE_C_COMPILER_ID} STREQUAL Clang OR ${CMAKE_C_COMPILER_ID} STREQUAL App
     add_compile_options (-fcolor-diagnostics)
 endif()
 
+ add_compile_definitions(__COMPILER_NAME__="${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
+
 # Add packages/libraries
 add_subdirectory(packages/UniC)
 add_subdirectory(packages/unity EXCLUDE_FROM_ALL)
