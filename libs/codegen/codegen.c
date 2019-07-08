@@ -43,7 +43,7 @@ void codegen(Builder* builder, const OrbitAST* node) {
         switch(node->kind) {
             MATCH(DECL_MODULE, {
                 codegen(builder, node->moduleDecl.body);
-                emitInst(builder, OP_return);
+                // emitInst(builder, OP_return);
             });
             
             MATCH(DECL_VAR, {

@@ -59,7 +59,7 @@ OrbitResult repl_compile(Compiler comp, int line, const char* input, Options opt
 
     orbit_codegen(comp.gc, comp.fn, &ctx);
     if(options.dumpBytecode) orbit_debugFunction(comp.fn, "repl");
-    orbit_functionWrite(comp.gc, comp.fn, OP_return, 1);
+    // orbit_functionWrite(comp.gc, comp.fn, OP_return, 1);
 
     orbit_astContextDeinit(&ctx);
     return ORBIT_OK;
@@ -140,10 +140,10 @@ int main(int argc, const char** argv) {
     
     for(int i = 1; i < argc; ++i) {
         const char* arg = argv[i];
-        printf("arg: %s\n", arg);
         if(arg[0] == '-') {
             if(strcmp(arg+1, "print-ast") == 0) options.dumpAST = true;
             else if(strcmp(arg+1, "print-bytecode") == 0) options.dumpBytecode = true;
+            else fprintf(stderr, "warning: unknown option: %s\n", arg);
         } else {
             inputFile = arg;
         }
