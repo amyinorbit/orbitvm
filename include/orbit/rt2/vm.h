@@ -10,7 +10,6 @@
 #ifndef orbit_vm_h
 #define orbit_vm_h
 #include <orbit/common.h>
-#include <orbit/rt2/chunk.h>
 #include <orbit/rt2/garbage.h>
 #include <orbit/rt2/value.h>
 #include <orbit/rt2/invocation.h>

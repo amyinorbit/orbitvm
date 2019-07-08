@@ -12,7 +12,6 @@
 #include <string.h>
 #include <locale.h>
 
-#include <orbit/rt2/chunk.h>
 #include <orbit/rt2/vm.h>
 #include <orbit/rt2/debug.h>
 #include <orbit/rt2/opcodes.h>
