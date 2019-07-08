@@ -195,12 +195,8 @@ static void check(Sema* self, OrbitAST* node) {
                 if(!orbit_astTypeEqualsPrimitive(expr->type, ORBIT_AST_TYPEEXPR_BOOL)) {
                     errorCondition(self, "if statement", expr);
                 }
-                pushScope(self);
                 check(self, node->conditionalStmt.ifBody);
-                popScope(self);
-                pushScope(self);
                 check(self, node->conditionalStmt.elseBody);
-                popScope(self);
             });
             
             MATCH(WHILE, {
@@ -209,9 +205,7 @@ static void check(Sema* self, OrbitAST* node) {
                 if(!orbit_astTypeEqualsPrimitive(expr->type, ORBIT_AST_TYPEEXPR_BOOL)) {
                     errorCondition(self, "while loop", expr);
                 }
-                pushScope(self);
                 check(self, node->whileLoop.body);
-                popScope(self);
             });
             
             // TODO: we should be checking that the expression's type does match the function being
@@ -229,7 +223,9 @@ static void check(Sema* self, OrbitAST* node) {
             });
             
             MATCH(BLOCK, {
+                pushScope(self);
                 check(self, node->block.body);
+                popScope(self);
             });
             
             // MARK: - Declarations
