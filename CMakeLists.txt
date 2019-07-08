@@ -20,7 +20,7 @@ endif()
 
 # Add packages/libraries
 add_subdirectory(packages/UniC)
-add_subdirectory(packages/unity EXCLUDE_FROM_ALL)
+add_subdirectory(packages/Unity EXCLUDE_FROM_ALL)
 
 enable_testing()
 
