@@ -46,8 +46,14 @@ void codegen(Builder* builder, const OrbitAST* node) {
                 emitInst(builder, OP_return);
             });
             
+            MATCH(DECL_VAR, {
+                localVariable(builder, node->varDecl.name);
+            });
+            
             MATCH(BLOCK, {
+                int stack = openScope(builder);
                 codegen(builder, node->block.body);
+                dropScope(builder, stack);
             });
             
             MATCH(CONDITIONAL, {
@@ -115,10 +121,30 @@ void codegen(Builder* builder, const OrbitAST* node) {
             MATCH(EXPR_BINARY, {
                 const OrbitAST* lhs = node->binaryExpr.lhs;
                 const OrbitAST* rhs = node->binaryExpr.rhs;
-                codegen(builder, lhs);
-                codegen(builder, rhs);
                 OrbitTokenKind operator = node->binaryExpr.operator.kind;
-                emitInst(builder, instSelect(builder, operator, lhs, rhs));
+                if(operator == ORBIT_TOK_EQUALS) {
+                    if(lhs->kind == ORBIT_AST_EXPR_NAME) {
+                        codegen(builder, rhs);
+                        emitLocalInst(builder, OP_store_local, lhs->nameExpr.name);
+                    } else if(lhs->kind == ORBIT_AST_DECL_VAR) {
+                        codegen(builder, rhs);
+                        emitLocalInst(builder, OP_store_local, lhs->varDecl.name);
+                    } else {
+                        codegen(builder, lhs);
+                        codegen(builder, rhs);
+                        // TODO: there's an issue here with the whole lvalue/rvalue dealio
+                    }
+                } else {
+                    codegen(builder, lhs);
+                    codegen(builder, rhs);
+                    emitInst(builder, instSelect(builder, operator, lhs, rhs));
+                }
+                
+            });
+            
+            // TODO: We really should handle assignment as
+            MATCH(EXPR_NAME, {
+                emitLocalInst(builder, OP_load_local, node->nameExpr.name);
             });
             
             MATCH(EXPR_I2F, {
@@ -145,9 +171,11 @@ void orbit_codegen(OrbitGC* gc, OrbitFunction* function, OrbitASTContext* contex
     
     Builder builder;
     builderInit(&builder, gc);
-    builder.function = function;
+    openFunctionGC(&builder, function);
+    // builder.function = function;
     builder.context = context;
     
     codegen(&builder, context->root);
+    closeFunction(&builder);
     builderDeinit(&builder);
 }

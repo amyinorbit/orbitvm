@@ -39,7 +39,12 @@ static inline OrbitValue peek(OrbitVM* vm, int distance) {
     return vm->task->stackTop[-1 - distance];
 }
 
-static inline void debugObject(OrbitObject* object) {
+static inline void printObject(OrbitObject* object) {
+    if(!object) {
+        printf("<null>\n");
+        return;
+    }
+    
     switch(object->kind) {
     case ORBIT_OBJ_STRING: {
         OrbitString* string = (OrbitString*)object;
@@ -59,9 +64,9 @@ static inline void debugObject(OrbitObject* object) {
     };
 }
 
-static void debugValue(OrbitValue value) {
+static void printValue(OrbitValue value) {
     if(ORBIT_IS_REF(value)) {
-        debugObject(ORBIT_AS_REF(value));
+        printObject(ORBIT_AS_REF(value));
         return;
     }
     uint32_t tag = ORBIT_GET_FLAGS(value);
@@ -84,7 +89,7 @@ static void debugValue(OrbitValue value) {
 void orbit_debugTOS(OrbitVM* self) {
     if(!self->task) return;
     if(self->task->stackTop == self->task->stack) return;
-    debugValue(peek(self, 0));
+    printValue(peek(self, 0));
 }
 
 void orbit_debugStack(OrbitVM* self) {
@@ -93,7 +98,7 @@ void orbit_debugStack(OrbitVM* self) {
     
     for(OrbitValue* sp = self->task->stack; sp != self->task->stackTop; ++sp) {
         printf("    * ");
-        debugValue(*sp);
+        printValue(*sp);
     }
     printf("    ---------\n");
 }
@@ -110,14 +115,15 @@ static inline uint16_t read16(OrbitVM* vm) {
 static inline OrbitValue readConst(OrbitVM* vm) {
     return vm->function->constants.data[read8(vm)];
 }
+
 // #define ORBIT_DEBUG_TRACE
 OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
     assert(vm && "null vm error");
     assert(function && "null chunk error");
     vm->function = function;
-    // vm->ip = function->code.data;
-    
     vm->task = orbit_taskNew(&vm->gc, function);
+    
+    OrbitFrame* frame = vm->task->frames.data;
 
 #define NEXT() break
 #define BINARY(T, U, op)                                                                           \
@@ -132,6 +138,7 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
         orbit_debugInstruction(vm->function, vm->task->ip - vm->function->code.data);
         orbit_debugStack(vm);
         // orbit_debugTOS(vm);
+        getchar();
 #endif
 
         uint8_t instruction;
@@ -148,9 +155,17 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
         case OP_false:
             push(vm, ORBIT_VALUE_FALSE);
             NEXT();
+            
+        case OP_load_local:
+            push(vm, frame->base[read8(vm)]);
+            NEXT();
+            
+        case OP_store_local:
+            frame->base[read8(vm)] = pop(vm);
+            NEXT();
 
         case OP_print:
-            debugValue(pop(vm));
+            printValue(pop(vm));
             NEXT();
 
         case OP_i2f:

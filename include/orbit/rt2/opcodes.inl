@@ -28,6 +28,9 @@ OPCODE(const, 1, 1)
 OPCODE(true, 0, 1)
 OPCODE(false, 0, 1)
     
+OPCODE(load_local, 1, 1)
+OPCODE(store_local, 1, -1)
+    
 OPCODE(i2f, 0, 0)
 OPCODE(f2i, 0, 0)
 

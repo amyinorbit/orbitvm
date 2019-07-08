@@ -56,8 +56,10 @@ OrbitFrame* orbit_taskPushFrame(OrbitGC* gc, OrbitTask* self, OrbitFunction* fun
         function,
         self->stackTop - function->arity
     });
+    
     orbit_taskEnsureStack(self, self->stackCapacity + function->requiredStack);
     self->ip = function->code.data;
+    self->stackTop += function->locals;
     return &self->frames.data[self->frames.count-1];
 }
 

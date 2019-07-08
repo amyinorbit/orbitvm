@@ -13,6 +13,7 @@
 #include <orbit/rt2/buffer.h>
 #include <orbit/rt2/value_object.h>
 #include <orbit/rt2/invocation.h>
+#include <orbit/csupport/string.h>
 #include <assert.h>
 
 DEFINE_BUFFER(Selector, OpSelectData);
@@ -64,6 +65,56 @@ void builderDeinit(Builder* builder) {
     orbit_SelectorBufferDeinit(builder->gc, &builder->selector);
 }
 
+void openFunctionGC(Builder* builder, OrbitFunction* function) {
+    assert(builder && "cannot open a codegen function without a builder");
+    Function* fn = ORCINIT(ORBIT_ALLOC(Function), NULL);
+    fn->parent = builder->function;
+    fn->impl = function;
+    // TODO: we probably need to start worrying about garbage collection here. This is also where
+    // it would be useful to maybe start using reference counting in the VM too, instead of GC?
+    fn->localCount = 0;
+    fn->maxLocals = 0;
+    builder->function = ORCRETAIN(fn);
+}
+
+#define GC_FUNC() builder->function->impl
+
+
+int openScope(Builder* builder) {
+    return builder->function->localCount;
+}
+
+void dropScope(Builder* builder, int stack) {
+    builder->function->localCount = stack;
+}
+
+void openFunction(Builder* builder) {
+    assert(builder && "cannot open a codegen function without a builder");
+    openFunctionGC(builder, orbit_functionNew(builder->gc));
+}
+
+int localVariable(Builder* builder, OCStringID name) {
+    assert(builder && "cannot locate a codegen variable without a builder");
+    Function* fn = builder->function;
+    for(int i = 0; i < fn->localCount; ++i) {
+        if(name == fn->locals[i]) return i;
+    }
+    assert(fn->localCount < UINT8_MAX && "too many locals");
+    int idx = fn->localCount++;
+    fn->locals[idx] = name;
+    if(fn->localCount > fn->maxLocals)
+        fn->maxLocals = fn->localCount;
+    return idx;
+}
+
+void closeFunction(Builder* builder) {
+    assert(builder && "cannot close a codegen function without a builder");
+    Function* fn = builder->function;
+    GC_FUNC()->locals = fn->maxLocals;
+    builder->function = fn->parent;
+    ORCRELEASE(fn);
+}
+
 int findConstant(OrbitValueBuffer* constants, OrbitValue value) {
     for(int i = 0; i < constants->count; ++i) {
         if(orbit_valueEquals(constants->data[i], value)) return i;
@@ -72,11 +123,12 @@ int findConstant(OrbitValueBuffer* constants, OrbitValue value) {
 }
 
 int offset(Builder* builder) {
-    return builder->function->code.count;
+    return GC_FUNC()->code.count;
 }
 
+
 uint8_t emitConstant(Builder* builder, OrbitValue value) {
-    OrbitValueBuffer* constants = &builder->function->constants;;
+    OrbitValueBuffer* constants = &GC_FUNC()->constants;;
     int existing = findConstant(constants, value);
     if(existing != -1) return (uint8_t)existing;
 
@@ -86,46 +138,53 @@ uint8_t emitConstant(Builder* builder, OrbitValue value) {
 }
 
 int emitInst(Builder* builder, OrbitCode code) {
-    orbit_functionWrite(builder->gc, builder->function, code, currentLine(builder));
-    return builder->function->code.count - 1;
+    orbit_functionWrite(builder->gc, GC_FUNC(), code, currentLine(builder));
+    return GC_FUNC()->code.count - 1;
 }
 
 int emitConstInst(Builder* builder, OrbitCode code, OrbitValue value) {
     int offset = emitInst(builder, code);
     uint8_t constantIndex = emitConstant(builder, value);
-    orbit_functionWrite(builder->gc, builder->function, constantIndex, currentLine(builder));
+    orbit_functionWrite(builder->gc, GC_FUNC(), constantIndex, currentLine(builder));
+    return offset;
+}
+
+int emitLocalInst(Builder* builder, OrbitCode code, OCStringID name) {
+    int offset = emitInst(builder, code);
+    uint8_t localIndex = (uint8_t)localVariable(builder, name);
+    orbit_functionWrite(builder->gc, GC_FUNC(), localIndex, currentLine(builder));
     return offset;
 }
 
 int emitJump(Builder* builder, OrbitCode code) {
     int line = currentLine(builder);
     emitInst(builder, code);
-    int patchOffset = builder->function->code.count;
-    orbit_functionWrite(builder->gc, builder->function, 0xff, line);
-    orbit_functionWrite(builder->gc, builder->function, 0xff, line);
+    int patchOffset = GC_FUNC()->code.count;
+    orbit_functionWrite(builder->gc, GC_FUNC(), 0xff, line);
+    orbit_functionWrite(builder->gc, GC_FUNC(), 0xff, line);
     return patchOffset;
 }
 
 int emitRJump(Builder* builder, OrbitCode code, int target) {
     int line = currentLine(builder);
     int offset = emitInst(builder, code);
-    int current = builder->function->code.count + 2; // To account for the two byte jump offset
+    int current = GC_FUNC()->code.count + 2; // To account for the two byte jump offset
     uint16_t jump = current - target;
     
-    orbit_functionWrite(builder->gc, builder->function, (jump >> 8) & 0x00ff, line);
-    orbit_functionWrite(builder->gc, builder->function, jump & 0x00ff, line);
+    orbit_functionWrite(builder->gc, GC_FUNC(), (jump >> 8) & 0x00ff, line);
+    orbit_functionWrite(builder->gc, GC_FUNC(), jump & 0x00ff, line);
     return offset;
 }
 
 void patchJump(Builder* builder, int patch) {
     assert(patch < UINT16_MAX && "jump offset too long");
-    int current = builder->function->code.count - 2;
+    int current = GC_FUNC()->code.count - 2;
     int offset = current - patch;
     
     uint16_t jump = offset;
     
-    builder->function->code.data[patch++] = (jump >> 8) & 0x00ff;
-    builder->function->code.data[patch++] = jump & 0x00ff;
+    GC_FUNC()->code.data[patch++] = (jump >> 8) & 0x00ff;
+    GC_FUNC()->code.data[patch++] = jump & 0x00ff;
 }
 
 OrbitCode instSelect(Builder* builder, OrbitTokenKind op, const OrbitAST* lhs, const OrbitAST* rhs) {
