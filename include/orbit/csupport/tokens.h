@@ -129,6 +129,7 @@ const char* orbit_tokenString(OrbitTokenKind token);
 
 //bool orbit_tokenEquals(OrbitToken* a, OrbitToken* b);
 
+bool orbit_tokenIsAssign(OrbitTokenKind token);
 bool orbit_tokenIsBinaryOp(OrbitTokenKind token);
 bool orbit_tokenIsUnaryOp(OrbitTokenKind token);
 

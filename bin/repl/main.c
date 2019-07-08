@@ -49,7 +49,7 @@ OrbitResult repl_compile(Compiler comp, int line, const char* input) {
 
     orbit_semaCheck(&ctx);
     orbit_diagEmitAll(&ctx.diagnostics);
-    // orbit_astPrint(stdout, ctx.root);
+    orbit_astPrint(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
 
     orbit_codegen(comp.gc, comp.fn, &ctx);
@@ -110,7 +110,7 @@ OrbitResult compileFile(OrbitVM* vm, const char* path) {
     
     orbit_semaCheck(&ctx);
     orbit_diagEmitAll(&ctx.diagnostics);
-    // orbit_astPrint(stdout, ctx.root);
+    orbit_astPrint(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
     
     orbit_codegen(comp.gc, comp.fn, &ctx);

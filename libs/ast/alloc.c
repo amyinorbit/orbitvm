@@ -64,6 +64,11 @@ void orbit_astDestroy(void* ref) {
     
         switch(ast->kind) {
             // STATEMENTS
+            case ORBIT_AST_ASSIGN:
+                ORCRELEASE(ast->assignStmt.lhs);
+                ORCRELEASE(ast->assignStmt.rhs);
+                break;
+                
             case ORBIT_AST_CONDITIONAL:
                 ORCRELEASE(ast->conditionalStmt.condition);
                 ORCRELEASE(ast->conditionalStmt.ifBody);

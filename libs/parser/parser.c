@@ -121,7 +121,7 @@ static OrbitAST* recVarDecl(OCParser* parser) {
     OrbitToken operator = parser->currentToken;
     if(match(parser, ORBIT_TOK_EQUALS)) {
         OrbitAST* rhs = recExpression(parser, 0);
-        return orbit_astMakeBinaryExpr(&operator, decl, rhs);
+        return orbit_astMakeAssign(&operator, decl, rhs);
     }
     return decl;
 }
@@ -308,7 +308,13 @@ static OrbitAST* recExpression(OCParser* parser, int minPrec) {
             
         default:
             rhs = recExpression(parser, nextMinPrec);
-            expr = orbit_astMakeBinaryExpr(&operator, expr, rhs);
+            // TODO: it would be good to catch use of assignments in bad places early instead of
+            // punting to Sema. Makes the parser way more complicated however. Swift seems to punt
+            // to sema and catches that by using () (no type, Void) as the result of an assignment
+            // binary
+            expr = orbit_tokenIsAssign(operator.kind) ?
+                orbit_astMakeAssign(&operator, expr, rhs) : 
+                orbit_astMakeBinaryExpr(&operator, expr, rhs);
             break;
         }
     }

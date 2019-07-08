@@ -76,6 +76,10 @@ static inline bool ORBIT_IS_STRING(OrbitValue value) {
     return ((value & ORBIT_TAG_VALUE) == 0) && ORBIT_AS_REF(value)->kind == ORBIT_OBJ_STRING;
 }
 
+static inline bool ORBIT_IS_FUNCTION(OrbitValue value) {
+    return ((value & ORBIT_TAG_VALUE) == 0) && ORBIT_AS_REF(value)->kind == ORBIT_OBJ_FUNCTION;
+}
+
 OrbitObject* orbit_objectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size);
 
 OrbitString* orbit_stringCopy(OrbitGC* gc, const char* data, int32_t count);

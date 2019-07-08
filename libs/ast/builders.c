@@ -36,6 +36,17 @@ static OrbitToken ast_copyToken(const OrbitToken* token) {
     return copy;
 }
 
+OrbitAST* orbit_astMakeAssign(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs) {
+    OrbitAST* ast = orbit_astMake(ORBIT_AST_ASSIGN);
+    
+    ast->assignStmt.operator = ast_copyToken(operator);
+    ast->assignStmt.lhs = ORCRETAIN(lhs);
+    ast->assignStmt.rhs = ORCRETAIN(rhs);
+    if(lhs && rhs)
+        ast->sourceRange = orbit_srangeUnion(lhs->sourceRange, rhs->sourceRange);
+    return ast;
+}
+
 OrbitAST* orbit_astMakeConditional(OrbitAST* condition, OrbitAST* ifBody, OrbitAST* elseBody) {
     OrbitAST* ast = orbit_astMake(ORBIT_AST_CONDITIONAL);
     ast->conditionalStmt.condition = ORCRETAIN(condition);

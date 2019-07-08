@@ -117,28 +117,33 @@ void codegen(Builder* builder, const OrbitAST* node) {
                 // OrbitCode code = instSelectBinary(builder, operator, lhs, rhs);
                 // emitInst(builder, code);
             });
+            
+            MATCH(ASSIGN, {
+                const OrbitAST* lhs = node->binaryExpr.lhs;
+                const OrbitAST* rhs = node->binaryExpr.rhs;
+                OrbitTokenKind operator = node->binaryExpr.operator.kind;
+
+                if(lhs->kind == ORBIT_AST_EXPR_NAME) {
+                    codegen(builder, rhs);
+                    emitLocalInst(builder, OP_store_local, lhs->nameExpr.name);
+                } else if(lhs->kind == ORBIT_AST_DECL_VAR) {
+                    codegen(builder, rhs);
+                    emitLocalInst(builder, OP_store_local, lhs->varDecl.name);
+                } else {
+                    codegen(builder, lhs);
+                    codegen(builder, rhs);
+                    // TODO: there's an issue here with the whole lvalue/rvalue dealio
+                }
+            });
         
             MATCH(EXPR_BINARY, {
                 const OrbitAST* lhs = node->binaryExpr.lhs;
                 const OrbitAST* rhs = node->binaryExpr.rhs;
                 OrbitTokenKind operator = node->binaryExpr.operator.kind;
-                if(operator == ORBIT_TOK_EQUALS) {
-                    if(lhs->kind == ORBIT_AST_EXPR_NAME) {
-                        codegen(builder, rhs);
-                        emitLocalInst(builder, OP_store_local, lhs->nameExpr.name);
-                    } else if(lhs->kind == ORBIT_AST_DECL_VAR) {
-                        codegen(builder, rhs);
-                        emitLocalInst(builder, OP_store_local, lhs->varDecl.name);
-                    } else {
-                        codegen(builder, lhs);
-                        codegen(builder, rhs);
-                        // TODO: there's an issue here with the whole lvalue/rvalue dealio
-                    }
-                } else {
-                    codegen(builder, lhs);
-                    codegen(builder, rhs);
-                    emitInst(builder, instSelect(builder, operator, lhs, rhs));
-                }
+                
+                codegen(builder, lhs);
+                codegen(builder, rhs);
+                emitInst(builder, instSelect(builder, operator, lhs, rhs));
                 
             });
             

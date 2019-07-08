@@ -104,7 +104,10 @@ OrbitAST* orbit_astTypeCopy(const OrbitAST* src) {
 }
 
 void orbit_astTypeString(OCStringBuffer* buffer, OrbitAST* ast) {
-    if(ast == NULL) { return; }
+    if(ast == NULL) {
+        orbit_stringBufferAppendC(buffer, "()", 2);
+        return;
+    }
     if((ast->kind & ASTTypeExprMask) == 0) { return; }
     
     if((ast->typeExpr.flags & ORBIT_TYPE_OPTIONAL)) {
@@ -112,7 +115,7 @@ void orbit_astTypeString(OCStringBuffer* buffer, OrbitAST* ast) {
     }
     
     switch(ast->kind) {
-    case ORBIT_AST_TYPEEXPR_VOID:     orbit_stringBufferAppendC(buffer, "Void", 4);     break;
+    case ORBIT_AST_TYPEEXPR_VOID:     orbit_stringBufferAppendC(buffer, "()", 2);       break;
     case ORBIT_AST_TYPEEXPR_BOOL:     orbit_stringBufferAppendC(buffer, "Bool", 4);     break;
     case ORBIT_AST_TYPEEXPR_INT:      orbit_stringBufferAppendC(buffer, "Int", 3);      break;
     case ORBIT_AST_TYPEEXPR_FLOAT:    orbit_stringBufferAppendC(buffer, "Float", 5);    break;
@@ -123,9 +126,9 @@ void orbit_astTypeString(OCStringBuffer* buffer, OrbitAST* ast) {
         break;
         
     case ORBIT_AST_TYPEEXPR_FUNC:
-        orbit_stringBufferAppend(buffer, '(');
+        // orbit_stringBufferAppend(buffer, '(');
         orbit_astTypeString(buffer, ast->typeExpr.funcType.params);
-        orbit_stringBufferAppendC(buffer, ") -> ", 5);
+        orbit_stringBufferAppendC(buffer, " -> ", 4);
         orbit_astTypeString(buffer, ast->typeExpr.funcType.returnType);
         break;
         

@@ -66,14 +66,6 @@ static bool declareVar(Sema* self, OrbitAST* var) {
     return declareVariable(self, var);
 }
 
-static bool isAssignOperator(OrbitTokenKind kind) {
-    return kind == ORBIT_TOK_EQUALS
-        || kind == ORBIT_TOK_PLUSEQ
-        || kind == ORBIT_TOK_MINUSEQ
-        || kind == ORBIT_TOK_STAREQ
-        || kind == ORBIT_TOK_SLASHEQ;
-}
-
 typedef enum {MATCH_NONE, MATCH_CAST, MATCH_STRICT} ParamMatch;
 
 static ParamMatch checkArgTypes(const OrbitAST* paramTypes, const OrbitAST* args) {
@@ -172,8 +164,8 @@ static bool checkAssign(Sema* self, OrbitAST* assign) {
     // first glance it seems like something that is composition of lvalues should be an lvalue,
     // but I have doubts (we must handle [] and () operators).
     
-    OrbitAST* lhs = assign->binaryExpr.lhs;
-    OrbitAST* rhs = assign->binaryExpr.rhs;
+    OrbitAST* lhs = assign->assignStmt.lhs;
+    OrbitAST* rhs = assign->assignStmt.rhs;
     
     // if [lhs] doesn't have a type, we are free to set it to [expr]'s type
     if(!lhs->type) {
@@ -191,7 +183,7 @@ static bool checkAssign(Sema* self, OrbitAST* assign) {
         errorAssign(self, assign);
         return false;
     }
-    assign->binaryExpr.rhs = ORCRETAIN(orbit_astMakeCastExpr(rhs, cast->nodeKind));
+    assign->assignStmt.rhs = ORCRETAIN(orbit_astMakeCastExpr(rhs, cast->nodeKind));
     ORCRELEASE(rhs);
     return true;
 }
@@ -269,26 +261,28 @@ static void check(Sema* self, OrbitAST* node) {
                 check(self, node->unaryExpr.rhs);
                 // TODO: implement resolver
             });
+            
+            MATCH(ASSIGN, {
+                OrbitAST* lhs = node->binaryExpr.lhs;
+                OrbitAST* rhs = node->binaryExpr.rhs;
+                if(lhs->kind == ORBIT_AST_DECL_VAR) {
+                    lhs->type = ORCRETAIN(extractVarType(self, lhs));
+                    check(self, rhs);
+                    if(checkAssign(self, node)) declareVariable(self, lhs);
+                } else {
+                    check(self, lhs);
+                    check(self, rhs);
+                    checkAssign(self, node);
+                }
+                node->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_VOID));
+            });
         
             MATCH(EXPR_BINARY, {
                 OrbitAST* lhs = node->binaryExpr.lhs;
                 OrbitAST* rhs = node->binaryExpr.rhs;
-                
-                if(isAssignOperator(node->binaryExpr.operator.kind)) {
-                    if(lhs->kind == ORBIT_AST_DECL_VAR) {
-                        lhs->type = ORCRETAIN(extractVarType(self, lhs));
-                        check(self, rhs);
-                        if(checkAssign(self, node)) declareVariable(self, lhs);
-                    } else {
-                        check(self, lhs);
-                        check(self, rhs);
-                        checkAssign(self, node);
-                    }
-                } else {
-                    check(self, lhs);
-                    check(self, rhs);
-                    resolveBinaryExpr(self, node);
-                }
+                check(self, lhs);
+                check(self, rhs);
+                resolveBinaryExpr(self, node);
             });
         
             MATCH(EXPR_CALL, {

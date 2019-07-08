@@ -56,7 +56,7 @@ static void orbit_astPrintType(FILE* out, OrbitAST* ast) {
     }
     
     switch(ast->kind) {
-    case ORBIT_AST_TYPEEXPR_VOID:       fputs("Void", out);     break;
+    case ORBIT_AST_TYPEEXPR_VOID:       fputs("()", out);       break;
     case ORBIT_AST_TYPEEXPR_BOOL:       fputs("Bool", out);     break;
     case ORBIT_AST_TYPEEXPR_INT:        fputs("Int", out);      break;
     case ORBIT_AST_TYPEEXPR_FLOAT:      fputs("Float", out);    break;
@@ -67,9 +67,9 @@ static void orbit_astPrintType(FILE* out, OrbitAST* ast) {
         break;
         
     case ORBIT_AST_TYPEEXPR_FUNC:
-        fputs("(", out);
+        fputs("", out);
         orbit_astPrintType(out, ast->typeExpr.funcType.params);
-        fputs(") -> ", out);
+        fputs(" -> ", out);
         orbit_astPrintType(out, ast->typeExpr.funcType.returnType);
         break;
         
@@ -104,6 +104,18 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
     console_setColor(out, CLI_BOLD);
     
     switch(ast->kind) {
+    case ORBIT_AST_ASSIGN:
+        console_setColor(out, CLI_MAGENTA);
+        fputs("AssignStmt ", out);
+        console_setColor(out, CLI_RESET);
+        console_printToken(out, ast->assignStmt.operator);
+        fputs(": ", out);
+        console_setColor(out, CLI_YELLOW); console_setColor(out, CLI_BOLD);
+        orbit_astPrintType(out, ast->type);
+        orbit_astPrintNode(out, ast->assignStmt.lhs, depth+1, false);
+        orbit_astPrintNode(out, ast->assignStmt.rhs, depth+1, true);
+        break;
+            
     case ORBIT_AST_CONDITIONAL:
         console_setColor(out, CLI_MAGENTA);
         fputs("IfStmt", out);

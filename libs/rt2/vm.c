@@ -143,8 +143,6 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
 
         uint8_t instruction;
         switch(instruction = read8(vm)) {
-        case OP_return:
-            return ORBIT_OK;
 
         case OP_const:
             push(vm, readConst(vm));
@@ -247,6 +245,17 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
             if(ORBIT_IS_BOOL(tos) && ORBIT_AS_BOOL(tos))
                 vm->task->ip += offset;
         } NEXT();
+        
+        case OP_call: {
+            OrbitValue callee = pop(vm);
+            assert(ORBIT_IS_FUNCTION(callee) && "cannot call a non-function object");
+            orbit_taskPushFrame(&vm->gc, vm->task, (OrbitFunction*)ORBIT_AS_REF(callee));
+        } NEXT();
+
+        case OP_return:
+            if(!vm->task->frames.count) return ORBIT_OK;
+            orbit_taskPopFrame(&vm->gc, vm->task);
+            NEXT();
         
         default:
             return ORBIT_RUNTIME_ERROR;

@@ -21,10 +21,11 @@ typedef struct _OrbitASTType OrbitASTType;
 typedef enum _OrbitASTTypeFlags OrbitASTTypeFlags;
 typedef uint64_t ASTKind;
 
-#define DECL_AST_KIND(name, num) static const ASTKind ORBIT_AST_##name = 1UL << (num)
+#define DECL_AST_KIND(name, num) static const ASTKind ORBIT_AST_##name = 1UL << (__COUNTER__)
 
 // We can't use enum because C restricts them to 32 bit. Could probably not rely on bitsets,
 // but that allows much faster pattern matching in AST visitors.
+DECL_AST_KIND(ASSIGN,                   0);
 DECL_AST_KIND(CONDITIONAL,              0);
 DECL_AST_KIND(FOR_IN,                   1);
 DECL_AST_KIND(WHILE,                    2);
@@ -134,6 +135,12 @@ struct _OrbitAST {
         // --------------------------------------------------------------------
         // Statements
         // --------------------------------------------------------------------
+        struct {
+            OrbitToken operator;
+            OrbitAST* lhs;
+            OrbitAST* rhs;
+        } assignStmt;
+        
         struct {
             OrbitAST*   condition;
             OrbitAST*   ifBody;

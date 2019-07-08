@@ -107,6 +107,15 @@ const char* orbit_tokenString(OrbitTokenKind token) {
     return _tokenData[token].string;
 }
 
+bool orbit_tokenIsAssign(OrbitTokenKind token) {
+    printf("checking assign operator\n");
+    return token == ORBIT_TOK_EQUALS
+        || token == ORBIT_TOK_PLUSEQ
+        || token == ORBIT_TOK_MINUSEQ
+        || token == ORBIT_TOK_STAREQ
+        || token == ORBIT_TOK_SLASHEQ;
+}
+
 bool orbit_tokenIsBinaryOp(OrbitTokenKind token) {
     if(token > ORBIT_TOK_INVALID) { return false; }
     return _tokenData[token].isBinaryOp;

@@ -28,6 +28,7 @@ OrbitAST* orbit_astListClose(ASTListBuilder* builder);
 
 /// AST Node builders
 
+OrbitAST* orbit_astMakeAssign(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs);
 OrbitAST* orbit_astMakeConditional(OrbitAST* condition, OrbitAST* ifBody, OrbitAST* elseBody);
 OrbitAST* orbit_astMakeForInLoop(const OrbitToken* var, OrbitAST* collection, OrbitAST* body);
 OrbitAST* orbit_astMakeWhileLoop(OrbitAST* condition, OrbitAST* body);
