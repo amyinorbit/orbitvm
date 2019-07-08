@@ -67,6 +67,13 @@ static Scope* currentScope(Sema* self) {
         : (self->current-1);
 }
 
+static Scope* parentScope(Sema* self) {
+    assert(self->current != self->stack && "already at the global scope");
+    return self->current == self->stack + 1
+        ? &self->global
+        : (self->current-2);
+}
+
 static inline OrbitAST* funcParamTypes(OrbitAST* node) {
     return node->type->typeExpr.funcType.params;
 }
@@ -95,7 +102,10 @@ bool declareFunction(Sema* self, OrbitAST* decl) {
     assert(decl && "null function decl error");
     assert(decl->kind == ORBIT_AST_DECL_FUNC && "invalid function type declaration");
     
-    Scope* scope = currentScope(self);
+    // When we declare a function, we've already extracted the parameters and opened a scope for
+    // the function. We need to declare the function in the scope that contains it, so one scope
+    // up.
+    Scope* scope = parentScope(self);
     OCStringID name = decl->funcDecl.name;
     
     // For a function declaration to be valid, its symbol must be either not present in the table,

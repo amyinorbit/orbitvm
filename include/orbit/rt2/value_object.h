@@ -19,6 +19,7 @@ typedef void (*OrbitDestructor)(void*);
 
 typedef enum {
     ORBIT_OBJ_STRING,
+    ORBIT_OBJ_MODULE,
     ORBIT_OBJ_FUNCTION,
     ORBIT_OBJ_TASK,
 } OrbitObjectKind;
@@ -43,8 +44,16 @@ struct sOrbitString {
     char data[];        // We use the flexible array member trick to avoid double-alloc
 };
 
+struct sOrbitModule {
+    OrbitObject base;
+    OrbitValueBuffer globals;
+};
+
 struct sOrbitFunction {
     OrbitObject base;
+    
+    OrbitModule* module;
+    
     uint8_t arity;
     uint8_t locals;
     uint16_t requiredStack;
@@ -85,6 +94,7 @@ OrbitObject* orbit_objectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size);
 OrbitString* orbit_stringCopy(OrbitGC* gc, const char* data, int32_t count);
 OrbitString* orbit_stringNew(OrbitGC* gc, int32_t count);
 
+OrbitModule* orbit_moduleNew(OrbitGC* gc);
 OrbitFunction* orbit_functionNew(OrbitGC* gc);
 // TODO: replace function with Module?
 OrbitTask* orbit_taskNew(OrbitGC* gc, OrbitFunction* function); 

@@ -36,6 +36,10 @@ static inline void debugObject(OrbitObject* object) {
         OrbitString* string = (OrbitString*)object;
         fprintf(stdout, "String: %.*s", string->utf8count, string->data);
     } break;
+    case ORBIT_OBJ_MODULE: {
+        OrbitModule* module = (OrbitModule*)object;
+        fprintf(stdout, "<module: %p>", module);
+    } break;
     case ORBIT_OBJ_FUNCTION: {
         OrbitFunction* func = (OrbitFunction*)object;
         fprintf(stdout, "<func: %p>", func);

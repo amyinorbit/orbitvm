@@ -55,6 +55,13 @@ OrbitString* orbit_stringNew(OrbitGC* gc, int32_t count) {
     return self;
 }
 
+OrbitModule* orbit_moduleNew(OrbitGC* gc) {
+    assert(gc && "null Garbage Collector error");
+    OrbitModule* self = (OrbitModule*)orbit_objectNew(gc, ORBIT_OBJ_MODULE, sizeof(OrbitModule));
+    orbit_ValueBufferInit(&self->globals);
+    return self;
+}
+
 OrbitFunction* orbit_functionNew(OrbitGC* gc) {
     assert(gc && "null Garbage Collector error");
     OrbitFunction* self = (OrbitFunction*)orbit_objectNew(gc, ORBIT_OBJ_FUNCTION,
@@ -90,6 +97,13 @@ static inline void markString(OrbitGC* gc, OrbitString* self) {
     // gc->allocated += sizeof(OrbitString) + (self->utf8count+1);
 }
 
+static inline void markModule(OrbitGC* gc, OrbitModule* self) {
+    for(int i = 0; i < self->globals.count; ++i) {
+        if(!ORBIT_IS_REF(self->globals.data[i])) continue;
+        orbit_objectMark(gc, ORBIT_AS_REF(self->globals.data[i]));
+    }
+}
+
 static inline void markFunction(OrbitGC* gc, OrbitFunction* self) {
     // This shouldn't actually be required since we are keeping track of deallocation sizes
     // gc->allocated += sizeof(OrbitFunction);
@@ -121,6 +135,9 @@ void orbit_objectMark(OrbitGC* gc, OrbitObject* self) {
         case ORBIT_OBJ_STRING:
             markString(gc, (OrbitString*)self);
             break;
+        case ORBIT_OBJ_MODULE:
+            markModule(gc, (OrbitModule*)self);
+            break;
         case ORBIT_OBJ_FUNCTION:
             markFunction(gc, (OrbitFunction*)self);
             break;
@@ -135,6 +152,11 @@ void orbit_objectMark(OrbitGC* gc, OrbitObject* self) {
 static inline void freeString(OrbitGC* gc, OrbitString* self) {
     // ORBIT_DEALLOC_FLEX(self, OrbitString, char, self->utf8count+1);
     orbit_gcalloc(gc, self, sizeof(OrbitString) + self->utf8count + 1, 0);
+}
+
+static inline void freeModule(OrbitGC* gc, OrbitModule* self) {
+    orbit_ValueBufferDeinit(gc, &self->globals);
+    orbit_gcalloc(gc, self, sizeof(OrbitModule), 0);
 }
 
 static inline void freeFunction(OrbitGC* gc, OrbitFunction* self) {
@@ -158,6 +180,9 @@ void orbit_objectFree(OrbitGC* gc, OrbitObject* self) {
     switch(self->kind) {
         case ORBIT_OBJ_STRING: 
             freeString(gc, (OrbitString*)self);
+            break;
+        case ORBIT_OBJ_MODULE:
+            freeModule(gc, (OrbitModule*)self);
             break;
         case ORBIT_OBJ_FUNCTION:
             freeFunction(gc, (OrbitFunction*)self);

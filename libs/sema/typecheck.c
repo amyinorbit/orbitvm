@@ -30,7 +30,6 @@ static OrbitAST* extractFuncType(Sema* self, OrbitAST* func) {
     orbit_astListStart(&params);
     OrbitAST* param = func->funcDecl.params;
     while(param) {
-        printf("found 1 param\n");
         orbit_astListAdd(&params, orbit_astTypeCopy(param->type));
         param = param->next;
     }
@@ -49,14 +48,14 @@ static bool declareFunc(Sema* self, OrbitAST* func) {
     return declareFunction(self, func);
 }
 
-static bool declareFuncParams(Sema* self, OrbitAST* decl) {
-    OrbitAST* param = decl->funcDecl.params;
-    while(param) {
-        if(!declareVariable(self, param)) return false;
-        param = param->next;
-    }
-    return true;
-}
+// static bool declareFuncParams(Sema* self, OrbitAST* decl) {
+//     OrbitAST* param = decl->funcDecl.params;
+//     while(param) {
+//         if(!declareVariable(self, param)) return false;
+//         param = param->next;
+//     }
+//     return true;
+// }
 
 static bool declareVar(Sema* self, OrbitAST* var) {
     if(!var->type) {
@@ -74,11 +73,10 @@ static ParamMatch checkArgTypes(const OrbitAST* paramTypes, const OrbitAST* args
     ParamMatch match = MATCH_STRICT;
     
     for(const OrbitAST* arg = args; arg != NULL; arg = arg->next, paramType = paramType->next) {
-        printf("[arg->%p]\n", arg->next);
-        if(!paramType) {puts("noParam\n");return MATCH_NONE;}
+        if(!paramType) return MATCH_NONE;
         if(orbit_astTypeEquals(arg->type, paramType)) continue;
         match = MATCH_CAST;
-        if(!findCast(arg->type, paramType)) {puts("noCast\n"); return MATCH_NONE; }
+        if(!findCast(arg->type, paramType)) return MATCH_NONE;
     }
     // we must be at the end of the parameter type list too.
     return paramType == NULL ? match : MATCH_NONE; 
@@ -157,7 +155,6 @@ static bool checkNameCall(Sema* self, OrbitAST* call) {
     return false;
 }
 
-
 static bool checkAssign(Sema* self, OrbitAST* assign) {
     // TODO: check that lhs is, in fact, an lvalue.
     // This isn't a given, and is probably something that will have to go in the resolver. At
@@ -198,8 +195,12 @@ static void check(Sema* self, OrbitAST* node) {
                 if(!orbit_astTypeEqualsPrimitive(expr->type, ORBIT_AST_TYPEEXPR_BOOL)) {
                     errorCondition(self, "if statement", expr);
                 }
+                pushScope(self);
                 check(self, node->conditionalStmt.ifBody);
+                popScope(self);
+                pushScope(self);
                 check(self, node->conditionalStmt.elseBody);
+                popScope(self);
             });
             
             MATCH(WHILE, {
@@ -208,7 +209,9 @@ static void check(Sema* self, OrbitAST* node) {
                 if(!orbit_astTypeEqualsPrimitive(expr->type, ORBIT_AST_TYPEEXPR_BOOL)) {
                     errorCondition(self, "while loop", expr);
                 }
+                pushScope(self);
                 check(self, node->whileLoop.body);
+                popScope(self);
             });
             
             // TODO: we should be checking that the expression's type does match the function being
@@ -226,9 +229,7 @@ static void check(Sema* self, OrbitAST* node) {
             });
             
             MATCH(BLOCK, {
-                pushScope(self);
                 check(self, node->block.body);
-                popScope(self);
             });
             
             // MARK: - Declarations
@@ -238,14 +239,13 @@ static void check(Sema* self, OrbitAST* node) {
             
             MATCH(DECL_FUNC, {
                 //fun test = (a: Int) -> Int { return a }; test(123)
+                pushScope(self);
                 check(self, node->funcDecl.params);
                 if(declareFunc(self, node)) {
-                    pushScope(self);
-                    declareFuncParams(self, node);
+                    // declareFuncParams(self, node);
                     check(self, node->funcDecl.body);
-                    popScope(self);
                 }
-                    
+                popScope(self);
             });
             
             MATCH(DECL_VAR, {

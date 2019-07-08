@@ -35,7 +35,12 @@ typedef struct {
     OrbitFunction* fn;
 } Compiler;
 
-OrbitResult repl_compile(Compiler comp, int line, const char* input) {
+typedef struct {
+    bool dumpAST;
+    bool dumpBytecode;
+} Options;
+
+OrbitResult repl_compile(Compiler comp, int line, const char* input, Options options) {
     size_t length = strlen(input);
     char* src = orbit_allocator(NULL, 0, length + 1);
     memcpy(src, input, length);
@@ -49,11 +54,11 @@ OrbitResult repl_compile(Compiler comp, int line, const char* input) {
 
     orbit_semaCheck(&ctx);
     orbit_diagEmitAll(&ctx.diagnostics);
-    orbit_astPrint(stdout, ctx.root);
+    if(options.dumpAST) orbit_astPrint(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
 
     orbit_codegen(comp.gc, comp.fn, &ctx);
-    // orbit_debugFunction(comp.fn, "repl");
+    if(options.dumpBytecode) orbit_debugFunction(comp.fn, "repl");
     orbit_functionWrite(comp.gc, comp.fn, OP_return, 1);
 
     orbit_astContextDeinit(&ctx);
@@ -61,7 +66,7 @@ OrbitResult repl_compile(Compiler comp, int line, const char* input) {
 }
 
 
-void repl(OrbitVM* vm) {
+void repl(OrbitVM* vm, Options options) {
     
     printf("Welcome to Orbit version 2019.6 repl (" __DATE__ ")\n");
     printf("[built with " __COMPILER_NAME__ "]\n");
@@ -82,7 +87,7 @@ void repl(OrbitVM* vm) {
         orbit_gcPush(&vm->gc, (OrbitObject*)fn);
         Compiler comp = (Compiler){&vm->gc, fn};
         
-        if(repl_compile(comp, lineNumber, line) == ORBIT_OK) {
+        if(repl_compile(comp, lineNumber, line, options) == ORBIT_OK) {
             orbit_run(vm, fn);
             console_setColor(stderr, CLI_CYAN);
             orbit_debugTOS(vm);
@@ -97,7 +102,7 @@ void repl(OrbitVM* vm) {
     }
 }
 
-OrbitResult compileFile(OrbitVM* vm, const char* path) {
+OrbitResult compileFile(OrbitVM* vm, const char* path, Options options) {
     OrbitFunction* fn = orbit_functionNew(&vm->gc);
     orbit_gcPush(&vm->gc, (OrbitObject*)fn);
     Compiler comp = (Compiler){&vm->gc, fn};
@@ -110,11 +115,11 @@ OrbitResult compileFile(OrbitVM* vm, const char* path) {
     
     orbit_semaCheck(&ctx);
     orbit_diagEmitAll(&ctx.diagnostics);
-    orbit_astPrint(stdout, ctx.root);
+    if(options.dumpAST) orbit_astPrint(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
     
     orbit_codegen(comp.gc, comp.fn, &ctx);
-    // orbit_debugFunction(fn, path);
+    if(options.dumpBytecode) orbit_debugFunction(fn, path);
     orbit_functionWrite(&vm->gc, fn, OP_return, 1);
     
     orbit_astContextDeinit(&ctx);
@@ -130,10 +135,24 @@ int main(int argc, const char** argv) {
     OrbitVM vm;
     orbit_vmInit(&vm);
     
-    if(argc <= 1)
-        repl(&vm);
+    const char* inputFile = NULL;
+    Options options = (Options){false, false};
+    
+    for(int i = 1; i < argc; ++i) {
+        const char* arg = argv[i];
+        printf("arg: %s\n", arg);
+        if(arg[0] == '-') {
+            if(strcmp(arg+1, "print-ast") == 0) options.dumpAST = true;
+            else if(strcmp(arg+1, "print-bytecode") == 0) options.dumpBytecode = true;
+        } else {
+            inputFile = arg;
+        }
+    }
+    
+    if(inputFile)
+        compileFile(&vm, inputFile, options);
     else
-        compileFile(&vm, argv[1]);
+        repl(&vm, options);
     
     orbit_vmDeinit(&vm);
     orbit_stringPoolDeinit();

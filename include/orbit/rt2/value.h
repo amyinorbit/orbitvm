@@ -14,6 +14,7 @@
 typedef struct sOrbitObject OrbitObject;
 typedef struct sOrbitInstance OrbitInstance;
 typedef struct sOrbitString OrbitString;
+typedef struct sOrbitModule OrbitModule;
 typedef struct sOrbitFunction OrbitFunction;
 typedef struct sOrbitTask OrbitTask;
 typedef struct sOrbitFrame OrbitFrame;

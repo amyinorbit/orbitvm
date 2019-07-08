@@ -108,7 +108,6 @@ const char* orbit_tokenString(OrbitTokenKind token) {
 }
 
 bool orbit_tokenIsAssign(OrbitTokenKind token) {
-    printf("checking assign operator\n");
     return token == ORBIT_TOK_EQUALS
         || token == ORBIT_TOK_PLUSEQ
         || token == ORBIT_TOK_MINUSEQ

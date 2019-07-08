@@ -27,10 +27,13 @@ OPCODE(print, 0, 0)
 OPCODE(const, 1, 1)
 OPCODE(true, 0, 1)
 OPCODE(false, 0, 1)
-    
+
 OPCODE(load_local, 1, 1)
 OPCODE(store_local, 1, -1)
-    
+
+OPCODE(load_global, 1, 1)
+OPCODE(store_global, 1, -1)
+
 OPCODE(i2f, 0, 0)
 OPCODE(f2i, 0, 0)
 
@@ -38,7 +41,7 @@ OPCODE(iadd, 0, -1)
 OPCODE(isub, 0, -1)
 OPCODE(imul, 0, -1)
 OPCODE(idiv, 0, -1)
-    
+
 OPCODE(fadd, 0, -1)
 OPCODE(fsub, 0, -1)
 OPCODE(fmul, 0, -1)
@@ -49,17 +52,17 @@ OPCODE(ilt, 0, -1)
 OPCODE(igt, 0, -1)
 OPCODE(ilteq, 0, -1)
 OPCODE(igteq, 0, -1)
-    
+
 OPCODE(feq, 0, -1)
 OPCODE(flt, 0, -1)
 OPCODE(fgt, 0, -1)
 OPCODE(flteq, 0, -1)
 OPCODE(fgteq, 0, -1)
-    
+
 OPCODE(jump, 2, 0)
 OPCODE(rjump, 2, 0)
 OPCODE(jump_if, 2, -1)
-    
+
 OPCODE(call, 1, 0)
 OPCODE(call_sym, 1, 0)
 //
