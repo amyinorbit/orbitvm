@@ -18,13 +18,13 @@
 
 void orbit_vmInit(OrbitVM* self) {
     assert(self && "null vm error");
-    self->gc.head = NULL;
+    orbit_gcInit(&self->gc);
     self->task = NULL;
 }
 
 void orbit_vmDeinit(OrbitVM* self) {
     assert(self && "null vm error");
-    orbit_gcRun(&self->gc);
+    orbit_gcDeinit(&self->gc);
 }
 
 static inline void push(OrbitVM* vm, OrbitValue value) {

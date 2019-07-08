@@ -73,7 +73,7 @@ void repl(OrbitVM* vm, Options options) {
     char line[1024];
     for(;;) {
 
-        console_setColor(stdout, CLI_BLACK);
+        console_setColor(stdout, CLI_WHITE);
         printf("%3d> ", lineNumber);
         console_setColor(stdout, CLI_RESET);
         
@@ -88,7 +88,7 @@ void repl(OrbitVM* vm, Options options) {
         
         if(repl_compile(comp, lineNumber, line, options) == ORBIT_OK) {
             orbit_run(vm, fn);
-            console_setColor(stderr, CLI_CYAN);
+            console_setColor(stderr, CLI_BLUE);
             orbit_debugTOS(vm);
             // orbit_debugStack(vm);
             console_setColor(stderr, CLI_RESET);

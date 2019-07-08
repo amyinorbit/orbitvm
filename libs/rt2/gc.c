@@ -44,8 +44,7 @@ static void markRoots(OrbitGC* self) {
 void orbit_gcRun(OrbitGC* self) {
     assert(self && "null Garbage Collector error");
     // We only mark objects in the roots stack ourselves. The VM will mark the rest
-    markRoots(self);
-    assert(self && "null Garbage Collector error");
+    markRoots(self);;
     // OrbitObject* object = self->head;
 
     ObjRef* ptr = &self->head;
