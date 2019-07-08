@@ -22,6 +22,7 @@
 
 OPCODE(return, 0, 0)
 OPCODE(return_val, 0, -1)
+OPCODE(return_repl, 0, -1)
 OPCODE(print, 0, 0)
 
 OPCODE(const, 1, 1)

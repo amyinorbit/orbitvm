@@ -253,8 +253,19 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
         } NEXT();
 
         case OP_return:
-            if(!vm->task->frames.count) return ORBIT_OK;
             orbit_taskPopFrame(&vm->gc, vm->task);
+            if(!vm->task->frames.count) return ORBIT_OK;
+            NEXT();
+            
+        case OP_return_repl:
+            if(vm->task->stackTop != vm->task->stack) {
+                OrbitValue value = pop(vm);
+                orbit_taskPopFrame(&vm->gc, vm->task);
+                push(vm, value);
+            } else {
+                orbit_taskPopFrame(&vm->gc, vm->task);
+            }
+            if(!vm->task->frames.count) return ORBIT_OK;
             NEXT();
         
         default:
