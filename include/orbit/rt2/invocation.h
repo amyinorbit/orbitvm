@@ -11,12 +11,16 @@
 #define orbit_invocation_h
 #include <orbit/common.h>
 #include <orbit/rt2/garbage.h>
-#include <orbit/rt2/value.h>
+#include <orbit/rt2/value_object.h>
 
 void orbit_functionWrite(OrbitGC* gc, OrbitFunction* func, uint8_t code, int32_t line);
 void orbit_taskEnsureStack(OrbitTask* self, size_t addedSize);
 
 OrbitFrame* orbit_taskPushFrame(OrbitGC* gc, OrbitTask* self, OrbitFunction* function);
 void orbit_taskPopFrame(OrbitGC* gc, OrbitTask* self);
+
+static inline OrbitFrame* orbit_taskFrame(OrbitTask* self) {
+    return self->frames.count ? &self->frames.data[self->frames.count-1] : NULL;
+}
 
 #endif

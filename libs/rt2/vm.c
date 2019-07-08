@@ -89,6 +89,7 @@ static void printValue(OrbitValue value) {
 void orbit_debugTOS(OrbitVM* self) {
     if(!self->task) return;
     if(self->task->stackTop == self->task->stack) return;
+    printf("=> ");
     printValue(peek(self, 0));
 }
 
@@ -258,7 +259,7 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
             NEXT();
             
         case OP_return_repl:
-            if(vm->task->stackTop != vm->task->stack) {
+            if(vm->task->stackTop != orbit_taskFrame(vm->task)->stack) {
                 OrbitValue value = pop(vm);
                 orbit_taskPopFrame(&vm->gc, vm->task);
                 push(vm, value);

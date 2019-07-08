@@ -52,14 +52,19 @@ void orbit_taskEnsureStack(OrbitTask* self, size_t addedSize) {
 OrbitFrame* orbit_taskPushFrame(OrbitGC* gc, OrbitTask* self, OrbitFunction* function) {
     assert(self && "null task error");
     assert(function && "null function error");
-    orbit_FrameBufferWrite(gc, &self->frames, (OrbitFrame){
-        function,
-        self->stackTop - function->arity
-    });
+    
     
     orbit_taskEnsureStack(self, self->stackCapacity + function->requiredStack);
+    
+    OrbitFrame frame;
+    frame.function = function;
+    frame.base = self->stackTop - function->arity;
+    frame.stack = self->stackTop + function->locals;
+    orbit_FrameBufferWrite(gc, &self->frames, frame);
+
     self->ip = function->code.data;
-    self->stackTop += function->locals;
+    self->stackTop = frame.stack;
+    
     return &self->frames.data[self->frames.count-1];
 }
 

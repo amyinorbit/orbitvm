@@ -65,6 +65,7 @@ struct sOrbitFunction {
 struct sOrbitFrame {
     OrbitFunction* function;
     OrbitValue* base;
+    OrbitValue* stack;
 };
 
 DECLARE_BUFFER(Frame, OrbitFrame);
