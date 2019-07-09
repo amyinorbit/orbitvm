@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#include <assert.h>
 
 #include <orbit/rt2/vm.h>
 #include <orbit/rt2/debug.h>
@@ -29,6 +30,8 @@
 #include <orbit/sema/typecheck.h>
 #include <orbit/codegen/codegen.h>
 
+#include <term/arg.h>
+
 typedef struct {
     OrbitGC* gc;
     OrbitFunction* fn;
@@ -39,6 +42,7 @@ typedef struct {
     bool dumpBytecode;
     bool codegen;
     bool run;
+    const char* input;
 } Options;
 
 OrbitResult repl_compile(Compiler comp, int line, const char* input, Options options) {
@@ -135,6 +139,93 @@ cleanup:
     return ORBIT_OK;
 }
 
+static void printVersion() {
+    printf("Orbit version 2019.6 repl (" __DATE__ ")\n");
+    printf("built with " __COMPILER_NAME__ "\n");
+    printf("Copyright (c) 2016-2019 Amy Parent <amy@amyparent.com>\n");
+}
+
+static _Noreturn void printHelp(TUArgParser* parser) {
+    printVersion();
+    printf("\nUsage: orbit [option]... source_file\n");
+    printf("  or   orbit [option]...\n\n");
+    termPrintHelp(stdout, parser);
+    exit(1);
+}
+
+/*
+typedef struct {
+    bool dumpAST;
+    bool dumpBytecode;
+    bool codegen;
+    bool run;
+} Options;
+*/
+
+static void setOptions(Options* options, TUArg* args, int count) {
+    for(int i = 0; i < count; ++i) {
+        switch(args[i].name) {
+        case 'v':
+            options->dumpAST = true;
+            options->dumpBytecode = true;
+            break;
+        case 'n':
+            options->codegen = false;
+            break;
+        case 's':
+            options->dumpAST = true;
+            break;
+        case 'x':
+            options->dumpBytecode = true;
+            break;
+        case '\0':
+            if(args[i].kind == TU_ARG_POS) {
+                options->input = args[i].as.value;
+            }
+            break;
+        }
+        
+    }
+}
+
+static void parseArguments(Options* options, int argc, const char** argv) {
+    
+    TUArgParser parser;
+    termArgParserInit(&parser, argc, argv);
+    
+    termArgAddOption(&parser, 'v', "debug-vm", "print debug information (like -x -s)");
+    termArgAddOption(&parser, 'n', "syntax-only", "stop compilation before generating code");
+    termArgAddOption(&parser, 's', "print-ast", "print syntax tree before running");
+    termArgAddOption(&parser, 'x', "print-bytecode", "print compiled bytecode before running");
+    
+    TUArg args[32];
+    int result = termArgParse(&parser, args, 32);
+    
+    switch(result) {
+    case TU_ARGRESULT_HELP:
+        printHelp(&parser);
+        break;
+        
+    case TU_ARGRESULT_VERSION:
+        printVersion();
+        exit(0);
+        break;
+        
+    case TU_ARGRESULT_ERROR:
+        fprintf(stderr, "orbit: error: %s\n", parser.error);
+        exit(1);
+        break;
+        
+    case TU_ARGRESULT_NOMEM:
+        assert(false && "not enough arg slots");
+        break;
+        
+    default:
+        setOptions(options, args, result);
+        break;
+    }
+}
+
 int main(int argc, const char** argv) {
     setlocale(LC_ALL, NULL);
     orbit_stringPoolInit(1024);
@@ -142,36 +233,12 @@ int main(int argc, const char** argv) {
     OrbitVM vm;
     orbit_vmInit(&vm);
     
-    const char* inputFile = NULL;
-    Options options = (Options){false, false, true, true};
+    // const char* inputFile = NULL;
+    Options options = (Options){false, false, true, true, NULL};
+    parseArguments(&options, argc, argv);
     
-    for(int i = 1; i < argc; ++i) {
-        const char* arg = argv[i];
-        if(arg[0] == '-') {
-            if(strcmp(arg, "--print-ast") == 0 || strcmp(arg, "-p:a") == 0) {
-                options.dumpAST = true;
-            }
-            else if(strcmp(arg, "--print-bc") == 0 || strcmp(arg, "-p:c") == 0) {
-                options.dumpBytecode = true;
-            }
-            else if(strcmp(arg, "--debug-vm") == 0 || strcmp(arg, "-v") == 0) {
-                options.dumpBytecode = true;
-                options.dumpAST = true;
-            }
-            else if(strcmp(arg, "--syntax-only") == 0) {
-                options.codegen = false;
-            }
-            else if(strcmp(arg, "--compile-only") == 0) {
-                options.run = false;
-            }
-            else fprintf(stderr, "warning: unknown option: %s\n", arg);
-        } else {
-            inputFile = arg;
-        }
-    }
-    
-    if(inputFile)
-        compileFile(&vm, inputFile, options);
+    if(options.input)
+        compileFile(&vm, options.input, options);
     else
         repl(&vm, options);
     

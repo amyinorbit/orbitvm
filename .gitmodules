@@ -4,3 +4,6 @@
 [submodule "packages/Unity"]
 	path = packages/Unity
 	url = git@github.com:ThrowTheSwitch/Unity.git
+[submodule "packages/TermUtils"]
+	path = packages/TermUtils
+	url = git@github.com:amyinorbit/TermUtils.git
