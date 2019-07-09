@@ -37,6 +37,8 @@ typedef struct {
 typedef struct {
     bool dumpAST;
     bool dumpBytecode;
+    bool codegen;
+    bool run;
 } Options;
 
 OrbitResult repl_compile(Compiler comp, int line, const char* input, Options options) {
@@ -117,12 +119,18 @@ OrbitResult compileFile(OrbitVM* vm, const char* path, Options options) {
     if(options.dumpAST) orbit_astPrint(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
     
+    if(!options.codegen) goto cleanup; 
+    
     orbit_codegen(comp.gc, comp.fn, &ctx);
     if(options.dumpBytecode) orbit_debugFunction(fn, path);
     orbit_functionWrite(&vm->gc, fn, OP_return, 1);
     
-    orbit_astContextDeinit(&ctx);
+    if(!options.run) goto cleanup;
+    
     orbit_run(vm, fn);
+    
+cleanup:
+    orbit_astContextDeinit(&ctx);
     orbit_gcRun(&vm->gc);
     return ORBIT_OK;
 }
@@ -135,20 +143,26 @@ int main(int argc, const char** argv) {
     orbit_vmInit(&vm);
     
     const char* inputFile = NULL;
-    Options options = (Options){false, false};
+    Options options = (Options){false, false, true, true};
     
     for(int i = 1; i < argc; ++i) {
         const char* arg = argv[i];
         if(arg[0] == '-') {
-            if(strcmp(arg+1, "print-ast") == 0) {
+            if(strcmp(arg, "--print-ast") == 0 || strcmp(arg, "-p:a") == 0) {
                 options.dumpAST = true;
             }
-            else if(strcmp(arg+1, "print-bc") == 0) {
+            else if(strcmp(arg, "--print-bc") == 0 || strcmp(arg, "-p:c") == 0) {
                 options.dumpBytecode = true;
             }
-            else if(strcmp(arg+1, "debug-vm") == 0) {
+            else if(strcmp(arg, "--debug-vm") == 0 || strcmp(arg, "-v") == 0) {
                 options.dumpBytecode = true;
                 options.dumpAST = true;
+            }
+            else if(strcmp(arg, "--syntax-only") == 0) {
+                options.codegen = false;
+            }
+            else if(strcmp(arg, "--compile-only") == 0) {
+                options.run = false;
             }
             else fprintf(stderr, "warning: unknown option: %s\n", arg);
         } else {
