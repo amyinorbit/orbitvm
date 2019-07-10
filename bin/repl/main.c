@@ -31,6 +31,8 @@
 #include <orbit/codegen/codegen.h>
 
 #include <term/arg.h>
+#include <term/colors.h>
+#include <term/printing.h>
 
 typedef struct {
     OrbitGC* gc;
@@ -78,10 +80,10 @@ void repl(OrbitVM* vm, Options options) {
     int lineNumber = 1;
     char line[1024];
     for(;;) {
-
-        console_setColor(stdout, CLI_CYAN);
+        
+        termColorFG(stdout, kTermCyan);
         printf("orbit:%3d> ", lineNumber);
-        console_setColor(stdout, CLI_RESET);
+        termColorFG(stdout, kTermDefault);
         
         if(!fgets(line, sizeof(line), stdin)) {
             printf("\n");
@@ -94,10 +96,10 @@ void repl(OrbitVM* vm, Options options) {
         
         if(repl_compile(comp, lineNumber, line, options) == ORBIT_OK) {
             orbit_run(vm, fn);
-            console_setColor(stderr, CLI_GREEN);
+            termColorFG(stderr, kTermGreen);
             orbit_debugTOS(vm);
             // orbit_debugStack(vm);
-            console_setColor(stderr, CLI_RESET);
+            termColorFG(stderr, kTermDefault);
             orbit_gcRun(&vm->gc);
         }
         
@@ -150,9 +152,12 @@ static void printVersion() {
 
 static _Noreturn void printHelp() {
     printVersion();
-    printf("\nUsage: orbit [option]... source_file\n");
-    printf("  or   orbit [option]...\n\n");
+    puts("");
+    termPrintUsage(stdout, "orbit", kOrbitUses, kOrbitUseCount);
+    puts("");
     termPrintHelp(stdout, kOrbitParams, kOrbitParamCount);
+    puts("");
+    termPrintBugreports(stdout, "orbit", kOrbitEmail, kOrbitWebsite);
     exit(1);
 }
 
@@ -175,8 +180,7 @@ static void parseArguments(Options* options, int argc, const char** argv) {
             break;
             
         case kTermArgError:
-            fprintf(stderr, "orbit: error: %s\n", parser.error);
-            exit(1);
+            termError("orbit", 1, "%s", parser.error);
             break;
             
         case 'g':
