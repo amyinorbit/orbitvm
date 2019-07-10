@@ -116,6 +116,7 @@ OrbitResult compileFile(OrbitVM* vm, const char* path, Options options) {
     orbit_astContextInit(&ctx);
     if(!orbit_sourceInitPath(&ctx.source, path))
         fprintf(stderr, "error: cannot open source file '%s'\n", path);
+        exit(-1);
     orbit_parse(&ctx);
     
     orbit_semaCheck(&ctx);
@@ -139,33 +140,46 @@ cleanup:
     return ORBIT_OK;
 }
 
+#include "cli_options.inc"
+
 static void printVersion() {
     printf("Orbit version 2019.6 repl (" __DATE__ ")\n");
     printf("built with " __COMPILER_NAME__ "\n");
     printf("Copyright (c) 2016-2019 Amy Parent <amy@amyparent.com>\n");
 }
 
-static _Noreturn void printHelp(TUArgParser* parser) {
+static _Noreturn void printHelp() {
     printVersion();
     printf("\nUsage: orbit [option]... source_file\n");
     printf("  or   orbit [option]...\n\n");
-    termPrintHelp(stdout, parser);
+    termPrintHelp(stdout, kOrbitParams, kOrbitParamCount);
     exit(1);
 }
 
-/*
-typedef struct {
-    bool dumpAST;
-    bool dumpBytecode;
-    bool codegen;
-    bool run;
-} Options;
-*/
-
-static void setOptions(Options* options, TUArg* args, int count) {
-    for(int i = 0; i < count; ++i) {
-        switch(args[i].name) {
-        case 'v':
+static void parseArguments(Options* options, int argc, const char** argv) {
+    
+    TermArgParser parser;
+    termArgParserInit(&parser, argc, argv);
+    
+    TermArgResult r = termArgParse(&parser, kOrbitParams, kOrbitParamCount);
+    while(r.name != kTermArgDone) {
+        
+        switch(r.name) {
+        case kTermArgHelp:
+            printHelp();
+            break;
+            
+        case kTermArgVersion:
+            printVersion();
+            exit(0);
+            break;
+            
+        case kTermArgError:
+            fprintf(stderr, "orbit: error: %s\n", parser.error);
+            exit(1);
+            break;
+            
+        case 'g':
             options->dumpAST = true;
             options->dumpBytecode = true;
             break;
@@ -178,51 +192,12 @@ static void setOptions(Options* options, TUArg* args, int count) {
         case 'x':
             options->dumpBytecode = true;
             break;
-        case '\0':
-            if(args[i].kind == TU_ARG_POS) {
-                options->input = args[i].as.value;
-            }
+        case kTermArgPositional:
+            options->input = r.value;
             break;
         }
         
-    }
-}
-
-static void parseArguments(Options* options, int argc, const char** argv) {
-    
-    TUArgParser parser;
-    termArgParserInit(&parser, argc, argv);
-    
-    termArgAddOption(&parser, 'v', "debug-vm", "print debug information (like -x -s)");
-    termArgAddOption(&parser, 'n', "syntax-only", "stop compilation before generating code");
-    termArgAddOption(&parser, 's', "print-ast", "print syntax tree before running");
-    termArgAddOption(&parser, 'x', "print-bytecode", "print compiled bytecode before running");
-    
-    TUArg args[32];
-    int result = termArgParse(&parser, args, 32);
-    
-    switch(result) {
-    case TU_ARGRESULT_HELP:
-        printHelp(&parser);
-        break;
-        
-    case TU_ARGRESULT_VERSION:
-        printVersion();
-        exit(0);
-        break;
-        
-    case TU_ARGRESULT_ERROR:
-        fprintf(stderr, "orbit: error: %s\n", parser.error);
-        exit(1);
-        break;
-        
-    case TU_ARGRESULT_NOMEM:
-        assert(false && "not enough arg slots");
-        break;
-        
-    default:
-        setOptions(options, args, result);
-        break;
+        r = termArgParse(&parser, kOrbitParams, kOrbitParamCount);
     }
 }
 
