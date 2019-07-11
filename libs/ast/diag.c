@@ -16,6 +16,7 @@
 #include <orbit/csupport/console.h>
 #include <orbit/csupport/source.h>
 #include <orbit/utils/memory.h>
+#include <term/colors.h>
 
 #include "diag_private.h"
 
@@ -26,24 +27,24 @@ void _orbitDefaultDiagConsumer(OrbitSource* source, OrbitDiag* diagnostic) {
     OrbitPhysSLoc ploc = orbitSourcePhysicalLoc(source, diagnostic->sourceLoc);
     
     // print basic stuff first:
-    console_setColor(stderr, CLI_BOLD);
+    termBold(stderr, true);
     switch(diagnostic->level) {
         case ORBIT_DIAGLEVEL_INFO:
             fputs("Info", stderr);
             break;
         case ORBIT_DIAGLEVEL_WARN:
-            console_setColor(stderr, CLI_YELLOW);
+            termColorFG(stderr, kTermYellow);
             fputs("Warning", stderr);
             break;
         case ORBIT_DIAGLEVEL_ERROR:
-            console_setColor(stderr, CLI_RED);
+            termColorFG(stderr, kTermRed);
             fputs("Error", stderr); 
             break;
     }
-    console_setColor(stderr, CLI_RESET);
-    console_setColor(stderr, CLI_BOLD);
+    termReset(stderr);
+    termBold(stderr, true);
     fprintf(stderr, " in %s @ %"PRIu32":%"PRIu32":\n\n", source->path, ploc.line, ploc.column);
-    console_setColor(stderr, CLI_RESET);
+    termReset(stderr);
     
     console_printSourceLocLine(stderr, source, diagnostic->sourceLoc);
 
@@ -53,10 +54,10 @@ void _orbitDefaultDiagConsumer(OrbitSource* source, OrbitDiag* diagnostic) {
         console_printCaret(stderr, source, diagnostic->sourceLoc);
     }
     
-    console_setColor(stderr, CLI_MAGENTA);
+    termColorFG(stderr, kTermMagenta);
     char* printed = orbitDiagGetFormat(diagnostic);
     fprintf(stderr, "%s\n", printed);
-    console_setColor(stderr, CLI_RESET);
+    termReset(stderr);
     ORBIT_DEALLOC_ARRAY(printed, char, strlen(printed)+1);
     fputc('\n', stderr);
 }

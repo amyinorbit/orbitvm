@@ -8,6 +8,6 @@ add_library(OrbitAST STATIC
     type.c
 )
 target_include_directories(OrbitAST PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(OrbitAST OrbitUtils OrbitCSupport)
+target_link_libraries(OrbitAST OrbitUtils OrbitCSupport termutils)
 
 install(TARGETS OrbitAST ARCHIVE)

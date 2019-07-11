@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <orbit/csupport/console.h>
 #include <orbit/utils/utf8.h>
+#include <term/colors.h>
 
 static const char* _ansiCodes[] = {
     [CLI_RESET] = "\033[0m",
@@ -87,9 +88,9 @@ void console_printCaret(FILE* out, const OrbitSource* source, OrbitSLoc loc) {
     for(uint64_t i = 1; i < ploc.column + offset; ++i) {
         fputc(' ', out);
     }
-    console_setColor(out, CLI_GREEN);
+    termColorFG(out, kTermGreen);
     fputc('^', out);
-    console_setColor(out, CLI_RESET);
+    termReset(out);
     fputc('\n', out);
 }
 
@@ -104,10 +105,10 @@ void console_printUnderlines(FILE* out, const OrbitSource* source, OrbitSLoc loc
     for(uint64_t i = 1; i < start.column + offset; ++i) {
         fputc(' ', out);
     }
-    console_setColor(out, CLI_GREEN);
+    termColorFG(out, kTermGreen);
     for(uint64_t i = start.column; i < end; ++i) {
         fputc(i == caret ? '^' : '~', out);
     }
-    console_setColor(out, CLI_RESET);
+    termReset(out);
     fputc('\n', out);
 }
