@@ -188,7 +188,7 @@ static void parseArguments(Options* options, int argc, const char** argv) {
         case 'n':
             options->codegen = false;
             break;
-        case 's':
+        case 't':
             options->dumpAST = true;
             break;
         case 'x':
