@@ -117,8 +117,7 @@ OrbitResult compileFile(OrbitVM* vm, const char* path, Options options) {
     OrbitASTContext ctx;
     orbit_astContextInit(&ctx);
     if(!orbit_sourceInitPath(&ctx.source, path))
-        fprintf(stderr, "error: cannot open source file '%s'\n", path);
-        exit(-1);
+        termError("orbit", -1, "cannot open source file '%s'", path);
     orbit_parse(&ctx);
     
     orbit_semaCheck(&ctx);
@@ -168,7 +167,6 @@ static void parseArguments(Options* options, int argc, const char** argv) {
     
     TermArgResult r = termArgParse(&parser, kOrbitParams, kOrbitParamCount);
     while(r.name != kTermArgDone) {
-        
         switch(r.name) {
         case kTermArgHelp:
             printHelp();
