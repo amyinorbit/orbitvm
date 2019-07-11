@@ -98,16 +98,16 @@ static const OrbitTokenData _tokenData[] = {
     [ORBIT_TOK_INVALID] = {"invalid", "invalid token", false, false},
 };
 
-const char* orbit_tokenName(OrbitTokenKind token) {
+const char* orbitTokenName(OrbitTokenKind token) {
     if(token > ORBIT_TOK_INVALID) { token = ORBIT_TOK_INVALID; }
     return _tokenData[token].name;
 }
-const char* orbit_tokenString(OrbitTokenKind token) {
+const char* orbitTokenString(OrbitTokenKind token) {
     if(token > ORBIT_TOK_INVALID) { token = ORBIT_TOK_INVALID; }
     return _tokenData[token].string;
 }
 
-bool orbit_tokenIsAssign(OrbitTokenKind token) {
+bool orbitTokenIsAssign(OrbitTokenKind token) {
     return token == ORBIT_TOK_EQUALS
         || token == ORBIT_TOK_PLUSEQ
         || token == ORBIT_TOK_MINUSEQ
@@ -115,12 +115,12 @@ bool orbit_tokenIsAssign(OrbitTokenKind token) {
         || token == ORBIT_TOK_SLASHEQ;
 }
 
-bool orbit_tokenIsBinaryOp(OrbitTokenKind token) {
+bool orbitTokenIsBinaryOp(OrbitTokenKind token) {
     if(token > ORBIT_TOK_INVALID) { return false; }
     return _tokenData[token].isBinaryOp;
 }
 
-bool orbit_tokenIsUnaryOp(OrbitTokenKind token) {
+bool orbitTokenIsUnaryOp(OrbitTokenKind token) {
     if(token > ORBIT_TOK_INVALID) { return false; }
     return _tokenData[token].isUnaryOp;
 }
@@ -174,26 +174,26 @@ static OCOperator opTable[] = {
     {ORBIT_TOK_INVALID,     -1,                 false},
 };
 
-int orbit_tokenBinaryPrecedence(OrbitTokenKind token) {
-    if(!orbit_tokenIsBinaryOp(token)) { return -1; }
+int orbitTokenBinaryPrecedence(OrbitTokenKind token) {
+    if(!orbitTokenIsBinaryOp(token)) { return -1; }
     for(int i = 0; opTable[i].kind != ORBIT_TOK_INVALID; ++i) {
         if(opTable[i].kind == token) { return opTable[i].precedence; }
     }
     return -1;
 }
 
-int orbit_tokenBinaryRightAssoc(OrbitTokenKind token) {
-    if(!orbit_tokenIsBinaryOp(token)) { return false; }
+int orbitTokenBinaryRightAssoc(OrbitTokenKind token) {
+    if(!orbitTokenIsBinaryOp(token)) { return false; }
     for(int i = 0; opTable[i].kind != ORBIT_TOK_INVALID; ++i) {
         if(opTable[i].kind == token) { return opTable[i].rightAssoc; }
     }
     return false;
 }
 
-double orbit_tokenDoubleValue(const OrbitToken* token) {
+double orbitTokenDoubleValue(const OrbitToken* token) {
     return strtod(token->source->bytes + token->sourceLoc, NULL);
 }
 
-int32_t orbit_tokenIntValue(const OrbitToken* token) {
+int32_t orbitTokenIntValue(const OrbitToken* token) {
     return strtol(token->source->bytes + token->sourceLoc, NULL, 10);
 }

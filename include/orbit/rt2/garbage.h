@@ -23,13 +23,13 @@ struct sOrbitGC {
     OrbitObject* roots[ORBIT_GC_MAXROOTS];
 };
 
-void orbit_gcInit(OrbitGC* self);
-void orbit_gcDeinit(OrbitGC* self);
+void orbitGCInit(OrbitGC* self);
+void orbitGCDeinit(OrbitGC* self);
 
-void orbit_gcRun(OrbitGC* self);
+void orbitGCRun(OrbitGC* self);
 
-void orbit_gcPush(OrbitGC* self, OrbitObject* root);
-void orbit_gcPop(OrbitGC* self);
-void orbit_gcRelease(OrbitGC* self, OrbitObject* root);
+void orbitGCPush(OrbitGC* self, OrbitObject* root);
+void orbitGCPop(OrbitGC* self);
+void orbitGCRelease(OrbitGC* self, OrbitObject* root);
 
 #endif

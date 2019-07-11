@@ -12,6 +12,6 @@
 #include <orbit/common.h>
 #include <orbit/utils/memory.h>
 
-void* orbit_gcalloc(OrbitGC* gc, void* ptr, size_t oldSize, size_t newSize);
+void* orbitGCalloc(OrbitGC* gc, void* ptr, size_t oldSize, size_t newSize);
 
 #endif /* orbit_utils_h */

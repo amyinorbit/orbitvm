@@ -14,9 +14,9 @@
 #include <string.h>
 #include <assert.h>
 
-OrbitString* orbit_stringConcat(OrbitGC* gc, const OrbitString* lhs, const OrbitString* rhs);
+OrbitString* orbitStringConcat(OrbitGC* gc, const OrbitString* lhs, const OrbitString* rhs);
 
-static inline bool orbit_stringEquals(const OrbitString* lhs, const OrbitString* rhs) {
+static inline bool orbitStringEquals(const OrbitString* lhs, const OrbitString* rhs) {
     assert(lhs && rhs && "null string pointer");
     return lhs->utf8count == rhs->utf8count
         && lhs->hash == rhs->hash

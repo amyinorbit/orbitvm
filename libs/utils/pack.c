@@ -68,19 +68,19 @@ static long double unpack754(uint64_t i)
     return result;
 }
 
-OrbitPackError orbit_pack8(FILE* out, uint8_t bits) {
+OrbitPackError orbitPack8(FILE* out, uint8_t bits) {
     return fwrite(&bits, 1, 1, out) == 1 ? PACK_NOERROR : ERROR_PACK;
 }
 
-OrbitPackError orbit_pack16(FILE* out, uint16_t bits) {
-    if(orbit_pack8(out, bits >> 8) == PACK_NOERROR
-       && orbit_pack8(out, bits & 0x00ff)  == PACK_NOERROR) {
+OrbitPackError orbitPack16(FILE* out, uint16_t bits) {
+    if(orbitPack8(out, bits >> 8) == PACK_NOERROR
+       && orbitPack8(out, bits & 0x00ff)  == PACK_NOERROR) {
         return PACK_NOERROR;
     }
     return ERROR_PACK;
 }
 
-OrbitPackError orbit_pack32(FILE* out, uint32_t bits) {
+OrbitPackError orbitPack32(FILE* out, uint32_t bits) {
     uint8_t byte;
     for(int8_t i = 3; i >= 0; --i) {
         byte = bits >> (8*i);
@@ -89,7 +89,7 @@ OrbitPackError orbit_pack32(FILE* out, uint32_t bits) {
     return PACK_NOERROR;
 }
 
-OrbitPackError orbit_pack64(FILE* out, uint64_t bits) {
+OrbitPackError orbitPack64(FILE* out, uint64_t bits) {
     uint8_t byte;
     for(int8_t i = 7; i >= 0; --i) {
         byte = (bits >> (8*i)) & 0x00000000000000ff;
@@ -98,15 +98,15 @@ OrbitPackError orbit_pack64(FILE* out, uint64_t bits) {
     return PACK_NOERROR;
 }
 
-OrbitPackError orbit_packIEEE754(FILE* out, double bits) {
-    return orbit_pack64(out, pack754(bits));
+OrbitPackError orbitPackIEEE754(FILE* out, double bits) {
+    return orbitPack64(out, pack754(bits));
 }
 
-OrbitPackError orbit_packBytes(FILE* out, uint8_t* bytes, size_t count) {
+OrbitPackError orbitPackBytes(FILE* out, uint8_t* bytes, size_t count) {
     return fwrite(bytes, 1, count, out) == count ? PACK_NOERROR : ERROR_PACK;
 }
 
-uint8_t orbit_unpack8(FILE* in, OrbitPackError* error) {
+uint8_t orbitUnpack8(FILE* in, OrbitPackError* error) {
     uint8_t out = 0;
     if(fread(&out, 1, 1, in) != 1) {
         *error = ERROR_UNPACK;
@@ -116,7 +116,7 @@ uint8_t orbit_unpack8(FILE* in, OrbitPackError* error) {
     return out;
 }
 
-uint16_t orbit_unpack16(FILE* in, OrbitPackError* error) {
+uint16_t orbitUnpack16(FILE* in, OrbitPackError* error) {
     uint8_t high = 0, low = 0;
     if(fread(&high, 1, 1, in) != 1) goto fail;
     if(fread(&low, 1, 1, in) != 1) goto fail;
@@ -129,7 +129,7 @@ fail:
     return 0;
 }
 
-uint32_t orbit_unpack32(FILE* in, OrbitPackError* error) {
+uint32_t orbitUnpack32(FILE* in, OrbitPackError* error) {
     uint8_t byte = 0;
     uint32_t out = 0;
     
@@ -145,7 +145,7 @@ fail:
     return 0;
 }
 
-uint64_t orbit_unpack64(FILE* in, OrbitPackError* error) {
+uint64_t orbitUnpack64(FILE* in, OrbitPackError* error) {
     uint8_t byte = 0;
     uint64_t out = 0;
     
@@ -161,12 +161,12 @@ fail:
     return 0;
 }
 
-double orbit_unpackIEEE754(FILE* in, OrbitPackError* error) {
-    uint64_t raw = orbit_unpack64(in, error);
+double orbitUnpackIEEE754(FILE* in, OrbitPackError* error) {
+    uint64_t raw = orbitUnpack64(in, error);
     if(*error != PACK_NOERROR) return 0.0;
     return unpack754(raw);
 }
 
-OrbitPackError orbit_unpackBytes(FILE* in, uint8_t* bytes, size_t count) {
+OrbitPackError orbitUnpackBytes(FILE* in, uint8_t* bytes, size_t count) {
     return fread(bytes, 1, count, in) == count ? PACK_NOERROR : ERROR_UNPACK;
 }

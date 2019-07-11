@@ -30,15 +30,15 @@ struct _ORCMap {
     ORCMapEntry*    data;
 };
 
-void orbit_rcMapDeinit(void* ref);
-ORCMap* orbit_rcMapInit(ORCMap* map);
+void orbitRcMapDeinit(void* ref);
+ORCMap* orbitRcMapInit(ORCMap* map);
 
-//void orbit_rcMapInsert(ORCMap* map, const char* key, uint64_t length, void* item);
-void orbit_rcMapInsertP(ORCMap* map, OCStringID key, void* item);
-//void orbit_rcMapRemove(ORCMap* map, const char* key, uint64_t length);
-void orbit_rcMapRemoveP(ORCMap* map, OCStringID key);
-//void* orbit_rcMapGet(ORCMap* map, const char* key, uint64_t length);
-void* orbit_rcMapGetP(ORCMap* map, OCStringID key);
+//void orbitRcMapInsert(ORCMap* map, const char* key, uint64_t length, void* item);
+void orbitRcMapInsertP(ORCMap* map, OCStringID key, void* item);
+//void orbitRcMapRemove(ORCMap* map, const char* key, uint64_t length);
+void orbitRcMapRemoveP(ORCMap* map, OCStringID key);
+//void* orbitRcMapGet(ORCMap* map, const char* key, uint64_t length);
+void* orbitRcMapGetP(ORCMap* map, OCStringID key);
 
 
 #endif /* orbit_utils_rcmap_h */

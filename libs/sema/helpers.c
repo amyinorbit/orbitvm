@@ -20,7 +20,7 @@ void symbolDeinit(void* ptr) {
     ORCRELEASE(symbol->next);
 }
 
-void orbit_semaInit(Sema* self) {
+void orbitSemaInit(Sema* self) {
     assert(self && "null semantic checker error");
     initScope(&self->global, NULL);
     self->context = NULL;
@@ -28,7 +28,7 @@ void orbit_semaInit(Sema* self) {
     resolverInit(&self->resolver);
 }
 
-void orbit_semaDeinit(Sema* self) {
+void orbitSemaDeinit(Sema* self) {
     assert(self && "null semantic checker error");
     while(self->current > self->stack) {
         deinitScope(self->current);
@@ -40,13 +40,13 @@ void orbit_semaDeinit(Sema* self) {
 
 void initScope(Scope* self, Scope* parent) {
     self->parent = parent;
-    orbit_rcMapInit(&self->types);
-    orbit_rcMapInit(&self->symbols);
+    orbitRcMapInit(&self->types);
+    orbitRcMapInit(&self->symbols);
 }
 
 void deinitScope(Scope* self) {
-    orbit_rcMapDeinit(&self->types);
-    orbit_rcMapDeinit(&self->symbols);
+    orbitRcMapDeinit(&self->types);
+    orbitRcMapDeinit(&self->symbols);
 }
 
 Scope* pushScope(Sema* self) {
@@ -80,7 +80,7 @@ static inline OrbitAST* funcParamTypes(OrbitAST* node) {
 
 OrbitAST* findOverload(Symbol* symbol, OrbitAST* params) {
     while(symbol) {
-        if(orbit_astTypeEquals(funcParamTypes(symbol->decl), params)) return symbol->decl;
+        if(orbitASTTypeEquals(funcParamTypes(symbol->decl), params)) return symbol->decl;
         symbol = symbol->next;
     }
     return NULL;
@@ -90,7 +90,7 @@ Symbol* lookupSymbol(Sema* self, OCStringID name) {
     assert(self && "null semantic checker error");
     Scope* scope = currentScope(self);
     while(scope) {
-        Symbol* decl = orbit_rcMapGetP(&scope->symbols, name);
+        Symbol* decl = orbitRcMapGetP(&scope->symbols, name);
         if(decl) return decl;
         scope = scope->parent;
     }
@@ -110,7 +110,7 @@ bool declareFunction(Sema* self, OrbitAST* decl) {
     
     // For a function declaration to be valid, its symbol must be either not present in the table,
     // or it its parameter list must be different (overload)
-    Symbol* existing = orbit_rcMapGetP(&scope->symbols, name);
+    Symbol* existing = orbitRcMapGetP(&scope->symbols, name);
     Symbol* func = NULL;
     
     if(existing) {
@@ -133,7 +133,7 @@ bool declareFunction(Sema* self, OrbitAST* decl) {
     } else {
         func = ORCINIT(ORBIT_ALLOC(Symbol), &symbolDeinit);
         func->next = NULL;
-        orbit_rcMapInsertP(&scope->symbols, name, func);
+        orbitRcMapInsertP(&scope->symbols, name, func);
     }
     func->decl = ORCRETAIN(decl);
     func->kind = SYM_FUNCTION;
@@ -150,7 +150,7 @@ bool declareVariable(Sema* self, OrbitAST* decl) {
     
     // For a function declaration to be valid, its symbol must be either not present in the table,
     // or it its parameter list must be different (overload)
-    Symbol* existing = orbit_rcMapGetP(&scope->symbols, name);
+    Symbol* existing = orbitRcMapGetP(&scope->symbols, name);
     
     if(existing) {
         errorAlreadyDeclared(self, decl, existing->decl);
@@ -161,6 +161,6 @@ bool declareVariable(Sema* self, OrbitAST* decl) {
     var->decl = ORCRETAIN(decl);
     var->kind = SYM_VARIABLE;
     var->next = NULL;
-    orbit_rcMapInsertP(&scope->symbols, name, var);
+    orbitRcMapInsertP(&scope->symbols, name, var);
     return true;
 }

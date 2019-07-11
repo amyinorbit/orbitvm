@@ -12,19 +12,19 @@
 #include <orbit/utils/memory.h>
 #include <orbit/ast/builders.h>
 
-void orbit_astListStart(ASTListBuilder* builder) {
+void orbitASTListStart(ASTListBuilder* builder) {
     builder->head = NULL;
     builder->next = &builder->head;
 }
 
-void orbit_astListAdd(ASTListBuilder* builder, OrbitAST* item) {
+void orbitASTListAdd(ASTListBuilder* builder, OrbitAST* item) {
     if(item == NULL) { return; }
     if(builder->head != NULL) { ORCRETAIN(item); }
     *(builder->next) = item;
     builder->next = &item->next;
 }
 
-OrbitAST* orbit_astListClose(ASTListBuilder* builder) {
+OrbitAST* orbitASTListClose(ASTListBuilder* builder) {
     *(builder->next) = NULL;
     return builder->head;
 }
@@ -36,78 +36,78 @@ static OrbitToken ast_copyToken(const OrbitToken* token) {
     return copy;
 }
 
-OrbitAST* orbit_astMakeAssign(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_ASSIGN);
+OrbitAST* orbitASTMakeAssign(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_ASSIGN);
     
     ast->assignStmt.operator = ast_copyToken(operator);
     ast->assignStmt.lhs = ORCRETAIN(lhs);
     ast->assignStmt.rhs = ORCRETAIN(rhs);
     if(lhs && rhs)
-        ast->sourceRange = orbit_srangeUnion(lhs->sourceRange, rhs->sourceRange);
+        ast->sourceRange = orbitSrangeUnion(lhs->sourceRange, rhs->sourceRange);
     return ast;
 }
 
-OrbitAST* orbit_astMakeConditional(OrbitAST* condition, OrbitAST* ifBody, OrbitAST* elseBody) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_CONDITIONAL);
+OrbitAST* orbitASTMakeConditional(OrbitAST* condition, OrbitAST* ifBody, OrbitAST* elseBody) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_CONDITIONAL);
     ast->conditionalStmt.condition = ORCRETAIN(condition);
     ast->conditionalStmt.ifBody = ORCRETAIN(ifBody);
     ast->conditionalStmt.elseBody = ORCRETAIN(elseBody);
     return ast;
 }
 
-OrbitAST* orbit_astMakeForInLoop(const OrbitToken* var, OrbitAST* collection, OrbitAST* body) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_FOR_IN);
+OrbitAST* orbitASTMakeForInLoop(const OrbitToken* var, OrbitAST* collection, OrbitAST* body) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_FOR_IN);
     ast->forInLoop.variable = ast_copyToken(var);
     ast->forInLoop.collection = ORCRETAIN(collection);
     ast->forInLoop.body = ORCRETAIN(body);
     return ast;
 }
 
-OrbitAST* orbit_astMakeWhileLoop(OrbitAST* condition, OrbitAST* body) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_WHILE);
+OrbitAST* orbitASTMakeWhileLoop(OrbitAST* condition, OrbitAST* body) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_WHILE);
     ast->whileLoop.condition = ORCRETAIN(condition);
     ast->whileLoop.body = ORCRETAIN(body);
     return ast;
 }
 
-OrbitAST* orbit_astMakeBlock(OrbitAST* body) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_BLOCK);
+OrbitAST* orbitASTMakeBlock(OrbitAST* body) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_BLOCK);
     ast->block.body = ORCRETAIN(body);
     return ast;
 }
 
-OrbitAST* orbit_astMakeBreak() {
-    return orbit_astMake(ORBIT_AST_BREAK);
+OrbitAST* orbitASTMakeBreak() {
+    return orbitASTMake(ORBIT_AST_BREAK);
 }
 
-OrbitAST* orbit_astMakeContinue() {
-    return orbit_astMake(ORBIT_AST_CONTINUE);
+OrbitAST* orbitASTMakeContinue() {
+    return orbitASTMake(ORBIT_AST_CONTINUE);
 }
 
-OrbitAST* orbit_astMakeReturn(OrbitAST* returned) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_RETURN);
+OrbitAST* orbitASTMakeReturn(OrbitAST* returned) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_RETURN);
     ast->returnStmt.returnValue = ORCRETAIN(returned);
     return ast;
 }
 
-OrbitAST* orbit_astMakePrint(OrbitAST* expr) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_PRINT);
+OrbitAST* orbitASTMakePrint(OrbitAST* expr) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_PRINT);
     ast->printStmt.expr = ORCRETAIN(expr);
     return ast;
 }
 
-OrbitAST* orbit_astMakeModuleDecl(const char* symbol, OrbitAST* body) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_MODULE);
-    ast->moduleDecl.symbol = orbit_stringIntern(symbol, strlen(symbol));
+OrbitAST* orbitASTMakeModuleDecl(const char* symbol, OrbitAST* body) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_DECL_MODULE);
+    ast->moduleDecl.symbol = orbitStringIntern(symbol, strlen(symbol));
     ast->moduleDecl.body = ORCRETAIN(body);
     return ast;
 }
 
-OrbitAST* orbit_astMakeVarDecl(const OrbitToken* symbol, OrbitAST* typeAnnotation) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_VAR);
-    ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
+OrbitAST* orbitASTMakeVarDecl(const OrbitToken* symbol, OrbitAST* typeAnnotation) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_DECL_VAR);
+    ast->sourceRange = orbitSrangeFromLength(symbol->sourceLoc, symbol->length);
     ast->varDecl.symbol = ast_copyToken(symbol);
-    ast->varDecl.name = orbit_stringIntern(
+    ast->varDecl.name = orbitStringIntern(
         symbol->source->bytes+ORBIT_SLOC_OFFSET(symbol->sourceLoc),
         symbol->length
     );
@@ -115,28 +115,28 @@ OrbitAST* orbit_astMakeVarDecl(const OrbitToken* symbol, OrbitAST* typeAnnotatio
     return ast;
 }
 
-OrbitAST* orbit_astMakeFuncDecl(const OrbitToken* symbol, OrbitAST* returnType, OrbitAST* params, OrbitAST* body) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_FUNC);
+OrbitAST* orbitASTMakeFuncDecl(const OrbitToken* symbol, OrbitAST* returnType, OrbitAST* params, OrbitAST* body) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_DECL_FUNC);
     // TODO: replace with union from name to return type?
-    ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
+    ast->sourceRange = orbitSrangeFromLength(symbol->sourceLoc, symbol->length);
     ast->funcDecl.symbol = ast_copyToken(symbol);
-    ast->funcDecl.name = orbit_stringIntern(
+    ast->funcDecl.name = orbitStringIntern(
         symbol->source->bytes + ORBIT_SLOC_OFFSET(symbol->sourceLoc),
         symbol->length
     );
-    ast->funcDecl.mangledName = orbit_invalidStringID;
+    ast->funcDecl.mangledName = orbitInvalidStringID;
     ast->funcDecl.returnType = ORCRETAIN(returnType);
     ast->funcDecl.params = ORCRETAIN(params);
     ast->funcDecl.body = ORCRETAIN(body);
     return ast;
 }
 
-OrbitAST* orbit_astMakeStructDecl(const OrbitToken* symbol, OrbitAST* constructor, OrbitAST* destructor, OrbitAST* fields) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_DECL_STRUCT);
+OrbitAST* orbitASTMakeStructDecl(const OrbitToken* symbol, OrbitAST* constructor, OrbitAST* destructor, OrbitAST* fields) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_DECL_STRUCT);
     
-    ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
+    ast->sourceRange = orbitSrangeFromLength(symbol->sourceLoc, symbol->length);
     ast->structDecl.symbol = ast_copyToken(symbol);
-    ast->structDecl.name = orbit_stringIntern(
+    ast->structDecl.name = orbitStringIntern(
         symbol->source->bytes + ORBIT_SLOC_OFFSET(symbol->sourceLoc),
         symbol->length
     );
@@ -147,142 +147,142 @@ OrbitAST* orbit_astMakeStructDecl(const OrbitToken* symbol, OrbitAST* constructo
     return ast;
 }
 
-OrbitAST* orbit_astMakeBinaryExpr(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_BINARY);
+OrbitAST* orbitASTMakeBinaryExpr(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_EXPR_BINARY);
     
     ast->binaryExpr.operator = ast_copyToken(operator);
     ast->binaryExpr.lhs = ORCRETAIN(lhs);
     ast->binaryExpr.rhs = ORCRETAIN(rhs);
     if(lhs && rhs)
-        ast->sourceRange = orbit_srangeUnion(lhs->sourceRange, rhs->sourceRange);
+        ast->sourceRange = orbitSrangeUnion(lhs->sourceRange, rhs->sourceRange);
     return ast;
 }
 
-OrbitAST* orbit_astMakeUnaryExpr(const OrbitToken* operator, OrbitAST* rhs) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_UNARY);
+OrbitAST* orbitASTMakeUnaryExpr(const OrbitToken* operator, OrbitAST* rhs) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_EXPR_UNARY);
     ast->unaryExpr.operator = ast_copyToken(operator);
     ast->unaryExpr.rhs = ORCRETAIN(rhs);
-    ast->sourceRange = orbit_srangeUnion(
-        orbit_srangeFromLength(operator->sourceLoc, operator->length),
+    ast->sourceRange = orbitSrangeUnion(
+        orbitSrangeFromLength(operator->sourceLoc, operator->length),
         rhs->sourceRange
     );
     return ast;
 }
 
-OrbitAST* orbit_astMakeCallExpr(OrbitAST* symbol, OrbitAST* params) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_CALL);
+OrbitAST* orbitASTMakeCallExpr(OrbitAST* symbol, OrbitAST* params) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_EXPR_CALL);
     ast->callExpr.symbol = ORCRETAIN(symbol);
     ast->callExpr.params = ORCRETAIN(params);
     ast->sourceRange = params ?
-                        orbit_srangeUnion(symbol->sourceRange, params->sourceRange) :
+                        orbitSrangeUnion(symbol->sourceRange, params->sourceRange) :
                         symbol->sourceRange;
     return ast;
 }
 
-OrbitAST* orbit_astMakeSubscriptExpr(OrbitAST* symbol, OrbitAST* subscript) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_SUBSCRIPT);
+OrbitAST* orbitASTMakeSubscriptExpr(OrbitAST* symbol, OrbitAST* subscript) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_EXPR_SUBSCRIPT);
     ast->subscriptExpr.symbol = ORCRETAIN(symbol);
     ast->subscriptExpr.subscript = ORCRETAIN(subscript);
-    ast->sourceRange = orbit_srangeUnion(symbol->sourceRange, subscript->sourceRange);
+    ast->sourceRange = orbitSrangeUnion(symbol->sourceRange, subscript->sourceRange);
     return ast;
 }
 
-OrbitAST* orbit_astMakeNameExpr(const OrbitToken* symbol) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_NAME);
+OrbitAST* orbitASTMakeNameExpr(const OrbitToken* symbol) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_EXPR_NAME);
     ast->nameExpr.symbol = ast_copyToken(symbol);
-    ast->nameExpr.name = orbit_stringIntern(
+    ast->nameExpr.name = orbitStringIntern(
         symbol->source->bytes + ORBIT_SLOC_OFFSET(symbol->sourceLoc),
         symbol->length
     );
-    ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
+    ast->sourceRange = orbitSrangeFromLength(symbol->sourceLoc, symbol->length);
     return ast;
 }
 
-OrbitAST* orbit_astMakeConstantExpr(const OrbitToken* symbol, ASTKind kind) {
-    OrbitAST* ast = orbit_astMake(kind);
+OrbitAST* orbitASTMakeConstantExpr(const OrbitToken* symbol, ASTKind kind) {
+    OrbitAST* ast = orbitASTMake(kind);
     ast->constantExpr.symbol = ast_copyToken(symbol);
-    ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
+    ast->sourceRange = orbitSrangeFromLength(symbol->sourceLoc, symbol->length);
     return ast;
 }
 
-OrbitAST* orbit_astMakeInitExpr(OrbitAST* type, OrbitAST* params) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_INIT);
+OrbitAST* orbitASTMakeInitExpr(OrbitAST* type, OrbitAST* params) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_EXPR_INIT);
     ast->initExpr.type = ORCRETAIN(type);
     ast->initExpr.params = ORCRETAIN(params);
     return ast;
 }
 
-OrbitAST* orbit_astMakeLambdaExpr(OrbitAST* params, OrbitAST* body) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_LAMBDA);
+OrbitAST* orbitASTMakeLambdaExpr(OrbitAST* params, OrbitAST* body) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_EXPR_LAMBDA);
     ast->lambdaExpr.params = ORCRETAIN(params);
     ast->lambdaExpr.body = ORCRETAIN(body);
     if(params && body) {
-        ast->sourceRange = orbit_srangeUnion(params->sourceRange, body->sourceRange);
+        ast->sourceRange = orbitSrangeUnion(params->sourceRange, body->sourceRange);
         ast->sourceRange.start -= 1;
     }
     return ast;
 }
 
-OrbitAST* orbit_astMakeCastExpr(OrbitAST* expr, ASTKind kind) {
-    OrbitAST* ast = orbit_astMake(kind);
+OrbitAST* orbitASTMakeCastExpr(OrbitAST* expr, ASTKind kind) {
+    OrbitAST* ast = orbitASTMake(kind);
     ast->conversionExpr.expr = ORCRETAIN(expr);
     return ast;
 }
 
-OrbitAST* orbit_astMakeI2F(OrbitAST* expr) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_I2F);
+OrbitAST* orbitASTMakeI2F(OrbitAST* expr) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_EXPR_I2F);
     ast->conversionExpr.expr = ORCRETAIN(expr);
     return ast;
 }
 
-OrbitAST* orbit_astMakeF2I(OrbitAST* expr) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_EXPR_F2I);
+OrbitAST* orbitASTMakeF2I(OrbitAST* expr) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_EXPR_F2I);
     ast->conversionExpr.expr = ORCRETAIN(expr);
     return ast;
 }
 
-OrbitAST* orbit_astMakeUserTypePooled(OCStringID symbol) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_TYPEEXPR_USER);
+OrbitAST* orbitASTMakeUserTypePooled(OCStringID symbol) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_TYPEEXPR_USER);
     ast->typeExpr.userType.symbol = symbol;
     return ast;
 }
 
-OrbitAST* orbit_astMakeUserType(const OrbitToken* symbol) {
-    OCStringID id = orbit_stringIntern(
+OrbitAST* orbitASTMakeUserType(const OrbitToken* symbol) {
+    OCStringID id = orbitStringIntern(
         symbol->source->bytes + ORBIT_SLOC_OFFSET(symbol->sourceLoc),
         symbol->length
     );
-    OrbitAST* ast = orbit_astMakeUserTypePooled(id);
-    ast->sourceRange = orbit_srangeFromLength(symbol->sourceLoc, symbol->length);
+    OrbitAST* ast = orbitASTMakeUserTypePooled(id);
+    ast->sourceRange = orbitSrangeFromLength(symbol->sourceLoc, symbol->length);
     return ast;
 }
 
-OrbitAST* orbit_astMakePrimitiveType(ASTKind kind) {
-    OrbitAST* ast = orbit_astMake(kind);
+OrbitAST* orbitASTMakePrimitiveType(ASTKind kind) {
+    OrbitAST* ast = orbitASTMake(kind);
     return ast;
 }
 
-OrbitAST* orbit_astMakeFuncType(OrbitAST* returnType, OrbitAST* params) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_TYPEEXPR_FUNC);
+OrbitAST* orbitASTMakeFuncType(OrbitAST* returnType, OrbitAST* params) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_TYPEEXPR_FUNC);
     ast->typeExpr.funcType.returnType = ORCRETAIN(returnType);
     ast->typeExpr.funcType.params = ORCRETAIN(params);
     return ast;
 }
 
-OrbitAST* orbit_astMakeArrayType(OrbitAST* elementType) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_TYPEEXPR_ARRAY);
+OrbitAST* orbitASTMakeArrayType(OrbitAST* elementType) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_TYPEEXPR_ARRAY);
     ast->typeExpr.arrayType.elementType = ORCRETAIN(elementType);
     return ast;
 }
 
-OrbitAST* orbit_astMakeMapType(OrbitAST* keyType, OrbitAST* elementType) {
-    OrbitAST* ast = orbit_astMake(ORBIT_AST_TYPEEXPR_MAP);
+OrbitAST* orbitASTMakeMapType(OrbitAST* keyType, OrbitAST* elementType) {
+    OrbitAST* ast = orbitASTMake(ORBIT_AST_TYPEEXPR_MAP);
     ast->typeExpr.mapType.keyType = ORCRETAIN(keyType);
     ast->typeExpr.mapType.elementType = ORCRETAIN(elementType);
     return ast;
 }
 
-OrbitAST* orbit_astMakeOptional(OrbitAST* type, bool isOptional) {
+OrbitAST* orbitASTMakeOptional(OrbitAST* type, bool isOptional) {
     if(isOptional)
         type->typeExpr.flags |= ORBIT_TYPE_OPTIONAL;
     else
@@ -290,7 +290,7 @@ OrbitAST* orbit_astMakeOptional(OrbitAST* type, bool isOptional) {
     return type;
 }
 
-OrbitAST* orbit_astMakeConst(OrbitAST* type, bool isConst) {
+OrbitAST* orbitASTMakeConst(OrbitAST* type, bool isConst) {
     if(isConst)
         type->typeExpr.flags |= ORBIT_TYPE_CONST;
     else

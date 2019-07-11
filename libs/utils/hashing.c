@@ -11,7 +11,7 @@
 #include <stddef.h> // in order to get NULL
 #include <orbit/utils/hashing.h>
 
-uint32_t orbit_hashString(const char* string, uint64_t length) {
+uint32_t orbitHashString(const char* string, uint64_t length) {
     assert(string != NULL && "Null instance error");
     
     //Fowler-Noll-Vo 1a hash
@@ -28,7 +28,7 @@ typedef union {
     uint32_t    raw[2];
 } RawDouble;
 
-uint32_t orbit_hashDouble(double number) {
+uint32_t orbitHashDouble(double number) {
     RawDouble bits = {.number = number};
     return bits.raw[0] ^ bits.raw[1];
 }

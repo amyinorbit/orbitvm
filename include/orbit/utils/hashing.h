@@ -11,7 +11,7 @@
 #define orbit_utils_hashing_h
 #include <stdint.h>
 
-uint32_t orbit_hashString(const char* string, uint64_t length);
-uint32_t orbit_hashDouble(double number);
+uint32_t orbitHashString(const char* string, uint64_t length);
+uint32_t orbitHashDouble(double number);
 
 #endif /* orbit_utils_hashing_h */

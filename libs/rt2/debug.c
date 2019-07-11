@@ -76,7 +76,7 @@ static void debugValue(OrbitValue value) {
     }
 }
 
-void orbit_debugFunction(const OrbitFunction* fn, const char* name) {
+void orbitDebugFunction(const OrbitFunction* fn, const char* name) {
     fprintf(stdout, "** function: %s **\n", name);
     // int oldLine = -1;
     for(int offset = 0; offset < fn->code.count;) {
@@ -87,11 +87,11 @@ void orbit_debugFunction(const OrbitFunction* fn, const char* name) {
         // else
         //     fprintf(stdout, "   | ");
         // oldLine = line;
-        offset = orbit_debugInstruction(fn, offset);
+        offset = orbitDebugInstruction(fn, offset);
     }
 }
 
-int orbit_debugInstruction(const OrbitFunction* fn, int offset) {
+int orbitDebugInstruction(const OrbitFunction* fn, int offset) {
     uint8_t code = fn->code.data[offset];
     OpcodeData data = opcodeData[code];
     

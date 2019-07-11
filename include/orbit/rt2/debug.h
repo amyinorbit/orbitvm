@@ -12,7 +12,7 @@
 
 #include <orbit/rt2/value.h>
 
-void orbit_debugFunction(const OrbitFunction* fn, const char* name);
-int orbit_debugInstruction(const OrbitFunction* fn, int offset);
+void orbitDebugFunction(const OrbitFunction* fn, const char* name);
+int orbitDebugInstruction(const OrbitFunction* fn, int offset);
 
 #endif

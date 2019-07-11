@@ -55,7 +55,7 @@ const ASTKind ASTPrimitiveMask  = ORBIT_AST_TYPEEXPR_VOID
 
 const ASTKind ASTAllMask       = 0xffffffffffffffff;
 
-void orbit_astDestroy(void* ref) {
+void orbitASTDestroy(void* ref) {
     if(ref == NULL) { return; }
     OrbitAST* ast = (OrbitAST*)ref;
     
@@ -189,10 +189,10 @@ void orbit_astDestroy(void* ref) {
         ORCRELEASE(ast->next);
 }
 
-OrbitAST* orbit_astMake(ASTKind kind) {
+OrbitAST* orbitASTMake(ASTKind kind) {
     OrbitAST* ast = ORBIT_ALLOC(OrbitAST);
     memset(ast, 0, sizeof (OrbitAST));
-    ORCINIT(ast, &orbit_astDestroy);
+    ORCINIT(ast, &orbitASTDestroy);
     
     ast->kind = kind;
     ast->next = NULL;

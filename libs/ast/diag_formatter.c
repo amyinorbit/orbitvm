@@ -44,12 +44,12 @@ static void handleSelect(OCStringBuffer* buf, const char* arg, uint32_t length, 
     }
     
     end = scan(arg, end, '|');
-    orbit_stringBufferAppendC(buf, arg, end-arg);
+    orbitStringBufferAppendC(buf, arg, end-arg);
 }
 
 static void handleS(OCStringBuffer* buf, int value) {
     if(value == 1) { return; }
-    orbit_stringBufferAppend(buf, 's');
+    orbitStringBufferAppend(buf, 's');
 }
 
 static void handlePlural(OCStringBuffer* buf, const char* arg, uint32_t length, int value) {
@@ -58,12 +58,12 @@ static void handlePlural(OCStringBuffer* buf, const char* arg, uint32_t length, 
 
 // After a few attempts using rec-descent parsers, this is heavily based on clang's diagnostic
 // formatter (lines ~700+ -> https://clang.llvm.org/doxygen/Basic_2Diagnostic_8cpp_source.html)
-char* orbit_diagGetFormat(OrbitDiag* diag) {
+char* orbitDiagGetFormat(OrbitDiag* diag) {
     // TODO: probably cache this? Though we are unlikely to print diags more than once
     // TODO: We should be safe, but we should probably port all of this to codepoint_t
     
     OCStringBuffer buffer, *buf = &buffer;
-    orbit_stringBufferInit(buf, 512);
+    orbitStringBufferInit(buf, 512);
     const char* fmt = diag->format;
     const char* end = diag->format + strlen(diag->format);
     
@@ -72,7 +72,7 @@ char* orbit_diagGetFormat(OrbitDiag* diag) {
         // If we aren't looking at a $, we can just copy until the first dollar (or the end).
         if(*fmt != '$') {
             const char* strEnd = scan(fmt, end, '$');
-            orbit_stringBufferAppendC(buf, fmt, strEnd-fmt);
+            orbitStringBufferAppendC(buf, fmt, strEnd-fmt);
             fmt = strEnd;
             continue;
         }
@@ -121,26 +121,26 @@ char* orbit_diagGetFormat(OrbitDiag* diag) {
                 assert(!modifier && "diagnostic format argument: unknown modifier");
                 char number[32];
                 int numberLength = snprintf(number, 32, "%d", param.intValue);
-                orbit_stringBufferAppendC(buf, number, numberLength);
+                orbitStringBufferAppendC(buf, number, numberLength);
             }
             break;
             
         case ORBIT_DPK_CSTRING:
             assert(!modifier && "diagnostic format argument: no string modifiers");
-            orbit_stringBufferAppendC(buf, param.cstringValue, strlen(param.cstringValue));
+            orbitStringBufferAppendC(buf, param.cstringValue, strlen(param.cstringValue));
             break;
             
         case ORBIT_DPK_STRING: {
-                OCString* str = orbit_stringPoolGet(param.stringValue);
+                OCString* str = orbitStringPoolGet(param.stringValue);
                 assert(str && "diagnostic format argument: invalid string pool ID");
                 assert(!modifier && "diagnostic format argument: no string modifiers");
-                orbit_stringBufferAppendC(buf, str->data, str->length);
+                orbitStringBufferAppendC(buf, str->data, str->length);
             }
             break;
         
         case ORBIT_DPK_TYPE:
             assert(!modifier && "diagnostic format argument: no type expression modifiers");
-            orbit_astTypeString(buf, param.typeValue);
+            orbitASTTypeString(buf, param.typeValue);
             break;
         }
     }

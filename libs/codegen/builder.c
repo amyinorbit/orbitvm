@@ -90,7 +90,7 @@ void dropScope(Builder* builder, int stack) {
 
 void openFunction(Builder* builder) {
     assert(builder && "cannot open a codegen function without a builder");
-    openFunctionGC(builder, orbit_functionNew(builder->gc));
+    openFunctionGC(builder, orbitFunctionNew(builder->gc));
 }
 
 int localVariable(Builder* builder, OCStringID name) {
@@ -117,7 +117,7 @@ void closeFunction(Builder* builder) {
 
 int findConstant(OrbitValueBuffer* constants, OrbitValue value) {
     for(int i = 0; i < constants->count; ++i) {
-        if(orbit_valueEquals(constants->data[i], value)) return i;
+        if(orbitValueEquals(constants->data[i], value)) return i;
     }
     return -1;
 }
@@ -138,21 +138,21 @@ uint8_t emitConstant(Builder* builder, OrbitValue value) {
 }
 
 int emitInst(Builder* builder, OrbitCode code) {
-    orbit_functionWrite(builder->gc, GC_FUNC(), code, currentLine(builder));
+    orbitFunctionWrite(builder->gc, GC_FUNC(), code, currentLine(builder));
     return GC_FUNC()->code.count - 1;
 }
 
 int emitConstInst(Builder* builder, OrbitCode code, OrbitValue value) {
     int offset = emitInst(builder, code);
     uint8_t constantIndex = emitConstant(builder, value);
-    orbit_functionWrite(builder->gc, GC_FUNC(), constantIndex, currentLine(builder));
+    orbitFunctionWrite(builder->gc, GC_FUNC(), constantIndex, currentLine(builder));
     return offset;
 }
 
 int emitLocalInst(Builder* builder, OrbitCode code, OCStringID name) {
     int offset = emitInst(builder, code);
     uint8_t localIndex = (uint8_t)localVariable(builder, name);
-    orbit_functionWrite(builder->gc, GC_FUNC(), localIndex, currentLine(builder));
+    orbitFunctionWrite(builder->gc, GC_FUNC(), localIndex, currentLine(builder));
     return offset;
 }
 
@@ -160,8 +160,8 @@ int emitJump(Builder* builder, OrbitCode code) {
     int line = currentLine(builder);
     emitInst(builder, code);
     int patchOffset = GC_FUNC()->code.count;
-    orbit_functionWrite(builder->gc, GC_FUNC(), 0xff, line);
-    orbit_functionWrite(builder->gc, GC_FUNC(), 0xff, line);
+    orbitFunctionWrite(builder->gc, GC_FUNC(), 0xff, line);
+    orbitFunctionWrite(builder->gc, GC_FUNC(), 0xff, line);
     return patchOffset;
 }
 
@@ -171,8 +171,8 @@ int emitRJump(Builder* builder, OrbitCode code, int target) {
     int current = GC_FUNC()->code.count + 2; // To account for the two byte jump offset
     uint16_t jump = current - target;
     
-    orbit_functionWrite(builder->gc, GC_FUNC(), (jump >> 8) & 0x00ff, line);
-    orbit_functionWrite(builder->gc, GC_FUNC(), jump & 0x00ff, line);
+    orbitFunctionWrite(builder->gc, GC_FUNC(), (jump >> 8) & 0x00ff, line);
+    orbitFunctionWrite(builder->gc, GC_FUNC(), jump & 0x00ff, line);
     return offset;
 }
 
@@ -191,8 +191,8 @@ OrbitCode instSelect(Builder* builder, OrbitTokenKind op, const OrbitAST* lhs, c
     for(int i = 0; i < builder->selector.count; ++i) {
         OpSelectData data = builder->selector.data[i];
         if(op == data.op
-           && orbit_astTypeEqualsPrimitive(lhs->type, data.lhsType)
-           && orbit_astTypeEqualsPrimitive(rhs->type, data.rhsType)) {
+           && orbitASTTypeEqualsPrimitive(lhs->type, data.lhsType)
+           && orbitASTTypeEqualsPrimitive(rhs->type, data.rhsType)) {
             return data.instruction;
         }
     }

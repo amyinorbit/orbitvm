@@ -16,7 +16,7 @@
 #include <orbit/ast/context.h>
 #include <orbit/csupport/source.h>
 
-void orbit_dumpTokens(OrbitASTContext* context);
-bool orbit_parse(OrbitASTContext* context);
+void orbitDumpTokens(OrbitASTContext* context);
+bool orbitParse(OrbitASTContext* context);
 
-#endif /* orbit_parser_h */
+#endif /* orbitParser_h */

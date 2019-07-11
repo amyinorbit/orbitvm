@@ -33,7 +33,7 @@
     }                                                                                              \
                                                                                                    \
     void orbit_##name##BufferDeinit(OrbitGC* gc, Orbit##name##Buffer* buffer) {                    \
-        orbit_gcalloc(gc, buffer->data, buffer->capacity * sizeof(type), 0);                       \
+        orbitGCalloc(gc, buffer->data, buffer->capacity * sizeof(type), 0);                       \
         orbit_##name##BufferInit(buffer);                                                          \
     }                                                                                              \
                                                                                                    \
@@ -43,7 +43,7 @@
             int oldCapacity = buffer->capacity;                                                    \
             while(buffer->capacity < buffer->count + count)                                        \
                 buffer->capacity = ORBIT_GROW_CAPACITY(buffer->capacity);                          \
-            buffer->data = (type*)orbit_gcalloc(gc, buffer->data, oldCapacity * sizeof(type),      \
+            buffer->data = (type*)orbitGCalloc(gc, buffer->data, oldCapacity * sizeof(type),      \
                                                 buffer->capacity * sizeof(type));                  \
         }                                                                                          \
                                                                                                    \

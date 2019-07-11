@@ -21,7 +21,7 @@ struct _OrbitASTContext {
     OrbitAST*           root;
 };
 
-void orbit_astContextInit(OrbitASTContext* context);
-void orbit_astContextDeinit(OrbitASTContext* context);
+void orbitASTContextInit(OrbitASTContext* context);
+void orbitASTContextDeinit(OrbitASTContext* context);
 
 #endif /* orbit_ast_context_h */

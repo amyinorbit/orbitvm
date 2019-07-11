@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <orbit/ast/context.h>
 
-void orbit_astContextInit(OrbitASTContext* context) {
+void orbitASTContextInit(OrbitASTContext* context) {
     assert(context != NULL && "Invalid AST context given");
     
     context->root = NULL;
@@ -18,12 +18,12 @@ void orbit_astContextInit(OrbitASTContext* context) {
     context->source.bytes = NULL;
     context->source.lineMap = NULL;
     context->source.length = 0;
-    orbit_diagManagerInit(&context->diagnostics, &context->source);
+    orbitDiagManagerInit(&context->diagnostics, &context->source);
 }
 
-void orbit_astContextDeinit(OrbitASTContext* context) {
+void orbitASTContextDeinit(OrbitASTContext* context) {
     assert(context != NULL && "Invalid AST context given");
     ORCRELEASE(context->root);
-    orbit_sourceDeinit(&context->source);
-    orbit_diagManagerDeinit(&context->diagnostics);
+    orbitSourceDeinit(&context->source);
+    orbitDiagManagerDeinit(&context->diagnostics);
 }

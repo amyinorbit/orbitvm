@@ -16,9 +16,9 @@
 #include <assert.h>
 #include <string.h>
 
-OrbitObject* orbit_objectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size) {
+OrbitObject* orbitObjectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size) {
     assert(gc && "null Garbage Collector error");
-    OrbitObject* obj = (OrbitObject*)orbit_gcalloc(gc, NULL, 0, size);
+    OrbitObject* obj = (OrbitObject*)orbitGCalloc(gc, NULL, 0, size);
     
     obj->kind = kind;
     obj->retainCount = 0;
@@ -29,9 +29,9 @@ OrbitObject* orbit_objectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size) {
     return obj;
 }
 
-OrbitString* orbit_stringCopy(OrbitGC* gc, const char* data, int32_t count) {
+OrbitString* orbitStringCopy(OrbitGC* gc, const char* data, int32_t count) {
     assert(gc && "null Garbage Collector error");
-    OrbitString* self = (OrbitString*)orbit_objectNew(gc, ORBIT_OBJ_STRING,
+    OrbitString* self = (OrbitString*)orbitObjectNew(gc, ORBIT_OBJ_STRING,
         sizeof(OrbitString) + (count+1)*sizeof(char));
     
     self->count = unic_countGraphemes(data, count);
@@ -39,32 +39,32 @@ OrbitString* orbit_stringCopy(OrbitGC* gc, const char* data, int32_t count) {
     
     memcpy(self->data, data, count);
     self->data[count] = '\0';
-    self->hash = orbit_hashString(self->data, self->utf8count);
+    self->hash = orbitHashString(self->data, self->utf8count);
     return self;
 }
 
-OrbitString* orbit_stringNew(OrbitGC* gc, int32_t count) {
+OrbitString* orbitStringNew(OrbitGC* gc, int32_t count) {
     assert(gc && "null Garbage Collector error");
-    OrbitString* self = (OrbitString*)orbit_objectNew(gc, ORBIT_OBJ_STRING,
+    OrbitString* self = (OrbitString*)orbitObjectNew(gc, ORBIT_OBJ_STRING,
         sizeof(OrbitString) + (count+1)*sizeof(char));
     self->count = 0;
     self->utf8count = 0;
     self->data[0] = '\0';
-    self->hash = orbit_hashString(self->data, self->utf8count);
+    self->hash = orbitHashString(self->data, self->utf8count);
     
     return self;
 }
 
-OrbitModule* orbit_moduleNew(OrbitGC* gc) {
+OrbitModule* orbitModuleNew(OrbitGC* gc) {
     assert(gc && "null Garbage Collector error");
-    OrbitModule* self = (OrbitModule*)orbit_objectNew(gc, ORBIT_OBJ_MODULE, sizeof(OrbitModule));
+    OrbitModule* self = (OrbitModule*)orbitObjectNew(gc, ORBIT_OBJ_MODULE, sizeof(OrbitModule));
     orbit_ValueBufferInit(&self->globals);
     return self;
 }
 
-OrbitFunction* orbit_functionNew(OrbitGC* gc) {
+OrbitFunction* orbitFunctionNew(OrbitGC* gc) {
     assert(gc && "null Garbage Collector error");
-    OrbitFunction* self = (OrbitFunction*)orbit_objectNew(gc, ORBIT_OBJ_FUNCTION,
+    OrbitFunction* self = (OrbitFunction*)orbitObjectNew(gc, ORBIT_OBJ_FUNCTION,
                                                           sizeof(OrbitFunction));
     self->arity = 0;
     self->locals = 0;
@@ -77,17 +77,17 @@ OrbitFunction* orbit_functionNew(OrbitGC* gc) {
 
 #define ORBIT_STACK_START 1024
 
-OrbitTask* orbit_taskNew(OrbitGC* gc, OrbitFunction* function) {
+OrbitTask* orbitTaskNew(OrbitGC* gc, OrbitFunction* function) {
     assert(gc && "can't create a task with no garbage collector");
     assert(function && "can't create a task with no function");
 
-    OrbitTask* self = (OrbitTask*)orbit_objectNew(gc, ORBIT_OBJ_TASK, sizeof(OrbitTask));
+    OrbitTask* self = (OrbitTask*)orbitObjectNew(gc, ORBIT_OBJ_TASK, sizeof(OrbitTask));
     self->stackCapacity = ORBIT_STACK_START;
     self->stack = ORBIT_ALLOC_ARRAY(OrbitValue, self->stackCapacity);
     self->stackTop = self->stack;
 
     orbit_FrameBufferInit(&self->frames);
-    orbit_taskPushFrame(gc, self, function);
+    orbitTaskPushFrame(gc, self, function);
     return self;
 }
 
@@ -100,7 +100,7 @@ static inline void markString(OrbitGC* gc, OrbitString* self) {
 static inline void markModule(OrbitGC* gc, OrbitModule* self) {
     for(int i = 0; i < self->globals.count; ++i) {
         if(!ORBIT_IS_REF(self->globals.data[i])) continue;
-        orbit_objectMark(gc, ORBIT_AS_REF(self->globals.data[i]));
+        orbitObjectMark(gc, ORBIT_AS_REF(self->globals.data[i]));
     }
 }
 
@@ -111,22 +111,22 @@ static inline void markFunction(OrbitGC* gc, OrbitFunction* self) {
     
     for(int i = 0; i < self->constants.count; ++i) {
         if(!ORBIT_IS_REF(self->constants.data[i])) continue;
-        orbit_objectMark(gc, ORBIT_AS_REF(self->constants.data[i]));
+        orbitObjectMark(gc, ORBIT_AS_REF(self->constants.data[i]));
     }
 }
 
 static inline void markTask(OrbitGC* gc, OrbitTask* self) {
     for(OrbitValue* val = self->stack; val != self->stackTop; ++val) {
         if(ORBIT_IS_REF(*val))
-            orbit_objectMark(gc, ORBIT_AS_REF(*val));
+            orbitObjectMark(gc, ORBIT_AS_REF(*val));
     }
     
     for(int i = 0; i < self->frames.count; ++i) {
-        orbit_objectMark(gc, (OrbitObject*)self->frames.data[i].function);
+        orbitObjectMark(gc, (OrbitObject*)self->frames.data[i].function);
     }
 }
 
-void orbit_objectMark(OrbitGC* gc, OrbitObject* self) {
+void orbitObjectMark(OrbitGC* gc, OrbitObject* self) {
     assert(self && "null object error");
     if(self->mark) return;
     self->mark = true;
@@ -151,31 +151,31 @@ void orbit_objectMark(OrbitGC* gc, OrbitObject* self) {
 
 static inline void freeString(OrbitGC* gc, OrbitString* self) {
     // ORBIT_DEALLOC_FLEX(self, OrbitString, char, self->utf8count+1);
-    orbit_gcalloc(gc, self, sizeof(OrbitString) + self->utf8count + 1, 0);
+    orbitGCalloc(gc, self, sizeof(OrbitString) + self->utf8count + 1, 0);
 }
 
 static inline void freeModule(OrbitGC* gc, OrbitModule* self) {
     orbit_ValueBufferDeinit(gc, &self->globals);
-    orbit_gcalloc(gc, self, sizeof(OrbitModule), 0);
+    orbitGCalloc(gc, self, sizeof(OrbitModule), 0);
 }
 
 static inline void freeFunction(OrbitGC* gc, OrbitFunction* self) {
     orbit_ByteBufferDeinit(gc, &self->code);
     orbit_IntBufferDeinit(gc, &self->lines);
     orbit_ValueBufferDeinit(gc, &self->constants);
-    orbit_gcalloc(gc, self, sizeof(OrbitFunction), 0);
+    orbitGCalloc(gc, self, sizeof(OrbitFunction), 0);
 }
 
 static inline void freeTask(OrbitGC* gc, OrbitTask* self) {
-    orbit_gcalloc(gc, self->stack, sizeof(OrbitValue) * self->stackCapacity, 0);
+    orbitGCalloc(gc, self->stack, sizeof(OrbitValue) * self->stackCapacity, 0);
     self->stack = self->stackTop = NULL;
     self->stackCapacity = 0;
     
     orbit_FrameBufferDeinit(gc, &self->frames);
-    orbit_gcalloc(gc, self, sizeof(OrbitTask), 0);
+    orbitGCalloc(gc, self, sizeof(OrbitTask), 0);
 }
 
-void orbit_objectFree(OrbitGC* gc, OrbitObject* self) {
+void orbitObjectFree(OrbitGC* gc, OrbitObject* self) {
     assert(self && "null object error");
     switch(self->kind) {
         case ORBIT_OBJ_STRING: 

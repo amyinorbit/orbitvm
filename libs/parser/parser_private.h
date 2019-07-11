@@ -55,9 +55,9 @@ struct _OCParser {
     
 };
 
-void orbit_parserInit(OCParser* parser, OrbitASTContext* context);
-void orbit_parserDeinit(OCParser* parser);
-void orbit_parserNextToken(OCParser* parser);
+void orbitParserInit(OCParser* parser, OrbitASTContext* context);
+void orbitParserDeinit(OCParser* parser);
+void orbitParserNextToken(OCParser* parser);
 
 static inline OrbitDiagManager* diag(OCParser* parser) {
     return &parser->context->diagnostics;

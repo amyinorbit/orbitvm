@@ -14,6 +14,6 @@
 #include <orbit/rt2/value.h>
 #include <orbit/rt2/garbage.h>
 
-void orbit_codegen(OrbitGC* gc, OrbitFunction* chunk, OrbitASTContext* context);
+void orbitCodegen(OrbitGC* gc, OrbitFunction* chunk, OrbitASTContext* context);
 
 #endif

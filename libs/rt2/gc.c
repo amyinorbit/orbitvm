@@ -14,7 +14,7 @@
 
 typedef OrbitObject* ObjRef;
 
-void orbit_gcInit(OrbitGC* self) {
+void orbitGCInit(OrbitGC* self) {
     assert(self && "null Garbage Collector error");
     self->rootCount = 0;
     self->allocated = 0;
@@ -22,11 +22,11 @@ void orbit_gcInit(OrbitGC* self) {
     self->head = NULL;
 }
 
-void orbit_gcDeinit(OrbitGC* self) {
+void orbitGCDeinit(OrbitGC* self) {
     assert(self && "null Garbage Collector error");
     self->rootCount = 0;
-    orbit_gcRun(self);
-    orbit_gcInit(self);
+    orbitGCRun(self);
+    orbitGCInit(self);
 }
 
 static void markObject(OrbitObject* obj) {
@@ -41,7 +41,7 @@ static void markRoots(OrbitGC* self) {
         markObject(self->roots[i]);
 }
 
-void orbit_gcRun(OrbitGC* self) {
+void orbitGCRun(OrbitGC* self) {
     assert(self && "null Garbage Collector error");
     // We only mark objects in the roots stack ourselves. The VM will mark the rest
     markRoots(self);;
@@ -52,7 +52,7 @@ void orbit_gcRun(OrbitGC* self) {
         if(!(*ptr)->mark) {
             OrbitObject* garbage = *ptr;
             *ptr = garbage->next;
-            orbit_objectFree(self, garbage);
+            orbitObjectFree(self, garbage);
         } else {
             (*ptr)->mark = false;
             ptr = &(*ptr)->next;
@@ -60,19 +60,19 @@ void orbit_gcRun(OrbitGC* self) {
     }
 }
 
-void orbit_gcPush(OrbitGC* self, OrbitObject* root) {
+void orbitGCPush(OrbitGC* self, OrbitObject* root) {
     assert(self && "null Garbage Collector error");
     assert(root && "can't add a null object as a root");
     assert(self->rootCount < ORBIT_GC_MAXROOTS && "garbage collector roots overflow");
     self->roots[self->rootCount++] = root;
 }
-void orbit_gcPop(OrbitGC* self) {
+void orbitGCPop(OrbitGC* self) {
     assert(self && "null Garbage Collector error");
     assert(self->rootCount < ORBIT_GC_MAXROOTS && "garbage collector roots overflow");
     self->roots[--self->rootCount] = NULL;
 }
 
-void orbit_gcRelease(OrbitGC* self, OrbitObject* ref) {
+void orbitGCRelease(OrbitGC* self, OrbitObject* ref) {
     assert(self && "null Garbage Collector error");
     assert(ref && "can't remove a null object from the root stack");
     assert(self->rootCount > 0);

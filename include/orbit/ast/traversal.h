@@ -25,12 +25,12 @@ struct sOrbitASTVisitor {
     void*               data;
 };
 
-OrbitASTVisitor orbit_astSimpleVisitor(OrbitASTCallback callback, ASTKind filter, void* data);
-OrbitASTVisitor orbit_astVisitor(OrbitASTCallback callback, OrbitASTPredicate pred, void* data);
+OrbitASTVisitor orbitASTSimpleVisitor(OrbitASTCallback callback, ASTKind filter, void* data);
+OrbitASTVisitor orbitASTVisitor(OrbitASTCallback callback, OrbitASTPredicate pred, void* data);
 
 /// Traverses the AST and invokes [callback] when a node which [kind] matches
 /// the [filter] mask is found. [userData] can be any arbitrary data required by
 /// the callback.
-void orbit_astTraverse(OrbitASTContext* ctx, OrbitASTVisitor visitor);
+void orbitASTTraverse(OrbitASTContext* ctx, OrbitASTVisitor visitor);
 
-#endif /* orbit_ast_traversal_h */
+#endif /* orbitAST_traversal_h */

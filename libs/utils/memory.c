@@ -12,14 +12,14 @@
 #include <orbit/utils/memory.h>
 #include <assert.h>
 
-noreturn void orbit_die(const char* message) {
+noreturn void orbitDie(const char* message) {
     fprintf(stderr, "fatal error: %s\n", message);
     abort();
 }
 
 static size_t total_mem = 0;
 
-void* orbit_allocator(void* ptr, size_t oldSize, size_t newSize) {
+void* orbitAllocator(void* ptr, size_t oldSize, size_t newSize) {
     total_mem += (newSize - oldSize);
     
     if(newSize == 0) {
@@ -28,6 +28,6 @@ void* orbit_allocator(void* ptr, size_t oldSize, size_t newSize) {
     }
     
     void* mem = realloc(ptr, newSize);
-    if(!mem) orbit_die("Error reallocating memory");
+    if(!mem) orbitDie("Error reallocating memory");
     return mem;
 }

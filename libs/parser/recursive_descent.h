@@ -16,11 +16,11 @@
 #include "parser_private.h"
 
 static inline int precedence(OCParser* parser) {
-    return orbit_tokenBinaryPrecedence(parser->currentToken.kind);
+    return orbitTokenBinaryPrecedence(parser->currentToken.kind);
 }
 
 static inline bool rightAssoc(OCParser* parser) {
-    return orbit_tokenBinaryRightAssoc(parser->currentToken.kind);
+    return orbitTokenBinaryRightAssoc(parser->currentToken.kind);
 }
 
 static inline OrbitToken current(OCParser* parser) {

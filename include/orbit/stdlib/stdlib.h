@@ -11,6 +11,6 @@
 #define orbit_stdlib_h
 #include <orbit/orbit.h>
 
-void orbit_registerStandardLib(OrbitVM* vm);
+void orbitRegisterStandardLib(OrbitVM* vm);
 
 #endif /* orbit_stdlib_h */

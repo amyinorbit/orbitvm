@@ -20,11 +20,11 @@
 
 void simpleParseError(OCParser* parser, const char* message) {
     OrbitToken token = current(parser);
-    OrbitDiagID id = orbit_diagError(
+    OrbitDiagID id = orbitDiagError(
         &parser->context->diagnostics, current(parser).sourceLoc,
         message, 0
     );
-    orbit_diagAddSourceRange(id, orbit_srangeFromLength(token.sourceLoc, token.length));
+    orbitDiagAddSourceRange(id, orbitSrangeFromLength(token.sourceLoc, token.length));
 }
 
 bool have(OCParser* parser, OrbitTokenKind kind) {
@@ -33,7 +33,7 @@ bool have(OCParser* parser, OrbitTokenKind kind) {
 
 bool match(OCParser* parser, OrbitTokenKind kind) {
     if(have(parser, kind)) {
-        orbit_parserNextToken(parser);
+        orbitParserNextToken(parser);
         return true;
     }
     return false;
@@ -41,11 +41,11 @@ bool match(OCParser* parser, OrbitTokenKind kind) {
 
 // MARK: - utility functions, mainly used to avoid typing long [have()] lists
 bool haveBinaryOp(OCParser* parser) {
-    return orbit_tokenIsBinaryOp(current(parser).kind);
+    return orbitTokenIsBinaryOp(current(parser).kind);
 }
 
 bool haveUnaryOp(OCParser* parser) {
-    return orbit_tokenIsUnaryOp(current(parser).kind);
+    return orbitTokenIsUnaryOp(current(parser).kind);
 }
 
 bool haveConditional(OCParser* parser) {
@@ -98,7 +98,7 @@ bool implicitTerminator(OCParser* parser) {
 bool expectTerminator(OCParser* parser) {
     if(parser->recovering) {
         while(!have(parser, ORBIT_TOK_SEMICOLON) && !have(parser, ORBIT_TOK_EOF) && !implicitTerminator(parser)) {
-            orbit_parserNextToken(parser);
+            orbitParserNextToken(parser);
         }
         if(have(parser, ORBIT_TOK_EOF)) {
             return false;
@@ -109,7 +109,7 @@ bool expectTerminator(OCParser* parser) {
         if(match(parser, ORBIT_TOK_SEMICOLON) || implicitTerminator(parser)) {
             return true;
         }
-        orbit_diagError(
+        orbitDiagError(
             diag(parser), current(parser).sourceLoc,
             "consecutive statements on a line must be separated by ';'", 0
         );
@@ -120,7 +120,7 @@ bool expectTerminator(OCParser* parser) {
 bool expect(OCParser* parser, OrbitTokenKind kind) {
     if(parser->recovering) {
         while(!have(parser, kind) && !have(parser, ORBIT_TOK_EOF)) {
-            orbit_parserNextToken(parser);
+            orbitParserNextToken(parser);
         }
         if(have(parser, ORBIT_TOK_EOF)) { return false; }
         
@@ -129,13 +129,13 @@ bool expect(OCParser* parser, OrbitTokenKind kind) {
     } else {
         if(match(parser, kind)) { return true; }
         OrbitToken token = current(parser);
-        OrbitDiagID id = orbit_diagError(
+        OrbitDiagID id = orbitDiagError(
             diag(parser), current(parser).sourceLoc,
             "$0 found while $1 was expected", 2,
-            ORBIT_DIAG_CSTRING(orbit_tokenString(current(parser).kind)),
-            ORBIT_DIAG_CSTRING(orbit_tokenString(kind))
+            ORBIT_DIAG_CSTRING(orbitTokenString(current(parser).kind)),
+            ORBIT_DIAG_CSTRING(orbitTokenString(kind))
         );
-        orbit_diagAddSourceRange(id, orbit_srangeFromLength(token.sourceLoc, token.length));
+        orbitDiagAddSourceRange(id, orbitSrangeFromLength(token.sourceLoc, token.length));
         
         parser->recovering = true;
         return false;

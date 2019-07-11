@@ -18,11 +18,11 @@
 OrbitGC gc;
 
 void setUp(void) {
-    orbit_gcInit(&gc);
+    orbitGCInit(&gc);
 }
 
 void tearDown(void) {
-    orbit_gcDeinit(&gc);
+    orbitGCDeinit(&gc);
 }
 
 void pack_uint8(void) {
@@ -33,9 +33,9 @@ void pack_uint8(void) {
     uint8_t in = 123;
     uint8_t out = 0;
 
-    TEST_ASSERT_EQUAL(PACK_NOERROR, orbit_pack8(f, in));
+    TEST_ASSERT_EQUAL(PACK_NOERROR, orbitPack8(f, in));
     fseek(f, 0, SEEK_SET);
-    out = orbit_unpack8(f, &error);
+    out = orbitUnpack8(f, &error);
     TEST_ASSERT_EQUAL(PACK_NOERROR, error);
     TEST_ASSERT_EQUAL_HEX8(in, out);
 
@@ -50,9 +50,9 @@ void pack_uint16(void) {
     uint16_t in = 1231;
     uint16_t out = 0;
 
-    TEST_ASSERT_EQUAL(PACK_NOERROR, orbit_pack16(f, in));
+    TEST_ASSERT_EQUAL(PACK_NOERROR, orbitPack16(f, in));
     fseek(f, 0, SEEK_SET);
-    out = orbit_unpack16(f, &error);
+    out = orbitUnpack16(f, &error);
     TEST_ASSERT_EQUAL(PACK_NOERROR, error);
     TEST_ASSERT_EQUAL_HEX16(in, out);
 
@@ -67,9 +67,9 @@ void pack_uint32(void) {
     uint32_t in = 123123;
     uint32_t out = 0;
 
-    TEST_ASSERT_EQUAL(PACK_NOERROR, orbit_pack32(f, in));
+    TEST_ASSERT_EQUAL(PACK_NOERROR, orbitPack32(f, in));
     fseek(f, 0, SEEK_SET);
-    out = orbit_unpack32(f, &error);
+    out = orbitUnpack32(f, &error);
     TEST_ASSERT_EQUAL(PACK_NOERROR, error);
     TEST_ASSERT_EQUAL_HEX32(in, out);
 
@@ -84,9 +84,9 @@ void pack_uint64(void) {
     uint64_t in = 123;
     uint64_t out = 0;
 
-    TEST_ASSERT_EQUAL(PACK_NOERROR, orbit_pack64(f, in));
+    TEST_ASSERT_EQUAL(PACK_NOERROR, orbitPack64(f, in));
     fseek(f, 0, SEEK_SET);
-    out = orbit_unpack64(f, &error);
+    out = orbitUnpack64(f, &error);
     TEST_ASSERT_EQUAL(PACK_NOERROR, error);
     TEST_ASSERT_EQUAL_HEX64(in, out);
 
@@ -102,9 +102,9 @@ void pack_bytes(void) {
 
     size_t len = strlen(in);
 
-    TEST_ASSERT_EQUAL(PACK_NOERROR, orbit_packBytes(f, (uint8_t*)in, len));
+    TEST_ASSERT_EQUAL(PACK_NOERROR, orbitPackBytes(f, (uint8_t*)in, len));
     fseek(f, 0, SEEK_SET);
-    TEST_ASSERT_EQUAL(PACK_NOERROR, orbit_unpackBytes(f, (uint8_t*)out, len));
+    TEST_ASSERT_EQUAL(PACK_NOERROR, orbitUnpackBytes(f, (uint8_t*)out, len));
     TEST_ASSERT_EQUAL_HEX8_ARRAY(in, out, len);
     fclose(f);
 }
@@ -117,9 +117,9 @@ void pack_ieee754(void) {
     double in = 123.456;
     double out = 0;
 
-    TEST_ASSERT_EQUAL(PACK_NOERROR, orbit_packIEEE754(f, in));
+    TEST_ASSERT_EQUAL(PACK_NOERROR, orbitPackIEEE754(f, in));
     fseek(f, 0, SEEK_SET);
-    out = orbit_unpackIEEE754(f, &error);
+    out = orbitUnpackIEEE754(f, &error);
     TEST_ASSERT_EQUAL(PACK_NOERROR, error);
     TEST_ASSERT_EQUAL(in, out);
 
@@ -130,8 +130,8 @@ void test_valueInt(void) {
     OrbitValue a = ORBIT_VALUE_INT(INT32_MAX);
     OrbitValue b = ORBIT_VALUE_INT(-1);
     
-    TEST_ASSERT_TRUE(orbit_valueEquals(a, a));
-    TEST_ASSERT_FALSE(orbit_valueEquals(a, b));
+    TEST_ASSERT_TRUE(orbitValueEquals(a, a));
+    TEST_ASSERT_FALSE(orbitValueEquals(a, b));
     
     TEST_ASSERT_EQUAL(ORBIT_AS_INT(a), INT32_MAX);
     TEST_ASSERT_EQUAL(ORBIT_AS_INT(b), -1);
@@ -141,8 +141,8 @@ void test_valueFloat(void) {
     OrbitValue a = ORBIT_VALUE_FLOAT(12.3456f);
     OrbitValue b = ORBIT_VALUE_FLOAT(65.4321f);
     
-    TEST_ASSERT_TRUE(orbit_valueEquals(a, a));
-    TEST_ASSERT_FALSE(orbit_valueEquals(a, b));
+    TEST_ASSERT_TRUE(orbitValueEquals(a, a));
+    TEST_ASSERT_FALSE(orbitValueEquals(a, b));
     
     TEST_ASSERT_EQUAL(12.3456f, ORBIT_AS_FLOAT(a));
     TEST_ASSERT_EQUAL(65.4321f, ORBIT_AS_FLOAT(b));
@@ -150,22 +150,22 @@ void test_valueFloat(void) {
 
 void test_stringCount(void) {
     const char string[] = "Hi! 여보세요 🏴󠁧󠁢󠁳󠁣󠁴󠁿🏳️‍🌈😁";
-    OrbitValue val = ORBIT_VALUE_REF(orbit_stringCopy(&gc, string, strlen(string)));
+    OrbitValue val = ORBIT_VALUE_REF(orbitStringCopy(&gc, string, strlen(string)));
     
     TEST_ASSERT_EQUAL(12, ORBIT_AS_STRING(val)->count);
 }
 
 void test_stringEquality(void) {
-    OrbitValue a = ORBIT_VALUE_REF(orbit_stringCopy(&gc, "Hello!", 6));
-    OrbitValue b = ORBIT_VALUE_REF(orbit_stringCopy(&gc, "Hello!", 6));
+    OrbitValue a = ORBIT_VALUE_REF(orbitStringCopy(&gc, "Hello!", 6));
+    OrbitValue b = ORBIT_VALUE_REF(orbitStringCopy(&gc, "Hello!", 6));
     
-    TEST_ASSERT_TRUE(orbit_valueEquals(a, b));
+    TEST_ASSERT_TRUE(orbitValueEquals(a, b));
 }
 
 void test_stringConcat(void) {
-    OrbitString* a = orbit_stringCopy(&gc, "Hello!", 6);
-    OrbitString* b = orbit_stringCopy(&gc, " 👋", strlen(" 👋"));
-    OrbitString* c = orbit_stringConcat(&gc, a, b);
+    OrbitString* a = orbitStringCopy(&gc, "Hello!", 6);
+    OrbitString* b = orbitStringCopy(&gc, " 👋", strlen(" 👋"));
+    OrbitString* c = orbitStringConcat(&gc, a, b);
     
     TEST_ASSERT_EQUAL(8, c->count);
     TEST_ASSERT_EQUAL(strlen("Hello! 👋"), c->utf8count);
@@ -173,30 +173,30 @@ void test_stringConcat(void) {
 }
 
 void test_gcRootsPush(void) {
-    OrbitString* a = orbit_stringCopy(&gc, "Hello!", 6);
-    orbit_gcPush(&gc, (OrbitObject*)a);
+    OrbitString* a = orbitStringCopy(&gc, "Hello!", 6);
+    orbitGCPush(&gc, (OrbitObject*)a);
     TEST_ASSERT_EQUAL(1, gc.rootCount);
 }
 
 void test_gcRootsPop(void) {
-    OrbitString* a = orbit_stringCopy(&gc, "Hello!", 6);
-    orbit_gcPush(&gc, (OrbitObject*)a);
-    orbit_gcPop(&gc);
+    OrbitString* a = orbitStringCopy(&gc, "Hello!", 6);
+    orbitGCPush(&gc, (OrbitObject*)a);
+    orbitGCPop(&gc);
     TEST_ASSERT_EQUAL(0, gc.rootCount);
 }
 
 void test_gcRootRelease(void) {
-    OrbitString* a = orbit_stringCopy(&gc, "Hello!", 6);
-    OrbitString* b = orbit_stringCopy(&gc, "Hello!", 6);
-    OrbitString* c = orbit_stringCopy(&gc, "Hello!", 6);
+    OrbitString* a = orbitStringCopy(&gc, "Hello!", 6);
+    OrbitString* b = orbitStringCopy(&gc, "Hello!", 6);
+    OrbitString* c = orbitStringCopy(&gc, "Hello!", 6);
     
-    orbit_gcPush(&gc, (OrbitObject*)a);
-    orbit_gcPush(&gc, (OrbitObject*)b);
-    orbit_gcPush(&gc, (OrbitObject*)c);
-    orbit_gcPush(&gc, (OrbitObject*)a);
-    orbit_gcPush(&gc, (OrbitObject*)a);
+    orbitGCPush(&gc, (OrbitObject*)a);
+    orbitGCPush(&gc, (OrbitObject*)b);
+    orbitGCPush(&gc, (OrbitObject*)c);
+    orbitGCPush(&gc, (OrbitObject*)a);
+    orbitGCPush(&gc, (OrbitObject*)a);
     
-    orbit_gcRelease(&gc, (OrbitObject*)b);
+    orbitGCRelease(&gc, (OrbitObject*)b);
     
     TEST_ASSERT_EQUAL(4, gc.rootCount);
     TEST_ASSERT_EQUAL_HEX(a, gc.roots[0]);

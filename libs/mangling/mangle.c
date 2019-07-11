@@ -31,71 +31,71 @@ static void _mangleNameLength(const char* name, uint64_t length, OCStringBuffer*
     if(!encodedLength) return;
     
     uint64_t lenLen = snprintf(lenStr, 4, "%" PRIu64, encodedLength);
-    orbit_stringBufferAppendC(buffer, lenStr, lenLen);
+    orbitStringBufferAppendC(buffer, lenStr, lenLen);
     
     uint64_t idx = 0;
     while(idx < length) {
         codepoint_t c = utf8_getCodepoint(name + idx, length - idx);
         idx += utf8_codepointSize(c);
         
-        if(c < 256) orbit_stringBufferAppend(buffer, c);
+        if(c < 256) orbitStringBufferAppend(buffer, c);
         else {
-            orbit_stringBufferAppend(buffer, '%');
+            orbitStringBufferAppend(buffer, '%');
             char hex[10];
             uint64_t hexLen = snprintf(hex, 10, "%06X", c);
-            orbit_stringBufferAppendC(buffer, hex, hexLen);
+            orbitStringBufferAppendC(buffer, hex, hexLen);
         }
     }
 }
 
-static void orbit_mangleList(OrbitAST* head, OCStringBuffer* buffer, codepoint_t start) {
+static void orbitMangleList(OrbitAST* head, OCStringBuffer* buffer, codepoint_t start) {
     if(!head) return;
-    orbit_stringBufferAppend(buffer, start);
-    orbit_mangleType(head, buffer);
+    orbitStringBufferAppend(buffer, start);
+    orbitMangleType(head, buffer);
     while(head->next) {
         head = head->next;
-        orbit_stringBufferAppend(buffer, '_');
-        orbit_mangleType(head, buffer);
+        orbitStringBufferAppend(buffer, '_');
+        orbitMangleType(head, buffer);
     }
-    orbit_stringBufferAppend(buffer, 'e');
+    orbitStringBufferAppend(buffer, 'e');
 }
 
-void orbit_mangleType(OrbitAST* type, OCStringBuffer* buffer) {
+void orbitMangleType(OrbitAST* type, OCStringBuffer* buffer) {
     if(!type) {
-        orbit_stringBufferAppend(buffer, 'v');
+        orbitStringBufferAppend(buffer, 'v');
         return;
     }
     
     switch (type->kind) {
-        case ORBIT_AST_TYPEEXPR_ANY:    orbit_stringBufferAppendC(buffer, "N*", 2); break;
-        case ORBIT_AST_TYPEEXPR_BOOL:   orbit_stringBufferAppendC(buffer, "Nb", 2); break;
-        case ORBIT_AST_TYPEEXPR_STRING: orbit_stringBufferAppendC(buffer, "Ns", 2); break;
-        case ORBIT_AST_TYPEEXPR_INT:    orbit_stringBufferAppendC(buffer, "Nd", 2); break;
-        case ORBIT_AST_TYPEEXPR_FLOAT:  orbit_stringBufferAppendC(buffer, "Nf", 2); break;
-        case ORBIT_AST_TYPEEXPR_VOID:   orbit_stringBufferAppend(buffer, 'v');      break;
+        case ORBIT_AST_TYPEEXPR_ANY:    orbitStringBufferAppendC(buffer, "N*", 2); break;
+        case ORBIT_AST_TYPEEXPR_BOOL:   orbitStringBufferAppendC(buffer, "Nb", 2); break;
+        case ORBIT_AST_TYPEEXPR_STRING: orbitStringBufferAppendC(buffer, "Ns", 2); break;
+        case ORBIT_AST_TYPEEXPR_INT:    orbitStringBufferAppendC(buffer, "Nd", 2); break;
+        case ORBIT_AST_TYPEEXPR_FLOAT:  orbitStringBufferAppendC(buffer, "Nf", 2); break;
+        case ORBIT_AST_TYPEEXPR_VOID:   orbitStringBufferAppend(buffer, 'v');      break;
             
         case ORBIT_AST_TYPEEXPR_ARRAY:
-            orbit_stringBufferAppendC(buffer, "at", 2);
-            orbit_mangleType(type->typeExpr.arrayType.elementType, buffer);
-            orbit_stringBufferAppend(buffer, 'e');
+            orbitStringBufferAppendC(buffer, "at", 2);
+            orbitMangleType(type->typeExpr.arrayType.elementType, buffer);
+            orbitStringBufferAppend(buffer, 'e');
             break;
         case ORBIT_AST_TYPEEXPR_MAP:
-            orbit_stringBufferAppendC(buffer, "mt", 2);
-            orbit_mangleType(type->typeExpr.mapType.keyType, buffer);
-            orbit_stringBufferAppend(buffer, '_');
-            orbit_mangleType(type->typeExpr.mapType.elementType, buffer);
-            orbit_stringBufferAppend(buffer, 'e');
+            orbitStringBufferAppendC(buffer, "mt", 2);
+            orbitMangleType(type->typeExpr.mapType.keyType, buffer);
+            orbitStringBufferAppend(buffer, '_');
+            orbitMangleType(type->typeExpr.mapType.elementType, buffer);
+            orbitStringBufferAppend(buffer, 'e');
             break;
             
         case ORBIT_AST_TYPEEXPR_FUNC:
-            orbit_stringBufferAppendC(buffer, "f", 1);
-            orbit_mangleList(type->typeExpr.funcType.params, buffer, 'p');
-            orbit_mangleType(type->typeExpr.funcType.returnType, buffer);
+            orbitStringBufferAppendC(buffer, "f", 1);
+            orbitMangleList(type->typeExpr.funcType.params, buffer, 'p');
+            orbitMangleType(type->typeExpr.funcType.returnType, buffer);
             break;
             
         case ORBIT_AST_TYPEEXPR_USER:
-            orbit_stringBufferAppend(buffer, 'U');
-            OCString* name = orbit_stringPoolGet(type->typeExpr.userType.symbol);
+            orbitStringBufferAppend(buffer, 'U');
+            OCString* name = orbitStringPoolGet(type->typeExpr.userType.symbol);
             _mangleNameLength(name->data, name->length, buffer);
             break;
         default:
@@ -103,19 +103,19 @@ void orbit_mangleType(OrbitAST* type, OCStringBuffer* buffer) {
     }
 }
 
-OCStringID orbit_mangleFuncName(OrbitAST* decl) {
+OCStringID orbitMangleFuncName(OrbitAST* decl) {
     OCStringBuffer buffer;
-    orbit_stringBufferInit(&buffer, 128);
+    orbitStringBufferInit(&buffer, 128);
     
-    OCString* name = orbit_stringPoolGet(decl->funcDecl.name);
+    OCString* name = orbitStringPoolGet(decl->funcDecl.name);
     
-    orbit_stringBufferAppendC(&buffer, "_OF", 3);
+    orbitStringBufferAppendC(&buffer, "_OF", 3);
     _mangleNameLength(name->data, name->length, &buffer);
-    orbit_mangleList(decl->type->typeExpr.funcType.params,&buffer, 'p');
-    orbit_mangleType(decl->type->typeExpr.funcType.returnType, &buffer);
-    //orbit_stringBufferAppend(&buffer, '_');
+    orbitMangleList(decl->type->typeExpr.funcType.params,&buffer, 'p');
+    orbitMangleType(decl->type->typeExpr.funcType.returnType, &buffer);
+    //orbitStringBufferAppend(&buffer, '_');
     
-    OCStringID id = orbit_stringBufferIntern(&buffer);
-    orbit_stringBufferDeinit(&buffer);
+    OCStringID id = orbitStringBufferIntern(&buffer);
+    orbitStringBufferDeinit(&buffer);
     return id;
 }

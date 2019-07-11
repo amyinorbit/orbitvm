@@ -14,8 +14,8 @@
 #include <orbit/ast/ast.h>
 #include <orbit/csupport/string.h>
 
-void orbit_mangleType(OrbitAST* type, OCStringBuffer* buffer);
-OCStringID orbit_mangleFuncName(OrbitAST* decl);
-OCStringID orbit_demangle(const char* mangledName, uint64_t length);
+void orbitMangleType(OrbitAST* type, OCStringBuffer* buffer);
+OCStringID orbitMangleFuncName(OrbitAST* decl);
+OCStringID orbitDemangle(const char* mangledName, uint64_t length);
 
 #endif /* orbit_sema_mangle_h */

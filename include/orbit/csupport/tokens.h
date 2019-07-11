@@ -124,19 +124,19 @@ struct _OrbitToken {
     uint32_t        isStartOfLine:1;
 };
 
-const char* orbit_tokenName(OrbitTokenKind token);
-const char* orbit_tokenString(OrbitTokenKind token);
+const char* orbitTokenName(OrbitTokenKind token);
+const char* orbitTokenString(OrbitTokenKind token);
 
-//bool orbit_tokenEquals(OrbitToken* a, OrbitToken* b);
+//bool orbitTokenEquals(OrbitToken* a, OrbitToken* b);
 
-bool orbit_tokenIsAssign(OrbitTokenKind token);
-bool orbit_tokenIsBinaryOp(OrbitTokenKind token);
-bool orbit_tokenIsUnaryOp(OrbitTokenKind token);
+bool orbitTokenIsAssign(OrbitTokenKind token);
+bool orbitTokenIsBinaryOp(OrbitTokenKind token);
+bool orbitTokenIsUnaryOp(OrbitTokenKind token);
 
-double orbit_tokenDoubleValue(const OrbitToken* token);
-int32_t orbit_tokenIntValue(const OrbitToken* token);
+double orbitTokenDoubleValue(const OrbitToken* token);
+int32_t orbitTokenIntValue(const OrbitToken* token);
 
-int orbit_tokenBinaryPrecedence(OrbitTokenKind token);
-int orbit_tokenBinaryRightAssoc(OrbitTokenKind token);
+int orbitTokenBinaryPrecedence(OrbitTokenKind token);
+int orbitTokenBinaryRightAssoc(OrbitTokenKind token);
 
 #endif /* orbit_csupport_tokens_h */

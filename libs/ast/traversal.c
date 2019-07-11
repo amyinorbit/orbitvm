@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <orbit/ast/traversal.h>
 
-OrbitASTVisitor orbit_astSimpleVisitor(OrbitASTCallback callback, ASTKind filter, void* data) {
+OrbitASTVisitor orbitASTSimpleVisitor(OrbitASTCallback callback, ASTKind filter, void* data) {
     return (OrbitASTVisitor){
         .callback = callback,
         .predicate = NULL,
@@ -19,7 +19,7 @@ OrbitASTVisitor orbit_astSimpleVisitor(OrbitASTCallback callback, ASTKind filter
     };
 }
 
-OrbitASTVisitor orbit_astVisitor(OrbitASTCallback callback, OrbitASTPredicate pred, void* data) {
+OrbitASTVisitor orbitASTVisitor(OrbitASTCallback callback, OrbitASTPredicate pred, void* data) {
     return (OrbitASTVisitor){
         .callback = callback,
         .predicate = pred,
@@ -165,7 +165,7 @@ static void _ast_doTraverse(OrbitASTContext* ctx, OrbitAST* ast, const OrbitASTV
     _ast_doTraverse(ctx, ast->next, visitor);
 }
 
-void orbit_astTraverse(OrbitASTContext* ctx, OrbitASTVisitor visitor) {
+void orbitASTTraverse(OrbitASTContext* ctx, OrbitASTVisitor visitor) {
     assert(ctx && "null AST Context given to traversal");
     _ast_doTraverse(ctx, ctx->root, &visitor);
 }

@@ -16,15 +16,15 @@
 #include <orbit/rt2/invocation.h>
 #include <stdio.h>
 
-void orbit_vmInit(OrbitVM* self) {
+void orbitVMInit(OrbitVM* self) {
     assert(self && "null vm error");
-    orbit_gcInit(&self->gc);
+    orbitGCInit(&self->gc);
     self->task = NULL;
 }
 
-void orbit_vmDeinit(OrbitVM* self) {
+void orbitVMDeinit(OrbitVM* self) {
     assert(self && "null vm error");
-    orbit_gcDeinit(&self->gc);
+    orbitGCDeinit(&self->gc);
 }
 
 static inline void push(OrbitVM* vm, OrbitValue value) {
@@ -86,14 +86,14 @@ static void printValue(OrbitValue value) {
     }
 }
 
-void orbit_debugTOS(OrbitVM* self) {
+void orbitDebugTOS(OrbitVM* self) {
     if(!self->task) return;
     if(self->task->stackTop == self->task->stack) return;
     printf("=> ");
     printValue(peek(self, 0));
 }
 
-void orbit_debugStack(OrbitVM* self) {
+void orbitDebugStack(OrbitVM* self) {
     if(!self->task) return;
     printf("    --stack--\n");
     
@@ -118,11 +118,11 @@ static inline OrbitValue readConst(OrbitVM* vm) {
 }
 
 // #define ORBIT_DEBUG_TRACE
-OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
+OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
     assert(vm && "null vm error");
     assert(function && "null chunk error");
     vm->function = function;
-    vm->task = orbit_taskNew(&vm->gc, function);
+    vm->task = orbitTaskNew(&vm->gc, function);
     
     OrbitFrame* frame = vm->task->frames.data;
 
@@ -136,9 +136,9 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
 
     for(;;) {
 #ifdef ORBIT_DEBUG_TRACE
-        orbit_debugInstruction(vm->function, vm->task->ip - vm->function->code.data);
-        orbit_debugStack(vm);
-        // orbit_debugTOS(vm);
+        orbitDebugInstruction(vm->function, vm->task->ip - vm->function->code.data);
+        orbitDebugStack(vm);
+        // orbitDebugTOS(vm);
         getchar();
 #endif
 
@@ -250,21 +250,21 @@ OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function) {
         case OP_call: {
             OrbitValue callee = pop(vm);
             assert(ORBIT_IS_FUNCTION(callee) && "cannot call a non-function object");
-            orbit_taskPushFrame(&vm->gc, vm->task, (OrbitFunction*)ORBIT_AS_REF(callee));
+            orbitTaskPushFrame(&vm->gc, vm->task, (OrbitFunction*)ORBIT_AS_REF(callee));
         } NEXT();
 
         case OP_return:
-            orbit_taskPopFrame(&vm->gc, vm->task);
+            orbitTaskPopFrame(&vm->gc, vm->task);
             if(!vm->task->frames.count) return ORBIT_OK;
             NEXT();
             
         case OP_return_repl:
-            if(vm->task->stackTop != orbit_taskFrame(vm->task)->stack) {
+            if(vm->task->stackTop != orbitTaskFrame(vm->task)->stack) {
                 OrbitValue value = pop(vm);
-                orbit_taskPopFrame(&vm->gc, vm->task);
+                orbitTaskPopFrame(&vm->gc, vm->task);
                 push(vm, value);
             } else {
-                orbit_taskPopFrame(&vm->gc, vm->task);
+                orbitTaskPopFrame(&vm->gc, vm->task);
             }
             if(!vm->task->frames.count) return ORBIT_OK;
             NEXT();

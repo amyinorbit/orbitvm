@@ -73,7 +73,7 @@ static void _makeToken(OCParser* parser, int type) {
     parser->currentToken.length = parser->currentPtr - parser->tokenStart;
 
     parser->currentToken.isStartOfLine = parser->isStartOfLine;
-    parser->currentToken.parsedStringLiteral = orbit_invalidStringID;
+    parser->currentToken.parsedStringLiteral = orbitInvalidStringID;
     
     // We reset the start of line marker after a token is produced.
     parser->isStartOfLine = false;
@@ -150,7 +150,7 @@ static void _lexIdentifier(OCParser* parser) {
 static void _lexString(OCParser* parser) {
     // String literals cannot be tokenised by solely pointing into the source
     // string, we need to account for escape sequences.
-    orbit_stringBufferReset(&parser->literalBuffer);
+    orbitStringBufferReset(&parser->literalBuffer);
     
     for(;;) {
         codepoint_t c = _nextChar(parser);
@@ -159,7 +159,7 @@ static void _lexString(OCParser* parser) {
             break;
         }
         else if(c == '\0') {
-            orbit_diagError(
+            orbitDiagError(
                 &parser->context->diagnostics,
                 lexer_loc(parser), "unterminated string literal", 0
             );
@@ -168,30 +168,30 @@ static void _lexString(OCParser* parser) {
         else if(c == '\\') {
             c = _nextChar(parser);
             switch(c) {
-                case '\\': orbit_stringBufferAppend(&parser->literalBuffer, '\\'); break;
-                case 'a':  orbit_stringBufferAppend(&parser->literalBuffer, '\a'); break;
-                case 'b':  orbit_stringBufferAppend(&parser->literalBuffer, '\b'); break;
-                case 'f':  orbit_stringBufferAppend(&parser->literalBuffer, '\f'); break;
-                case 'n':  orbit_stringBufferAppend(&parser->literalBuffer, '\n'); break;
-                case 'r':  orbit_stringBufferAppend(&parser->literalBuffer, '\r'); break;
-                case 't':  orbit_stringBufferAppend(&parser->literalBuffer, '\t'); break;
-                case 'v':  orbit_stringBufferAppend(&parser->literalBuffer, '\v'); break;
-                case '"':  orbit_stringBufferAppend(&parser->literalBuffer, '\"'); break;
+                case '\\': orbitStringBufferAppend(&parser->literalBuffer, '\\'); break;
+                case 'a':  orbitStringBufferAppend(&parser->literalBuffer, '\a'); break;
+                case 'b':  orbitStringBufferAppend(&parser->literalBuffer, '\b'); break;
+                case 'f':  orbitStringBufferAppend(&parser->literalBuffer, '\f'); break;
+                case 'n':  orbitStringBufferAppend(&parser->literalBuffer, '\n'); break;
+                case 'r':  orbitStringBufferAppend(&parser->literalBuffer, '\r'); break;
+                case 't':  orbitStringBufferAppend(&parser->literalBuffer, '\t'); break;
+                case 'v':  orbitStringBufferAppend(&parser->literalBuffer, '\v'); break;
+                case '"':  orbitStringBufferAppend(&parser->literalBuffer, '\"'); break;
                 default:
-                    orbit_diagError(
+                    orbitDiagError(
                         &parser->context->diagnostics,
                         lexer_loc(parser), "invalid escape sequence in string literal", 0
                     );
                     break;
             }
         } else {
-            orbit_stringBufferAppend(&parser->literalBuffer, c);
+            orbitStringBufferAppend(&parser->literalBuffer, c);
         }
     }
     
     _makeToken(parser, ORBIT_TOK_STRING_LITERAL);
     // Store the parsed string literal
-    parser->currentToken.parsedStringLiteral = orbit_stringBufferIntern(&parser->literalBuffer);
+    parser->currentToken.parsedStringLiteral = orbitStringBufferIntern(&parser->literalBuffer);
 }
 
 static inline bool isDigit(codepoint_t c) {
@@ -235,7 +235,7 @@ static void _lexBlockComment(OCParser* parser) {
             if(c == '*') { depth += 1; }
             break;
         case '\0':
-            orbit_diagError(
+            orbitDiagError(
                 &parser->context->diagnostics,
                 lexer_loc(parser), "unterminated string literal", 0
             );
@@ -251,7 +251,7 @@ static void _updateTokenStart(OCParser* parser) {
     parser->currentToken.source = source(parser); // TODO: nuke when OrbitToken::source is removed
 }
 
-void orbit_parserNextToken(OCParser* parser) {
+void orbitParserNextToken(OCParser* parser) {
     assert(parser != NULL && "invalid parser given");
     if(parser->currentToken.kind == ORBIT_TOK_EOF) { return; }
     
@@ -366,7 +366,7 @@ void orbit_parserNextToken(OCParser* parser) {
                     _lexNumber(parser);
                 }
                 else {
-                    orbit_diagError(
+                    orbitDiagError(
                         &parser->context->diagnostics,
                         lexer_loc(parser), "invalid character", 0
                     );

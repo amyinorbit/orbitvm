@@ -107,6 +107,6 @@ struct sOrbitValue {
 
 #endif
 
-bool orbit_valueEquals(OrbitValue lhs, OrbitValue rhs);
+bool orbitValueEquals(OrbitValue lhs, OrbitValue rhs);
 
 #endif

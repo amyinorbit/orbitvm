@@ -13,6 +13,6 @@
 #include <orbit/common.h>
 #include <orbit/ast/context.h>
 
-void orbit_semaCheck(OrbitASTContext* context);
+void orbitSemaCheck(OrbitASTContext* context);
 
 #endif

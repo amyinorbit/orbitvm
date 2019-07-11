@@ -7,16 +7,16 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
-#ifndef orbit_ast_type_h
-#define orbit_ast_type_h
+#ifndef orbitAST_type_h
+#define orbitAST_type_h
 #include <stdbool.h>
 #include <orbit/ast/ast.h>
 #include <orbit/csupport/string.h>
 
-bool orbit_astTypeIsPrimitive(const OrbitAST* a);
-bool orbit_astTypeEqualsPrimitive(const OrbitAST* a, ASTKind b);
-bool orbit_astTypeEquals(const OrbitAST* a, const OrbitAST* b);
-OrbitAST* orbit_astTypeCopy(const OrbitAST* src);
-void orbit_astTypeString(OCStringBuffer* buffer, OrbitAST* ast);
+bool orbitASTTypeIsPrimitive(const OrbitAST* a);
+bool orbitASTTypeEqualsPrimitive(const OrbitAST* a, ASTKind b);
+bool orbitASTTypeEquals(const OrbitAST* a, const OrbitAST* b);
+OrbitAST* orbitASTTypeCopy(const OrbitAST* src);
+void orbitASTTypeString(OCStringBuffer* buffer, OrbitAST* ast);
 
 #endif /* orbit_ast_type_h */

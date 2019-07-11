@@ -85,8 +85,8 @@ const Conversion* findCast(const OrbitAST* from, const OrbitAST* to) {
     if(!from || !to) return NULL;
     
     for(const Conversion* cast = conversions; cast != conversions + count; ++cast) {
-        if(orbit_astTypeEqualsPrimitive(from, cast->from)
-           && orbit_astTypeEqualsPrimitive(to, cast->to)) {
+        if(orbitASTTypeEqualsPrimitive(from, cast->from)
+           && orbitASTTypeEqualsPrimitive(to, cast->to)) {
             return cast;
         }
     }
@@ -97,7 +97,7 @@ static const Conversion* findCastPrimitive(const OrbitAST* from, ASTKind to) {
     if(!from) return NULL;
     
     for(const Conversion* cast = conversions; cast != conversions + count; ++cast) {
-        if(orbit_astTypeEqualsPrimitive(from, cast->from)
+        if(orbitASTTypeEqualsPrimitive(from, cast->from)
            && to == cast->to) {
             return cast;
         }
@@ -114,23 +114,23 @@ bool canConvertPrimitive(OrbitAST* from, ASTKind to) {
 }
 
 OrbitAST* convertExprType(OrbitAST* node, OrbitAST* to) {
-    if(orbit_astTypeEquals(node->type, to)) return node;
+    if(orbitASTTypeEquals(node->type, to)) return node;
     const Conversion* cast = findCast(node->type, to);
     if(!cast) return NULL;
     
-    OrbitAST* converted = ORCRETAIN(orbit_astMakeCastExpr(node, cast->nodeKind));
-    converted->type = ORCRETAIN(orbit_astMakePrimitiveType(cast->to));
+    OrbitAST* converted = ORCRETAIN(orbitASTMakeCastExpr(node, cast->nodeKind));
+    converted->type = ORCRETAIN(orbitASTMakePrimitiveType(cast->to));
     ORCRELEASE(node);
     return converted;
 }
 
 OrbitAST* convertExprTypePrimitive(OrbitAST* node, ASTKind to) {
-    if(orbit_astTypeEqualsPrimitive(node->type, to)) return node;
+    if(orbitASTTypeEqualsPrimitive(node->type, to)) return node;
     const Conversion* cast = findCastPrimitive(node->type, to);
     if(!cast) return NULL; // TODO: we should probably signal, here
     
-    OrbitAST* converted = ORCRETAIN(orbit_astMakeCastExpr(node, cast->nodeKind));
-    converted->type = ORCRETAIN(orbit_astMakePrimitiveType(cast->to));
+    OrbitAST* converted = ORCRETAIN(orbitASTMakeCastExpr(node, cast->nodeKind));
+    converted->type = ORCRETAIN(orbitASTMakePrimitiveType(cast->to));
     ORCRELEASE(node);
     return converted;
 }
@@ -141,13 +141,13 @@ static bool binaryOpMatches(bool strict, OperatorSemData* data, OrbitAST* expr) 
     const OrbitAST* lhs = expr->binaryExpr.lhs;
     const OrbitAST* rhs = expr->binaryExpr.rhs;
     if(strict) {
-        return orbit_astTypeEqualsPrimitive(lhs->type, data->lhsType)
-            && orbit_astTypeEqualsPrimitive(rhs->type, data->rhsType);
+        return orbitASTTypeEqualsPrimitive(lhs->type, data->lhsType)
+            && orbitASTTypeEqualsPrimitive(rhs->type, data->rhsType);
     }
     
-    bool lhsMatches = orbit_astTypeEqualsPrimitive(lhs->type, data->lhsType)
+    bool lhsMatches = orbitASTTypeEqualsPrimitive(lhs->type, data->lhsType)
                       || (canConvertPrimitive(lhs->type, data->lhsType));
-    bool rhsMatches = orbit_astTypeEqualsPrimitive(rhs->type, data->rhsType)
+    bool rhsMatches = orbitASTTypeEqualsPrimitive(rhs->type, data->rhsType)
                       || (canConvertPrimitive(rhs->type, data->rhsType));
     return lhsMatches && rhsMatches;
 }
@@ -177,7 +177,7 @@ OrbitAST* resolveBinaryExpr(Sema* self, OrbitAST* expr) {
         errorBinary(self, expr); 
         return expr->binaryExpr.lhs;
     }
-    expr->type = ORCRETAIN(orbit_astMakePrimitiveType(op->result));
+    expr->type = ORCRETAIN(orbitASTMakePrimitiveType(op->result));
     return expr->type;
 }
 

@@ -22,10 +22,10 @@ enum _VMResult {
     ORBIT_RUNTIME_ERROR
 };
 
-OrbitVM* orbit_vmNew();
+OrbitVM* orbitVMNew();
 
-void orbit_vmDealloc(OrbitVM* vm);
+void orbitVMDealloc(OrbitVM* vm);
 
-bool orbit_vmInvoke(OrbitVM* vm, const char* module, const char* entry);
+bool orbitVMInvoke(OrbitVM* vm, const char* module, const char* entry);
 
 #endif /* orbit_h */

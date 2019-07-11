@@ -55,12 +55,12 @@ static void _recIdentifier(OCMParser* p, OCStringBuffer* d);
 static void _recPrimitiveType(OCMParser* p, OCStringBuffer* d) {
     if(p->failed) { return; }
     switch(peek(p)) {
-        case '*': orbit_stringBufferAppendC(d, "Any", 3);       break;
-        case 'b': orbit_stringBufferAppendC(d, "Bool", 4);      break;
-        case 'd': orbit_stringBufferAppendC(d, "Int", 3);       break;
-        case 'f': orbit_stringBufferAppendC(d, "Float", 5);     break;
-        case 'i': orbit_stringBufferAppendC(d, "Int", 3);       break;
-        case 's': orbit_stringBufferAppendC(d, "String", 6);    break;
+        case '*': orbitStringBufferAppendC(d, "Any", 3);       break;
+        case 'b': orbitStringBufferAppendC(d, "Bool", 4);      break;
+        case 'd': orbitStringBufferAppendC(d, "Int", 3);       break;
+        case 'f': orbitStringBufferAppendC(d, "Float", 5);     break;
+        case 'i': orbitStringBufferAppendC(d, "Int", 3);       break;
+        case 's': orbitStringBufferAppendC(d, "String", 6);    break;
         default: fail(p); return;
     }
     next(p);
@@ -81,29 +81,29 @@ static void _recType(OCMParser* p, OCStringBuffer* d) {
             
         case 'v':
             next(p);
-            orbit_stringBufferAppendC(d, "Void", 4);
+            orbitStringBufferAppendC(d, "Void", 4);
             break;
             
         case 'f':
             next(p);
-            orbit_stringBufferAppend(d, '(');
+            orbitStringBufferAppend(d, '(');
             if(peek(p) == 'p') _recTypeList(p, d, 'p');
-            orbit_stringBufferAppendC(d, ") -> ", 5);
+            orbitStringBufferAppendC(d, ") -> ", 5);
             _recType(p, d);
             break;
             
         case 'a':
             next(p);
-            orbit_stringBufferAppendC(d, "Array[", 6);
+            orbitStringBufferAppendC(d, "Array[", 6);
             _recTypeList(p, d, 't');
-            orbit_stringBufferAppend(d, ']');
+            orbitStringBufferAppend(d, ']');
             break;
             
         case 'm':
             next(p);
-            orbit_stringBufferAppendC(d, "Map[", 4);
+            orbitStringBufferAppendC(d, "Map[", 4);
             _recTypeList(p, d, 't');
-            orbit_stringBufferAppend(d, ']');
+            orbitStringBufferAppend(d, ']');
             break;
             
         default: fail(p); break;
@@ -119,7 +119,7 @@ static void _recTypeList(OCMParser* p, OCStringBuffer* d, char start) {
     _recType(p, d);
     while(peek(p) == '_') {
         next(p);
-        orbit_stringBufferAppendC(d, ", ", 2);
+        orbitStringBufferAppendC(d, ", ", 2);
         _recType(p, d);
     }
     if(peek(p) == 'e') {
@@ -162,10 +162,10 @@ static void _recIdentifier(OCMParser* p, OCStringBuffer* d) {
                 }
                 c = next(p);
             }
-            orbit_stringBufferAppend(d, point);
+            orbitStringBufferAppend(d, point);
             length -= 7;
         } else {
-            orbit_stringBufferAppend(d, c);
+            orbitStringBufferAppend(d, c);
             c = next(p);
             length -= 1;
         }
@@ -177,14 +177,14 @@ static void _recFuncName(OCMParser* p, OCStringBuffer* d) {
     if(!nextIf(p, 'F')) { fail(p); return; }
     _recIdentifier(p, d);
     while(peek(p) >= '0' && peek(p) <= '9') {
-        orbit_stringBufferAppend(d, '.');
+        orbitStringBufferAppend(d, '.');
         _recIdentifier(p, d);
     }
-    orbit_stringBufferAppend(d, '(');
+    orbitStringBufferAppend(d, '(');
     if(peek(p) == 'p') {
         _recTypeList(p, d, 'p');
     }
-    orbit_stringBufferAppendC(d, ") -> ", 5);
+    orbitStringBufferAppendC(d, ") -> ", 5);
     _recType(p, d);
 }
 
@@ -194,7 +194,7 @@ static void _recVariableName(OCMParser* p, OCStringBuffer* d) {
     _recIdentifier(p, d);
 }
 
-OCStringID orbit_demangle(const char* mangledName, uint64_t length) {
+OCStringID orbitDemangle(const char* mangledName, uint64_t length) {
     OCStringBuffer demangled;
     OCMParser parser = {
         .failed = false,
@@ -202,9 +202,9 @@ OCStringID orbit_demangle(const char* mangledName, uint64_t length) {
         .length = length,
         .current = mangledName,
     };
-    orbit_stringBufferInit(&demangled, 256);
+    orbitStringBufferInit(&demangled, 256);
     
-    OCStringID id = orbit_invalidStringID;
+    OCStringID id = orbitInvalidStringID;
     
     if(!nextIf(&parser, '_')) { goto failure; }
     if(!nextIf(&parser, 'O')) { goto failure; }
@@ -223,9 +223,9 @@ OCStringID orbit_demangle(const char* mangledName, uint64_t length) {
     
     if(parser.failed) { goto failure; }
     
-    id = orbit_stringBufferIntern(&demangled);
+    id = orbitStringBufferIntern(&demangled);
 failure:
-    orbit_stringBufferDeinit(&demangled);
+    orbitStringBufferDeinit(&demangled);
     return id;
     
 }

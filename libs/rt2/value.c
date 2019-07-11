@@ -11,17 +11,17 @@
 #include <orbit/rt2/value_object.h>
 #include <orbit/rt2/value_string.h>
 
-static bool orbit_objectsEqual(const OrbitObject* lhs, const OrbitObject* rhs) {
+static bool orbitObjectsEqual(const OrbitObject* lhs, const OrbitObject* rhs) {
     if(lhs == rhs) return true;
     if(lhs->kind != rhs->kind) return false;
     if(lhs->kind == ORBIT_OBJ_STRING)
-        return orbit_stringEquals((const OrbitString*)lhs, (const OrbitString*)rhs);
+        return orbitStringEquals((const OrbitString*)lhs, (const OrbitString*)rhs);
     return false;
 }
 
-bool orbit_valueEquals(OrbitValue lhs, OrbitValue rhs) {
+bool orbitValueEquals(OrbitValue lhs, OrbitValue rhs) {
     if(ORBIT_IS_REF(lhs) && ORBIT_IS_REF(rhs))
-        return orbit_objectsEqual(ORBIT_AS_REF(lhs), ORBIT_AS_REF(rhs));
+        return orbitObjectsEqual(ORBIT_AS_REF(lhs), ORBIT_AS_REF(rhs));
     uint64_t T = ORBIT_GET_FLAGS(lhs);
     uint64_t U = ORBIT_GET_FLAGS(rhs);
     if(T != U) return false;

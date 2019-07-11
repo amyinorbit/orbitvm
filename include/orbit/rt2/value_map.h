@@ -27,11 +27,11 @@ struct sOrbitMap {
     OrbitMapEntry* data;
 };
 
-void orbit_mapInit(OrbitMap* self);
-void orbit_mapDeinit(OrbitMap* self);
+void orbitMapInit(OrbitMap* self);
+void orbitMapDeinit(OrbitMap* self);
 
-OrbitValue orbit_mapGet(const OrbitMap* self, OrbitMapKey key);
-void orbit_mapInsert(OrbitMap* self, OrbitMapKey key, OrbitValue value);
-void orbit_mapRemove(OrbitMap* self, OrbitMapKey key);
+OrbitValue orbitMapGet(const OrbitMap* self, OrbitMapKey key);
+void orbitMapInsert(OrbitMap* self, OrbitMapKey key, OrbitValue value);
+void orbitMapRemove(OrbitMap* self, OrbitMapKey key);
 
 #endif

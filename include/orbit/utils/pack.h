@@ -21,29 +21,29 @@ typedef enum {
     ERROR_UNPACK    = -2,
 } OrbitPackError;
 
-OrbitPackError orbit_pack8(FILE* out, uint8_t bits);
+OrbitPackError orbitPack8(FILE* out, uint8_t bits);
 
-OrbitPackError orbit_pack16(FILE* out, uint16_t bits);
+OrbitPackError orbitPack16(FILE* out, uint16_t bits);
 
-OrbitPackError orbit_pack32(FILE* out, uint32_t bits);
+OrbitPackError orbitPack32(FILE* out, uint32_t bits);
 
-OrbitPackError orbit_pack64(FILE* out, uint64_t bits);
+OrbitPackError orbitPack64(FILE* out, uint64_t bits);
 
-OrbitPackError orbit_packIEEE754(FILE* out, double bits);
+OrbitPackError orbitPackIEEE754(FILE* out, double bits);
 
-OrbitPackError orbit_packBytes(FILE* out, uint8_t* bytes, size_t count);
+OrbitPackError orbitPackBytes(FILE* out, uint8_t* bytes, size_t count);
 
 
-uint8_t orbit_unpack8(FILE* in, OrbitPackError* error);
+uint8_t orbitUnpack8(FILE* in, OrbitPackError* error);
 
-uint16_t orbit_unpack16(FILE* in, OrbitPackError* error);
+uint16_t orbitUnpack16(FILE* in, OrbitPackError* error);
 
-uint32_t orbit_unpack32(FILE* in, OrbitPackError* error);
+uint32_t orbitUnpack32(FILE* in, OrbitPackError* error);
 
-uint64_t orbit_unpack64(FILE* in, OrbitPackError* error);
+uint64_t orbitUnpack64(FILE* in, OrbitPackError* error);
 
-double orbit_unpackIEEE754(FILE* in, OrbitPackError* error);
+double orbitUnpackIEEE754(FILE* in, OrbitPackError* error);
 
-OrbitPackError orbit_unpackBytes(FILE* in, uint8_t* bytes, size_t count);
+OrbitPackError orbitUnpackBytes(FILE* in, uint8_t* bytes, size_t count);
 
 #endif /* orbit_pack_h */

@@ -22,19 +22,19 @@
 
 static inline OrbitValue constantInt(const OrbitAST* node) {
     assert(node->kind == ORBIT_AST_EXPR_CONSTANT_INTEGER && "cannot parse a non-integer");
-    return ORBIT_VALUE_INT(orbit_tokenIntValue(&node->constantExpr.symbol));
+    return ORBIT_VALUE_INT(orbitTokenIntValue(&node->constantExpr.symbol));
 }
 
 static inline OrbitValue constantFloat(const OrbitAST* node) {
     assert(node->kind == ORBIT_AST_EXPR_CONSTANT_FLOAT && "cannot parse a non-float");
-    return ORBIT_VALUE_FLOAT(orbit_tokenDoubleValue(&node->constantExpr.symbol));
+    return ORBIT_VALUE_FLOAT(orbitTokenDoubleValue(&node->constantExpr.symbol));
 }
 
 static inline OrbitValue constantString(Builder* builder, const OrbitAST* node) {
     assert(node->kind == ORBIT_AST_EXPR_CONSTANT_STRING && "cannot parse a non-string");
-    OCString* str = orbit_stringPoolGet(node->constantExpr.symbol.parsedStringLiteral);
+    OCString* str = orbitStringPoolGet(node->constantExpr.symbol.parsedStringLiteral);
     assert(str && "Invalid parsed string literal");
-    return ORBIT_VALUE_REF(orbit_stringCopy(builder->gc, str->data, str->length));
+    return ORBIT_VALUE_REF(orbitStringCopy(builder->gc, str->data, str->length));
 }
 
 void codegen(Builder* builder, const OrbitAST* node) {
@@ -168,7 +168,7 @@ void codegen(Builder* builder, const OrbitAST* node) {
     }
 }
 
-void orbit_codegen(OrbitGC* gc, OrbitFunction* function, OrbitASTContext* context) {
+void orbitCodegen(OrbitGC* gc, OrbitFunction* function, OrbitASTContext* context) {
     assert(gc && "null garbage collector error");
     assert(function && "null function error");
     assert(context && "null AST context error");

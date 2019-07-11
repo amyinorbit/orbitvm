@@ -24,17 +24,17 @@
 
 static OrbitAST* extractFuncType(Sema* self, OrbitAST* func) {
     OrbitAST* returnType = func->funcDecl.returnType ?
-        func->funcDecl.returnType : orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_VOID);
+        func->funcDecl.returnType : orbitASTMakePrimitiveType(ORBIT_AST_TYPEEXPR_VOID);
     
     ASTListBuilder params;
-    orbit_astListStart(&params);
+    orbitASTListStart(&params);
     OrbitAST* param = func->funcDecl.params;
     while(param) {
-        orbit_astListAdd(&params, orbit_astTypeCopy(param->type));
+        orbitASTListAdd(&params, orbitASTTypeCopy(param->type));
         param = param->next;
     }
     
-    return orbit_astMakeFuncType(returnType, orbit_astListClose(&params));
+    return orbitASTMakeFuncType(returnType, orbitASTListClose(&params));
 }
 
 static OrbitAST* extractVarType(Sema* self, OrbitAST* var) {
@@ -44,7 +44,7 @@ static OrbitAST* extractVarType(Sema* self, OrbitAST* var) {
 static bool declareFunc(Sema* self, OrbitAST* func) {
     func->type = ORCRETAIN(extractFuncType(self, func));
     if(!func->type) return false;
-    func->funcDecl.mangledName = orbit_mangleFuncName(func);
+    func->funcDecl.mangledName = orbitMangleFuncName(func);
     return declareFunction(self, func);
 }
 
@@ -74,7 +74,7 @@ static ParamMatch checkArgTypes(const OrbitAST* paramTypes, const OrbitAST* args
     
     for(const OrbitAST* arg = args; arg != NULL; arg = arg->next, paramType = paramType->next) {
         if(!paramType) return MATCH_NONE;
-        if(orbit_astTypeEquals(arg->type, paramType)) continue;
+        if(orbitASTTypeEquals(arg->type, paramType)) continue;
         match = MATCH_CAST;
         if(!findCast(arg->type, paramType)) return MATCH_NONE;
     }
@@ -87,8 +87,8 @@ static bool finishCallExpr(Sema* self, OrbitAST* decl, OrbitAST* call, bool stri
     OrbitAST* type = decl->type;
     OrbitAST* callee = call->callExpr.symbol;
     
-    callee->type = ORCRETAIN(orbit_astTypeCopy(decl->type));
-    call->type= ORCRETAIN(orbit_astTypeCopy(type->typeExpr.funcType.returnType));
+    callee->type = ORCRETAIN(orbitASTTypeCopy(decl->type));
+    call->type= ORCRETAIN(orbitASTTypeCopy(type->typeExpr.funcType.returnType));
     if(strict) return true;
     
     const OrbitAST* paramType = type->typeExpr.funcType.params;
@@ -97,14 +97,14 @@ static bool finishCallExpr(Sema* self, OrbitAST* decl, OrbitAST* call, bool stri
     for(; *argPtr != NULL; argPtr = &(*argPtr)->next, paramType = paramType->next) {
         assert(paramType && "invalid function binding");
         
-        if(orbit_astTypeEquals((*argPtr)->type, paramType)) continue;
+        if(orbitASTTypeEquals((*argPtr)->type, paramType)) continue;
         const Conversion* cast = findCast((*argPtr)->type, paramType);
         assert(cast && "invalid function binding");
         
-        OrbitAST* wrapped = ORCRETAIN(orbit_astMakeCastExpr(*argPtr, cast->nodeKind));
+        OrbitAST* wrapped = ORCRETAIN(orbitASTMakeCastExpr(*argPtr, cast->nodeKind));
         ORCRELEASE(*argPtr);
         wrapped->next = (*argPtr)->next;
-        wrapped->type = ORCRETAIN(orbit_astTypeCopy(paramType));
+        wrapped->type = ORCRETAIN(orbitASTTypeCopy(paramType));
         (*argPtr)->next = NULL;
         *argPtr = wrapped;
     }
@@ -166,13 +166,13 @@ static bool checkAssign(Sema* self, OrbitAST* assign) {
     
     // if [lhs] doesn't have a type, we are free to set it to [expr]'s type
     if(!lhs->type) {
-        lhs->type = ORCRETAIN(orbit_astTypeCopy(rhs->type));
+        lhs->type = ORCRETAIN(orbitASTTypeCopy(rhs->type));
         return true;
     }
     
     // Else, we need to check that the types match (or can be converted)
     // if the types are strictly equal, roll on
-    if(orbit_astTypeEquals(lhs->type, rhs->type)) return true;
+    if(orbitASTTypeEquals(lhs->type, rhs->type)) return true;
     
     // else we must check that rhs -> lhs is a valid conversion, and if yes add a cast node.
     const Conversion* cast = findCast(rhs->type, lhs->type);
@@ -180,7 +180,7 @@ static bool checkAssign(Sema* self, OrbitAST* assign) {
         errorAssign(self, assign);
         return false;
     }
-    assign->assignStmt.rhs = ORCRETAIN(orbit_astMakeCastExpr(rhs, cast->nodeKind));
+    assign->assignStmt.rhs = ORCRETAIN(orbitASTMakeCastExpr(rhs, cast->nodeKind));
     ORCRELEASE(rhs);
     return true;
 }
@@ -192,7 +192,7 @@ static void check(Sema* self, OrbitAST* node) {
             MATCH(CONDITIONAL, {
                 OrbitAST* expr = node->conditionalStmt.condition;
                 check(self, expr);
-                if(!orbit_astTypeEqualsPrimitive(expr->type, ORBIT_AST_TYPEEXPR_BOOL)) {
+                if(!orbitASTTypeEqualsPrimitive(expr->type, ORBIT_AST_TYPEEXPR_BOOL)) {
                     errorCondition(self, "if statement", expr);
                 }
                 check(self, node->conditionalStmt.ifBody);
@@ -202,7 +202,7 @@ static void check(Sema* self, OrbitAST* node) {
             MATCH(WHILE, {
                 OrbitAST* expr = node->whileLoop.condition;
                 check(self, expr);
-                if(!orbit_astTypeEqualsPrimitive(expr->type, ORBIT_AST_TYPEEXPR_BOOL)) {
+                if(!orbitASTTypeEqualsPrimitive(expr->type, ORBIT_AST_TYPEEXPR_BOOL)) {
                     errorCondition(self, "while loop", expr);
                 }
                 check(self, node->whileLoop.body);
@@ -214,7 +214,7 @@ static void check(Sema* self, OrbitAST* node) {
                 OrbitAST* expr = node->returnStmt.returnValue;
                 check(self, expr);
                 if(expr) {
-                    node->type = ORCRETAIN(orbit_astTypeCopy(expr->type));
+                    node->type = ORCRETAIN(orbitASTTypeCopy(expr->type));
                 }
             });
             
@@ -270,7 +270,7 @@ static void check(Sema* self, OrbitAST* node) {
                     check(self, rhs);
                     checkAssign(self, node);
                 }
-                node->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_VOID));
+                node->type = ORCRETAIN(orbitASTMakePrimitiveType(ORBIT_AST_TYPEEXPR_VOID));
             });
         
             MATCH(EXPR_BINARY, {
@@ -296,23 +296,23 @@ static void check(Sema* self, OrbitAST* node) {
             MATCH(EXPR_NAME, {
                 Symbol* sym = lookupSymbol(self, node->nameExpr.name);
                 if(!sym) errorNameLookup(self, node);
-                else node->type = ORCRETAIN(orbit_astTypeCopy(sym->decl->type));
+                else node->type = ORCRETAIN(orbitASTTypeCopy(sym->decl->type));
             });
         
             MATCH(EXPR_CONSTANT_INTEGER, {
-                node->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_INT));
+                node->type = ORCRETAIN(orbitASTMakePrimitiveType(ORBIT_AST_TYPEEXPR_INT));
             });
         
             MATCH(EXPR_CONSTANT_FLOAT, {
-                node->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_FLOAT));
+                node->type = ORCRETAIN(orbitASTMakePrimitiveType(ORBIT_AST_TYPEEXPR_FLOAT));
             });
         
             MATCH(EXPR_CONSTANT_STRING, {
-                node->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_STRING));
+                node->type = ORCRETAIN(orbitASTMakePrimitiveType(ORBIT_AST_TYPEEXPR_STRING));
             });
             
             MATCH(EXPR_CONSTANT_BOOL, {
-                node->type = ORCRETAIN(orbit_astMakePrimitiveType(ORBIT_AST_TYPEEXPR_BOOL));
+                node->type = ORCRETAIN(orbitASTMakePrimitiveType(ORBIT_AST_TYPEEXPR_BOOL));
             });
         
             // MARK: - Default, do nothing
@@ -325,14 +325,14 @@ static void check(Sema* self, OrbitAST* node) {
 }
 
 
-void orbit_semaCheck(OrbitASTContext* context) {
+void orbitSemaCheck(OrbitASTContext* context) {
     assert(context && "null syntax tree error");
     
     Sema sema;
-    orbit_semaInit(&sema);
+    orbitSemaInit(&sema);
     sema.context = context;
     declareDefaultOperators(&sema);
     check(&sema, context->root);
-    orbit_semaDeinit(&sema);
+    orbitSemaDeinit(&sema);
 }
 

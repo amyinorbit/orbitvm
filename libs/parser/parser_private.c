@@ -10,7 +10,7 @@
 #include <assert.h>
 #include "parser_private.h"
 
-void orbit_parserInit(OCParser* parser, OrbitASTContext* context) {
+void orbitParserInit(OCParser* parser, OrbitASTContext* context) {
     assert(parser && "cannot initialise null parser");
     assert(context && "cannot use null ast context");
     
@@ -21,7 +21,7 @@ void orbit_parserInit(OCParser* parser, OrbitASTContext* context) {
     parser->currentChar = 0;
     parser->isStartOfLine = true;
     
-    orbit_stringBufferInit(&parser->literalBuffer, 128);
+    orbitStringBufferInit(&parser->literalBuffer, 128);
     
     parser->currentToken.kind = 0;
     parser->currentToken.sourceLoc = ORBIT_SLOC_MAKE(0);
@@ -29,7 +29,7 @@ void orbit_parserInit(OCParser* parser, OrbitASTContext* context) {
     // parser->currentToken.source = &context->source;
 }
 
-void orbit_parserDeinit(OCParser* parser) {
+void orbitParserDeinit(OCParser* parser) {
     assert(parser && "cannot deinit null parser");
-    orbit_stringBufferDeinit(&parser->literalBuffer);
+    orbitStringBufferDeinit(&parser->literalBuffer);
 }

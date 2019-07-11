@@ -1,5 +1,5 @@
 //===--------------------------------------------------------------------------------------------===
-// orbit/ast/orbit_astPrinter.c
+// orbit/ast/orbitASTPrinter.c
 // This source is part of Orbit - AST
 //
 // Created on 2017-09-26 by Amy Parent <amy@amyparent.com>
@@ -12,10 +12,10 @@
 #include <orbit/csupport/console.h>
 #include <orbit/ast/ast.h>
 
-static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last);
-static void orbit_astPrintList(FILE* out, const char* name, OrbitAST* list, int depth, bool last);
+static void orbitASTPrintNode(FILE* out, OrbitAST* ast, int depth, bool last);
+static void orbitASTPrintList(FILE* out, const char* name, OrbitAST* list, int depth, bool last);
 
-static void orbit_astPrintReturn(FILE* out, int depth, bool last) {
+static void orbitASTPrintReturn(FILE* out, int depth, bool last) {
     static bool indents[256] = {false};
     fputs("\n", out);
     if(depth <= 0) { return; }
@@ -31,9 +31,9 @@ static void orbit_astPrintReturn(FILE* out, int depth, bool last) {
     console_setColor(out, CLI_RESET);
 }
 
-static void orbit_astPrintList(FILE* out, const char* name, OrbitAST* list, int depth, bool last) {
+static void orbitASTPrintList(FILE* out, const char* name, OrbitAST* list, int depth, bool last) {
     if(list == NULL) { return; }
-    orbit_astPrintReturn(out, depth, last);
+    orbitASTPrintReturn(out, depth, last);
     
     console_setColor(out, CLI_CYAN);
     console_setColor(out, CLI_BOLD);
@@ -42,12 +42,12 @@ static void orbit_astPrintList(FILE* out, const char* name, OrbitAST* list, int 
     
     OrbitAST* item = list;
     while(item != NULL) {
-        orbit_astPrintNode(out, item, depth+1, item->next == NULL);
+        orbitASTPrintNode(out, item, depth+1, item->next == NULL);
         item = item->next;
     }
 }
 
-static void orbit_astPrintType(FILE* out, OrbitAST* ast) {
+static void orbitASTPrintType(FILE* out, OrbitAST* ast) {
     if(ast == NULL) { return; }
     if((ast->kind & ASTTypeExprMask) == 0) { return; }
     console_setColor(out, CLI_YELLOW);
@@ -69,22 +69,22 @@ static void orbit_astPrintType(FILE* out, OrbitAST* ast) {
         
     case ORBIT_AST_TYPEEXPR_FUNC:
         fputs("", out);
-        orbit_astPrintType(out, ast->typeExpr.funcType.params);
+        orbitASTPrintType(out, ast->typeExpr.funcType.params);
         fputs(" -> ", out);
-        orbit_astPrintType(out, ast->typeExpr.funcType.returnType);
+        orbitASTPrintType(out, ast->typeExpr.funcType.returnType);
         break;
         
     case ORBIT_AST_TYPEEXPR_ARRAY:
         fputs("Array<", out);
-        orbit_astPrintType(out, ast->typeExpr.arrayType.elementType);
+        orbitASTPrintType(out, ast->typeExpr.arrayType.elementType);
         fputs(">", out);
         break;
         
     case ORBIT_AST_TYPEEXPR_MAP:
         fputs("Map<", out);
-        orbit_astPrintType(out, ast->typeExpr.mapType.keyType);
+        orbitASTPrintType(out, ast->typeExpr.mapType.keyType);
         fputs(":", out);
-        orbit_astPrintType(out, ast->typeExpr.mapType.elementType);
+        orbitASTPrintType(out, ast->typeExpr.mapType.elementType);
         fputs(">", out);
         break;
         
@@ -94,13 +94,13 @@ static void orbit_astPrintType(FILE* out, OrbitAST* ast) {
     
     if(ast->next) {
         fputs(", ", out);
-        orbit_astPrintType(out, ast->next);
+        orbitASTPrintType(out, ast->next);
     }
 }
 
-static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
+static void orbitASTPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
     if(ast == NULL) { return; }
-    orbit_astPrintReturn(out, depth, last);
+    orbitASTPrintReturn(out, depth, last);
     console_setColor(out, CLI_BOLD);
     
     switch(ast->kind) {
@@ -110,19 +110,19 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_setColor(out, CLI_RESET);
         console_printToken(out, ast->assignStmt.operator);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
-        orbit_astPrintNode(out, ast->assignStmt.lhs, depth+1, false);
-        orbit_astPrintNode(out, ast->assignStmt.rhs, depth+1, true);
+        orbitASTPrintType(out, ast->type);
+        orbitASTPrintNode(out, ast->assignStmt.lhs, depth+1, false);
+        orbitASTPrintNode(out, ast->assignStmt.rhs, depth+1, true);
         break;
             
     case ORBIT_AST_CONDITIONAL:
         console_setColor(out, CLI_MAGENTA);
         fputs("IfStmt", out);
-        orbit_astPrintNode(out, ast->conditionalStmt.condition, depth+1, false);
-        orbit_astPrintNode(out, ast->conditionalStmt.ifBody, depth+1, ast->conditionalStmt.elseBody == NULL);
-        //orbit_astPrintList(out, "Block", ast->conditionalStmt.ifBody, depth+1, ast->conditionalStmt.elseBody == NULL);
-        orbit_astPrintNode(out, ast->conditionalStmt.elseBody, depth+1, true);
-        //orbit_astPrintList(out, "Block", ast->conditionalStmt.elseBody, depth+1, true);
+        orbitASTPrintNode(out, ast->conditionalStmt.condition, depth+1, false);
+        orbitASTPrintNode(out, ast->conditionalStmt.ifBody, depth+1, ast->conditionalStmt.elseBody == NULL);
+        //orbitASTPrintList(out, "Block", ast->conditionalStmt.ifBody, depth+1, ast->conditionalStmt.elseBody == NULL);
+        orbitASTPrintNode(out, ast->conditionalStmt.elseBody, depth+1, true);
+        //orbitASTPrintList(out, "Block", ast->conditionalStmt.elseBody, depth+1, true);
         break;
     
     case ORBIT_AST_FOR_IN:
@@ -130,17 +130,17 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("ForInStmt ", out);
         console_setColor(out, CLI_RESET);
         console_printToken(out, ast->forInLoop.variable);
-        orbit_astPrintNode(out, ast->forInLoop.collection, depth+1, false);
-        orbit_astPrintNode(out, ast->forInLoop.body, depth+1, true);
-        //orbit_astPrintList(out, "Block", ast->forInLoop.body, depth+1, true);
+        orbitASTPrintNode(out, ast->forInLoop.collection, depth+1, false);
+        orbitASTPrintNode(out, ast->forInLoop.body, depth+1, true);
+        //orbitASTPrintList(out, "Block", ast->forInLoop.body, depth+1, true);
         break;
     
     case ORBIT_AST_WHILE:
         console_setColor(out, CLI_MAGENTA);
         fputs("WhileStmt", out);
-        orbit_astPrintNode(out, ast->whileLoop.condition, depth+1, false);
-        orbit_astPrintNode(out, ast->whileLoop.body, depth+1, true);
-        //orbit_astPrintList(out, "Block", ast->whileLoop.body, depth+1, true);
+        orbitASTPrintNode(out, ast->whileLoop.condition, depth+1, false);
+        orbitASTPrintNode(out, ast->whileLoop.body, depth+1, true);
+        //orbitASTPrintList(out, "Block", ast->whileLoop.body, depth+1, true);
         break;
         
     case ORBIT_AST_BLOCK:
@@ -151,10 +151,10 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         
         OrbitAST* item = ast->block.body;
         while(item != NULL) {
-            orbit_astPrintNode(out, item, depth+1, item->next == NULL);
+            orbitASTPrintNode(out, item, depth+1, item->next == NULL);
             item = item->next;
         }
-        //orbit_astPrintList(out, "Block", ast->block.body, depth+1, true);
+        //orbitASTPrintList(out, "Block", ast->block.body, depth+1, true);
         break;
     
     case ORBIT_AST_BREAK:
@@ -170,13 +170,13 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
     case ORBIT_AST_RETURN:
         console_setColor(out, CLI_MAGENTA);
         fputs("ReturnStmt", out);
-        orbit_astPrintNode(out, ast->returnStmt.returnValue, depth+1, true);
+        orbitASTPrintNode(out, ast->returnStmt.returnValue, depth+1, true);
         break;
         
     case ORBIT_AST_PRINT:
         console_setColor(out, CLI_MAGENTA);
         fputs("PrintStmt", out);
-        orbit_astPrintNode(out, ast->printStmt.expr, depth+1, true);
+        orbitASTPrintNode(out, ast->printStmt.expr, depth+1, true);
         break;
     
     // DECLARATIONS
@@ -185,7 +185,7 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("ModuleDecl '", out);
         console_printPooledString(out, ast->moduleDecl.symbol);
         fputs("'", out);
-        orbit_astPrintList(out, "Block", ast->moduleDecl.body, depth+1, true);
+        orbitASTPrintList(out, "Block", ast->moduleDecl.body, depth+1, true);
         break;
     
     case ORBIT_AST_DECL_FUNC:
@@ -198,9 +198,9 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_printPooledString(out, ast->funcDecl.mangledName);
         console_setColor(out, CLI_RESET);
         fputs("): ", out);
-        orbit_astPrintType(out, ast->type);
-        orbit_astPrintList(out, "ParamDeclList", ast->funcDecl.params, depth+1, false);
-        orbit_astPrintNode(out, ast->funcDecl.body, depth+1, true);
+        orbitASTPrintType(out, ast->type);
+        orbitASTPrintList(out, "ParamDeclList", ast->funcDecl.params, depth+1, false);
+        orbitASTPrintNode(out, ast->funcDecl.body, depth+1, true);
         break;
     
     case ORBIT_AST_DECL_VAR:
@@ -209,7 +209,7 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_setColor(out, CLI_RESET);
         console_printPooledString(out, ast->varDecl.name);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
+        orbitASTPrintType(out, ast->type);
         break;
     
     case ORBIT_AST_DECL_STRUCT:
@@ -217,9 +217,9 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("CompoundTypeDecl ", out);
         console_setColor(out, CLI_RESET);
         console_printPooledString(out, ast->structDecl.name);
-        orbit_astPrintNode(out, ast->structDecl.constructor, depth+1, false);
-        orbit_astPrintNode(out, ast->structDecl.destructor, depth+1, false);
-        orbit_astPrintList(out, "CompoundMemberList", ast->structDecl.fields, depth+1, true);
+        orbitASTPrintNode(out, ast->structDecl.constructor, depth+1, false);
+        orbitASTPrintNode(out, ast->structDecl.destructor, depth+1, false);
+        orbitASTPrintList(out, "CompoundMemberList", ast->structDecl.fields, depth+1, true);
         break;
         
     // EXPRESSIONS
@@ -229,8 +229,8 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_setColor(out, CLI_RESET);
         console_printToken(out, ast->unaryExpr.operator);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
-        orbit_astPrintNode(out, ast->unaryExpr.rhs, depth+1, true);
+        orbitASTPrintType(out, ast->type);
+        orbitASTPrintNode(out, ast->unaryExpr.rhs, depth+1, true);
         break;
     
     case ORBIT_AST_EXPR_BINARY:
@@ -239,9 +239,9 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_setColor(out, CLI_RESET);
         console_printToken(out, ast->binaryExpr.operator);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
-        orbit_astPrintNode(out, ast->binaryExpr.lhs, depth+1, false);
-        orbit_astPrintNode(out, ast->binaryExpr.rhs, depth+1, true);
+        orbitASTPrintType(out, ast->type);
+        orbitASTPrintNode(out, ast->binaryExpr.lhs, depth+1, false);
+        orbitASTPrintNode(out, ast->binaryExpr.rhs, depth+1, true);
         break;
     
     case ORBIT_AST_EXPR_CALL:
@@ -249,16 +249,16 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("CallExpr", out);
         console_setColor(out, CLI_RESET);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
-        orbit_astPrintNode(out, ast->callExpr.symbol, depth+1, ast->callExpr.params == NULL);
-        orbit_astPrintList(out, "CallParamList", ast->callExpr.params, depth+1, true);
+        orbitASTPrintType(out, ast->type);
+        orbitASTPrintNode(out, ast->callExpr.symbol, depth+1, ast->callExpr.params == NULL);
+        orbitASTPrintList(out, "CallParamList", ast->callExpr.params, depth+1, true);
         break;
         
     case ORBIT_AST_EXPR_SUBSCRIPT:
         console_setColor(out, CLI_MAGENTA);
         fputs("SubscriptExpr", out);
-        orbit_astPrintNode(out, ast->subscriptExpr.symbol, depth+1, false);
-        orbit_astPrintNode(out, ast->subscriptExpr.subscript, depth+1, true);
+        orbitASTPrintNode(out, ast->subscriptExpr.symbol, depth+1, false);
+        orbitASTPrintNode(out, ast->subscriptExpr.subscript, depth+1, true);
         break;
         
     case ORBIT_AST_EXPR_CONSTANT_BOOL:
@@ -267,7 +267,7 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_setColor(out, CLI_RESET);
         console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
+        orbitASTPrintType(out, ast->type);
         break;
     
     case ORBIT_AST_EXPR_CONSTANT_INTEGER:
@@ -276,7 +276,7 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_setColor(out, CLI_RESET);
         console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
+        orbitASTPrintType(out, ast->type);
         break;
         
     case ORBIT_AST_EXPR_CONSTANT_FLOAT:
@@ -285,7 +285,7 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_setColor(out, CLI_RESET);
         console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
+        orbitASTPrintType(out, ast->type);
         break;
         
     case ORBIT_AST_EXPR_CONSTANT_STRING:
@@ -295,7 +295,7 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_printToken(out, ast->constantExpr.symbol);
         fputs(" (", out); console_printPooledString(out, ast->constantExpr.symbol.parsedStringLiteral); fputs(")", out);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
+        orbitASTPrintType(out, ast->type);
         break;
         
     case ORBIT_AST_EXPR_CONSTANT:
@@ -304,7 +304,7 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_setColor(out, CLI_RESET);
         console_printToken(out, ast->constantExpr.symbol);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
+        orbitASTPrintType(out, ast->type);
         break;
         
     case ORBIT_AST_EXPR_LAMBDA:
@@ -312,8 +312,8 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("lambda: ", out);
         console_setColor(out, CLI_RESET);
         fputs(": ", out);
-        orbit_astPrintList(out, "ParamList", ast->lambdaExpr.params, depth+1, false);
-        orbit_astPrintNode(out, ast->lambdaExpr.body, depth+1, true);
+        orbitASTPrintList(out, "ParamList", ast->lambdaExpr.params, depth+1, false);
+        orbitASTPrintNode(out, ast->lambdaExpr.body, depth+1, true);
         break;
     
     case ORBIT_AST_EXPR_NAME:
@@ -322,16 +322,16 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         console_setColor(out, CLI_RESET);
         console_printPooledString(out, ast->nameExpr.name);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
+        orbitASTPrintType(out, ast->type);
         break;
     
     case ORBIT_AST_EXPR_INIT:
         console_setColor(out, CLI_MAGENTA);
         fputs("init:", out);
         console_setColor(out, CLI_RESET);
-        orbit_astPrintType(out, ast->initExpr.type); // TODO: replace with sema-generated type
+        orbitASTPrintType(out, ast->initExpr.type); // TODO: replace with sema-generated type
         console_setColor(out, CLI_RESET);
-        orbit_astPrintList(out, "ConstructorList", ast->callExpr.params, depth+1, true);
+        orbitASTPrintList(out, "ConstructorList", ast->callExpr.params, depth+1, true);
         break;
         
     case ORBIT_AST_EXPR_I2F:
@@ -339,8 +339,8 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("IntToFloat", out);
         console_setColor(out, CLI_RESET);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
-        orbit_astPrintNode(out, ast->conversionExpr.expr, depth+1, true);
+        orbitASTPrintType(out, ast->type);
+        orbitASTPrintNode(out, ast->conversionExpr.expr, depth+1, true);
         break;
     
     case ORBIT_AST_EXPR_F2I:
@@ -348,8 +348,8 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
         fputs("FloatToInt", out);
         console_setColor(out, CLI_RESET);
         fputs(": ", out);
-        orbit_astPrintType(out, ast->type);
-        orbit_astPrintNode(out, ast->conversionExpr.expr, depth+1, true);
+        orbitASTPrintType(out, ast->type);
+        orbitASTPrintNode(out, ast->conversionExpr.expr, depth+1, true);
         break;
     
     case ORBIT_AST_TYPEEXPR_VOID:
@@ -362,18 +362,18 @@ static void orbit_astPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
     case ORBIT_AST_TYPEEXPR_FUNC:
     case ORBIT_AST_TYPEEXPR_ARRAY:
     case ORBIT_AST_TYPEEXPR_MAP:
-        orbit_astPrintType(out, ast);
+        orbitASTPrintType(out, ast);
         break;
     }
     console_setColor(out, CLI_RESET);
 }
 
-void orbit_astPrint(FILE* out, OrbitAST* ast) {
+void orbitASTPrint(FILE* out, OrbitAST* ast) {
     if(ast == NULL) { return; }
     if(ast->next) {
-        orbit_astPrintList(out, "List", ast, 0, true);
+        orbitASTPrintList(out, "List", ast, 0, true);
     } else {
-        orbit_astPrintNode(out, ast, 0, true);
+        orbitASTPrintNode(out, ast, 0, true);
     }
     fputs("\n\n", out);
 }

@@ -13,13 +13,13 @@
 #include <assert.h>
 #include <stdio.h>
 
-bool orbit_astTypeIsPrimitive(const OrbitAST* a) {
+bool orbitASTTypeIsPrimitive(const OrbitAST* a) {
     return (a && (a->kind & ASTPrimitiveMask));
 }
 
-bool orbit_astTypeEqualsPrimitive(const OrbitAST* a, ASTKind b) {
+bool orbitASTTypeEqualsPrimitive(const OrbitAST* a, ASTKind b) {
     assert((b & ASTPrimitiveMask) && "Cannot compare to a non primitive type");
-    if(!orbit_astTypeIsPrimitive(a)) return false;
+    if(!orbitASTTypeIsPrimitive(a)) return false;
     return a->kind == b;
 }
 
@@ -62,11 +62,11 @@ static bool typeEqualsImpl(const OrbitAST* a, const OrbitAST* b, bool inList) {
     return NULL;
 }
 
-bool orbit_astTypeEquals(const OrbitAST* a, const OrbitAST* b) {
+bool orbitASTTypeEquals(const OrbitAST* a, const OrbitAST* b) {
     return typeEqualsImpl(a, b, false);
 }
 
-OrbitAST* orbit_astTypeCopy(const OrbitAST* src) {
+OrbitAST* orbitASTTypeCopy(const OrbitAST* src) {
     if(src == NULL) { return NULL; }
     OrbitAST* copy = NULL;
     
@@ -77,73 +77,73 @@ OrbitAST* orbit_astTypeCopy(const OrbitAST* src) {
     case ORBIT_AST_TYPEEXPR_INT:
     case ORBIT_AST_TYPEEXPR_FLOAT:
     case ORBIT_AST_TYPEEXPR_VOID:
-        copy = orbit_astMakePrimitiveType(src->kind);
+        copy = orbitASTMakePrimitiveType(src->kind);
         break;
     case ORBIT_AST_TYPEEXPR_ARRAY:
-        copy = orbit_astMakeArrayType(orbit_astTypeCopy(src->typeExpr.arrayType.elementType));
+        copy = orbitASTMakeArrayType(orbitASTTypeCopy(src->typeExpr.arrayType.elementType));
         break;
     case ORBIT_AST_TYPEEXPR_MAP:
-        copy = orbit_astMakeMapType(orbit_astTypeCopy(src->typeExpr.mapType.keyType), 
-                                    orbit_astTypeCopy(src->typeExpr.mapType.elementType));
+        copy = orbitASTMakeMapType(orbitASTTypeCopy(src->typeExpr.mapType.keyType), 
+                                    orbitASTTypeCopy(src->typeExpr.mapType.elementType));
         break;
     case ORBIT_AST_TYPEEXPR_FUNC:
-        copy = orbit_astMakeFuncType(orbit_astTypeCopy(src->typeExpr.funcType.returnType), 
-                                     orbit_astTypeCopy(src->typeExpr.funcType.params));
+        copy = orbitASTMakeFuncType(orbitASTTypeCopy(src->typeExpr.funcType.returnType), 
+                                     orbitASTTypeCopy(src->typeExpr.funcType.params));
         break;
     case ORBIT_AST_TYPEEXPR_USER:
-        copy = orbit_astMakeUserTypePooled(src->typeExpr.userType.symbol);
+        copy = orbitASTMakeUserTypePooled(src->typeExpr.userType.symbol);
         break;
     default:
         // TODO: throw error here, we're not working with a type expression.
         fprintf(stderr, "UNREACHEABLE\n");
         break;
     }
-    copy->next = src->next ? ORCRETAIN(orbit_astTypeCopy(src->next)) : NULL;
+    copy->next = src->next ? ORCRETAIN(orbitASTTypeCopy(src->next)) : NULL;
     copy->typeExpr.flags = src->typeExpr.flags;
     return copy;
 }
 
-void orbit_astTypeString(OCStringBuffer* buffer, OrbitAST* ast) {
+void orbitASTTypeString(OCStringBuffer* buffer, OrbitAST* ast) {
     if(ast == NULL) {
-        orbit_stringBufferAppendC(buffer, "()", 2);
+        orbitStringBufferAppendC(buffer, "()", 2);
         return;
     }
     if((ast->kind & ASTTypeExprMask) == 0) { return; }
     
     if((ast->typeExpr.flags & ORBIT_TYPE_OPTIONAL)) {
-        orbit_stringBufferAppendC(buffer, "maybe ", 6);
+        orbitStringBufferAppendC(buffer, "maybe ", 6);
     }
     
     switch(ast->kind) {
-    case ORBIT_AST_TYPEEXPR_VOID:     orbit_stringBufferAppendC(buffer, "()", 2);       break;
-    case ORBIT_AST_TYPEEXPR_BOOL:     orbit_stringBufferAppendC(buffer, "Bool", 4);     break;
-    case ORBIT_AST_TYPEEXPR_INT:      orbit_stringBufferAppendC(buffer, "Int", 3);      break;
-    case ORBIT_AST_TYPEEXPR_FLOAT:    orbit_stringBufferAppendC(buffer, "Float", 5);    break;
-    case ORBIT_AST_TYPEEXPR_STRING:   orbit_stringBufferAppendC(buffer, "String", 6);   break;
-    case ORBIT_AST_TYPEEXPR_ANY:      orbit_stringBufferAppendC(buffer, "Any", 3);      break;
+    case ORBIT_AST_TYPEEXPR_VOID:     orbitStringBufferAppendC(buffer, "()", 2);       break;
+    case ORBIT_AST_TYPEEXPR_BOOL:     orbitStringBufferAppendC(buffer, "Bool", 4);     break;
+    case ORBIT_AST_TYPEEXPR_INT:      orbitStringBufferAppendC(buffer, "Int", 3);      break;
+    case ORBIT_AST_TYPEEXPR_FLOAT:    orbitStringBufferAppendC(buffer, "Float", 5);    break;
+    case ORBIT_AST_TYPEEXPR_STRING:   orbitStringBufferAppendC(buffer, "String", 6);   break;
+    case ORBIT_AST_TYPEEXPR_ANY:      orbitStringBufferAppendC(buffer, "Any", 3);      break;
     case ORBIT_AST_TYPEEXPR_USER:
-        orbit_stringBufferAppendP(buffer, ast->typeExpr.userType.symbol);
+        orbitStringBufferAppendP(buffer, ast->typeExpr.userType.symbol);
         break;
         
     case ORBIT_AST_TYPEEXPR_FUNC:
-        // orbit_stringBufferAppend(buffer, '(');
-        orbit_astTypeString(buffer, ast->typeExpr.funcType.params);
-        orbit_stringBufferAppendC(buffer, " -> ", 4);
-        orbit_astTypeString(buffer, ast->typeExpr.funcType.returnType);
+        // orbitStringBufferAppend(buffer, '(');
+        orbitASTTypeString(buffer, ast->typeExpr.funcType.params);
+        orbitStringBufferAppendC(buffer, " -> ", 4);
+        orbitASTTypeString(buffer, ast->typeExpr.funcType.returnType);
         break;
         
     case ORBIT_AST_TYPEEXPR_ARRAY:
-        orbit_stringBufferAppendC(buffer, "Array<", 6);
-        orbit_astTypeString(buffer, ast->typeExpr.arrayType.elementType);
-        orbit_stringBufferAppend(buffer, '>');
+        orbitStringBufferAppendC(buffer, "Array<", 6);
+        orbitASTTypeString(buffer, ast->typeExpr.arrayType.elementType);
+        orbitStringBufferAppend(buffer, '>');
         break;
         
     case ORBIT_AST_TYPEEXPR_MAP:
-        orbit_stringBufferAppendC(buffer, "Map<", 4);
-        orbit_astTypeString(buffer, ast->typeExpr.mapType.keyType);
-        orbit_stringBufferAppend(buffer, ':');
-        orbit_astTypeString(buffer, ast->typeExpr.mapType.elementType);
-        orbit_stringBufferAppend(buffer, '>');
+        orbitStringBufferAppendC(buffer, "Map<", 4);
+        orbitASTTypeString(buffer, ast->typeExpr.mapType.keyType);
+        orbitStringBufferAppend(buffer, ':');
+        orbitASTTypeString(buffer, ast->typeExpr.mapType.elementType);
+        orbitStringBufferAppend(buffer, '>');
         break;
         
     default:
@@ -151,7 +151,7 @@ void orbit_astTypeString(OCStringBuffer* buffer, OrbitAST* ast) {
     }
     
     if(ast->next) {
-        orbit_stringBufferAppendC(buffer, ", ", 2);
-        orbit_astTypeString(buffer, ast->next);
+        orbitStringBufferAppendC(buffer, ", ", 2);
+        orbitASTTypeString(buffer, ast->next);
     }
 }

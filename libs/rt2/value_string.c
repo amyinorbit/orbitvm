@@ -16,19 +16,19 @@
 #include <assert.h>
 #include <stdio.h>
 
-OrbitString* orbit_stringConcat(OrbitGC* gc, const OrbitString* lhs, const OrbitString* rhs) {
+OrbitString* orbitStringConcat(OrbitGC* gc, const OrbitString* lhs, const OrbitString* rhs) {
     assert(gc && "null Garbage Collector pointer");
     assert(lhs && rhs && "null string pointer");
     
     size_t utf8count = lhs->utf8count + rhs->utf8count;
-    OrbitString* string = orbit_stringNew(gc, utf8count);
+    OrbitString* string = orbitStringNew(gc, utf8count);
     
     memcpy(string->data, lhs->data, lhs->utf8count);
     memcpy(string->data + lhs->utf8count, rhs->data, rhs->utf8count);
     
     string->utf8count = utf8count;
     string->count = unic_countGraphemes(string->data, utf8count);
-    string->hash = orbit_hashString(string->data, string->utf8count);
+    string->hash = orbitHashString(string->data, string->utf8count);
     
     return string;
 }

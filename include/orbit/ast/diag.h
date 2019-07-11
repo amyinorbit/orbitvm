@@ -59,25 +59,25 @@ struct _OrbitDiagManager {
 #define ORBIT_DIAG_CSTRING(val) ((OrbitDiagArg){.kind=ORBIT_DPK_CSTRING, .cstringValue=(val)})
 #define ORBIT_DIAG_TYPE(val)    ((OrbitDiagArg){.kind=ORBIT_DPK_TYPE, .typeValue=(val)})
 
-extern OrbitDiagManager orbit_defaultDiagManager;
+extern OrbitDiagManager orbitDefaultDiagManager;
 
-void orbit_diagManagerInit(OrbitDiagManager* manager, OrbitSource* source);
-void orbit_diagManagerDeinit(OrbitDiagManager* manager);
+void orbitDiagManagerInit(OrbitDiagManager* manager, OrbitSource* source);
+void orbitDiagManagerDeinit(OrbitDiagManager* manager);
 
-OrbitDiagID orbit_diagError(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...);
-OrbitDiagID orbit_diagWarn(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...);
-OrbitDiagID orbit_diagInfo(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...);
-OrbitDiagID orbit_diagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format);
-void orbit_diagAddParam(OrbitDiagID id, OrbitDiagArg param);
-void orbit_diagAddSourceLoc(OrbitDiagID id, OrbitSLoc loc);
-void orbit_diagAddSourceRange(OrbitDiagID id, OrbitSRange range);
+OrbitDiagID orbitDiagError(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...);
+OrbitDiagID orbitDiagWarn(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...);
+OrbitDiagID orbitDiagInfo(OrbitDiagManager* manager, OrbitSLoc loc, const char* fmt, int n, ...);
+OrbitDiagID orbitDiagNew(OrbitDiagManager* manager, OrbitDiagLevel level, const char* format);
+void orbitDiagAddParam(OrbitDiagID id, OrbitDiagArg param);
+void orbitDiagAddSourceLoc(OrbitDiagID id, OrbitSLoc loc);
+void orbitDiagAddSourceRange(OrbitDiagID id, OrbitSRange range);
 
-void orbit_diagEmitAll(OrbitDiagManager* manager);
-void orbit_diagEmitAbove(OrbitDiagManager* manager, OrbitDiagLevel level);
+void orbitDiagEmitAll(OrbitDiagManager* manager);
+void orbitDiagEmitAbove(OrbitDiagManager* manager, OrbitDiagLevel level);
 
-char* orbit_diagGetFormat(OrbitDiag* diag);
-OrbitSLoc orbit_diagGetLoc(OrbitDiag* diag);
-OrbitSRange orbit_diagGetRange(OrbitDiag* diag);
+char* orbitDiagGetFormat(OrbitDiag* diag);
+OrbitSLoc orbitDiagGetLoc(OrbitDiag* diag);
+OrbitSRange orbitDiagGetRange(OrbitDiag* diag);
 
 
 #endif /* orbit_ast_diag_h */

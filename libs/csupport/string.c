@@ -12,7 +12,7 @@
 #include <orbit/csupport/string.h>
 #include <orbit/utils/hashing.h>
 
-const OCStringID orbit_invalidStringID = UINT64_MAX;
+const OCStringID orbitInvalidStringID = UINT64_MAX;
 
 static struct OCStringPool {
     uint64_t size;
@@ -20,25 +20,25 @@ static struct OCStringPool {
     void* data;
 } StringPool;
 
-void orbit_stringPoolInit(uint64_t capacity) {
+void orbitStringPoolInit(uint64_t capacity) {
     StringPool.capacity = capacity;
     StringPool.size = 0;
     StringPool.data = ORBIT_ALLOC_ARRAY(char, StringPool.capacity);
 }
 
-void orbit_stringPoolDeinit() {
+void orbitStringPoolDeinit() {
     ORBIT_DEALLOC_ARRAY(StringPool.data, char, StringPool.capacity);
     StringPool.capacity = 0;
     StringPool.size = 0;
 }
 
-bool orbit_stringEquals(OCString* a, const char* b, uint64_t length) {
-    uint32_t hash = orbit_hashString(b, length);
+bool orbitStringEquals(OCString* a, const char* b, uint64_t length) {
+    uint32_t hash = orbitHashString(b, length);
     return hash == a->hash && length == a->length && strncmp(b, a->data, length) == 0;
 }
 
-OCString* orbit_stringPoolSearch(const char* data, uint64_t length) {
-    uint32_t hash = orbit_hashString(data, length);
+OCString* orbitStringPoolSearch(const char* data, uint64_t length) {
+    uint32_t hash = orbitHashString(data, length);
     uint64_t offset = 0;
     
     while(offset < StringPool.size) {
@@ -52,8 +52,8 @@ OCString* orbit_stringPoolSearch(const char* data, uint64_t length) {
 }
 
 
-OCStringID orbit_stringIntern(const char* data, uint64_t length) {
-    OCString* str = orbit_stringPoolSearch(data, length);
+OCStringID orbitStringIntern(const char* data, uint64_t length) {
+    OCString* str = orbitStringPoolSearch(data, length);
     if(str) { return (OCStringID)((void*)str - StringPool.data); }
     
     if(StringPool.size + length >= StringPool.capacity) {
@@ -71,17 +71,17 @@ OCStringID orbit_stringIntern(const char* data, uint64_t length) {
     str->data[length] = '\0';
     str->length = length;
     str->next = StringPool.size;
-    str->hash = orbit_hashString(data, length);
+    str->hash = orbitHashString(data, length);
     
     return id;
 }
 
-OCString* orbit_stringPoolGet(OCStringID id) {
-    if(id == orbit_invalidStringID) { return NULL; }
+OCString* orbitStringPoolGet(OCStringID id) {
+    if(id == orbitInvalidStringID) { return NULL; }
     return (OCString*)(StringPool.data + id);
 }
 
-void orbit_stringPoolDebug() {
+void orbitStringPoolDebug() {
     uint64_t offset = 0;
     while(offset < StringPool.size) {
         OCString* str = (OCString*)(StringPool.data + offset);
@@ -90,7 +90,7 @@ void orbit_stringPoolDebug() {
     }
 }
 
-void orbit_stringBufferInit(OCStringBuffer* buffer, uint64_t capacity) {
+void orbitStringBufferInit(OCStringBuffer* buffer, uint64_t capacity) {
     assert(buffer != NULL && "Null instance error");
     
     buffer->data = ORBIT_ALLOC_ARRAY(char, capacity);
@@ -99,13 +99,13 @@ void orbit_stringBufferInit(OCStringBuffer* buffer, uint64_t capacity) {
     buffer->length = 0;
 }
 
-void orbit_stringBufferReset(OCStringBuffer* buffer) {
+void orbitStringBufferReset(OCStringBuffer* buffer) {
     assert(buffer != NULL && "Null instance error");
     buffer->length = 0;
     buffer->data[0] = '\0';
 }
 
-void orbit_stringBufferDeinit(OCStringBuffer* buffer) {
+void orbitStringBufferDeinit(OCStringBuffer* buffer) {
     assert(buffer != NULL && "Null instance error");
     ORBIT_DEALLOC_ARRAY(buffer->data, char, buffer->capacity);
     buffer->capacity = 0;
@@ -123,7 +123,7 @@ static void _bufferReserve(OCStringBuffer* buffer, size_t newSize) {
     buffer->data = ORBIT_REALLOC_ARRAY(buffer->data, char, oldCapacity, buffer->capacity);
 }
 
-void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t c) {
+void orbitStringBufferAppend(OCStringBuffer* buffer, codepoint_t c) {
     assert(buffer != NULL && "Null instance error");
     
     int8_t size = utf8_codepointSize(c);
@@ -136,14 +136,14 @@ void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t c) {
     buffer->data[buffer->length] = '\0';
 }
 
-void orbit_stringBufferAppendP(OCStringBuffer* buffer, OCStringID id) {
+void orbitStringBufferAppendP(OCStringBuffer* buffer, OCStringID id) {
     assert(buffer != NULL && "Null instance error");
-    OCString* str = orbit_stringPoolGet(id);
+    OCString* str = orbitStringPoolGet(id);
     if(!str) { return; }
-    orbit_stringBufferAppendC(buffer, str->data, str->length);
+    orbitStringBufferAppendC(buffer, str->data, str->length);
 }
 
-void orbit_stringBufferAppendC(OCStringBuffer* buffer, const char* data, uint64_t length) {
+void orbitStringBufferAppendC(OCStringBuffer* buffer, const char* data, uint64_t length) {
     assert(buffer != NULL && "Null instance error");
     _bufferReserve(buffer, buffer->length + length + 1);
     memcpy(buffer->data + buffer->length, data, length);
@@ -151,6 +151,6 @@ void orbit_stringBufferAppendC(OCStringBuffer* buffer, const char* data, uint64_
     buffer->data[buffer->length] = '\0';
 }
 
-OCStringID orbit_stringBufferIntern(OCStringBuffer* buffer) {
-    return orbit_stringIntern(buffer->data, buffer->length);
+OCStringID orbitStringBufferIntern(OCStringBuffer* buffer) {
+    return orbitStringIntern(buffer->data, buffer->length);
 }

@@ -11,7 +11,7 @@
 #include <string.h>
 #include <orbit/csupport/rcarray.h>
 
-void orbit_rcArrayDeinit(void* ref) {
+void orbitRcArrayDeinit(void* ref) {
     ORCArray* array = (ORCArray*)ref;
     for(uint64_t i = 0; i < array->size; ++i) {
         ORCRELEASE(array->data[i]);
@@ -19,11 +19,11 @@ void orbit_rcArrayDeinit(void* ref) {
     ORBIT_DEALLOC_ARRAY(array->data, sizeof(void*), array->capacity);
 }
 
-ORCArray* orbit_rcArrayInit(ORCArray* array, uint64_t capacity) {
+ORCArray* orbitRcArrayInit(ORCArray* array, uint64_t capacity) {
     assert(array != NULL && "Null instance error");
     
     array->data = ORBIT_ALLOC_ARRAY(void*, capacity);
-    ORCINIT(array, &orbit_rcArrayDeinit);
+    ORCINIT(array, &orbitRcArrayDeinit);
     array->size = 0;
     array->capacity = capacity;
     return array;
@@ -37,7 +37,7 @@ static void _arrayReserve(ORCArray* array, uint64_t newSize) {
     array->data = ORBIT_REALLOC_ARRAY(array->data, void*, oldCapacity, array->capacity);
 }
 
-void orbit_rcArrayAppend(ORCArray* array, void* item) {
+void orbitRcArrayAppend(ORCArray* array, void* item) {
     assert(array != NULL && "Null instance error");
     
     _arrayReserve(array, array->size + 1);
@@ -45,7 +45,7 @@ void orbit_rcArrayAppend(ORCArray* array, void* item) {
     array->size += 1;
 }
 
-void orbit_rcArrayInsert(ORCArray* array, uint64_t index, void* item) {
+void orbitRcArrayInsert(ORCArray* array, uint64_t index, void* item) {
     assert(array != NULL && "Null instance error");
     assert(index <= array->size && "Index out of range");
     
@@ -56,7 +56,7 @@ void orbit_rcArrayInsert(ORCArray* array, uint64_t index, void* item) {
     array->size += 1;
 }
 
-void orbit_rcArrayRemove(ORCArray* array, uint64_t index) {
+void orbitRcArrayRemove(ORCArray* array, uint64_t index) {
     assert(array != NULL && "Null instance error");
     assert(index < array->size && "Index out of range");
 
@@ -67,7 +67,7 @@ void orbit_rcArrayRemove(ORCArray* array, uint64_t index) {
     array->size -= 1;
 }
 
-void orbit_rcArrayEmpty(ORCArray* array) {
+void orbitRcArrayEmpty(ORCArray* array) {
     assert(array != NULL && "Null instance error");
     for(uint64_t i = 0; i < array->size; ++i) {
         ORCRELEASE(array->data[i]);

@@ -19,7 +19,7 @@ typedef struct _OCString OCString;
 typedef uint64_t OCStringID;
 typedef struct _OCStringBuffer OCStringBuffer;
 
-extern const OCStringID orbit_invalidStringID;
+extern const OCStringID orbitInvalidStringID;
 
 struct _OCString {
     uint64_t        length;
@@ -34,22 +34,22 @@ struct _OCStringBuffer {
     char*           data;
 };
 
-void orbit_stringPoolInit(uint64_t capacity);
-void orbit_stringPoolDeinit();
+void orbitStringPoolInit(uint64_t capacity);
+void orbitStringPoolDeinit();
 
-bool orbit_stringEquals(OCString* a, const char* b, uint64_t length);
-OCStringID orbit_stringIntern(const char* data, uint64_t length);
-OCString* orbit_stringPoolSearch(const char* data, uint64_t length);
-OCString* orbit_stringPoolGet(OCStringID id);
-void orbit_stringPoolDebug();
+bool orbitStringEquals(OCString* a, const char* b, uint64_t length);
+OCStringID orbitStringIntern(const char* data, uint64_t length);
+OCString* orbitStringPoolSearch(const char* data, uint64_t length);
+OCString* orbitStringPoolGet(OCStringID id);
+void orbitStringPoolDebug();
 
-void orbit_stringBufferInit(OCStringBuffer* buffer, uint64_t capacity);
-void orbit_stringBufferDeinit(OCStringBuffer* buffer);
-void orbit_stringBufferReset(OCStringBuffer* buffer);
+void orbitStringBufferInit(OCStringBuffer* buffer, uint64_t capacity);
+void orbitStringBufferDeinit(OCStringBuffer* buffer);
+void orbitStringBufferReset(OCStringBuffer* buffer);
 
-void orbit_stringBufferAppend(OCStringBuffer* buffer, codepoint_t codepoint);
-void orbit_stringBufferAppendP(OCStringBuffer* buffer, OCStringID id);
-void orbit_stringBufferAppendC(OCStringBuffer* buffer, const char* data, uint64_t length);
-OCStringID orbit_stringBufferIntern(OCStringBuffer* buffer);
+void orbitStringBufferAppend(OCStringBuffer* buffer, codepoint_t codepoint);
+void orbitStringBufferAppendP(OCStringBuffer* buffer, OCStringID id);
+void orbitStringBufferAppendC(OCStringBuffer* buffer, const char* data, uint64_t length);
+OCStringID orbitStringBufferIntern(OCStringBuffer* buffer);
 
 #endif /* orbit_utils_string_h */

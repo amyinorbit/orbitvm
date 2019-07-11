@@ -22,47 +22,47 @@ struct _ASTListBuilder {
     OrbitAST**   next;
 };
 
-void orbit_astListStart(ASTListBuilder* builder);
-void orbit_astListAdd(ASTListBuilder* builder, OrbitAST* item);
-OrbitAST* orbit_astListClose(ASTListBuilder* builder);
+void orbitASTListStart(ASTListBuilder* builder);
+void orbitASTListAdd(ASTListBuilder* builder, OrbitAST* item);
+OrbitAST* orbitASTListClose(ASTListBuilder* builder);
 
 /// AST Node builders
 
-OrbitAST* orbit_astMakeAssign(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs);
-OrbitAST* orbit_astMakeConditional(OrbitAST* condition, OrbitAST* ifBody, OrbitAST* elseBody);
-OrbitAST* orbit_astMakeForInLoop(const OrbitToken* var, OrbitAST* collection, OrbitAST* body);
-OrbitAST* orbit_astMakeWhileLoop(OrbitAST* condition, OrbitAST* body);
-OrbitAST* orbit_astMakeBlock(OrbitAST* body);
-OrbitAST* orbit_astMakeBreak();
-OrbitAST* orbit_astMakeContinue();
-OrbitAST* orbit_astMakeReturn(OrbitAST* returned);
-OrbitAST* orbit_astMakePrint(OrbitAST* expr);
+OrbitAST* orbitASTMakeAssign(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs);
+OrbitAST* orbitASTMakeConditional(OrbitAST* condition, OrbitAST* ifBody, OrbitAST* elseBody);
+OrbitAST* orbitASTMakeForInLoop(const OrbitToken* var, OrbitAST* collection, OrbitAST* body);
+OrbitAST* orbitASTMakeWhileLoop(OrbitAST* condition, OrbitAST* body);
+OrbitAST* orbitASTMakeBlock(OrbitAST* body);
+OrbitAST* orbitASTMakeBreak();
+OrbitAST* orbitASTMakeContinue();
+OrbitAST* orbitASTMakeReturn(OrbitAST* returned);
+OrbitAST* orbitASTMakePrint(OrbitAST* expr);
 
-OrbitAST* orbit_astMakeModuleDecl(const char* symbol, OrbitAST* body);
-OrbitAST* orbit_astMakeStructDecl(const OrbitToken* symbol, OrbitAST* constructor, OrbitAST* destructor, OrbitAST* fields);
-OrbitAST* orbit_astMakeVarDecl(const OrbitToken* symbol, OrbitAST* typeAnnotation);
-OrbitAST* orbit_astMakeFuncDecl(const OrbitToken* symbol, OrbitAST* returnType, OrbitAST* params, OrbitAST* body);
+OrbitAST* orbitASTMakeModuleDecl(const char* symbol, OrbitAST* body);
+OrbitAST* orbitASTMakeStructDecl(const OrbitToken* symbol, OrbitAST* constructor, OrbitAST* destructor, OrbitAST* fields);
+OrbitAST* orbitASTMakeVarDecl(const OrbitToken* symbol, OrbitAST* typeAnnotation);
+OrbitAST* orbitASTMakeFuncDecl(const OrbitToken* symbol, OrbitAST* returnType, OrbitAST* params, OrbitAST* body);
 
-OrbitAST* orbit_astMakeBinaryExpr(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs);
-OrbitAST* orbit_astMakeUnaryExpr(const OrbitToken* operator, OrbitAST* rhs);
-OrbitAST* orbit_astMakeCallExpr(OrbitAST* symbol, OrbitAST* params);
-OrbitAST* orbit_astMakeSubscriptExpr(OrbitAST* symbol, OrbitAST* subscript);
-OrbitAST* orbit_astMakeNameExpr(const OrbitToken* symbol);
-OrbitAST* orbit_astMakeConstantExpr(const OrbitToken* symbol, ASTKind kind);
-OrbitAST* orbit_astMakeInitExpr(OrbitAST* type, OrbitAST* params);
-OrbitAST* orbit_astMakeLambdaExpr(OrbitAST* params, OrbitAST* body);
-OrbitAST* orbit_astMakeCastExpr(OrbitAST* expr, ASTKind kind);
-OrbitAST* orbit_astMakeI2F(OrbitAST* expr);
-OrbitAST* orbit_astMakeF2I(OrbitAST* expr);
+OrbitAST* orbitASTMakeBinaryExpr(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs);
+OrbitAST* orbitASTMakeUnaryExpr(const OrbitToken* operator, OrbitAST* rhs);
+OrbitAST* orbitASTMakeCallExpr(OrbitAST* symbol, OrbitAST* params);
+OrbitAST* orbitASTMakeSubscriptExpr(OrbitAST* symbol, OrbitAST* subscript);
+OrbitAST* orbitASTMakeNameExpr(const OrbitToken* symbol);
+OrbitAST* orbitASTMakeConstantExpr(const OrbitToken* symbol, ASTKind kind);
+OrbitAST* orbitASTMakeInitExpr(OrbitAST* type, OrbitAST* params);
+OrbitAST* orbitASTMakeLambdaExpr(OrbitAST* params, OrbitAST* body);
+OrbitAST* orbitASTMakeCastExpr(OrbitAST* expr, ASTKind kind);
+OrbitAST* orbitASTMakeI2F(OrbitAST* expr);
+OrbitAST* orbitASTMakeF2I(OrbitAST* expr);
 
 // OrbitAST* ,(ASTKind kind);
-OrbitAST* orbit_astMakeUserType(const OrbitToken* symbol);
-OrbitAST* orbit_astMakeUserTypePooled(OCStringID symbol);
-OrbitAST* orbit_astMakePrimitiveType(ASTKind kind);
-OrbitAST* orbit_astMakeFuncType(OrbitAST* returnType, OrbitAST* params);
-OrbitAST* orbit_astMakeArrayType(OrbitAST* elementType);
-OrbitAST* orbit_astMakeMapType(OrbitAST* keyType, OrbitAST* elementType);
-OrbitAST* orbit_astMakeOptional(OrbitAST* type, bool isOptional);
-OrbitAST* orbit_astMakeConst(OrbitAST* type, bool isConst);
+OrbitAST* orbitASTMakeUserType(const OrbitToken* symbol);
+OrbitAST* orbitASTMakeUserTypePooled(OCStringID symbol);
+OrbitAST* orbitASTMakePrimitiveType(ASTKind kind);
+OrbitAST* orbitASTMakeFuncType(OrbitAST* returnType, OrbitAST* params);
+OrbitAST* orbitASTMakeArrayType(OrbitAST* elementType);
+OrbitAST* orbitASTMakeMapType(OrbitAST* keyType, OrbitAST* elementType);
+OrbitAST* orbitASTMakeOptional(OrbitAST* type, bool isOptional);
+OrbitAST* orbitASTMakeConst(OrbitAST* type, bool isConst);
 
 #endif /* orbit_ast_builders_h_ */

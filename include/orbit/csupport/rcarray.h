@@ -22,13 +22,13 @@ struct _ORCArray {
     void**          data;
 };
 
-void orbit_rcArrayDeinit(void* ref);
-ORCArray* orbit_rcArrayInit(ORCArray* array, uint64_t capacity);
+void orbitRcArrayDeinit(void* ref);
+ORCArray* orbitRcArrayInit(ORCArray* array, uint64_t capacity);
 
-void orbit_rcArrayAppend(ORCArray* array, void* item);
-void orbit_rcArrayInsert(ORCArray* array, uint64_t index, void* item);
+void orbitRcArrayAppend(ORCArray* array, void* item);
+void orbitRcArrayInsert(ORCArray* array, uint64_t index, void* item);
 
-void orbit_rcArrayRemove(ORCArray* array, uint64_t index);
-void orbit_rcArrayEmpty(ORCArray* array);
+void orbitRcArrayRemove(ORCArray* array, uint64_t index);
+void orbitRcArrayEmpty(ORCArray* array);
 
 #endif /* orbit_utils_rcarray_h */

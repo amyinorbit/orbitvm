@@ -33,13 +33,13 @@ struct sOrbitVM {
     OrbitGC gc;
 };
 
-void orbit_vmInit(OrbitVM* self);
-void orbit_vmDeinit(OrbitVM* self);
-void orbit_debugTOS(OrbitVM* self);
-void orbit_debugStack(OrbitVM* self);
+void orbitVMInit(OrbitVM* self);
+void orbitVMDeinit(OrbitVM* self);
+void orbitDebugTOS(OrbitVM* self);
+void orbitDebugStack(OrbitVM* self);
 
-// OrbitResult orbit_interpret(const char* source);
-OrbitResult orbit_run(OrbitVM* vm, OrbitFunction* function);
+// OrbitResult orbitInterpret(const char* source);
+OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function);
 
 
 #endif /* orbit_vm_h */

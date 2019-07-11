@@ -89,17 +89,17 @@ static inline bool ORBIT_IS_FUNCTION(OrbitValue value) {
     return ((value & ORBIT_TAG_VALUE) == 0) && ORBIT_AS_REF(value)->kind == ORBIT_OBJ_FUNCTION;
 }
 
-OrbitObject* orbit_objectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size);
+OrbitObject* orbitObjectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size);
 
-OrbitString* orbit_stringCopy(OrbitGC* gc, const char* data, int32_t count);
-OrbitString* orbit_stringNew(OrbitGC* gc, int32_t count);
+OrbitString* orbitStringCopy(OrbitGC* gc, const char* data, int32_t count);
+OrbitString* orbitStringNew(OrbitGC* gc, int32_t count);
 
-OrbitModule* orbit_moduleNew(OrbitGC* gc);
-OrbitFunction* orbit_functionNew(OrbitGC* gc);
+OrbitModule* orbitModuleNew(OrbitGC* gc);
+OrbitFunction* orbitFunctionNew(OrbitGC* gc);
 // TODO: replace function with Module?
-OrbitTask* orbit_taskNew(OrbitGC* gc, OrbitFunction* function); 
+OrbitTask* orbitTaskNew(OrbitGC* gc, OrbitFunction* function); 
 
-void orbit_objectMark(OrbitGC* gc, OrbitObject* self);
-void orbit_objectFree(OrbitGC* gc, OrbitObject* self);
+void orbitObjectMark(OrbitGC* gc, OrbitObject* self);
+void orbitObjectFree(OrbitGC* gc, OrbitObject* self);
 
 #endif

@@ -68,25 +68,25 @@ struct _OrbitSRange {
 #define ORBIT_SRANGE_START(range)   (ORBIT_SLOC_OFFSET((range).start))
 #define ORBIT_SRANGE_END(range)     (ORBIT_SLOC_OFFSET((range).end))
 
-OrbitSRange orbit_srangeFromLength(OrbitSLoc start, uint32_t length);
-OrbitSRange orbit_srangeUnion(OrbitSRange a, OrbitSRange b);
-bool orbit_srangeContainsLoc(OrbitSRange range, OrbitSLoc sloc);
+OrbitSRange orbitSrangeFromLength(OrbitSLoc start, uint32_t length);
+OrbitSRange orbitSrangeUnion(OrbitSRange a, OrbitSRange b);
+bool orbitSrangeContainsLoc(OrbitSRange range, OrbitSLoc sloc);
 
 /// Creates a source handler by opening the file at [path] and reading its bytes.
-bool orbit_sourceInitPath(OrbitSource* source, const char* path);
+bool orbitSourceInitPath(OrbitSource* source, const char* path);
 
 /// Creates a source handler by reading the bytes of [file].
-bool orbit_sourceInitFile(OrbitSource* source, FILE* file);
+bool orbitSourceInitFile(OrbitSource* source, FILE* file);
 
 // Creates a source handler from a string.
-bool orbit_sourceInitC(OrbitSource* source, char* string, uint32_t length);
+bool orbitSourceInitC(OrbitSource* source, char* string, uint32_t length);
 
-OrbitPhysSLoc orbit_sourcePhysicalLoc(const OrbitSource* source, OrbitSLoc loc);
+OrbitPhysSLoc orbitSourcePhysicalLoc(const OrbitSource* source, OrbitSLoc loc);
 
 /// Deallocates the memory used to store the bytes in [source].
 ///
 /// !warning: any token and source location pointing to this source file
 /// will be invalidated.
-void orbit_sourceDeinit(OrbitSource* source);
+void orbitSourceDeinit(OrbitSource* source);
 
 #endif /* orbit_csupport_source_h */

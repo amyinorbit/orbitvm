@@ -56,8 +56,8 @@ typedef struct {
     ExprResolver resolver;
 } Sema;
 
-void orbit_semaInit(Sema* sema);
-void orbit_semaDeinit(Sema* sema);
+void orbitSemaInit(Sema* sema);
+void orbitSemaDeinit(Sema* sema);
 
 void resolverInit(ExprResolver* self);
 void resolverDeinit(ExprResolver* self);

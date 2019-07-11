@@ -255,8 +255,8 @@ struct _OrbitAST {
     };
 };
 
-void orbit_astPrint(FILE* out, OrbitAST* ast);
-void orbit_astDestroy(void* ref);
-OrbitAST* orbit_astMake(ASTKind kind);
+void orbitASTPrint(FILE* out, OrbitAST* ast);
+void orbitASTDestroy(void* ref);
+OrbitAST* orbitASTMake(ASTKind kind);
 
 #endif /* orbit_ast_ast_h */
