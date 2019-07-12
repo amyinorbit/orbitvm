@@ -13,6 +13,7 @@
 #include <orbit/rt2/value.h>
 #include <orbit/rt2/garbage.h>
 #include <orbit/rt2/buffer.h>
+#include <orbit/rt2/map.h>
 
 typedef void (*OrbitDestructor)(void*);
 
@@ -26,7 +27,7 @@ typedef enum {
 struct sOrbitObject {
     OrbitObjectKind kind;
     OrbitObject* next;
-    uint32_t mark:1;
+    bool mark:1;
     uint32_t retainCount:31;
 };
 
@@ -43,9 +44,16 @@ struct sOrbitString {
     char data[];        // We use the flexible array member trick to avoid double-alloc
 };
 
+typedef struct {
+    OrbitString* name;
+    OrbitValue value;
+} OrbitGlobal;
+
+DECLARE_BUFFER(Global, OrbitGlobal);
+
 struct sOrbitModule {
     OrbitObject base;
-    OrbitValueArray globals;
+    OrbitGlobalArray globals;
 };
 
 struct sOrbitFunction {

@@ -16,6 +16,8 @@
 #include <assert.h>
 #include <string.h>
 
+DEFINE_BUFFER(Global, OrbitGlobal);
+
 OrbitObject* orbitObjectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size) {
     assert(gc && "null Garbage Collector error");
     OrbitObject* obj = (OrbitObject*)orbitGCalloc(gc, NULL, 0, size);
@@ -58,7 +60,7 @@ OrbitString* orbitStringNew(OrbitGC* gc, int32_t count) {
 OrbitModule* orbitModuleNew(OrbitGC* gc) {
     assert(gc && "null Garbage Collector error");
     OrbitModule* self = (OrbitModule*)orbitObjectNew(gc, ORBIT_OBJ_MODULE, sizeof(OrbitModule));
-    orbitValueArrayInit(&self->globals);
+    orbitGlobalArrayInit(&self->globals);
     return self;
 }
 
@@ -99,15 +101,14 @@ static inline void markString(OrbitGC* gc, OrbitString* self) {
 
 static inline void markModule(OrbitGC* gc, OrbitModule* self) {
     for(int i = 0; i < self->globals.count; ++i) {
-        if(!ORBIT_IS_REF(self->globals.data[i])) continue;
-        orbitObjectMark(gc, ORBIT_AS_REF(self->globals.data[i]));
+        orbitObjectMark(gc, (OrbitObject*)self->globals.data[i].name);
+        if(ORBIT_IS_REF(self->globals.data[i].value))
+            orbitObjectMark(gc, ORBIT_AS_REF(self->globals.data[i].value));
     }
 }
 
 static inline void markFunction(OrbitGC* gc, OrbitFunction* self) {
     // This shouldn't actually be required since we are keeping track of deallocation sizes
-    // gc->allocated += sizeof(OrbitFunction);
-    // gc->allocated += sizeof(OrbitValue) * data;
     
     for(int i = 0; i < self->constants.count; ++i) {
         if(!ORBIT_IS_REF(self->constants.data[i])) continue;
@@ -155,7 +156,7 @@ static inline void freeString(OrbitGC* gc, OrbitString* self) {
 }
 
 static inline void freeModule(OrbitGC* gc, OrbitModule* self) {
-    orbitValueArrayDeinit(gc, &self->globals);
+    orbitGlobalArrayDeinit(gc, &self->globals);
     orbitGCalloc(gc, self, sizeof(OrbitModule), 0);
 }
 
