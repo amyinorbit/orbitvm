@@ -15,34 +15,6 @@
 #include <orbit/utils/utf8.h>
 #include <term/colors.h>
 
-static const char* _ansiCodes[] = {
-    [CLI_RESET] = "\033[0m",
-    [CLI_BOLD] = "\033[1m",
-    [CLI_BLACK] = "\033[30m",
-    [CLI_RED] = "\033[31m",
-    [CLI_GREEN] = "\033[32m",
-    [CLI_YELLOW] = "\033[33m",
-    [CLI_BLUE] = "\033[34m",
-    [CLI_MAGENTA] = "\033[35m",
-    [CLI_CYAN] = "\033[36m",
-    [CLI_WHITE] = "\033[37m",
-    [CLI_BADCOLOR]  = "",
-};
-
-#if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__)) || defined (__MINGW32__)
-#include <unistd.h>
-#define orbitConsoleSupportsColor(file) (isatty(fileno(file)))
-#else
-#define orbitConsoleSupportsColor(file) (false)
-#endif
-
-
-void console_setColor(FILE* out, CLIColor color) {
-    if(!orbitConsoleSupportsColor(out)) { return; }
-    if(color > CLI_BADCOLOR) { return; }
-    fprintf(out, "%s", _ansiCodes[color]);
-}
-
 void console_printToken(FILE* out, OrbitToken token) {
     const char* bytes = token.source->bytes + ORBIT_SLOC_OFFSET(token.sourceLoc);
     fprintf(out, "%.*s", (int)token.length, bytes);

@@ -16,22 +16,6 @@
 #include <orbit/csupport/source.h>
 #include <orbit/csupport/tokens.h>
 
-typedef enum {
-    CLI_RESET,
-    CLI_BOLD,
-    CLI_BLACK,
-    CLI_RED,
-    CLI_GREEN,
-    CLI_YELLOW,
-    CLI_BLUE,
-    CLI_MAGENTA,
-    CLI_CYAN,
-    CLI_WHITE,
-    CLI_BADCOLOR,
-} CLIColor;
-
-void console_setColor(FILE* out, CLIColor color);
-
 void console_printToken(FILE* out, OrbitToken token);
 void console_printPooledString(FILE* out, OCStringID id);
 void console_printTokenLine(FILE* out, OrbitToken token);
