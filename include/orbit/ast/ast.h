@@ -19,76 +19,80 @@
 typedef struct _OrbitAST OrbitAST;
 typedef struct _OrbitASTType OrbitASTType;
 typedef enum _OrbitASTTypeFlags OrbitASTTypeFlags;
-typedef uint64_t ASTKind;
+typedef enum _ASTKind ASTKind;
 
 #define DECL_AST_KIND(name, num) static const ASTKind ORBIT_AST_##name = 1UL << (__COUNTER__)
 
 // We can't use enum because C restricts them to 32 bit. Could probably not rely on bitsets,
 // but that allows much faster pattern matching in AST visitors.
-DECL_AST_KIND(ASSIGN,                   0);
-DECL_AST_KIND(CONDITIONAL,              0);
-DECL_AST_KIND(FOR_IN,                   1);
-DECL_AST_KIND(WHILE,                    2);
-DECL_AST_KIND(BREAK,                    3);
-DECL_AST_KIND(CONTINUE,                 4);
-DECL_AST_KIND(RETURN,                   5);
-DECL_AST_KIND(PRINT,                    6);
-DECL_AST_KIND(BLOCK,                    7);
-DECL_AST_KIND(DECL_MODULE,              8);
-DECL_AST_KIND(DECL_FUNC,                9);
-DECL_AST_KIND(DECL_VAR,                 10);
-DECL_AST_KIND(DECL_STRUCT,              11);
-DECL_AST_KIND(EXPR_UNARY,               12);
-DECL_AST_KIND(EXPR_BINARY,              13);
-DECL_AST_KIND(EXPR_CALL,                14);
-DECL_AST_KIND(EXPR_SUBSCRIPT,           15);
-DECL_AST_KIND(EXPR_CONSTANT,            16);
-DECL_AST_KIND(EXPR_CONSTANT_INTEGER,    17);
-DECL_AST_KIND(EXPR_CONSTANT_FLOAT,      18);
-DECL_AST_KIND(EXPR_CONSTANT_STRING,     19);
-DECL_AST_KIND(EXPR_CONSTANT_BOOL,       20);
-DECL_AST_KIND(EXPR_LAMBDA,              21);
-DECL_AST_KIND(EXPR_NAME,                22);
-DECL_AST_KIND(EXPR_INIT,                23);
-DECL_AST_KIND(EXPR_I2F,                 24);
-DECL_AST_KIND(EXPR_F2I,                 25);
 
+enum _ASTKind {
+    // MARK: - AST Statements
+    ORBIT_AST_ASSIGN,
+    ORBIT_AST_CONDITIONAL,
+    ORBIT_AST_FOR_IN,
+    ORBIT_AST_WHILE,
+    ORBIT_AST_BREAK,
+    ORBIT_AST_CONTINUE,
+    ORBIT_AST_RETURN,
+    ORBIT_AST_PRINT,
+    ORBIT_AST_BLOCK,
     
-// TODO: Add Maybe type node, template system?
-DECL_AST_KIND(TYPEEXPR_VOID,            26);
-DECL_AST_KIND(TYPEEXPR_BOOL,            27);
-DECL_AST_KIND(TYPEEXPR_INT,             28);
-DECL_AST_KIND(TYPEEXPR_FLOAT,           29);
-DECL_AST_KIND(TYPEEXPR_STRING,          30);
-DECL_AST_KIND(TYPEEXPR_USER,            31);
-DECL_AST_KIND(TYPEEXPR_ARRAY,           32);
-DECL_AST_KIND(TYPEEXPR_MAP,             33);
-DECL_AST_KIND(TYPEEXPR_FUNC,            34);
-DECL_AST_KIND(TYPEEXPR_ANY,             35);
+    // MARK: - AST Declarations
+    ORBIT_AST_DECL_MODULE,
+    ORBIT_AST_DECL_FUNC,
+    ORBIT_AST_DECL_VAR,
+    ORBIT_AST_DECL_STRUCT,
+    
+    // MARK: - AST Expressions
+    ORBIT_AST_EXPR_UNARY,
+    ORBIT_AST_EXPR_BINARY,
+    ORBIT_AST_EXPR_CALL,
+    ORBIT_AST_EXPR_SUBSCRIPT,
+    ORBIT_AST_EXPR_CONSTANT,
+    ORBIT_AST_EXPR_CONSTANT_INTEGER,
+    ORBIT_AST_EXPR_CONSTANT_FLOAT,
+    ORBIT_AST_EXPR_CONSTANT_STRING,
+    ORBIT_AST_EXPR_CONSTANT_BOOL,
+    ORBIT_AST_EXPR_LAMBDA,
+    ORBIT_AST_EXPR_NAME,
+    ORBIT_AST_EXPR_INIT,
+    ORBIT_AST_EXPR_I2F,
+    ORBIT_AST_EXPR_F2I,
 
-// DECL_AST_KIND(GENERIC_PLACEHOLDER,      33);
-// DECL_AST_KIND(GENERIC_PROTOCOL,         34);
+    // MARK: - Type Expressions
+    ORBIT_AST_TYPEEXPR_VOID,
+    ORBIT_AST_TYPEEXPR_BOOL,
+    ORBIT_AST_TYPEEXPR_INT,
+    ORBIT_AST_TYPEEXPR_FLOAT,
+    ORBIT_AST_TYPEEXPR_STRING,
+    ORBIT_AST_TYPEEXPR_USER,
+    ORBIT_AST_TYPEEXPR_ARRAY,
+    ORBIT_AST_TYPEEXPR_MAP,
+    ORBIT_AST_TYPEEXPR_FUNC,
+    ORBIT_AST_TYPEEXPR_ANY,
+};
 
-extern const ASTKind ASTAllMask;
-extern const ASTKind ASTStmtMask;
-extern const ASTKind ASTDeclMask;
-extern const ASTKind ASTExprMask;
-extern const ASTKind ASTTypeExprMask;
-extern const ASTKind ASTPrimitiveMask;
+static inline bool orbitASTisStmt(ASTKind kind) {
+    return kind >= ORBIT_AST_ASSIGN && kind <= ORBIT_AST_BLOCK;
+}
 
-#define ORBIT_AST_IS_STMT(ast) ((ast) != NULL && ((ast).type & ASTStmtMask) != 0)
-#define ORBIT_AST_IS_DECL(ast) ((ast) != NULL && ((ast).type & ASTDeclMask) != 0)
-#define ORBIT_AST_IS_EXPR(ast) ((ast) != NULL && ((ast).type & ASTExprMask) != 0)
-#define ORBIT_AST_IS_TYPEEXPR(ast) ((ast) != NULL && ((ast).type & ASTTypeExprMask) != 0)
+static inline bool orbitASTisDecl(ASTKind kind) {
+    return kind >= ORBIT_AST_DECL_MODULE && kind <= ORBIT_AST_DECL_STRUCT;
+}
+
+static inline bool orbitASTisExpr(ASTKind kind) {
+    return kind >= ORBIT_AST_EXPR_UNARY && kind <= ORBIT_AST_EXPR_F2I;
+}
+
+static inline bool orbitASTisType(ASTKind kind) {
+    return kind >= ORBIT_AST_TYPEEXPR_VOID;
+}
 
 enum _OrbitASTTypeFlags {
     ORBIT_TYPE_CONST      = 1 << 0,
     ORBIT_TYPE_OPTIONAL   = 1 << 1
 };
-
-// struct _OrbitASTGeneric {
-//
-// };
 
 struct _OrbitASTType {
     //OrbitAST*       canonicalType;

@@ -12,49 +12,6 @@
 #include <orbit/utils/memory.h>
 #include <orbit/ast/ast.h>
 
-const ASTKind ASTStmtMask       = ORBIT_AST_CONDITIONAL
-                                | ORBIT_AST_FOR_IN
-                                | ORBIT_AST_WHILE
-                                | ORBIT_AST_BREAK
-                                | ORBIT_AST_CONTINUE
-                                | ORBIT_AST_RETURN
-                                | ORBIT_AST_PRINT;
-
-const ASTKind ASTDeclMask       = ORBIT_AST_DECL_MODULE
-                                | ORBIT_AST_DECL_FUNC
-                                | ORBIT_AST_DECL_VAR
-                                | ORBIT_AST_DECL_STRUCT;
-
-const ASTKind ASTExprMask       = ORBIT_AST_EXPR_UNARY
-                                | ORBIT_AST_EXPR_BINARY
-                                | ORBIT_AST_EXPR_CALL
-                                | ORBIT_AST_EXPR_SUBSCRIPT
-                                | ORBIT_AST_EXPR_CONSTANT
-                                | ORBIT_AST_EXPR_CONSTANT_INTEGER
-                                | ORBIT_AST_EXPR_CONSTANT_FLOAT
-                                | ORBIT_AST_EXPR_CONSTANT_STRING
-                                | ORBIT_AST_EXPR_NAME
-                                | ORBIT_AST_EXPR_INIT;
-
-const ASTKind ASTTypeExprMask   = ORBIT_AST_TYPEEXPR_VOID
-                                | ORBIT_AST_TYPEEXPR_BOOL
-                                | ORBIT_AST_TYPEEXPR_INT
-                                | ORBIT_AST_TYPEEXPR_FLOAT
-                                | ORBIT_AST_TYPEEXPR_STRING
-                                | ORBIT_AST_TYPEEXPR_USER
-                                | ORBIT_AST_TYPEEXPR_ANY
-                                | ORBIT_AST_TYPEEXPR_ARRAY
-                                | ORBIT_AST_TYPEEXPR_MAP
-                                | ORBIT_AST_TYPEEXPR_FUNC;
-
-const ASTKind ASTPrimitiveMask  = ORBIT_AST_TYPEEXPR_VOID
-                                | ORBIT_AST_TYPEEXPR_BOOL
-                                | ORBIT_AST_TYPEEXPR_INT
-                                | ORBIT_AST_TYPEEXPR_FLOAT
-                                | ORBIT_AST_TYPEEXPR_STRING;
-
-const ASTKind ASTAllMask       = 0xffffffffffffffff;
-
 void orbitASTDestroy(void* ref) {
     if(ref == NULL) { return; }
     OrbitAST* ast = (OrbitAST*)ref;
@@ -148,6 +105,7 @@ void orbitASTDestroy(void* ref) {
             case ORBIT_AST_EXPR_CONSTANT_INTEGER:
             case ORBIT_AST_EXPR_CONSTANT_FLOAT:
             case ORBIT_AST_EXPR_CONSTANT_STRING:
+            case ORBIT_AST_EXPR_CONSTANT_BOOL:
                 break;
         
             case ORBIT_AST_EXPR_NAME:
@@ -156,6 +114,11 @@ void orbitASTDestroy(void* ref) {
             case ORBIT_AST_EXPR_INIT:
                 ORCRELEASE(ast->initExpr.type);
                 ORCRELEASE(ast->initExpr.params);
+                break;
+                
+            case ORBIT_AST_EXPR_LAMBDA:
+                ORCRELEASE(ast->lambdaExpr.params);
+                ORCRELEASE(ast->lambdaExpr.body);
                 break;
             
             case ORBIT_AST_EXPR_I2F:

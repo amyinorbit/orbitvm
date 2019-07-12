@@ -33,7 +33,7 @@ static bool _ast_matchesPredicate(const OrbitASTVisitor* visitor, const OrbitAST
     assert(ast && "null AST node given");
     
     if(!visitor->predicate) {
-        return (ast->kind & visitor->filter);
+        return (ast->kind == visitor->filter);
     }
     return visitor->predicate(visitor, ast);
 }
@@ -46,6 +46,11 @@ static void _ast_doTraverse(OrbitASTContext* ctx, OrbitAST* ast, const OrbitASTV
     }
     
     switch(ast->kind) {
+    case ORBIT_AST_ASSIGN:
+        _ast_doTraverse(ctx, ast->assignStmt.lhs, visitor);
+        _ast_doTraverse(ctx, ast->assignStmt.rhs, visitor);
+        break;
+        
     case ORBIT_AST_CONDITIONAL:
         _ast_doTraverse(ctx, ast->conditionalStmt.condition, visitor);
         _ast_doTraverse(ctx, ast->conditionalStmt.ifBody, visitor);
@@ -137,6 +142,7 @@ static void _ast_doTraverse(OrbitASTContext* ctx, OrbitAST* ast, const OrbitASTV
     case ORBIT_AST_EXPR_CONSTANT_INTEGER:
     case ORBIT_AST_EXPR_CONSTANT_FLOAT:
     case ORBIT_AST_EXPR_CONSTANT_STRING:
+    case ORBIT_AST_EXPR_CONSTANT_BOOL:
     case ORBIT_AST_EXPR_CONSTANT:
     case ORBIT_AST_EXPR_NAME:
     case ORBIT_AST_TYPEEXPR_VOID:

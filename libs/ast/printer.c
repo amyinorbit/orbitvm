@@ -49,7 +49,7 @@ static void orbitASTPrintList(FILE* out, const char* name, const OrbitAST* list,
 
 static void orbitASTPrintType(FILE* out, const OrbitAST* ast) {
     if(ast == NULL) { return; }
-    if((ast->kind & ASTTypeExprMask) == 0) { return; }
+    if(!orbitASTisType(ast->kind)) { return; }
     termColorFG(out, kTermYellow);
     
     if((ast->typeExpr.flags & ORBIT_TYPE_OPTIONAL)) {

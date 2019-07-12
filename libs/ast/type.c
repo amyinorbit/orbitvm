@@ -13,12 +13,14 @@
 #include <assert.h>
 #include <stdio.h>
 
+#define IS_PRIMITIVE_KIND(kind) ((kind) >= ORBIT_AST_TYPEEXPR_VOID && (kind) <= ORBIT_AST_TYPEEXPR_STRING)
+
 bool orbitASTTypeIsPrimitive(const OrbitAST* a) {
-    return (a && (a->kind & ASTPrimitiveMask));
+    return (a && IS_PRIMITIVE_KIND(a->kind));
 }
 
 bool orbitASTTypeEqualsPrimitive(const OrbitAST* a, ASTKind b) {
-    assert((b & ASTPrimitiveMask) && "Cannot compare to a non primitive type");
+    assert(IS_PRIMITIVE_KIND(b) && "Cannot compare to a non primitive type");
     if(!orbitASTTypeIsPrimitive(a)) return false;
     return a->kind == b;
 }
@@ -27,7 +29,7 @@ static bool typeEqualsImpl(const OrbitAST* a, const OrbitAST* b, bool inList) {
     if(a == b) { return true; }
     if(!a && !b) { return true; }
     if(!a || !b) { return false; }
-    if(!(a->kind & ASTTypeExprMask) || !(b->kind & ASTTypeExprMask)) { return false; }
+    if(!orbitASTisType(a->kind) || !orbitASTisType(b->kind)) { return false; }
     
     // TODO: refine, define and implement special `Any` semantics.
     if(a->kind != b->kind) { return false; }
@@ -108,7 +110,7 @@ void orbitASTTypeString(OCStringBuffer* buffer, const OrbitAST* ast) {
         orbitStringBufferAppendC(buffer, "()", 2);
         return;
     }
-    if((ast->kind & ASTTypeExprMask) == 0) { return; }
+    if(!orbitASTisType(ast->kind)) { return; }
     
     if((ast->typeExpr.flags & ORBIT_TYPE_OPTIONAL)) {
         orbitStringBufferAppendC(buffer, "maybe ", 6);
