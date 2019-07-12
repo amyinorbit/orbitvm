@@ -12,8 +12,8 @@
 #include <math.h>
 #include <stdbool.h>
 #include <orbit/csupport/console.h>
-#include <orbit/utils/utf8.h>
 #include <term/colors.h>
+#include <unic/unic.h>
 
 void console_printToken(FILE* out, OrbitToken token) {
     const char* bytes = token.source->bytes + ORBIT_SLOC_OFFSET(token.sourceLoc);
@@ -39,9 +39,10 @@ void console_printSourceLocLine(FILE* out, const OrbitSource* source, OrbitSLoc 
     fprintf(out, "%"PRIu32"|", ploc.line);
     while(line < source->bytes + source->length) {
         uint64_t remaining = (source->bytes + source->length) - line;
-        codepoint_t c = utf8_getCodepoint(line, remaining);
+        uint8_t size = 0;
+        UnicodeScalar c = unic_utf8Read(line, remaining, &size);
         if(c == '\0' || c == '\n') { break; }
-        int size = utf8_writeCodepoint(c, utf, 6);
+        size = utf8_writeCodepoint(c, utf, 6);
         line += size;
         utf[size] = '\0';
         fprintf(out, "%.*s", size, utf);
