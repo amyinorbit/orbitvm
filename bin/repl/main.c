@@ -144,7 +144,7 @@ cleanup:
 #include "cli_options.inc"
 
 static void printVersion() {
-    printf("Orbit version 2019.6 repl (" __DATE__ ")\n");
+    printf("Orbit version 2019.6 (" __DATE__ ")\n");
     printf("built with " __COMPILER_NAME__ "\n");
     printf("Copyright (c) 2016-2019 Amy Parent <amy@amyparent.com>\n");
 }

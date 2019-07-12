@@ -46,14 +46,21 @@ typedef uint64_t OrbitValue;
 
 #define ORBIT_TAG_VALUE 0x00000001
 #define ORBIT_TAG_BOOL  (ORBIT_TAG_VALUE | (1 << 1))
-#define ORBIT_TAG_INT   (ORBIT_TAG_VALUE | (1 << 2))
-#define ORBIT_TAG_FLOAT (ORBIT_TAG_VALUE | (1 << 3))
-#define ORBIT_TAG_MAYBE (ORBIT_TAG_VALUE | (1 << 4))
+#define ORBIT_TAG_TRUE  (ORBIT_TAG_BOOL | (1 << 2))
+#define ORBIT_TAG_FALSE (ORBIT_TAG_BOOL | (1 << 3))
+#define ORBIT_TAG_INT   (ORBIT_TAG_VALUE | (1 << 4))
+#define ORBIT_TAG_FLOAT (ORBIT_TAG_VALUE | (1 << 5))
+#define ORBIT_TAG_MAYBE (ORBIT_TAG_VALUE | (1 << 6))
+#define ORBIT_TAG_NIL   (ORBIT_TAG_VALUE | (1 << 7))
 
 #define ORBIT_IS_REF(value) (((value) & ORBIT_TAG_VALUE) == 0)
 #define ORBIT_IS_BOOL(value) (((value) & ORBIT_TAG_BOOL) == ORBIT_TAG_BOOL)
 #define ORBIT_IS_INT(value) (((value) & ORBIT_TAG_INT) == ORBIT_TAG_INT)
 #define ORBIT_IS_FLOAT(value) (((value) & ORBIT_TAG_FLOAT) == ORBIT_TAG_FLOAT)
+#define ORBIT_IS_NIL(value)   (((value) & ORBIT_TAG_NIL) == ORBIT_TAG_NIL)
+#define ORBIT_IS_TRUE(value)  (((value) & ORBIT_TAG_TRUE) == ORBIT_TAG_TRUE)
+#define ORBIT_IS_FALSE(value)  (((value) & ORBIT_TAG_FALSE) == ORBIT_TAG_FALSE)
+
 
 #define ORBIT_MASK_REF   (~ORBIT_TAG_VALUE)
 #define ORBIT_GET_FLAGS(value) ((value) & 0x00000000ffffffff)
@@ -61,14 +68,15 @@ typedef uint64_t OrbitValue;
 #define ORBIT_FLOAT_BITS(num) (((FloatBits){.value=num}).bits)
 #define ORBIT_BITS_FLOAT(val) (((FloatBits){.bits=(val)}).value)
 
-#define ORBIT_VALUE_TRUE ((OrbitValue)(((uintptr_t)1 << 32UL) | ORBIT_TAG_BOOL))
-#define ORBIT_VALUE_FALSE ((OrbitValue)(((uintptr_t)0 << 32UL) | ORBIT_TAG_BOOL))
+#define ORBIT_VALUE_TRUE ((OrbitValue)ORBIT_TAG_TRUE)
+#define ORBIT_VALUE_FALSE ((OrbitValue)ORBIT_TAG_FALSE)
+#define ORBIT_VALUE_NIL ((OrbitValue)(ORBIT_TAG_NIL))
 #define ORBIT_VALUE_BOOL(value) ((OrbitValue)(((uintptr_t)((int32_t)value) << 32UL) | ORBIT_TAG_BOOL))
 #define ORBIT_VALUE_INT(value) ((OrbitValue)(((uintptr_t)((int32_t)value) << 32UL) | ORBIT_TAG_INT))
 #define ORBIT_VALUE_FLOAT(value) ((OrbitValue)(((uintptr_t)ORBIT_FLOAT_BITS(value) << 32UL) | ORBIT_TAG_FLOAT))
 #define ORBIT_VALUE_REF(value) ((uint64_t)(value) & ORBIT_MASK_REF)
 
-#define ORBIT_AS_BOOL(value) ((bool)((value) >> 32))
+#define ORBIT_AS_BOOL(value) (((bool)(value)) ? ORBIT_VALUE_TRUE : ORBIT_VALUE_FALSE)
 #define ORBIT_AS_INT(value) ((int32_t)((value) >> 32))
 #define ORBIT_AS_FLOAT(value) (ORBIT_BITS_FLOAT(ORBIT_AS_INT(value)))
 #define ORBIT_AS_REF(value) ((OrbitObject*)((uintptr_t)((value) & ORBIT_MASK_REF)))

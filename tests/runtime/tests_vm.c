@@ -11,6 +11,7 @@
 #include <orbit/rt2/value_string.h>
 #include <orbit/rt2/vm.h>
 #include <orbit/rt2/garbage.h>
+#include <orbit/rt2/map.h>
 #include <orbit/utils/pack.h>
 #include <orbit/utils/hashing.h>
 #include <unity.h>
@@ -205,9 +206,36 @@ void test_gcRootRelease(void) {
     TEST_ASSERT_EQUAL_HEX(a, gc.roots[3]);
 }
 
+void test_mapBasic(void) {
+    OrbitValue key = ORBIT_VALUE_REF(orbitStringCopy(&gc, "some key", 8));
+    OrbitMap map;
+    orbitMapInit(&map);
+    
+    TEST_ASSERT_EQUAL(0, map.count);
+    orbitMapInsert(&gc, &map, (OrbitPair){key, ORBIT_VALUE_INT(1234)});
+    TEST_ASSERT_EQUAL(1, map.count);
+    OrbitValue value;
+    
+    bool success = orbitMapGet(&gc, &map, key, &value);
+    TEST_ASSERT_TRUE(success);
+    TEST_ASSERT_TRUE(ORBIT_IS_INT(value));
+    TEST_ASSERT_EQUAL(1234, ORBIT_AS_INT(value));
+    
+    orbitMapInsert(&gc, &map, (OrbitPair){key, ORBIT_VALUE_FLOAT(123.4f)});
+    
+    success = orbitMapGet(&gc, &map, key, &value);
+    TEST_ASSERT_EQUAL(1, map.count);
+    TEST_ASSERT_TRUE(success);
+    TEST_ASSERT_TRUE(ORBIT_IS_FLOAT(value));
+    TEST_ASSERT_EQUAL(123.4f, ORBIT_AS_FLOAT(value));
+    
+    orbitMapRemove(&gc, &map, key);
+    TEST_ASSERT_EQUAL(0, map.count);
+    
+}
 
 int main(void) {
-    UNITY_BEGIN();
+    UNITY_BEGIN(); 
     RUN_TEST(pack_uint8);
     RUN_TEST(pack_uint16);
     RUN_TEST(pack_uint32);
@@ -221,5 +249,6 @@ int main(void) {
     RUN_TEST(test_stringConcat);
     RUN_TEST(test_gcRootsPush);
     RUN_TEST(test_gcRootsPop);
+    RUN_TEST(test_mapBasic);
     return UNITY_END();
 }

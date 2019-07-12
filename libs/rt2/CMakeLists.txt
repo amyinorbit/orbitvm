@@ -1,5 +1,6 @@
 add_library(OrbitRT2 STATIC
     memory.c
+    map.c
     debug.c
     value.c
     value_object.c
