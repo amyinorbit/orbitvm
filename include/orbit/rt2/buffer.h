@@ -17,27 +17,27 @@
         type* data;                                                                                \
         int32_t count;                                                                             \
         int32_t capacity;                                                                          \
-    } Orbit##name##Buffer;                                                                         \
-    void orbit_##name##BufferInit(Orbit##name##Buffer* buffer);                                    \
-    void orbit_##name##BufferDeinit(OrbitGC* gc, Orbit##name##Buffer* buffer);                     \
-    void orbit_##name##BufferFill(OrbitGC* gc, Orbit##name##Buffer* buffer, type data,             \
+    } Orbit##name##Array;                                                                         \
+    void orbit##name##ArrayInit(Orbit##name##Array* buffer);                                    \
+    void orbit##name##ArrayDeinit(OrbitGC* gc, Orbit##name##Array* buffer);                     \
+    void orbit##name##ArrayFill(OrbitGC* gc, Orbit##name##Array* buffer, type data,             \
                                   int32_t count);                                                  \
-    void orbit_##name##BufferWrite(OrbitGC* gc, Orbit##name##Buffer* buffer, type data)
+    void orbit##name##ArrayWrite(OrbitGC* gc, Orbit##name##Array* buffer, type data)
 
 // This should be used once for each type instantiation, somewhere in a .c file.
 #define DEFINE_BUFFER(name, type)                                                                  \
-    void orbit_##name##BufferInit(Orbit##name##Buffer* buffer) {                                   \
+    void orbit##name##ArrayInit(Orbit##name##Array* buffer) {                                   \
         buffer->data = NULL;                                                                       \
         buffer->capacity = 0;                                                                      \
         buffer->count = 0;                                                                         \
     }                                                                                              \
                                                                                                    \
-    void orbit_##name##BufferDeinit(OrbitGC* gc, Orbit##name##Buffer* buffer) {                    \
+    void orbit##name##ArrayDeinit(OrbitGC* gc, Orbit##name##Array* buffer) {                    \
         orbitGCalloc(gc, buffer->data, buffer->capacity * sizeof(type), 0);                        \
-        orbit_##name##BufferInit(buffer);                                                          \
+        orbit##name##ArrayInit(buffer);                                                          \
     }                                                                                              \
                                                                                                    \
-    void orbit_##name##BufferFill(OrbitGC* gc, Orbit##name##Buffer* buffer, type data,             \
+    void orbit##name##ArrayFill(OrbitGC* gc, Orbit##name##Array* buffer, type data,             \
                                   int count) {                                                     \
         if(buffer->capacity < buffer->count + count) {                                             \
             int oldCapacity = buffer->capacity;                                                    \
@@ -52,8 +52,8 @@
         }                                                                                          \
     }                                                                                              \
                                                                                                    \
-    void orbit_##name##BufferWrite(OrbitGC* gc, Orbit##name##Buffer* buffer, type data) {          \
-        orbit_##name##BufferFill(gc, buffer, data, 1);                                             \
+    void orbit##name##ArrayWrite(OrbitGC* gc, Orbit##name##Array* buffer, type data) {          \
+        orbit##name##ArrayFill(gc, buffer, data, 1);                                             \
     }
 
 DECLARE_BUFFER(Value, OrbitValue);

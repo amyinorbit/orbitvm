@@ -45,7 +45,7 @@ struct sOrbitString {
 
 struct sOrbitModule {
     OrbitObject base;
-    OrbitValueBuffer globals;
+    OrbitValueArray globals;
 };
 
 struct sOrbitFunction {
@@ -57,9 +57,9 @@ struct sOrbitFunction {
     uint8_t locals;
     uint16_t requiredStack;
     
-    OrbitByteBuffer code;
-    OrbitIntBuffer lines;
-    OrbitValueBuffer constants;
+    OrbitByteArray code;
+    OrbitIntArray lines;
+    OrbitValueArray constants;
 };
 
 struct sOrbitFrame {
@@ -78,7 +78,7 @@ struct sOrbitTask {
     OrbitValue* stack;
     OrbitValue* stackTop;
     
-    OrbitFrameBuffer frames;
+    OrbitFrameArray frames;
 };
 
 static inline bool ORBIT_IS_STRING(OrbitValue value) {

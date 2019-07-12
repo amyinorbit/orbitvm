@@ -58,7 +58,7 @@ OrbitString* orbitStringNew(OrbitGC* gc, int32_t count) {
 OrbitModule* orbitModuleNew(OrbitGC* gc) {
     assert(gc && "null Garbage Collector error");
     OrbitModule* self = (OrbitModule*)orbitObjectNew(gc, ORBIT_OBJ_MODULE, sizeof(OrbitModule));
-    orbit_ValueBufferInit(&self->globals);
+    orbitValueArrayInit(&self->globals);
     return self;
 }
 
@@ -69,9 +69,9 @@ OrbitFunction* orbitFunctionNew(OrbitGC* gc) {
     self->arity = 0;
     self->locals = 0;
     self->requiredStack = 0;
-    orbit_ByteBufferInit(&self->code);
-    orbit_IntBufferInit(&self->lines);
-    orbit_ValueBufferInit(&self->constants);
+    orbitByteArrayInit(&self->code);
+    orbitIntArrayInit(&self->lines);
+    orbitValueArrayInit(&self->constants);
     return self;
 }
 
@@ -86,7 +86,7 @@ OrbitTask* orbitTaskNew(OrbitGC* gc, OrbitFunction* function) {
     self->stack = ORBIT_ALLOC_ARRAY(OrbitValue, self->stackCapacity);
     self->stackTop = self->stack;
 
-    orbit_FrameBufferInit(&self->frames);
+    orbitFrameArrayInit(&self->frames);
     orbitTaskPushFrame(gc, self, function);
     return self;
 }
@@ -155,14 +155,14 @@ static inline void freeString(OrbitGC* gc, OrbitString* self) {
 }
 
 static inline void freeModule(OrbitGC* gc, OrbitModule* self) {
-    orbit_ValueBufferDeinit(gc, &self->globals);
+    orbitValueArrayDeinit(gc, &self->globals);
     orbitGCalloc(gc, self, sizeof(OrbitModule), 0);
 }
 
 static inline void freeFunction(OrbitGC* gc, OrbitFunction* self) {
-    orbit_ByteBufferDeinit(gc, &self->code);
-    orbit_IntBufferDeinit(gc, &self->lines);
-    orbit_ValueBufferDeinit(gc, &self->constants);
+    orbitByteArrayDeinit(gc, &self->code);
+    orbitIntArrayDeinit(gc, &self->lines);
+    orbitValueArrayDeinit(gc, &self->constants);
     orbitGCalloc(gc, self, sizeof(OrbitFunction), 0);
 }
 
@@ -171,7 +171,7 @@ static inline void freeTask(OrbitGC* gc, OrbitTask* self) {
     self->stack = self->stackTop = NULL;
     self->stackCapacity = 0;
     
-    orbit_FrameBufferDeinit(gc, &self->frames);
+    orbitFrameArrayDeinit(gc, &self->frames);
     orbitGCalloc(gc, self, sizeof(OrbitTask), 0);
 }
 

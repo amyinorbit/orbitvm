@@ -27,7 +27,7 @@ void builderInit(Builder* builder, OrbitGC* gc) {
     builder->function = NULL;
     builder->context = NULL;
     builder->current = NULL;
-    orbit_SelectorBufferInit(&builder->selector);
+    orbitSelectorArrayInit(&builder->selector);
 
     // TODO: This is vastly similar to Sema's operator resolver. Might be beneficial to lump those
     // two in a common library?
@@ -36,33 +36,33 @@ void builderInit(Builder* builder, OrbitGC* gc) {
     
 #define BINARY_OP(T, op, code) ((OpSelectData){(op), ORBIT_AST_TYPEEXPR_##T, ORBIT_AST_TYPEEXPR_##T, (code)})
     
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_PLUS, OP_iadd));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_MINUS, OP_isub));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_STAR, OP_imul));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_SLASH, OP_idiv));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_PLUS, OP_iadd));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_MINUS, OP_isub));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_STAR, OP_imul));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_SLASH, OP_idiv));
 
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_EQEQ, OP_ieq));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_LT, OP_ilt));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_GT, OP_igt));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_LTEQ, OP_ilteq));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_GT, OP_igteq));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_EQEQ, OP_ieq));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_LT, OP_ilt));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_GT, OP_igt));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_LTEQ, OP_ilteq));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(INT, ORBIT_TOK_GT, OP_igteq));
     
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_PLUS, OP_fadd));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_MINUS, OP_fsub));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_STAR, OP_fmul));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_SLASH, OP_fdiv));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_PLUS, OP_fadd));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_MINUS, OP_fsub));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_STAR, OP_fmul));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_SLASH, OP_fdiv));
 
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_EQEQ, OP_feq));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_LT, OP_flt));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_GT, OP_fgt));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_LTEQ, OP_flteq));
-    orbit_SelectorBufferWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_GT, OP_fgteq));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_EQEQ, OP_feq));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_LT, OP_flt));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_GT, OP_fgt));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_LTEQ, OP_flteq));
+    orbitSelectorArrayWrite(gc, &builder->selector, BINARY_OP(FLOAT, ORBIT_TOK_GT, OP_fgteq));
     
 #undef BINARY_OP
 }
 
 void builderDeinit(Builder* builder) {
-    orbit_SelectorBufferDeinit(builder->gc, &builder->selector);
+    orbitSelectorArrayDeinit(builder->gc, &builder->selector);
 }
 
 void openFunctionGC(Builder* builder, OrbitFunction* function) {
@@ -115,7 +115,7 @@ void closeFunction(Builder* builder) {
     ORCRELEASE(fn);
 }
 
-int findConstant(OrbitValueBuffer* constants, OrbitValue value) {
+int findConstant(OrbitValueArray* constants, OrbitValue value) {
     for(int i = 0; i < constants->count; ++i) {
         if(orbitValueEquals(constants->data[i], value)) return i;
     }
@@ -128,12 +128,12 @@ int offset(Builder* builder) {
 
 
 uint8_t emitConstant(Builder* builder, OrbitValue value) {
-    OrbitValueBuffer* constants = &GC_FUNC()->constants;;
+    OrbitValueArray* constants = &GC_FUNC()->constants;;
     int existing = findConstant(constants, value);
     if(existing != -1) return (uint8_t)existing;
 
     assert(constants->count + 1 < UINT8_MAX && "only 256 constants are allowed in a function");
-    orbit_ValueBufferWrite(builder->gc, constants, value);
+    orbitValueArrayWrite(builder->gc, constants, value);
     return (uint8_t)(constants->count-1);
 }
 

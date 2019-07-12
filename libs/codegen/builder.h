@@ -44,7 +44,7 @@ typedef struct {
     OrbitGC* gc;
     // OrbitFunction* function;
     OrbitASTContext* context;
-    OrbitSelectorBuffer selector;
+    OrbitSelectorArray selector;
     
     Function* function;
     
@@ -55,7 +55,7 @@ typedef struct {
 void builderInit(Builder* builder, OrbitGC* gc);
 void builderDeinit(Builder* builder);
 
-int findConstant(OrbitValueBuffer* constants, OrbitValue value);
+int findConstant(OrbitValueArray* constants, OrbitValue value);
 uint8_t emitConstant(Builder* builder, OrbitValue value);
 
 int openScope(Builder* builder);

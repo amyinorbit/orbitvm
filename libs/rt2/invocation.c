@@ -21,8 +21,8 @@ DEFINE_BUFFER(Frame, OrbitFrame);
 void orbitFunctionWrite(OrbitGC* gc, OrbitFunction* func, uint8_t code, int32_t line) {
     assert(gc && "can't manipulate function without a garbage context");
     assert(func && "can't add code to null function");
-    orbit_ByteBufferWrite(gc, &func->code, code);
-    orbit_IntBufferWrite(gc, &func->lines, line);
+    orbitByteArrayWrite(gc, &func->code, code);
+    orbitIntArrayWrite(gc, &func->lines, line);
 }
 
 void orbitTaskEnsureStack(OrbitTask* self, size_t addedSize) {
@@ -60,7 +60,7 @@ OrbitFrame* orbitTaskPushFrame(OrbitGC* gc, OrbitTask* self, OrbitFunction* func
     frame.function = function;
     frame.base = self->stackTop - function->arity;
     frame.stack = self->stackTop + function->locals;
-    orbit_FrameBufferWrite(gc, &self->frames, frame);
+    orbitFrameArrayWrite(gc, &self->frames, frame);
 
     self->ip = function->code.data;
     self->stackTop = frame.stack;
