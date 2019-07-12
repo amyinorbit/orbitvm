@@ -47,6 +47,7 @@ struct _OrbitSLoc {
 struct _OrbitPhysSLoc {
     uint32_t    line;
     uint32_t    column;
+    uint32_t    visualColumn;
 };
 
 /// A simple type used to denote a range of characters in a source.

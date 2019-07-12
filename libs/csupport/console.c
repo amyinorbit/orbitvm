@@ -37,12 +37,13 @@ void console_printSourceLocLine(FILE* out, const OrbitSource* source, OrbitSLoc 
     char utf[6];
     OrbitPhysSLoc ploc = orbitSourcePhysicalLoc(source, loc);
     fprintf(out, "%"PRIu32"|", ploc.line);
+    // TODO: this is unnecessarily complicated. Instead we could scan until '\n' and print that
     while(line < source->bytes + source->length) {
         uint64_t remaining = (source->bytes + source->length) - line;
         uint8_t size = 0;
         UnicodeScalar c = unic_utf8Read(line, remaining, &size);
         if(c == '\0' || c == '\n') { break; }
-        size = utf8_writeCodepoint(c, utf, 6);
+        size = unic_utf8Write(c, utf, 6);
         line += size;
         utf[size] = '\0';
         fprintf(out, "%.*s", size, utf);
@@ -58,7 +59,8 @@ void console_printCaret(FILE* out, const OrbitSource* source, OrbitSLoc loc) {
     
     OrbitPhysSLoc ploc = orbitSourcePhysicalLoc(source, loc);
     uint8_t offset = 2 + floor (log10 (ploc.line));
-    for(uint64_t i = 1; i < ploc.column + offset; ++i) {
+    
+    for(uint64_t i = 1; i < ploc.visualColumn + offset; ++i) {
         fputc(' ', out);
     }
     termColorFG(out, kTermGreen);
@@ -71,16 +73,15 @@ void console_printUnderlines(FILE* out, const OrbitSource* source, OrbitSLoc loc
     assert(orbitSrangeContainsLoc(range, loc) && "caret must be in the source range");
     
     OrbitPhysSLoc start = orbitSourcePhysicalLoc(source, range.start);
-    uint32_t end = start.column + (ORBIT_SRANGE_END(range) - ORBIT_SRANGE_START(range));
-    uint32_t caret = start.column + (ORBIT_SLOC_OFFSET(loc) - ORBIT_SRANGE_START(range));
+    OrbitPhysSLoc end = orbitSourcePhysicalLoc(source, range.end);
     
     uint8_t offset = 2 + floor (log10 (start.line));
-    for(uint64_t i = 1; i < start.column + offset; ++i) {
+    for(uint64_t i = 1; i < start.visualColumn + offset; ++i) {
         fputc(' ', out);
     }
     termColorFG(out, kTermGreen);
-    for(uint64_t i = start.column; i < end; ++i) {
-        fputc(i == caret ? '^' : '~', out);
+    for(uint64_t i = start.visualColumn; i < end.visualColumn; ++i) {
+        fputc(i == start.visualColumn ? '^' : '~', out);
     }
     termReset(out);
     fputc('\n', out);

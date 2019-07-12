@@ -12,6 +12,7 @@
 #include <orbit/csupport/source.h>
 #include <orbit/utils/platforms.h>
 #include <orbit/utils/memory.h>
+#include <unic/unic.h>
 
 typedef struct {
     uint32_t count;
@@ -141,14 +142,18 @@ OrbitPhysSLoc orbitSourcePhysicalLoc(const OrbitSource* source, OrbitSLoc loc) {
     // Slow path, we need to insert lines
     if(offset >= LINEMAP_LAST(map)) {
         ploc.line = _orbitInsertLines(source, loc)+1;
-        ploc.column = 1 + (offset - map->data[ploc.line-1]);
-        return ploc;
+    } else {
+        
+        bool found = false;
+        ploc.line = _orbitLineMapSearch(map, loc, &found)+1;
+        assert(found && "source location line not found");
     }
     
-    bool found = false;
-    ploc.line = _orbitLineMapSearch(map, loc, &found)+1;
-    assert(found && "source location line not found");
-    ploc.column = 1 + (offset - map->data[ploc.line-1]);
+    // We need to compute the physical column index (in term of graphemes instead of ASCII)
+    const char* string = source->bytes + offset;
+    size_t length = offset - map->data[ploc.line-1];
+    ploc.visualColumn = 1 + unic_countGraphemes(string, length);
+    ploc.column = 1 + length;
     return ploc;
 }
 
