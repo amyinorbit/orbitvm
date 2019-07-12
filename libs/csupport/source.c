@@ -12,6 +12,7 @@
 #include <orbit/csupport/source.h>
 #include <orbit/utils/platforms.h>
 #include <orbit/utils/memory.h>
+#include <orbit/utils/wcwidth.h>
 #include <unic/unic.h>
 
 typedef struct {
@@ -150,10 +151,17 @@ OrbitPhysSLoc orbitSourcePhysicalLoc(const OrbitSource* source, OrbitSLoc loc) {
     }
     
     // We need to compute the physical column index (in term of graphemes instead of ASCII)
-    const char* string = source->bytes + offset;
-    size_t length = offset - map->data[ploc.line-1];
-    ploc.visualColumn = 1 + unic_countGraphemes(string, length);
-    ploc.column = 1 + length;
+    const char* str = source->bytes + map->data[ploc.line-1];
+    const char* end = source->bytes + offset;
+    
+    ploc.visualColumn = 1;
+    while(str != end) {
+        uint8_t size = 0;
+        UnicodeScalar scalar = unic_utf8Read(str, (end-str), &size);
+        ploc.visualColumn += mk_wcwidth(scalar);
+        str += size;
+    }
+    ploc.column = 1 + offset - map->data[ploc.line-1];
     return ploc;
 }
 

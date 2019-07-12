@@ -101,11 +101,11 @@ void repl(OrbitVM* vm, Options options) {
             // orbitDebugStack(vm);
             termColorFG(stderr, kTermDefault);
             orbitGCRun(&vm->gc);
+            lineNumber += 1;
         }
         
         orbitGCPop(&vm->gc);
         orbitGCRun(&vm->gc);
-        lineNumber += 1;
     }
 }
 
