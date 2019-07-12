@@ -17,6 +17,6 @@ bool orbitASTTypeIsPrimitive(const OrbitAST* a);
 bool orbitASTTypeEqualsPrimitive(const OrbitAST* a, ASTKind b);
 bool orbitASTTypeEquals(const OrbitAST* a, const OrbitAST* b);
 OrbitAST* orbitASTTypeCopy(const OrbitAST* src);
-void orbitASTTypeString(OCStringBuffer* buffer, OrbitAST* ast);
+void orbitASTTypeString(OCStringBuffer* buffer, const OrbitAST* ast);
 
 #endif /* orbit_ast_type_h */

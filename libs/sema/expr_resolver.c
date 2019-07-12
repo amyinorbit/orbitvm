@@ -109,7 +109,7 @@ bool canConvert(OrbitAST* from, OrbitAST* to) {
     return findCast(from, to) != NULL;
 }
 
-bool canConvertPrimitive(OrbitAST* from, ASTKind to) {
+bool canConvertPrimitive(const OrbitAST* from, ASTKind to) {
     return findCastPrimitive(from, to) != NULL;
 }
 
@@ -152,7 +152,7 @@ static bool binaryOpMatches(bool strict, OperatorSemData* data, OrbitAST* expr) 
     return lhsMatches && rhsMatches;
 }
 
-static OperatorSemData* matchBinaryOp(Sema* self, OrbitAST* expr) {
+static const OperatorSemData* matchBinaryOp(Sema* self, OrbitAST* expr) {
     if(!expr) return NULL;
     
     OperatorSemData* nonStrict = NULL;
@@ -171,8 +171,8 @@ static OperatorSemData* matchBinaryOp(Sema* self, OrbitAST* expr) {
     return nonStrict;
 }
 
-OrbitAST* resolveBinaryExpr(Sema* self, OrbitAST* expr) {
-    OperatorSemData* op = matchBinaryOp(self, expr);
+const OrbitAST* resolveBinaryExpr(Sema* self, OrbitAST* expr) {
+    const OperatorSemData* op = matchBinaryOp(self, expr);
     if(!op) {
         errorBinary(self, expr); 
         return expr->binaryExpr.lhs;
@@ -181,6 +181,6 @@ OrbitAST* resolveBinaryExpr(Sema* self, OrbitAST* expr) {
     return expr->type;
 }
 
-OrbitAST* unaryExprResult(Sema* self, OrbitTokenKind op, OrbitAST* rhs) {
+const OrbitAST* unaryExprResult(Sema* self, OrbitTokenKind op, OrbitAST* rhs) {
     return NULL;
 }

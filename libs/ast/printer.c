@@ -13,8 +13,8 @@
 #include <orbit/ast/ast.h>
 #include <term/colors.h>
 
-static void orbitASTPrintNode(FILE* out, OrbitAST* ast, int depth, bool last);
-static void orbitASTPrintList(FILE* out, const char* name, OrbitAST* list, int depth, bool last);
+static void orbitASTPrintNode(FILE* out, const OrbitAST* ast, int depth, bool last);
+static void orbitASTPrintList(FILE* out, const char* name, const OrbitAST* list, int depth, bool last);
 
 static void orbitASTPrintReturn(FILE* out, int depth, bool last) {
     static bool indents[256] = {false};
@@ -32,7 +32,7 @@ static void orbitASTPrintReturn(FILE* out, int depth, bool last) {
     termReset(out);
 }
 
-static void orbitASTPrintList(FILE* out, const char* name, OrbitAST* list, int depth, bool last) {
+static void orbitASTPrintList(FILE* out, const char* name, const OrbitAST* list, int depth, bool last) {
     if(list == NULL) { return; }
     orbitASTPrintReturn(out, depth, last);
     
@@ -41,14 +41,13 @@ static void orbitASTPrintList(FILE* out, const char* name, OrbitAST* list, int d
     fprintf(out, "%s", name);
     termReset(out);
     
-    OrbitAST* item = list;
-    while(item != NULL) {
-        orbitASTPrintNode(out, item, depth+1, item->next == NULL);
-        item = item->next;
+    while(list != NULL) {
+        orbitASTPrintNode(out, list, depth+1, list->next == NULL);
+        list = list->next;
     }
 }
 
-static void orbitASTPrintType(FILE* out, OrbitAST* ast) {
+static void orbitASTPrintType(FILE* out, const OrbitAST* ast) {
     if(ast == NULL) { return; }
     if((ast->kind & ASTTypeExprMask) == 0) { return; }
     termColorFG(out, kTermYellow);
@@ -99,7 +98,7 @@ static void orbitASTPrintType(FILE* out, OrbitAST* ast) {
     }
 }
 
-static void orbitASTPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
+static void orbitASTPrintNode(FILE* out, const OrbitAST* ast, int depth, bool last) {
     if(ast == NULL) { return; }
     orbitASTPrintReturn(out, depth, last);
     termBold(out, true);
@@ -369,7 +368,7 @@ static void orbitASTPrintNode(FILE* out, OrbitAST* ast, int depth, bool last) {
     termReset(out);
 }
 
-void orbitASTPrint(FILE* out, OrbitAST* ast) {
+void orbitASTPrint(FILE* out, const OrbitAST* ast) {
     if(ast == NULL) { return; }
     if(ast->next) {
         orbitASTPrintList(out, "List", ast, 0, true);

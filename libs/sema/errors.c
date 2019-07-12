@@ -15,7 +15,7 @@ static inline OrbitDiagManager* diag(Sema* self) {
 }
 
 
-void errorNotCallable(Sema* self, OrbitAST* call) {
+void errorNotCallable(Sema* self, const OrbitAST* call) {
     OrbitSRange rng = call->callExpr.symbol->sourceRange;
     OrbitDiagID id = orbitDiagError(
         diag(self), rng.start,
@@ -25,7 +25,7 @@ void errorNotCallable(Sema* self, OrbitAST* call) {
     orbitDiagAddSourceRange(id, rng);
 }
 
-void errorInvalidCall(Sema* self, OrbitAST* call) {
+void errorInvalidCall(Sema* self, const OrbitAST* call) {
     OrbitSRange rng = call->sourceRange;
     OrbitDiagID id = orbitDiagError(
         diag(self), rng.start,
@@ -35,7 +35,7 @@ void errorInvalidCall(Sema* self, OrbitAST* call) {
     orbitDiagAddSourceRange(id, rng);
 }
 
-void errorAssign(Sema* self, OrbitAST* expr) {
+void errorAssign(Sema* self, const OrbitAST* expr) {
     OrbitSRange rng = expr->sourceRange;
     OrbitSLoc loc = expr->binaryExpr.operator.sourceLoc;
     OrbitDiagID id = orbitDiagError(
@@ -47,7 +47,7 @@ void errorAssign(Sema* self, OrbitAST* expr) {
     orbitDiagAddSourceRange(id, rng);
 }
 
-void errorNameLookup(Sema* self, OrbitAST* expr) {
+void errorNameLookup(Sema* self, const OrbitAST* expr) {
     OrbitSRange rng = expr->sourceRange;
     OrbitDiagID id = orbitDiagError(
         diag(self), rng.start,
@@ -57,7 +57,7 @@ void errorNameLookup(Sema* self, OrbitAST* expr) {
     orbitDiagAddSourceRange(id, rng);
 }
 
-void errorNoType(Sema* self, OrbitAST* var) {
+void errorNoType(Sema* self, const OrbitAST* var) {
     OrbitSRange rng = var->sourceRange;
     OrbitDiagID id = orbitDiagError(
         diag(self), rng.start,
@@ -67,7 +67,7 @@ void errorNoType(Sema* self, OrbitAST* var) {
     orbitDiagAddSourceRange(id, rng);
 }
 
-static void previousDeclNote(Sema* self, OrbitAST* prev) {
+static void previousDeclNote(Sema* self, const OrbitAST* prev) {
     OrbitSRange rng = prev->sourceRange;
     OrbitDiagID id = orbitDiagInfo(
         diag(self), rng.start, "the previous declaration of '$0' is here", 1,
@@ -76,7 +76,7 @@ static void previousDeclNote(Sema* self, OrbitAST* prev) {
     orbitDiagAddSourceRange(id, rng);
 }
 
-void errorAlreadyDeclared(Sema* self, OrbitAST* decl, OrbitAST* prev) {
+void errorAlreadyDeclared(Sema* self, const OrbitAST* decl, const OrbitAST* prev) {
     OrbitSRange rng = decl->sourceRange;
     OrbitDiagID id = orbitDiagError(
         diag(self), rng.start,
@@ -87,7 +87,7 @@ void errorAlreadyDeclared(Sema* self, OrbitAST* decl, OrbitAST* prev) {
     if(prev) previousDeclNote(self, prev);
 }
 
-void errorBinary(Sema* self, OrbitAST* expr) {
+void errorBinary(Sema* self, const OrbitAST* expr) {
     OrbitSRange rng = expr->sourceRange;
     OrbitSLoc loc = expr->binaryExpr.operator.sourceLoc;
     OrbitDiagID id = orbitDiagError(
@@ -101,7 +101,7 @@ void errorBinary(Sema* self, OrbitAST* expr) {
 }
 
 
-void errorCondition(Sema* self, const char* type, OrbitAST* expr) {
+void errorCondition(Sema* self, const char* type, const OrbitAST* expr) {
     OrbitSRange rng = expr->sourceRange;
     OrbitDiagID id = orbitDiagError(
         diag(self), rng.start,
@@ -112,7 +112,7 @@ void errorCondition(Sema* self, const char* type, OrbitAST* expr) {
     orbitDiagAddSourceRange(id, rng);
 }
 
-void warnUnimplemented(Sema* self, OrbitAST* node) {
+void warnUnimplemented(Sema* self, const OrbitAST* node) {
     OrbitSRange rng = node->sourceRange;
     orbitDiagWarn(
         diag(self), rng.start, "language feature not implemented", 0

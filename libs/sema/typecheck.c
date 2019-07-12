@@ -84,7 +84,7 @@ static ParamMatch checkArgTypes(const OrbitAST* paramTypes, const OrbitAST* args
 
 static bool finishCallExpr(Sema* self, OrbitAST* decl, OrbitAST* call, bool strict) {
     
-    OrbitAST* type = decl->type;
+    const OrbitAST* type = decl->type;
     OrbitAST* callee = call->callExpr.symbol;
     
     callee->type = ORCRETAIN(orbitASTTypeCopy(decl->type));
@@ -115,7 +115,7 @@ static bool finishCallExpr(Sema* self, OrbitAST* decl, OrbitAST* call, bool stri
 
 static bool checkCallable(Sema* self, OrbitAST* call) {
     OrbitAST* callee = call->callExpr.symbol;
-    OrbitAST* type = callee->type;
+    const OrbitAST* type = callee->type;
     OrbitAST* args = call->callExpr.params;
     if(callee->type->kind != ORBIT_AST_TYPEEXPR_FUNC) {
         errorNotCallable(self, call);
@@ -138,7 +138,7 @@ static bool checkNameCall(Sema* self, OrbitAST* call) {
     
     OrbitAST* cast = NULL;
     for(Symbol* sym = lookupSymbol(self, name); sym != NULL; sym = sym->next) {
-        OrbitAST* type = sym->decl->type;
+        const OrbitAST* type = sym->decl->type;
         if(type->kind != ORBIT_AST_TYPEEXPR_FUNC)
             continue;
         ParamMatch match = checkArgTypes(type->typeExpr.funcType.params, call->callExpr.params);

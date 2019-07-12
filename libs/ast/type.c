@@ -103,7 +103,7 @@ OrbitAST* orbitASTTypeCopy(const OrbitAST* src) {
     return copy;
 }
 
-void orbitASTTypeString(OCStringBuffer* buffer, OrbitAST* ast) {
+void orbitASTTypeString(OCStringBuffer* buffer, const OrbitAST* ast) {
     if(ast == NULL) {
         orbitStringBufferAppendC(buffer, "()", 2);
         return;

@@ -14,16 +14,16 @@
 #include "sema_private.h"
 
 // void errorConditional(Sema* self, OrbitAST* expr);
-void errorNotCallable(Sema* self, OrbitAST* call);
-void errorInvalidCall(Sema* self, OrbitAST* call);
+void errorNotCallable(Sema* self, const OrbitAST* call);
+void errorInvalidCall(Sema* self, const OrbitAST* call);
 
-void errorAssign(Sema* self, OrbitAST* expr);
-void errorNameLookup(Sema* self, OrbitAST* expr);
-void errorNoType(Sema* self, OrbitAST* ast);
-void errorAlreadyDeclared(Sema* self, OrbitAST* decl, OrbitAST* prev);
-void errorBinary(Sema* self, OrbitAST* expr);
+void errorAssign(Sema* self, const OrbitAST* expr);
+void errorNameLookup(Sema* self, const OrbitAST* expr);
+void errorNoType(Sema* self, const OrbitAST* ast);
+void errorAlreadyDeclared(Sema* self, const OrbitAST* decl, const OrbitAST* prev);
+void errorBinary(Sema* self, const OrbitAST* expr);
 
-void errorCondition(Sema* self, const char* type, OrbitAST* expr);
+void errorCondition(Sema* self, const char* type, const OrbitAST* expr);
 
-void warnUnimplemented(Sema* self, OrbitAST* ast);
+void warnUnimplemented(Sema* self, const OrbitAST* ast);
 #endif

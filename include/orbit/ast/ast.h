@@ -123,7 +123,7 @@ struct _OrbitAST {
     ORCObject       super;
     ASTKind         kind;
     OrbitAST*       next;
-    OrbitAST*       type;
+    const OrbitAST* type;
     
     OrbitSRange sourceRange;
     
@@ -255,7 +255,7 @@ struct _OrbitAST {
     };
 };
 
-void orbitASTPrint(FILE* out, OrbitAST* ast);
+void orbitASTPrint(FILE* out, const OrbitAST* ast);
 void orbitASTDestroy(void* ref);
 OrbitAST* orbitASTMake(ASTKind kind);
 

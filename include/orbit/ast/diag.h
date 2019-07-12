@@ -38,10 +38,10 @@ enum _OrbitDiagLevel {
 struct _OrbitDiagArg {
     enum { ORBIT_DPK_INT, ORBIT_DPK_STRING, ORBIT_DPK_CSTRING, ORBIT_DPK_TYPE } kind;
     union {
-        int         intValue;
+        int intValue;
         const char* cstringValue;
-        OCStringID  stringValue;
-        OrbitAST*   typeValue;
+        OCStringID stringValue;
+        const OrbitAST* typeValue;
     };
 };
 
