@@ -1,1 +1,0 @@
-/Users/amy/toolchains/emsdk/fastcomp/emscripten/emar rc libunity.a  @CMakeFiles/unity.dir/objects1.rsp

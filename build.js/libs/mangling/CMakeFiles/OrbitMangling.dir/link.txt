@@ -1,1 +1,0 @@
-/Users/amy/toolchains/emsdk/fastcomp/emscripten/emar rc libOrbitMangling.a  @CMakeFiles/OrbitMangling.dir/objects1.rsp

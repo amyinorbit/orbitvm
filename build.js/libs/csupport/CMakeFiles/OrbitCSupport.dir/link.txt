@@ -1,1 +1,0 @@
-/Users/amy/toolchains/emsdk/fastcomp/emscripten/emar rc libOrbitCSupport.a  @CMakeFiles/OrbitCSupport.dir/objects1.rsp
