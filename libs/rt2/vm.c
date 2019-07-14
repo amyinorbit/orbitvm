@@ -71,7 +71,8 @@ static void printValue(OrbitValue value) {
     }
     uint32_t tag = ORBIT_GET_FLAGS(value);
     switch(tag) {
-    case ORBIT_TAG_BOOL:
+    case ORBIT_TAG_TRUE:
+    case ORBIT_TAG_FALSE:
         printf("%s\n", ORBIT_AS_BOOL(value) ? "true" : "false");
         break;
     case ORBIT_TAG_INT:

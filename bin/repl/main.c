@@ -157,7 +157,7 @@ static _Noreturn void printHelp() {
     termPrintHelp(stdout, kOrbitParams, kOrbitParamCount);
     puts("");
     termPrintBugreports(stdout, "orbit", kOrbitEmail, kOrbitWebsite);
-    exit(1);
+    exit(0);
 }
 
 static void parseArguments(Options* options, int argc, const char** argv) {

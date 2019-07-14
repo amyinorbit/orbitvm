@@ -1,0 +1,1 @@
+/Users/amy/toolchains/emsdk/fastcomp/emscripten/emar rc libOrbitParser.a  @CMakeFiles/OrbitParser.dir/objects1.rsp

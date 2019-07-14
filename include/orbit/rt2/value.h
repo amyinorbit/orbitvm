@@ -19,7 +19,6 @@ typedef struct sOrbitFunction OrbitFunction;
 typedef struct sOrbitTask OrbitTask;
 typedef struct sOrbitFrame OrbitFrame;
 
-#define ORBIT_VALUE_PACK 1
 #if ORBIT_VALUE_PACK
 // If ORBIT_VALUE_PACK is defined, we pack all values in 8-byte pointers
 
@@ -76,7 +75,7 @@ typedef uint64_t OrbitValue;
 #define ORBIT_VALUE_FLOAT(value) ((OrbitValue)(((uintptr_t)ORBIT_FLOAT_BITS(value) << 32UL) | ORBIT_TAG_FLOAT))
 #define ORBIT_VALUE_REF(value) ((uint64_t)(value) & ORBIT_MASK_REF)
 
-#define ORBIT_AS_BOOL(value) (((bool)(value)) ? ORBIT_VALUE_TRUE : ORBIT_VALUE_FALSE)
+#define ORBIT_AS_BOOL(value) (((value) & ORBIT_TAG_TRUE) == ORBIT_TAG_TRUE)
 #define ORBIT_AS_INT(value) ((int32_t)((value) >> 32))
 #define ORBIT_AS_FLOAT(value) (ORBIT_BITS_FLOAT(ORBIT_AS_INT(value)))
 #define ORBIT_AS_REF(value) ((OrbitObject*)((uintptr_t)((value) & ORBIT_MASK_REF)))
@@ -88,30 +87,43 @@ typedef struct sOrbitValue OrbitValue;
 
 struct sOrbitValue {
     enum {
-        ORBIT_VK_BOOL,
-        ORBIT_VK_INT,
-        ORBIT_VK_FLOAT
+        ORBIT_TAG_TRUE,
+        ORBIT_TAG_FALSE,
+        ORBIT_TAG_INT,
+        ORBIT_TAG_FLOAT,
+        ORBIT_TAG_NIL,
+        ORBIT_TAG_REF,
     } kind;
     union {
-        bool boolValue;
         int32_t intValue;
         float floatValue;
-    };
+        OrbitObject* refValue;
+    } as;
 };
 
-#define ORBIT_IS_BOOL(value) ((value).kind == ORBIT_VK_BOOL)
-#define ORBIT_AS_BOOL(value) ((value).kind == ORBIT_VK_BOOL && (value).boolValue)
-#define ORBIT_VALUE_BOOL(value) ((OrbitValue){ .kind=ORBIT_VK_BOOL, .boolValue=(value) })
-#define ORBIT_VALUE_TRUE ((OrbitValue){ .kind=ORBIT_VK_BOOL, .boolValue=true })
-#define ORBIT_VALUE_FALSE ((OrbitValue){ .kind=ORBIT_VK_BOOL, .boolValue=false })
+#define ORBIT_GET_FLAGS(value)  ((value).kind)
 
-#define ORBIT_IS_INT(value) ((value).kind == ORBIT_VK_INT)
-#define ORBIT_AS_INT(value) ((value).intValue)
-#define ORBIT_VALUE_INT(num) ((OrbitValue){ .kind=ORBIT_VK_INT, .intValue=(num) })
+#define ORBIT_VALUE_TRUE        ((OrbitValue){ORBIT_TAG_TRUE, {.intValue=0}})
+#define ORBIT_VALUE_FALSE       ((OrbitValue){ORBIT_TAG_FALSE, {.intValue=0}})
+#define ORBIT_VALUE_NIL         ((OrbitValue){ORBIT_TAG_NIL, {.intValue=0}})
+#define ORBIT_VALUE_BOOL(value) ((value)? ORBIT_VALUE_TRUE : ORBIT_VALUE_FALSE)
+#define ORBIT_VALUE_INT(value)  ((OrbitValue){ORBIT_TAG_INT, {.intValue=(value)}})
+#define ORBIT_VALUE_FLOAT(value) ((OrbitValue){ORBIT_TAG_FLOAT, {.floatValue=(value)}})
+#define ORBIT_VALUE_REF(value)  ((OrbitValue){ORBIT_TAG_REF, {.refValue=(OrbitObject*)(value)}})
 
-#define ORBIT_IS_FLOAT(value) ((value).kind == ORBIT_VK_FLOAT)
-#define ORBIT_AS_FLOAT(value) ((value).floatValue)
-#define ORBIT_VALUE_FLOAT(num) ((OrbitValue){ .kind=ORBIT_VK_FLOAT, .floatValue=(num) })
+#define ORBIT_IS_REF(value)     ((value).kind == ORBIT_TAG_REF)
+#define ORBIT_IS_BOOL(value)    ((value).kind == ORBIT_TAG_TRUE || (value).kind == ORBIT_TAG_FALSE)
+#define ORBIT_IS_INT(value)     ((value).kind == ORBIT_TAG_INT)
+#define ORBIT_IS_FLOAT(value)   ((value).kind == ORBIT_TAG_FLOAT)
+#define ORBIT_IS_NIL(value)     ((value).kind == ORBIT_TAG_NIL)
+#define ORBIT_IS_TRUE(value)    ((value).kind == ORBIT_TAG_TRUE)
+#define ORBIT_IS_FALSE(value)   ((value).kind == ORBIT_TAG_FALSE)
+
+#define ORBIT_AS_BOOL(value)    ((value).kind == ORBIT_TAG_TRUE)
+#define ORBIT_AS_INT(value)     ((value).as.intValue)
+#define ORBIT_AS_FLOAT(value)   ((value).as.floatValue)
+#define ORBIT_AS_REF(value)     ((value).as.refValue)
+#define ORBIT_AS_STRING(value)  ((OrbitString*)ORBIT_AS_REF(value))
 
 #endif
 

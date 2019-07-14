@@ -29,7 +29,7 @@ static const char* opcodeNames[] = {
 };
 #undef OPCODE
 
-static inline void debugObject(OrbitObject* object) {
+static inline void debugObject(const OrbitObject* object) {
     if(!object) return;
     switch(object->kind) {
     case ORBIT_OBJ_STRING: {
@@ -61,7 +61,8 @@ static void debugValue(OrbitValue value) {
     }
     uint32_t tag = ORBIT_GET_FLAGS(value);
     switch(tag) {
-    case ORBIT_TAG_BOOL:
+    case ORBIT_TAG_TRUE:
+    case ORBIT_TAG_FALSE:
         fprintf(stdout, "Bool: %s", ORBIT_AS_BOOL(value) ? "true" : "false");
         break;
     case ORBIT_TAG_INT:

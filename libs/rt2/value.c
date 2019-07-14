@@ -27,7 +27,7 @@ bool orbitValueEquals(OrbitValue lhs, OrbitValue rhs) {
     if(T != U) return false;
     
     switch(T) {
-        case ORBIT_TAG_BOOL: return ORBIT_AS_BOOL(lhs) == ORBIT_AS_BOOL(rhs);
+        //case ORBIT_TAG_BOOL: return ORBIT_AS_BOOL(lhs) == ORBIT_AS_BOOL(rhs);
         case ORBIT_TAG_INT: return ORBIT_AS_INT(lhs) == ORBIT_AS_INT(rhs);
         case ORBIT_TAG_FLOAT: return ORBIT_AS_FLOAT(lhs) == ORBIT_AS_FLOAT(rhs);
         default: break;

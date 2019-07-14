@@ -1,0 +1,1 @@
+/Users/amy/toolchains/emsdk/fastcomp/emscripten/emcc    @CMakeFiles/tests_unic.dir/objects1.rsp  -o tests_unic.js @CMakeFiles/tests_unic.dir/linklibs.rsp

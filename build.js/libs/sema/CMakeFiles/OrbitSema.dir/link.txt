@@ -1,0 +1,1 @@
+/Users/amy/toolchains/emsdk/fastcomp/emscripten/emar rc libOrbitSema.a  @CMakeFiles/OrbitSema.dir/objects1.rsp

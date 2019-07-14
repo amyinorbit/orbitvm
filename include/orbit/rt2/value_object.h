@@ -90,11 +90,11 @@ struct sOrbitTask {
 };
 
 static inline bool ORBIT_IS_STRING(OrbitValue value) {
-    return ((value & ORBIT_TAG_VALUE) == 0) && ORBIT_AS_REF(value)->kind == ORBIT_OBJ_STRING;
+    return ORBIT_IS_REF(value) && ORBIT_AS_REF(value)->kind == ORBIT_OBJ_STRING;
 }
 
 static inline bool ORBIT_IS_FUNCTION(OrbitValue value) {
-    return ((value & ORBIT_TAG_VALUE) == 0) && ORBIT_AS_REF(value)->kind == ORBIT_OBJ_FUNCTION;
+    return ORBIT_IS_REF(value) && ORBIT_AS_REF(value)->kind == ORBIT_OBJ_FUNCTION;
 }
 
 OrbitObject* orbitObjectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size);

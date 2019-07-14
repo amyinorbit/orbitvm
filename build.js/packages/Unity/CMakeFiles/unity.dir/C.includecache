@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/amy/workspace/dev/orbitvm/packages/Unity/src/unity.c
+unity.h
+/Users/amy/workspace/dev/orbitvm/packages/Unity/src/unity.h
+stddef.h
+-
+
+/Users/amy/workspace/dev/orbitvm/packages/Unity/src/unity.h
+unity_internals.h
+/Users/amy/workspace/dev/orbitvm/packages/Unity/src/unity_internals.h
+
+/Users/amy/workspace/dev/orbitvm/packages/Unity/src/unity_internals.h
+unity_config.h
+/Users/amy/workspace/dev/orbitvm/packages/Unity/src/unity_config.h
+setjmp.h
+-
+math.h
+-
+stddef.h
+-
+stdarg.h
+-
+stdint.h
+-
+limits.h
+-
+stdio.h
+-
+stdio.h
+-
+time.h
+-
+time.h
+-
+

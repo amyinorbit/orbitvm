@@ -20,4 +20,11 @@
 #include <stddef.h>
 typedef struct sOrbitVM OrbitVM;
 typedef struct sOrbitGC OrbitGC;
+
+#if defined(NDEBUG) || defined(__EMSCRIPTEN__)
+#define ORBIT_VALUE_PACK 0
+#else
+#define OBRIT_VALUE_PACK 1
+#endif
+
 #endif
