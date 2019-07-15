@@ -8,23 +8,12 @@
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
 #include <orbit/ast/ast.h>
+#include <orbit/compiler.h>
 #include "sema_private.h"
 
-typedef struct Symbol {
-    ORCObject base;
-    
-    enum {SYM_VARIABLE, SYM_FUNCTION, SYM_TYPE} kind;
-    
-    OrbitAST* decl;
-    struct Symbol* next;
-} Symbol;
-
-void initScope(Scope* self, Scope* parent);
-void deinitScope(Scope* self);
-
-Scope* pushScope(Sema* self);
+void pushScope(Sema* self, OCScope* scope);
 void popScope(Sema* self);
 
-Symbol* lookupSymbol(Sema* self, OCStringID name);
+const OCSymbol* lookupSymbol(Sema* self, OCStringID name);
 bool declareFunction(Sema* self, OrbitAST* decl);
 bool declareVariable(Sema* self, OrbitAST* decl);

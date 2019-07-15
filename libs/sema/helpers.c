@@ -10,87 +10,47 @@
 #include <orbit/sema/typecheck.h>
 #include <orbit/utils/memory.h>
 #include <orbit/ast/type.h>
+#include <orbit/compiler.h>
 #include <assert.h>
 #include "helpers.h"
 #include "errors.h"
 
-void symbolDeinit(void* ptr) {
-    Symbol* symbol = (Symbol*)ptr;
-    ORCRELEASE(symbol->decl);
-    ORCRELEASE(symbol->next);
-}
 
 void orbitSemaInit(Sema* self) {
     assert(self && "null semantic checker error");
-    initScope(&self->global, NULL);
     self->context = NULL;
-    self->current = self->stack;
+    self->current = NULL;
     resolverInit(&self->resolver);
 }
 
 void orbitSemaDeinit(Sema* self) {
     assert(self && "null semantic checker error");
-    while(self->current > self->stack) {
-        deinitScope(self->current);
-        self->current -= 1;
-    }
-    deinitScope(&self->global);
     resolverDeinit(&self->resolver);
 }
 
-void initScope(Scope* self, Scope* parent) {
-    self->parent = parent;
-    orbitRcMapInit(&self->types);
-    orbitRcMapInit(&self->symbols);
-}
-
-void deinitScope(Scope* self) {
-    orbitRcMapDeinit(&self->types);
-    orbitRcMapDeinit(&self->symbols);
-}
-
-Scope* pushScope(Sema* self) {
-    Scope* scope = self->current++;
-    Scope* parent = scope == self->stack ? &self->global : (scope-1);
-    initScope(scope, parent);
-    return scope;
+void pushScope(Sema* self, OCScope* scope) {
+    scope->parent = self->current;
+    self->current = scope;
 }
 
 void popScope(Sema* self) {
-    Scope* scope = (--self->current);
-    deinitScope(scope);
+    self->current = self->current->parent;
 }
 
-static Scope* currentScope(Sema* self) {
-    return self->current == self->stack
-        ? &self->global
-        : (self->current-1);
+static OCScope* currentScope(Sema* self) {
+    return self->current;
 }
 
-static Scope* parentScope(Sema* self) {
-    assert(self->current != self->stack && "already at the global scope");
-    return self->current == self->stack + 1
-        ? &self->global
-        : (self->current-2);
+static OCScope* parentScope(Sema* self) {
+    assert(self->current->parent && "already at the global scope");
+    return self->current->parent;
 }
 
-static inline OrbitAST* funcParamTypes(OrbitAST* node) {
-    return node->type->typeExpr.funcType.params;
-}
-
-OrbitAST* findOverload(Symbol* symbol, OrbitAST* params) {
-    while(symbol) {
-        if(orbitASTTypeEquals(funcParamTypes(symbol->decl), params)) return symbol->decl;
-        symbol = symbol->next;
-    }
-    return NULL;
-}
-
-Symbol* lookupSymbol(Sema* self, OCStringID name) {
+const OCSymbol* lookupSymbol(Sema* self, OCStringID name) {
     assert(self && "null semantic checker error");
-    Scope* scope = currentScope(self);
+    OCScope* scope = currentScope(self);
     while(scope) {
-        Symbol* decl = orbitRcMapGetP(&scope->symbols, name);
+        const OCSymbol* decl = orbitSymbolLookup(scope, name);
         if(decl) return decl;
         scope = scope->parent;
     }
@@ -105,39 +65,15 @@ bool declareFunction(Sema* self, OrbitAST* decl) {
     // When we declare a function, we've already extracted the parameters and opened a scope for
     // the function. We need to declare the function in the scope that contains it, so one scope
     // up.
-    Scope* scope = parentScope(self);
+    OCScope* scope = parentScope(self);
     OCStringID name = decl->funcDecl.name;
     
     // For a function declaration to be valid, its symbol must be either not present in the table,
     // or it its parameter list must be different (overload)
-    Symbol* existing = orbitRcMapGetP(&scope->symbols, name);
-    Symbol* func = NULL;
-    
-    if(existing) {
-        OrbitAST* conflicting = findOverload(existing, funcParamTypes(decl));
-        // We compare the types in the parameter list. 
-        if(conflicting) {
-            errorAlreadyDeclared(self, decl, conflicting);
-            return false;
-        }
-        
-        if(existing->kind != SYM_FUNCTION) {
-            // TODO: throw error here
-            return false;
-        }
-        
-        func = ORCINIT(ORBIT_ALLOC(Symbol), &symbolDeinit);
-        func->next = existing->next;
-        existing->next = ORCRETAIN(func);
-        
-    } else {
-        func = ORCINIT(ORBIT_ALLOC(Symbol), &symbolDeinit);
-        func->next = NULL;
-        orbitRcMapInsertP(&scope->symbols, name, func);
-    }
-    func->decl = ORCRETAIN(decl);
-    func->kind = SYM_FUNCTION;
-    return true;
+    const OCSymbol* conflicting = orbitFunctionDeclare(scope, name, decl);
+    if(!conflicting) return true;
+    errorAlreadyDeclared(self, decl, conflicting->decl);
+    return false;
 }
 
 bool declareVariable(Sema* self, OrbitAST* decl) {
@@ -145,22 +81,12 @@ bool declareVariable(Sema* self, OrbitAST* decl) {
     assert(decl && "null function decl error");
     assert(decl->kind == ORBIT_AST_DECL_VAR && "invalid variable type declaration");
     
-    Scope* scope = currentScope(self);
+    OCScope* scope = currentScope(self);
     OCStringID name = decl->varDecl.name;
     
-    // For a function declaration to be valid, its symbol must be either not present in the table,
-    // or it its parameter list must be different (overload)
-    Symbol* existing = orbitRcMapGetP(&scope->symbols, name);
+    const OCSymbol* existing = orbitSymbolDeclare(scope, name, decl);
+    if(!existing) return true;
     
-    if(existing) {
-        errorAlreadyDeclared(self, decl, existing->decl);
-        return false;
-    }
-    
-    Symbol* var = ORCINIT(ORBIT_ALLOC(Symbol), &symbolDeinit);
-    var->decl = ORCRETAIN(decl);
-    var->kind = SYM_VARIABLE;
-    var->next = NULL;
-    orbitRcMapInsertP(&scope->symbols, name, var);
-    return true;
+    errorAlreadyDeclared(self, decl, existing->decl);
+    return false;
 }

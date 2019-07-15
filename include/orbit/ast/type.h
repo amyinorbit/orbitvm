@@ -13,10 +13,20 @@
 #include <orbit/ast/ast.h>
 #include <orbit/csupport/string.h>
 
-bool orbitASTTypeIsPrimitive(const OrbitAST* a);
-bool orbitASTTypeEqualsPrimitive(const OrbitAST* a, ASTKind b);
-bool orbitASTTypeEquals(const OrbitAST* a, const OrbitAST* b);
-OrbitAST* orbitASTTypeCopy(const OrbitAST* src);
-void orbitASTTypeString(OCStringBuffer* buffer, const OrbitAST* ast);
+
+bool orbitASTTypeIsPrimitive(const OrbitAST* T);
+bool orbitASTTypeEqualsPrimitive(const OrbitAST* T, ASTKind U);
+bool orbitASTTypeEquals(const OrbitAST* T, const OrbitAST* U);
+OrbitAST* orbitASTTypeCopy(const OrbitAST* T);
+void orbitASTTypeString(OCStringBuffer* buffer, const OrbitAST* T);
+
+// Type analysis and manipulation
+
+bool orbitTypeIsCastable(const OrbitAST* From, const OrbitAST* To);
+OrbitAST* orbitTypeCast(OrbitAST* expr, const OrbitAST* T);
+
+bool orbitTypesSameOverload(const OrbitAST* T, const OrbitAST* U);
+bool orbitTypeIsCallable(const OrbitAST* T);
+bool orbitTypeCanCall(const OrbitAST* T, const OrbitAST* Arg);
 
 #endif /* orbit_ast_type_h */

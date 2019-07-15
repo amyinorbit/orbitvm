@@ -47,7 +47,7 @@ static bool declareFunc(Sema* self, OrbitAST* func) {
     func->funcDecl.mangledName = orbitMangleFuncName(func);
     return declareFunction(self, func);
 }
-
+//
 // static bool declareFuncParams(Sema* self, OrbitAST* decl) {
 //     OrbitAST* param = decl->funcDecl.params;
 //     while(param) {
@@ -65,31 +65,13 @@ static bool declareVar(Sema* self, OrbitAST* var) {
     return declareVariable(self, var);
 }
 
-typedef enum {MATCH_NONE, MATCH_CAST, MATCH_STRICT} ParamMatch;
-
-static ParamMatch checkArgTypes(const OrbitAST* paramTypes, const OrbitAST* args) {
-    const OrbitAST* paramType = paramTypes;
-    
-    ParamMatch match = MATCH_STRICT;
-    
-    for(const OrbitAST* arg = args; arg != NULL; arg = arg->next, paramType = paramType->next) {
-        if(!paramType) return MATCH_NONE;
-        if(orbitASTTypeEquals(arg->type, paramType)) continue;
-        match = MATCH_CAST;
-        if(!findCast(arg->type, paramType)) return MATCH_NONE;
-    }
-    // we must be at the end of the parameter type list too.
-    return paramType == NULL ? match : MATCH_NONE; 
-}
-
-static bool finishCallExpr(Sema* self, OrbitAST* decl, OrbitAST* call, bool strict) {
+static bool finishCallExpr(Sema* self, const OrbitAST* decl, OrbitAST* call) {
     
     const OrbitAST* type = decl->type;
     OrbitAST* callee = call->callExpr.symbol;
     
     callee->type = ORCRETAIN(orbitASTTypeCopy(decl->type));
     call->type= ORCRETAIN(orbitASTTypeCopy(type->typeExpr.funcType.returnType));
-    if(strict) return true;
     
     const OrbitAST* paramType = type->typeExpr.funcType.params;
     // const OrbitAST* args = call->callExpr.params;
@@ -98,10 +80,8 @@ static bool finishCallExpr(Sema* self, OrbitAST* decl, OrbitAST* call, bool stri
         assert(paramType && "invalid function binding");
         
         if(orbitASTTypeEquals((*argPtr)->type, paramType)) continue;
-        const Conversion* cast = findCast((*argPtr)->type, paramType);
-        assert(cast && "invalid function binding");
-        
-        OrbitAST* wrapped = ORCRETAIN(orbitASTMakeCastExpr(*argPtr, cast->nodeKind));
+        assert(orbitTypeIsCastable((*argPtr)->type, paramType) && "invalid function binding");
+        OrbitAST* wrapped = ORCRETAIN(orbitTypeCast(*argPtr, paramType));
         ORCRELEASE(*argPtr);
         wrapped->next = (*argPtr)->next;
         wrapped->type = ORCRETAIN(orbitASTTypeCopy(paramType));
@@ -115,18 +95,16 @@ static bool finishCallExpr(Sema* self, OrbitAST* decl, OrbitAST* call, bool stri
 
 static bool checkCallable(Sema* self, OrbitAST* call) {
     OrbitAST* callee = call->callExpr.symbol;
-    const OrbitAST* type = callee->type;
+    const OrbitAST* T = callee->type;
     OrbitAST* args = call->callExpr.params;
-    if(callee->type->kind != ORBIT_AST_TYPEEXPR_FUNC) {
+    
+    if(!orbitTypeIsCallable(T)) {
         errorNotCallable(self, call);
         return false;
     }
     
-    ParamMatch match = checkArgTypes(type->typeExpr.funcType.params, args);
-    if(match == MATCH_STRICT)
-        return finishCallExpr(self, callee, call, true);
-    if(match == MATCH_CAST)
-        return finishCallExpr(self, callee, call, false);
+    if(orbitTypeCanCall(T, args))
+        return finishCallExpr(self, callee, call);
     
     errorInvalidCall(self, call);
     return false;
@@ -135,22 +113,11 @@ static bool checkCallable(Sema* self, OrbitAST* call) {
 static bool checkNameCall(Sema* self, OrbitAST* call) {
     OrbitAST* callee = call->callExpr.symbol;
     OCStringID name = callee->nameExpr.name;
+    OrbitAST* args = call->callExpr.params;
     
-    OrbitAST* cast = NULL;
-    for(Symbol* sym = lookupSymbol(self, name); sym != NULL; sym = sym->next) {
-        const OrbitAST* type = sym->decl->type;
-        if(type->kind != ORBIT_AST_TYPEEXPR_FUNC)
-            continue;
-        ParamMatch match = checkArgTypes(type->typeExpr.funcType.params, call->callExpr.params);
-        if(match == MATCH_NONE)
-            continue;
-        if(match == MATCH_STRICT)
-            return finishCallExpr(self, sym->decl, call, true);
-        cast = sym->decl;
-    }
-    
-    if(cast) return finishCallExpr(self, cast, call, false);
-    
+    const OCSymbol* symbol = orbitFunctionLookup(self->current, name, args);
+    if(symbol)
+        return finishCallExpr(self, symbol->decl, call);
     errorInvalidCall(self, call);
     return false;
 }
@@ -223,19 +190,21 @@ static void check(Sema* self, OrbitAST* node) {
             });
             
             MATCH(BLOCK, {
-                pushScope(self);
+                pushScope(self, &node->scope);
                 check(self, node->block.body);
                 popScope(self);
             });
             
             // MARK: - Declarations
             MATCH(DECL_MODULE, {
+                pushScope(self, &node->scope);
                 check(self, node->moduleDecl.body);
+                popScope(self);
             });
             
             MATCH(DECL_FUNC, {
                 //fun test = (a: Int) -> Int { return a }; test(123)
-                pushScope(self);
+                pushScope(self, &node->scope);
                 check(self, node->funcDecl.params);
                 if(declareFunc(self, node)) {
                     // declareFuncParams(self, node);
@@ -294,7 +263,7 @@ static void check(Sema* self, OrbitAST* node) {
             });
         
             MATCH(EXPR_NAME, {
-                Symbol* sym = lookupSymbol(self, node->nameExpr.name);
+                const OCSymbol* sym = lookupSymbol(self, node->nameExpr.name);
                 if(!sym) errorNameLookup(self, node);
                 else node->type = ORCRETAIN(orbitASTTypeCopy(sym->decl->type));
             });

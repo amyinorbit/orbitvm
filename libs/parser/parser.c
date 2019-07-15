@@ -54,8 +54,6 @@ static OrbitAST* recBlock(OCParser* parser) {
     for(;;) {
         if(have(parser, ORBIT_TOK_VAR))
             orbitASTListAdd(&block, recVarDecl(parser));
-        else if(have(parser, ORBIT_TOK_FUN))
-            orbitASTListAdd(&block, recFuncDecl(parser));
         else if(haveTerm(parser)
             || haveConditional(parser)
             || have(parser, ORBIT_TOK_RETURN)

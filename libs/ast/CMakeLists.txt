@@ -6,6 +6,7 @@ add_library(OrbitAST STATIC
     diag.c printer.c
     traversal.c
     type.c
+    scope.c
 )
 target_include_directories(OrbitAST PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(OrbitAST OrbitUtils OrbitCSupport termutils)

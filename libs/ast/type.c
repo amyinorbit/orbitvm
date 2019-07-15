@@ -157,3 +157,61 @@ void orbitASTTypeString(OCStringBuffer* buffer, const OrbitAST* ast) {
         orbitASTTypeString(buffer, ast->next);
     }
 }
+
+
+bool orbitTypeIsCastable(const OrbitAST* From, const OrbitAST* To) {
+    assert(From && "cannot check a null type node");
+    assert(To && "cannot check a null type node");
+    return (From->kind == ORBIT_AST_TYPEEXPR_INT && To->kind == ORBIT_AST_TYPEEXPR_FLOAT)
+        || (From->kind == ORBIT_AST_TYPEEXPR_FLOAT && To->kind == ORBIT_AST_TYPEEXPR_INT);
+}
+
+OrbitAST* orbitTypeCast(OrbitAST* expr, const OrbitAST* To) {
+    assert(expr && expr->type && "cannot cast a null expression");
+    assert(orbitASTisDecl(expr->type->kind) && "cannot cast a non-expression node");
+    assert(To && "cannot cast to a null type");
+    const OrbitAST* From = expr->type;
+    if(!orbitTypeIsCastable(From, To)) return NULL;
+    if(From->kind == ORBIT_AST_TYPEEXPR_INT && To->kind == ORBIT_AST_TYPEEXPR_FLOAT)
+        return orbitASTMakeCastExpr(expr, ORBIT_AST_EXPR_I2F);
+    if(From->kind == ORBIT_AST_TYPEEXPR_FLOAT && To->kind == ORBIT_AST_TYPEEXPR_INT)
+        return orbitASTMakeCastExpr(expr, ORBIT_AST_EXPR_F2I);
+    return NULL;
+}
+
+bool orbitTypeIsCallable(const OrbitAST* T) {
+    assert(T && "cannot check a null type node");
+    return (T->kind && T->kind == ORBIT_AST_TYPEEXPR_FUNC);
+}
+
+bool orbitTypeCanCall(const OrbitAST* T, const OrbitAST* Arg) {
+    assert(T && Arg && "cannot check a null type node");
+    if(!orbitTypeIsCallable(T)) return false;
+    
+    const OrbitAST* Param = T->typeExpr.funcType.params;
+    
+    for(; Arg && Param; Arg = Arg->next, Param = Param->next) {
+        if(orbitASTTypeEquals(Arg->type, Param)) continue;
+        if(orbitTypeIsCastable(Arg->type, Param)) continue;
+        return false;
+    }
+    return Arg == Param;
+}
+
+bool orbitTypesSameOverload(const OrbitAST* T, const OrbitAST* U) {
+    assert(T && U && "cannot check null type nodes");
+    if(!orbitTypeIsCallable(T) || !orbitTypeIsCallable(U)) return false;
+    
+    const OrbitAST* PT = T->typeExpr.funcType.params;
+    const OrbitAST* PU = U->typeExpr.funcType.params;
+    
+    for(;PT && PU; PT = PT->next, PU = PU->next) {
+        if(orbitASTTypeEquals(PT, PU)) continue;
+        if(orbitTypeIsCastable(PT, PU)) continue;
+        return false;
+    }
+    
+    return PT == PU;
+}
+
+

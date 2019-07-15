@@ -9,6 +9,7 @@
 //===--------------------------------------------------------------------------------------------===
 #ifndef sema_private_h
 #define sema_private_h
+#include <orbit/compiler.h>
 #include <orbit/ast/ast.h>
 #include <orbit/ast/context.h>
 #include <orbit/csupport/tokens.h>
@@ -40,19 +41,9 @@ typedef struct {
     OperatorSemData* operators;
 } ExprResolver;
 
-typedef struct Scope {
-    struct Scope* parent;
-    ORCMap types;
-    ORCMap symbols;
-} Scope;
-
 typedef struct {
     OrbitASTContext* context;
-    Scope global;
-    
-    Scope* current;
-    Scope stack[ORBIT_SCOPE_MAX];
-
+    OCScope* current;
     ExprResolver resolver;
 } Sema;
 

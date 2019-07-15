@@ -9,19 +9,17 @@
 //===--------------------------------------------------------------------------------------------===
 #ifndef orbit_ast_ast_h
 #define orbit_ast_ast_h
-
-#include <stdio.h>
-#include <stdint.h>
+#include <orbit/compiler.h>
+#include <orbit/ast/scope.h>
 #include <orbit/csupport/tokens.h>
 #include <orbit/utils/platforms.h>
 #include <orbit/utils/memory.h>
+#include <stdio.h>
+#include <stdint.h>
 
-typedef struct _OrbitAST OrbitAST;
 typedef struct _OrbitASTType OrbitASTType;
 typedef enum _OrbitASTTypeFlags OrbitASTTypeFlags;
 typedef enum _ASTKind ASTKind;
-
-#define DECL_AST_KIND(name, num) static const ASTKind ORBIT_AST_##name = 1UL << (__COUNTER__)
 
 // We can't use enum because C restricts them to 32 bit. Could probably not rely on bitsets,
 // but that allows much faster pattern matching in AST visitors.
@@ -123,11 +121,12 @@ struct _OrbitASTType {
 // The TUD (Tagged Union of Doom). Represents all possible nodes in an orbit
 // AST. AST::next is used to represent "same level" collections (for example,
 // a list of parameters, or a list of expressions.
-struct _OrbitAST {
+struct sOrbitAST {
     ORCObject       super;
     ASTKind         kind;
     OrbitAST*       next;
     const OrbitAST* type;
+    OCScope         scope;
     
     OrbitSRange sourceRange;
     
@@ -255,7 +254,6 @@ struct _OrbitAST {
         // Type Expressions (necessary for a non-trivial type system)
         
         OrbitASTType    typeExpr;
-        
     };
 };
 
