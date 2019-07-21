@@ -31,7 +31,6 @@ DECLARE_BUFFER(Selector, OpSelectData);
 
 typedef struct Function {
     ORCObject base;
-    // This is going to get tricky *really* fast with upvalues and all.
     struct Function* parent;
     
     OrbitFunction* impl;
@@ -50,6 +49,19 @@ typedef struct {
     
     const OrbitAST* current;
 } Builder;
+
+// typedef struct {
+//     OrbitValueBuffer constants;
+//     OCStringID locals[256];
+//     int localCount;
+//     int maxLocals;
+// } FunctionBuilder;
+//
+// typedef struct {
+//     OrbitValueBuffer globals;
+//     OCStringID functions[256];
+//
+// } ModuleBuilder;
 
 
 void builderInit(Builder* builder, OrbitGC* gc);

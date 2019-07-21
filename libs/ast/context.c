@@ -14,6 +14,7 @@ void orbitASTContextInit(OrbitASTContext* context) {
     assert(context != NULL && "Invalid AST context given");
     
     context->root = NULL;
+    context->module = NULL;
     context->source.path = NULL;
     context->source.bytes = NULL;
     context->source.lineMap = NULL;
@@ -24,6 +25,7 @@ void orbitASTContextInit(OrbitASTContext* context) {
 void orbitASTContextDeinit(OrbitASTContext* context) {
     assert(context != NULL && "Invalid AST context given");
     ORCRELEASE(context->root);
+    ORCRELEASE(context->module);
     orbitSourceDeinit(&context->source);
     orbitDiagManagerDeinit(&context->diagnostics);
 }

@@ -19,6 +19,7 @@ struct _OrbitASTContext {
     OrbitSource         source;
     OrbitDiagManager    diagnostics;
     OrbitAST*           root;
+    const OrbitAST*     module;
 };
 
 void orbitASTContextInit(OrbitASTContext* context);

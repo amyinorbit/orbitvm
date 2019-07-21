@@ -53,7 +53,9 @@ DECLARE_BUFFER(Global, OrbitGlobal);
 
 struct sOrbitModule {
     OrbitObject base;
+    OrbitString* name;
     OrbitGlobalArray globals;
+    OrbitGlobalArray functions;
 };
 
 struct sOrbitFunction {

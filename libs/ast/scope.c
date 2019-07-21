@@ -25,9 +25,6 @@ void orbitScopeDeinit(OCScope* scope) {
     for(int i = 0; i < scope->count; ++i) {
         ORCRELEASE(scope->symbols[i].decl);
     }
-    /*
-    We should probably release symbol data here too
-    */
     orbitAllocator(scope->symbols, scope->capacity * sizeof(OCSymbol), 0);
     orbitScopeInit(scope);
 }
@@ -57,6 +54,14 @@ const OCSymbol* orbitSymbolLookup(const OCScope* scope, OCStringID name) {
     return NULL;
 }
 
+static inline int symbolIndex(const OCScope* scope) {
+    int index = 0;
+    for(int i = 0; i < scope->count; ++i) {
+        if(scope->symbols[i].isVariable) index += 1;
+    }
+    return index;
+}
+
 const OCSymbol* orbitSymbolDeclare(OCScope* scope, OCStringID name, const OrbitAST* decl) {
     assert(scope && "cannot declare a symbol in a null scope");
     
@@ -65,6 +70,8 @@ const OCSymbol* orbitSymbolDeclare(OCScope* scope, OCStringID name, const OrbitA
     }
     scopeEnsure(scope, scope->count + 1);
     scope->symbols[scope->count].name = name;
+    scope->symbols[scope->count].index = symbolIndex(scope);
+    scope->symbols[scope->count].isVariable = true;
     scope->symbols[scope->count].decl = ORCRETAIN(decl);
     scope->count += 1;
     return NULL;
@@ -98,6 +105,7 @@ static const OCSymbol* findOverload(const OCScope* scope, OCStringID name, const
     for(int i = 0; i < scope->count; ++i) {
         const OCSymbol* other = &scope->symbols[i];
         if(name != other->name) continue;
+        if(other->isVariable) continue;
         if(orbitTypesSameOverload(decl->type, other->decl->type)) return other;
     }
     return NULL;
@@ -109,6 +117,8 @@ const OCSymbol* orbitFunctionDeclare(OCScope* scope, OCStringID name, const Orbi
     if(existing) return existing;
     scopeEnsure(scope, scope->count + 1);
     scope->symbols[scope->count].name = name;
+    scope->symbols[scope->count].index = -1;
+    scope->symbols[scope->count].isVariable = false;
     scope->symbols[scope->count].decl = ORCRETAIN(decl);
     scope->count += 1;
     return NULL;
