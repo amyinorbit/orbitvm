@@ -33,6 +33,7 @@
 #include <term/arg.h>
 #include <term/colors.h>
 #include <term/printing.h>
+#include <term/repl.h>
 
 typedef struct {
     OrbitGC* gc;
@@ -78,23 +79,18 @@ void repl(OrbitVM* vm, Options options) {
     printf("Welcome to Orbit version 2019.6 repl (" __DATE__ ")\n");
     printf("[built with " __COMPILER_NAME__ "]\n");
     int lineNumber = 1;
-    char line[1024];
-    for(;;) {
-        
-        termColorFG(stdout, kTermCyan);
-        printf("orbit:%3d> ", lineNumber);
-        termColorFG(stdout, kTermDefault);
-        
-        if(!fgets(line, sizeof(line), stdin)) {
-            printf("\n");
-            break;                             
-        }
-        
+    
+    
+    TermREPL repl;
+    termREPLInit(&repl);
+    const char* source = NULL;
+    
+    while((source = termREPL("orbit > ", &repl))) {
         OrbitFunction* fn = orbitFunctionNew(&vm->gc);
         orbitGCPush(&vm->gc, (OrbitObject*)fn);
         Compiler comp = (Compiler){&vm->gc, fn};
         
-        if(repl_compile(comp, lineNumber, line, options) == ORBIT_OK) {
+        if(repl_compile(comp, lineNumber, source, options) == ORBIT_OK) {
             orbitRun(vm, fn);
             termColorFG(stderr, kTermGreen);
             orbitDebugTOS(vm);
@@ -107,6 +103,8 @@ void repl(OrbitVM* vm, Options options) {
         orbitGCPop(&vm->gc);
         orbitGCRun(&vm->gc);
     }
+    
+    termREPLDeinit(&repl);
 }
 
 OrbitResult compileFile(OrbitVM* vm, const char* path, Options options) {

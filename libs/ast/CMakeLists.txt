@@ -9,6 +9,6 @@ add_library(OrbitAST STATIC
     scope.c
 )
 target_include_directories(OrbitAST PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(OrbitAST OrbitUtils OrbitCSupport termutils)
+target_link_libraries(OrbitAST OrbitUtils OrbitCSupport TermUtils)
 
 install(TARGETS OrbitAST ARCHIVE)
