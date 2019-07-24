@@ -11,4 +11,4 @@ add_library(OrbitAST STATIC
 target_include_directories(OrbitAST PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(OrbitAST OrbitUtils OrbitCSupport TermUtils)
 
-install(TARGETS OrbitAST ARCHIVE)
+install(TARGETS OrbitAST ARCHIVE DESTINATION lib)
