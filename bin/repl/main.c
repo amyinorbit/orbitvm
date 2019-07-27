@@ -82,10 +82,10 @@ void repl(OrbitVM* vm, Options options) {
     
     
     TermREPL repl;
-    termREPLInit(&repl, "orbit > ", kTermCyan);
+    termREPLInit(&repl);
     const char* source = NULL;
     
-    while((source = termREPL(&repl))) {
+    while((source = termREPL(&repl, "orbit > "))) {
         OrbitFunction* fn = orbitFunctionNew(&vm->gc);
         orbitGCPush(&vm->gc, (OrbitObject*)fn);
         Compiler comp = (Compiler){&vm->gc, fn};
