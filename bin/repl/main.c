@@ -48,16 +48,16 @@ typedef struct {
     const char* input;
 } Options;
 
-OrbitResult repl_compile(Compiler comp, int line, const char* input, Options options) {
+OrbitResult repl_compile(Compiler comp, int line, char* input, Options options) {
     size_t length = strlen(input);
-    char* src = orbitAllocator(NULL, 0, length + 1);
-    memcpy(src, input, length);
-    src[length] = '\0';
-    
+    // char* src = orbitAllocator(NULL, 0, length + 1);
+    // memcpy(src, input, length);
+    // src[length] = '\0';
+
     OrbitASTContext ctx;
     orbitASTContextInit(&ctx);
     ctx.source.path = "repl.orbit";
-    orbitSourceInitC(&ctx.source, src, length);
+    orbitSourceInitC(&ctx.source, input, length);
     orbitParse(&ctx);
 
     orbitSemaCheck(&ctx);
@@ -75,21 +75,21 @@ OrbitResult repl_compile(Compiler comp, int line, const char* input, Options opt
 
 
 void repl(OrbitVM* vm, Options options) {
-    
+
     printf("Welcome to Orbit version 2019.6 repl (" __DATE__ ")\n");
     printf("[built with " __COMPILER_NAME__ "]\n");
     int lineNumber = 1;
-    
-    
+
+
     TermREPL repl;
     termREPLInit(&repl);
-    const char* source = NULL;
-    
-    while((source = termREPL(&repl, "orbit > "))) {
+    char* source = NULL;
+
+    while((source = termREPL(&repl, "orbit "))) {
         OrbitFunction* fn = orbitFunctionNew(&vm->gc);
         orbitGCPush(&vm->gc, (OrbitObject*)fn);
         Compiler comp = (Compiler){&vm->gc, fn};
-        
+
         if(repl_compile(comp, lineNumber, source, options) == ORBIT_OK) {
             orbitRun(vm, fn);
             termColorFG(stderr, kTermGreen);
@@ -99,11 +99,11 @@ void repl(OrbitVM* vm, Options options) {
             orbitGCRun(&vm->gc);
             lineNumber += 1;
         }
-        
+
         orbitGCPop(&vm->gc);
         orbitGCRun(&vm->gc);
     }
-    
+
     termREPLDeinit(&repl);
 }
 
@@ -111,28 +111,28 @@ OrbitResult compileFile(OrbitVM* vm, const char* path, Options options) {
     OrbitFunction* fn = orbitFunctionNew(&vm->gc);
     orbitGCPush(&vm->gc, (OrbitObject*)fn);
     Compiler comp = (Compiler){&vm->gc, fn};
-    
+
     OrbitASTContext ctx;
     orbitASTContextInit(&ctx);
     if(!orbitSourceInitPath(&ctx.source, path))
         termError("orbit", -1, "cannot open source file '%s'", path);
     orbitParse(&ctx);
-    
+
     orbitSemaCheck(&ctx);
     orbitDiagEmitAll(&ctx.diagnostics);
     if(options.dumpAST) orbitASTPrint(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
-    
-    if(!options.codegen) goto cleanup; 
-    
+
+    if(!options.codegen) goto cleanup;
+
     orbitCodegen(comp.gc, comp.fn, &ctx);
     if(options.dumpBytecode) orbitDebugFunction(fn, path);
     orbitFunctionWrite(&vm->gc, fn, OP_return, 1);
-    
+
     if(!options.run) goto cleanup;
-    
+
     orbitRun(vm, fn);
-    
+
 cleanup:
     orbitASTContextDeinit(&ctx);
     orbitGCRun(&vm->gc);
@@ -159,26 +159,26 @@ static _Noreturn void printHelp() {
 }
 
 static void parseArguments(Options* options, int argc, const char** argv) {
-    
+
     TermArgParser parser;
     termArgParserInit(&parser, argc, argv);
-    
+
     TermArgResult r = termArgParse(&parser, kOrbitParams, kOrbitParamCount);
     while(r.name != kTermArgDone) {
         switch(r.name) {
         case kTermArgHelp:
             printHelp();
             break;
-            
+
         case kTermArgVersion:
             printVersion();
             exit(0);
             break;
-            
+
         case kTermArgError:
             termError("orbit", 1, "%s", parser.error);
             break;
-            
+
         case 'g':
             options->dumpAST = true;
             options->dumpBytecode = true;
@@ -198,7 +198,7 @@ static void parseArguments(Options* options, int argc, const char** argv) {
             options->input = r.value;
             break;
         }
-        
+
         r = termArgParse(&parser, kOrbitParams, kOrbitParamCount);
     }
 }
@@ -209,16 +209,16 @@ int main(int argc, const char** argv) {
 
     OrbitVM vm;
     orbitVMInit(&vm);
-    
+
     // const char* inputFile = NULL;
     Options options = (Options){false, false, true, true, NULL};
     parseArguments(&options, argc, argv);
-    
+
     if(options.input)
         compileFile(&vm, options.input, options);
     else
         repl(&vm, options);
-    
+
     orbitVMDeinit(&vm);
     orbitStringPoolDeinit();
 }
