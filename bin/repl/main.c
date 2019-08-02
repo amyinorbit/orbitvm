@@ -33,7 +33,7 @@
 #include <term/arg.h>
 #include <term/colors.h>
 #include <term/printing.h>
-#include <term/repl.h>
+#include <term/line.h>
 
 typedef struct {
     OrbitGC* gc;
@@ -73,19 +73,37 @@ OrbitResult repl_compile(Compiler comp, int line, char* input, Options options) 
     return ORBIT_OK;
 }
 
+void prompt(const char* PS) {
+    termColorFG(stdout, kTermBlue);
+    printf("orbit:%s> ", PS);
+    termColorFG(stdout, kTermDefault);
+}
+
+static const char* historyPath() {
+    const char* home = getenv("HOME");
+    if(!home) return ".orbit_history";
+    
+    static char path[4096];
+    snprintf(path, 4096, "%s/.orbit_history", home);
+    return path;
+}
 
 void repl(OrbitVM* vm, Options options) {
 
     printf("Welcome to Orbit version 2019.6 repl (" __DATE__ ")\n");
     printf("[built with " __COMPILER_NAME__ "]\n");
     int lineNumber = 1;
-
-
-    TermREPL repl;
-    termREPLInit(&repl);
+    char promptBuffer[6];
     char* source = NULL;
+    
+    LineFunctions fn = {.printPrompt = &prompt};
+    Line* editor = lineNew(&fn);
+    lineHistoryLoad(editor, historyPath());
+    
+    snprintf(promptBuffer, 6, "%3d", lineNumber);
+    lineSetPrompt(editor, promptBuffer);
 
-    while((source = termREPL(&repl, "orbit "))) {
+    while((source = lineGet(editor))) {
         OrbitFunction* fn = orbitFunctionNew(&vm->gc);
         orbitGCPush(&vm->gc, (OrbitObject*)fn);
         Compiler comp = (Compiler){&vm->gc, fn};
@@ -97,14 +115,17 @@ void repl(OrbitVM* vm, Options options) {
             // orbitDebugStack(vm);
             termColorFG(stderr, kTermDefault);
             orbitGCRun(&vm->gc);
+            
             lineNumber += 1;
+            snprintf(promptBuffer, 6, "%3d", lineNumber);
         }
 
         orbitGCPop(&vm->gc);
         orbitGCRun(&vm->gc);
     }
-
-    termREPLDeinit(&repl);
+    
+    lineHistoryWrite(editor, historyPath());
+    lineDealloc(editor);
 }
 
 OrbitResult compileFile(OrbitVM* vm, const char* path, Options options) {
