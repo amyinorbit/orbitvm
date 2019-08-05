@@ -11,13 +11,16 @@
 #include <orbit/ast/ast.h>
 #include <orbit/ast/type.h>
 #include <assert.h>
+#include <string.h>
 
 void orbitScopeInit(OCScope* scope) {
     assert(scope && "cannot initialise a null scope");
     scope->parent = NULL;
     scope->count = 0;
     scope->capacity = 0;
+    scope->varCount = 0;
     scope->symbols = NULL;
+    scope->functions = NULL;
 }
 
 void orbitScopeDeinit(OCScope* scope) {
@@ -38,7 +41,7 @@ static void scopeEnsure(OCScope* scope, int required) {
 }
 
 static const OCSymbol* lookupSym(const OCScope* scope, OCStringID name) {
-    for(int i = 0; i < scope->count; ++i) {
+    for(int i = 0; i < scope->varCount; ++i) {
         if(scope->symbols[i].name == name) return &scope->symbols[i];
     }
     return NULL;
@@ -54,31 +57,39 @@ const OCSymbol* orbitSymbolLookup(const OCScope* scope, OCStringID name) {
     return NULL;
 }
 
-static inline int symbolIndex(const OCScope* scope) {
-    int index = 0;
-    for(int i = 0; i < scope->count; ++i) {
-        if(scope->symbols[i].isVariable) index += 1;
-    }
-    return index;
-}
+// static inline int symbolIndex(const OCScope* scope) {
+//     int index = 0;
+//     for(int i = 0; i < scope->count; ++i) {
+//         if(scope->symbols[i].isVariable) index += 1;
+//     }
+//     return index;
+// }
 
 const OCSymbol* orbitSymbolDeclare(OCScope* scope, OCStringID name, const OrbitAST* decl) {
     assert(scope && "cannot declare a symbol in a null scope");
     
-    for(int i = 0; i < scope->count; ++i) {
+    for(int i = 0; i < scope->varCount; ++i) {
         if(scope->symbols[i].name == name) return &scope->symbols[i];
     }
     scopeEnsure(scope, scope->count + 1);
-    scope->symbols[scope->count].name = name;
-    scope->symbols[scope->count].index = symbolIndex(scope);
-    scope->symbols[scope->count].isVariable = true;
-    scope->symbols[scope->count].decl = ORCRETAIN(decl);
+    
+    // Move the functions after symbols
+    int funCount = scope->count - scope->varCount;
+    memmove(&scope->symbols[scope->varCount+1],
+            &scope->symbols[scope->varCount+1],
+            funCount * sizeof(OCSymbol));
+    
+    
+    scope->symbols[scope->varCount].name = name;
+    scope->symbols[scope->varCount].decl = ORCRETAIN(decl);
+    
+    scope->varCount += 1;
     scope->count += 1;
     return NULL;
 }
 
 static const OCSymbol* lookupFun(const OCScope* scope, OCStringID name, const OrbitAST* args) {
-    for(int i = 0; i < scope->count; ++i) {
+    for(int i = scope->varCount; i < scope->count; ++i) {
         if(scope->symbols[i].name != name) continue;
         const OrbitAST* T = scope->symbols[i].decl->type;
         if(!orbitTypeIsCallable(T)) continue;
@@ -102,10 +113,9 @@ const OCSymbol* orbitFunctionLookup(const OCScope* scope, OCStringID name, const
 }
 
 static const OCSymbol* findOverload(const OCScope* scope, OCStringID name, const OrbitAST* decl) {
-    for(int i = 0; i < scope->count; ++i) {
+    for(int i = scope->varCount; i < scope->count; ++i) {
         const OCSymbol* other = &scope->symbols[i];
         if(name != other->name) continue;
-        if(other->isVariable) continue;
         if(orbitTypesSameOverload(decl->type, other->decl->type)) return other;
     }
     return NULL;
@@ -117,8 +127,6 @@ const OCSymbol* orbitFunctionDeclare(OCScope* scope, OCStringID name, const Orbi
     if(existing) return existing;
     scopeEnsure(scope, scope->count + 1);
     scope->symbols[scope->count].name = name;
-    scope->symbols[scope->count].index = -1;
-    scope->symbols[scope->count].isVariable = false;
     scope->symbols[scope->count].decl = ORCRETAIN(decl);
     scope->count += 1;
     return NULL;

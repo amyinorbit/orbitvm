@@ -11,11 +11,18 @@
 #define orbit_ast_context_h
 #include <orbit/ast/ast.h>
 #include <orbit/ast/diag.h>
+#include <orbit/ast/scope.h>
 #include <orbit/csupport/source.h>
 
-typedef struct _OrbitASTContext OrbitASTContext;
+typedef struct sOrbitASTContext OrbitASTContext;
+typedef struct sOrbitModuleData OrbitModuleData;
 
-struct _OrbitASTContext {
+struct sOrbitModuleData {
+    ORCObject base;
+    OCScope scope;
+};
+
+struct sOrbitASTContext {
     OrbitSource         source;
     OrbitDiagManager    diagnostics;
     OrbitAST*           root;

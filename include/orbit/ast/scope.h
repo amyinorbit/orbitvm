@@ -20,8 +20,8 @@
 
 struct sOCSymbol {
     OCStringID name;
-    int index;
-    bool isVariable;
+    // int index;
+    // bool isVariable;
     const OrbitAST* decl;
 };
 
@@ -31,7 +31,9 @@ struct sOCScope {
     int offset;
     int count;
     int capacity;
+    int varCount;
     OCSymbol* symbols;
+    OCSymbol* functions; // Points into symbols[count].
 };
 
 void orbitScopeInit(OCScope* scope);
