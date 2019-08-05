@@ -10,7 +10,6 @@
 #ifndef orbit_ast_ast_h
 #define orbit_ast_ast_h
 #include <orbit/compiler.h>
-#include <orbit/ast/scope.h>
 #include <orbit/csupport/tokens.h>
 #include <orbit/utils/platforms.h>
 #include <orbit/utils/memory.h>
@@ -126,7 +125,6 @@ struct sOrbitAST {
     ASTKind         kind;
     OrbitAST*       next;
     const OrbitAST* type;
-    OCScope         scope;
     
     OrbitSRange sourceRange;
     

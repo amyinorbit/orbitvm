@@ -29,12 +29,17 @@ void orbitSemaDeinit(Sema* self) {
 }
 
 void pushScope(Sema* self, OCScope* scope) {
+    orbitScopeInit(scope);
     scope->parent = self->current;
     self->current = scope;
 }
 
 void popScope(Sema* self) {
-    self->current = self->current->parent;
+    // TODO: we should assert here instead
+    if(!self->current) return;
+    OCScope* popped = self->current;
+    self->current = popped->parent;
+    orbitScopeDeinit(popped);
 }
 
 static OCScope* currentScope(Sema* self) {

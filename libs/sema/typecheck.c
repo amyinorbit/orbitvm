@@ -190,21 +190,23 @@ static void check(Sema* self, OrbitAST* node) {
             });
             
             MATCH(BLOCK, {
-                pushScope(self, &node->scope);
+                OCScope scope;
+                pushScope(self, &scope);
                 check(self, node->block.body);
                 popScope(self);
             });
             
             // MARK: - Declarations
             MATCH(DECL_MODULE, {
-                pushScope(self, &node->scope);
+                OCScope scope;
+                pushScope(self, &scope);
                 check(self, node->moduleDecl.body);
                 popScope(self);
             });
             
             MATCH(DECL_FUNC, {
-                //fun test = (a: Int) -> Int { return a }; test(123)
-                pushScope(self, &node->scope);
+                OCScope scope;
+                pushScope(self, &scope);
                 check(self, node->funcDecl.params);
                 if(declareFunc(self, node)) {
                     // declareFuncParams(self, node);
@@ -304,4 +306,3 @@ void orbitSemaCheck(OrbitASTContext* context) {
     check(&sema, context->root);
     orbitSemaDeinit(&sema);
 }
-

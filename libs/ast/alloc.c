@@ -17,8 +17,6 @@ void orbitASTDestroy(void* ref) {
     OrbitAST* ast = (OrbitAST*)ref;
     
     ORCRELEASE(ast->type);
-    orbitScopeDeinit(&ast->scope);
-    // if(allocatedNodes == 4) abort();
 
     switch(ast->kind) {
         // STATEMENTS
@@ -161,6 +159,5 @@ OrbitAST* orbitASTMake(ASTKind kind) {
     ast->kind = kind;
     ast->next = NULL;
     ast->type = NULL;
-    orbitScopeInit(&ast->scope);
     return ast;
 }
