@@ -16,6 +16,7 @@
 void orbitScopeInit(OCScope* scope) {
     assert(scope && "cannot initialise a null scope");
     scope->parent = NULL;
+    scope->isScript = false;
     scope->count = 0;
     scope->capacity = 0;
     scope->varCount = 0;

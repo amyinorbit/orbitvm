@@ -10,6 +10,7 @@ static const TermParam kOrbitParams[] = {
     {'g', 0, "debug-vm", kTermArgOption, "print debug information\nsame as --print-ast --print-bytecode"},
     {'n', 0, "syntax-only", kTermArgOption, "check syntax without generating bytecode"},
     {'t', 0, "print-ast", kTermArgOption, "print the syntax tree when compiling"},
+    {'j', 0, "print-json", kTermArgOption, "print the syntax tree as JSON when compiling"},
     {'x', 0, "print-bytecode", kTermArgOption, "print compiled bytecode before running"},
     {'o', 0, "output", kTermArgValue, "specify a file to write outputs to\nonly has an effect with --emit-* options"},
     {'S', 0, "emit-assembly", kTermArgOption, "write disassembled bytecode to the output file"},

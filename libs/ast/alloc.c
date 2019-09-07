@@ -155,9 +155,20 @@ OrbitAST* orbitASTMake(ASTKind kind) {
     OrbitAST* ast = ORBIT_ALLOC(OrbitAST);
     memset(ast, 0, sizeof (OrbitAST));
     ORCINIT(ast, &orbitASTDestroy);
-    
+    ast->sourceRange = (OrbitSRange){ORBIT_SLOC_INVALID, ORBIT_SLOC_INVALID};
     ast->kind = kind;
     ast->next = NULL;
     ast->type = NULL;
     return ast;
+}
+
+#define AST_KIND(x) [ORBIT_AST_##x] = #x,
+
+static const char* _kindNames[] = {
+#include <orbit/ast/astkinds.inc>
+};
+#undef AST_KIND
+
+const char* orbitASTKindString(ASTKind kind) {
+    return _kindNames[kind];
 }

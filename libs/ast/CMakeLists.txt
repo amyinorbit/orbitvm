@@ -7,6 +7,7 @@ add_library(OrbitAST STATIC
     traversal.c
     type.c
     scope.c
+    json.c
 )
 target_include_directories(OrbitAST PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(OrbitAST OrbitUtils OrbitCSupport TermUtils)

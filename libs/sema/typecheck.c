@@ -221,7 +221,6 @@ static void check(Sema* self, OrbitAST* node) {
             });
             
             // MARK: - Statements
-            
         
             // MARK: - Expression Handling
             MATCH(EXPR_UNARY, {

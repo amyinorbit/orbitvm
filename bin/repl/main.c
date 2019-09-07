@@ -42,6 +42,7 @@ typedef struct {
 
 typedef struct {
     bool dumpAST;
+    bool dumpJSON;
     bool dumpBytecode;
     bool codegen;
     bool run;
@@ -62,7 +63,8 @@ OrbitResult repl_compile(Compiler comp, int line, char* input, Options options) 
 
     orbitSemaCheck(&ctx);
     orbitDiagEmitAll(&ctx.diagnostics);
-    if(options.dumpAST) orbitASTPrint(stdout, ctx.root);
+    if(options.dumpAST && !options.dumpJSON) orbitASTPrint(stdout, ctx.root);
+    if(options.dumpJSON && !options.dumpAST) orbitASTJSON(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
 
     orbitCodegen(comp.gc, comp.fn, &ctx);
@@ -141,7 +143,8 @@ OrbitResult compileFile(OrbitVM* vm, const char* path, Options options) {
 
     orbitSemaCheck(&ctx);
     orbitDiagEmitAll(&ctx.diagnostics);
-    if(options.dumpAST) orbitASTPrint(stdout, ctx.root);
+    if(options.dumpAST && !options.dumpJSON) orbitASTPrint(stdout, ctx.root);
+    if(options.dumpJSON && !options.dumpAST) orbitASTJSON(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
 
     if(!options.codegen) goto cleanup;
@@ -210,6 +213,9 @@ static void parseArguments(Options* options, int argc, const char** argv) {
         case 't':
         case 'T':
             options->dumpAST = true;
+            break;
+        case 'j':
+            options->dumpJSON = true;
             break;
         case 'x':
         case 'S':

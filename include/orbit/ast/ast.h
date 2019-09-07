@@ -23,52 +23,11 @@ typedef enum _ASTKind ASTKind;
 // We can't use enum because C restricts them to 32 bit. Could probably not rely on bitsets,
 // but that allows much faster pattern matching in AST visitors.
 
+#define AST_KIND(x) ORBIT_AST_##x,
 enum _ASTKind {
-    // MARK: - AST Statements
-    ORBIT_AST_ASSIGN,
-    ORBIT_AST_CONDITIONAL,
-    ORBIT_AST_FOR_IN,
-    ORBIT_AST_WHILE,
-    ORBIT_AST_BREAK,
-    ORBIT_AST_CONTINUE,
-    ORBIT_AST_RETURN,
-    ORBIT_AST_PRINT,
-    ORBIT_AST_BLOCK,
-    
-    // MARK: - AST Declarations
-    ORBIT_AST_DECL_MODULE,
-    ORBIT_AST_DECL_FUNC,
-    ORBIT_AST_DECL_VAR,
-    ORBIT_AST_DECL_STRUCT,
-    
-    // MARK: - AST Expressions
-    ORBIT_AST_EXPR_UNARY,
-    ORBIT_AST_EXPR_BINARY,
-    ORBIT_AST_EXPR_CALL,
-    ORBIT_AST_EXPR_SUBSCRIPT,
-    ORBIT_AST_EXPR_CONSTANT,
-    ORBIT_AST_EXPR_CONSTANT_INTEGER,
-    ORBIT_AST_EXPR_CONSTANT_FLOAT,
-    ORBIT_AST_EXPR_CONSTANT_STRING,
-    ORBIT_AST_EXPR_CONSTANT_BOOL,
-    ORBIT_AST_EXPR_LAMBDA,
-    ORBIT_AST_EXPR_NAME,
-    ORBIT_AST_EXPR_INIT,
-    ORBIT_AST_EXPR_I2F,
-    ORBIT_AST_EXPR_F2I,
-
-    // MARK: - Type Expressions
-    ORBIT_AST_TYPEEXPR_VOID,
-    ORBIT_AST_TYPEEXPR_BOOL,
-    ORBIT_AST_TYPEEXPR_INT,
-    ORBIT_AST_TYPEEXPR_FLOAT,
-    ORBIT_AST_TYPEEXPR_STRING,
-    ORBIT_AST_TYPEEXPR_USER,
-    ORBIT_AST_TYPEEXPR_ARRAY,
-    ORBIT_AST_TYPEEXPR_MAP,
-    ORBIT_AST_TYPEEXPR_FUNC,
-    ORBIT_AST_TYPEEXPR_ANY,
+#include "astkinds.inc"
 };
+#undef AST_KIND
 
 static inline bool orbitASTisStmt(ASTKind kind) {
     return kind >= ORBIT_AST_ASSIGN && kind <= ORBIT_AST_BLOCK;
@@ -255,7 +214,9 @@ struct sOrbitAST {
     };
 };
 
+const char* orbitASTKindString(ASTKind kind);
 void orbitASTPrint(FILE* out, const OrbitAST* ast);
+void orbitASTJSON(FILE* out, const OrbitAST* ast);
 void orbitASTDestroy(void* ref);
 OrbitAST* orbitASTMake(ASTKind kind);
 

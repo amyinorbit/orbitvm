@@ -20,14 +20,18 @@ typedef struct sOrbitModuleData OrbitModuleData;
 struct sOrbitModuleData {
     ORCObject base;
     OCScope scope;
+    OrbitSource source;
+    OrbitAST* ast;
 };
 
 struct sOrbitASTContext {
     OrbitSource         source;
     OrbitDiagManager    diagnostics;
     OrbitAST*           root;
-    const OrbitAST*     module;
+    OrbitModuleData*    module;
 };
+
+OrbitModuleData* orbitModuleDataNew();
 
 void orbitASTContextInit(OrbitASTContext* context);
 void orbitASTContextDeinit(OrbitASTContext* context);

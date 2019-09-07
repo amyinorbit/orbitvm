@@ -10,6 +10,15 @@
 #include <assert.h>
 #include <orbit/ast/context.h>
 
+void orbitModuleDataDeinit(void* ptr) {
+    
+}
+
+OrbitModuleData* orbitModuleDataNew() {
+    OrbitModuleData* data = ORCRETAIN(ORCINIT(ORBIT_ALLOC(OrbitModuleData), &orbitModuleDataDeinit));
+    return NULL;
+}
+
 void orbitASTContextInit(OrbitASTContext* context) {
     assert(context != NULL && "Invalid AST context given");
     

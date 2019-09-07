@@ -20,15 +20,13 @@
 
 struct sOCSymbol {
     OCStringID name;
-    // int index;
-    // bool isVariable;
     const OrbitAST* decl;
 };
 
 struct sOCScope {
     OCScope* parent;
+    bool isScript;
     
-    int offset;
     int count;
     int capacity;
     int varCount;
