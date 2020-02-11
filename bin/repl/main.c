@@ -84,7 +84,7 @@ void prompt(const char* PS) {
 static const char* historyPath() {
     const char* home = getenv("HOME");
     if(!home) return ".orbit_history";
-    
+
     static char path[4096];
     snprintf(path, 4096, "%s/.orbit_history", home);
     return path;
@@ -92,16 +92,16 @@ static const char* historyPath() {
 
 void repl(OrbitVM* vm, Options options) {
 
-    printf("Welcome to Orbit version 2019.6 repl (" __DATE__ ")\n");
+    printf("Welcome to Orbit version 2020.2 repl (" __DATE__ ")\n");
     printf("[built with " __COMPILER_NAME__ "]\n");
     int lineNumber = 1;
     char promptBuffer[6];
     char* source = NULL;
-    
+
     LineFunctions fn = {.printPrompt = &prompt};
     Line* editor = lineNew(&fn);
     lineHistoryLoad(editor, historyPath());
-    
+
     snprintf(promptBuffer, 6, "%3d", lineNumber);
     lineSetPrompt(editor, promptBuffer);
 
@@ -117,7 +117,7 @@ void repl(OrbitVM* vm, Options options) {
             // orbitDebugStack(vm);
             termColorFG(stderr, kTermDefault);
             orbitGCRun(&vm->gc);
-            
+
             lineNumber += 1;
             snprintf(promptBuffer, 6, "%3d", lineNumber);
         }
@@ -125,7 +125,7 @@ void repl(OrbitVM* vm, Options options) {
         orbitGCPop(&vm->gc);
         orbitGCRun(&vm->gc);
     }
-    
+
     lineHistoryWrite(editor, historyPath());
     lineDealloc(editor);
 }
@@ -166,9 +166,9 @@ cleanup:
 #include "cli_options.inc"
 
 static void printVersion() {
-    printf("Orbit version 2019.6 (" __DATE__ ")\n");
+    printf("Orbit version 2020.2 (" __DATE__ ")\n");
     printf("built with " __COMPILER_NAME__ "\n");
-    printf("Copyright (c) 2016-2019 Amy Parent <amy@amyparent.com>\n");
+    printf("Copyright (c) 2016-2020 Amy Parent <amy@amyparent.com>\n");
 }
 
 static _Noreturn void printHelp() {
@@ -238,7 +238,7 @@ int main(int argc, const char** argv) {
     orbitVMInit(&vm);
 
     // const char* inputFile = NULL;
-    Options options = (Options){false, false, true, true, NULL};
+    Options options = (Options){false, false, false, true, true, NULL};
     parseArguments(&options, argc, argv);
 
     if(options.input)

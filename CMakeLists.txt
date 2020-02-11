@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(Orbit VERSION 2019.6 LANGUAGES C)
+project(Orbit VERSION 2020.2 LANGUAGES C)
 
 include_directories(PUBLIC include)
 set(CMAKE_C_STANDARD 99)
