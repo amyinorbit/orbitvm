@@ -44,7 +44,7 @@ static inline void printObject(OrbitObject* object) {
         printf("<null>\n");
         return;
     }
-    
+
     switch(object->kind) {
     case ORBIT_OBJ_STRING: {
         OrbitString* string = (OrbitString*)object;
@@ -97,7 +97,7 @@ void orbitDebugTOS(OrbitVM* self) {
 void orbitDebugStack(OrbitVM* self) {
     if(!self->task) return;
     printf("    --stack--\n");
-    
+
     for(OrbitValue* sp = self->task->stack; sp != self->task->stackTop; ++sp) {
         printf("    * ");
         printValue(*sp);
@@ -124,14 +124,14 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
     assert(function && "null chunk error");
     vm->function = function;
     vm->task = orbitTaskNew(&vm->gc, function);
-    
+
     OrbitFrame* frame = vm->task->frames.data;
 
 #define NEXT() break
-#define BINARY(T, U, op)                                                                           \
+#define BINARY(type, T, U, op)                                                                           \
     do {                                                                                           \
-        int32_t b = T(pop(vm));                                                                    \
-        int32_t a = T(pop(vm));                                                                    \
+        type b = T(pop(vm));                                                                    \
+        type a = T(pop(vm));                                                                    \
         push(vm, U(a op b));                                                                       \
     } while(false)
 
@@ -155,11 +155,11 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
         case OP_false:
             push(vm, ORBIT_VALUE_FALSE);
             NEXT();
-            
+
         case OP_load_local:
             push(vm, frame->base[read8(vm)]);
             NEXT();
-            
+
         case OP_store_local:
             frame->base[read8(vm)] = pop(vm);
             NEXT();
@@ -176,78 +176,78 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
             NEXT();
 
         case OP_iadd:
-            BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, +);
+            BINARY(int32_t, ORBIT_AS_INT, ORBIT_VALUE_INT, +);
             NEXT();
         case OP_isub:
-            BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, -);
+            BINARY(int32_t, ORBIT_AS_INT, ORBIT_VALUE_INT, -);
             NEXT();
         case OP_imul:
-            BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, *);
+            BINARY(int32_t, ORBIT_AS_INT, ORBIT_VALUE_INT, *);
             NEXT();
         case OP_idiv:
-            BINARY(ORBIT_AS_INT, ORBIT_VALUE_INT, /);
+            BINARY(int32_t, ORBIT_AS_INT, ORBIT_VALUE_INT, /);
             NEXT();
 
         case OP_fadd:
-            BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, +);
+            BINARY(float, ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, +);
             NEXT();
         case OP_fsub:
-            BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, -);
+            BINARY(float, ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, -);
             NEXT();
         case OP_fmul:
-            BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, *);
+            BINARY(float, ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, *);
             NEXT();
         case OP_fdiv:
-            BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, /);
+            BINARY(float, ORBIT_AS_FLOAT, ORBIT_VALUE_FLOAT, /);
             NEXT();
 
         case OP_ieq:
-            BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, ==);
+            BINARY(int32_t, ORBIT_AS_INT, ORBIT_VALUE_BOOL, ==);
             NEXT();
         case OP_ilt:
-            BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, <);
+            BINARY(int32_t, ORBIT_AS_INT, ORBIT_VALUE_BOOL, <);
             NEXT();
         case OP_igt:
-            BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, >);
+            BINARY(int32_t, ORBIT_AS_INT, ORBIT_VALUE_BOOL, >);
             NEXT();
         case OP_ilteq:
-            BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, <=);
+            BINARY(int32_t, ORBIT_AS_INT, ORBIT_VALUE_BOOL, <=);
             NEXT();
         case OP_igteq:
-            BINARY(ORBIT_AS_INT, ORBIT_VALUE_BOOL, >=);
+            BINARY(int32_t, ORBIT_AS_INT, ORBIT_VALUE_BOOL, >=);
             NEXT();
 
         case OP_feq:
-            BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, ==);
+            BINARY(float, ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, ==);
             NEXT();
         case OP_flt:
-            BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, <);
+            BINARY(float, ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, <);
             NEXT();
         case OP_fgt:
-            BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, >);
+            BINARY(float, ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, >);
             NEXT();
         case OP_flteq:
-            BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, <=);
+            BINARY(float, ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, <=);
             NEXT();
         case OP_fgteq:
-            BINARY(ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, >=);
+            BINARY(float, ORBIT_AS_FLOAT, ORBIT_VALUE_BOOL, >=);
             NEXT();
-            
+
         case OP_jump:
             vm->task->ip += read16(vm);
             NEXT();
-            
+
         case OP_rjump:
             vm->task->ip -= read16(vm);
             NEXT();
-            
+
         case OP_jump_if: {
             OrbitValue tos = pop(vm);
             uint16_t offset = read16(vm);
             if(ORBIT_IS_BOOL(tos) && ORBIT_AS_BOOL(tos))
                 vm->task->ip += offset;
         } NEXT();
-        
+
         case OP_call: {
             OrbitValue callee = pop(vm);
             assert(ORBIT_IS_FUNCTION(callee) && "cannot call a non-function object");
@@ -258,7 +258,7 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
             orbitTaskPopFrame(&vm->gc, vm->task);
             if(!vm->task->frames.count) return ORBIT_OK;
             NEXT();
-            
+
         case OP_return_repl:
             if(vm->task->stackTop != orbitTaskFrame(vm->task)->stack) {
                 OrbitValue value = pop(vm);
@@ -269,7 +269,7 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
             }
             if(!vm->task->frames.count) return ORBIT_OK;
             NEXT();
-        
+
         default:
             return ORBIT_RUNTIME_ERROR;
         }
