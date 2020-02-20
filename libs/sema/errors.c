@@ -47,6 +47,17 @@ void errorAssign(Sema* self, const OrbitAST* expr) {
     orbitDiagAddSourceRange(id, rng);
 }
 
+void errorAssignRValue(Sema* self, const OrbitAST* expr) {
+    OrbitSRange rng = expr->sourceRange;
+    OrbitSLoc loc = expr->binaryExpr.operator.sourceLoc;
+    OrbitDiagID id = orbitDiagError(
+            diag(self), loc,
+            "cannot assign to a constant or temporary '$0'", 1,
+            ORBIT_DIAG_TYPE(expr->binaryExpr.lhs->type)
+    );
+    orbitDiagAddSourceRange(id, rng);
+}
+
 void errorNameLookup(Sema* self, const OrbitAST* expr) {
     OrbitSRange rng = expr->sourceRange;
     OrbitDiagID id = orbitDiagError(

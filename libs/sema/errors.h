@@ -17,6 +17,7 @@
 void errorNotCallable(Sema* self, const OrbitAST* call);
 void errorInvalidCall(Sema* self, const OrbitAST* call);
 
+void errorAssignRValue(Sema* self, const OrbitAST* expr);
 void errorAssign(Sema* self, const OrbitAST* expr);
 void errorNameLookup(Sema* self, const OrbitAST* expr);
 void errorNoType(Sema* self, const OrbitAST* ast);

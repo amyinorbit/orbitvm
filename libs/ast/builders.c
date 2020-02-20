@@ -241,8 +241,14 @@ OrbitAST* orbitASTMakeF2I(OrbitAST* expr) {
     return ast;
 }
 
+static OrbitAST* _makeTypeNode(ASTKind kind) {
+    OrbitAST* ast = orbitASTMake(kind);
+    ast->typeExpr.flags = 0; // We make types R-values by default. L-values are rarer (basically, LHS variables)
+    return ast;
+}
+
 OrbitAST* orbitASTMakeUserTypePooled(OCStringID symbol) {
-    OrbitAST* ast = orbitASTMake(ORBIT_AST_TYPEEXPR_USER);
+    OrbitAST* ast = _makeTypeNode(ORBIT_AST_TYPEEXPR_USER);
     ast->typeExpr.userType.symbol = symbol;
     return ast;
 }
@@ -258,25 +264,25 @@ OrbitAST* orbitASTMakeUserType(const OrbitToken* symbol) {
 }
 
 OrbitAST* orbitASTMakePrimitiveType(ASTKind kind) {
-    OrbitAST* ast = orbitASTMake(kind);
+    OrbitAST* ast = _makeTypeNode(kind);
     return ast;
 }
 
 OrbitAST* orbitASTMakeFuncType(OrbitAST* returnType, OrbitAST* params) {
-    OrbitAST* ast = orbitASTMake(ORBIT_AST_TYPEEXPR_FUNC);
+    OrbitAST* ast = _makeTypeNode(ORBIT_AST_TYPEEXPR_FUNC);
     ast->typeExpr.funcType.returnType = ORCRETAIN(returnType);
     ast->typeExpr.funcType.params = ORCRETAIN(params);
     return ast;
 }
 
 OrbitAST* orbitASTMakeArrayType(OrbitAST* elementType) {
-    OrbitAST* ast = orbitASTMake(ORBIT_AST_TYPEEXPR_ARRAY);
+    OrbitAST* ast = _makeTypeNode(ORBIT_AST_TYPEEXPR_ARRAY);
     ast->typeExpr.arrayType.elementType = ORCRETAIN(elementType);
     return ast;
 }
 
 OrbitAST* orbitASTMakeMapType(OrbitAST* keyType, OrbitAST* elementType) {
-    OrbitAST* ast = orbitASTMake(ORBIT_AST_TYPEEXPR_MAP);
+    OrbitAST* ast = _makeTypeNode(ORBIT_AST_TYPEEXPR_MAP);
     ast->typeExpr.mapType.keyType = ORCRETAIN(keyType);
     ast->typeExpr.mapType.elementType = ORCRETAIN(elementType);
     return ast;
@@ -297,3 +303,12 @@ OrbitAST* orbitASTMakeConst(OrbitAST* type, bool isConst) {
         type->typeExpr.flags &= ~ORBIT_TYPE_CONST;
     return type;
 }
+
+OrbitAST* orbitASTSetLValue(OrbitAST* type, bool isLValue) {
+    if(isLValue)
+        type->typeExpr.flags |= ORBIT_TYPE_LVALUE;
+    else
+        type->typeExpr.flags &= ~ORBIT_TYPE_LVALUE;
+    return type;
+}
+

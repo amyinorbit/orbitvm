@@ -47,7 +47,8 @@ static inline bool orbitASTisType(ASTKind kind) {
 
 enum _OrbitASTTypeFlags {
     ORBIT_TYPE_CONST      = 1 << 0,
-    ORBIT_TYPE_OPTIONAL   = 1 << 1
+    ORBIT_TYPE_OPTIONAL   = 1 << 1,
+    ORBIT_TYPE_LVALUE     = 1 << 2,
 };
 
 struct _OrbitASTType {

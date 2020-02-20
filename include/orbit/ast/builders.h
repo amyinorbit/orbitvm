@@ -64,5 +64,6 @@ OrbitAST* orbitASTMakeArrayType(OrbitAST* elementType);
 OrbitAST* orbitASTMakeMapType(OrbitAST* keyType, OrbitAST* elementType);
 OrbitAST* orbitASTMakeOptional(OrbitAST* type, bool isOptional);
 OrbitAST* orbitASTMakeConst(OrbitAST* type, bool isConst);
+OrbitAST* orbitASTSetLValue(OrbitAST* type, bool isLValue);
 
 #endif /* orbit_ast_builders_h_ */

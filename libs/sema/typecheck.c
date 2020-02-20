@@ -7,6 +7,7 @@
 // Licensed under the MIT License
 // =^•.•^=
 //===--------------------------------------------------------------------------------------------===
+#include "orbit/ast/ast.h"
 #include <orbit/sema/typecheck.h>
 #include <orbit/utils/memory.h>
 #include <orbit/ast/builders.h>
@@ -38,7 +39,9 @@ static OrbitAST* extractFuncType(Sema* self, OrbitAST* func) {
 }
 
 static OrbitAST* extractVarType(Sema* self, OrbitAST* var) {
-    return var->varDecl.typeAnnotation;
+    return var->varDecl.typeAnnotation ?
+        orbitASTSetLValue(var->varDecl.typeAnnotation, true) :
+        NULL;
 }
 
 static bool declareFunc(Sema* self, OrbitAST* func) {
@@ -137,6 +140,13 @@ static bool checkAssign(Sema* self, OrbitAST* assign) {
         return true;
     }
     
+    // Next we want to check that LHS can be assigned to. (it must be an lvalue)
+    //
+    if(!(lhs->type->typeExpr.flags & ORBIT_TYPE_LVALUE)) {
+        errorAssignRValue(self, assign);
+        return false;
+    }
+
     // Else, we need to check that the types match (or can be converted)
     // if the types are strictly equal, roll on
     if(orbitASTTypeEquals(lhs->type, rhs->type)) return true;
