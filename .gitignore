@@ -1,5 +1,6 @@
 # OS X Finder
 .DS_Store
+.clangd
 
 # Xcode per-user config
 *.mode1
@@ -34,4 +35,5 @@ spikes/
 *.ignore
 *.tm_properties
 *.test.orbit
+*compile_commands.json
 

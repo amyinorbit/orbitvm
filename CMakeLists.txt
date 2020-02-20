@@ -4,6 +4,8 @@ project(Orbit VERSION 2020.2 LANGUAGES C)
 include_directories(PUBLIC include)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_compile_options(-Wall)
 
 # set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")

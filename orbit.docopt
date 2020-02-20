@@ -1,0 +1,24 @@
+Orbit version 2020.2 (Feb 16, 2020)
+Built with AppleClang 11.0.0.11000033
+Copyright (c) 2016-2020 Amy Parent <amy@amyparent.com>
+
+Usage: orbit [options] <script>
+       orbit [options]
+
+Options:
+  -g, --debug-vm            Print debug information.
+                            Same as --print-ast --print-bytecode.
+  -n, --syntax-only         Check syntax without generating bytecode.
+  -t, --print-ast           Print the syntax tree when compiling.
+  -j, --print-json          Print the synyax tree as JSON when compiling.
+  -x, --print-bytecode      Print compiled bytecode before running.
+  -o, --output              Specify a file to write outputs to. Only has
+                            an effect with --emit-* options.
+  -S, --emit-assembly       Write disassembled bytecode to the output file.
+  -T, --emit-ast            Write the syntax tree to the output file.
+      --version             Print version number.
+  -h, --help                Print this help message.
+
+Report bugs to: amy@amyparent.com
+orbit home page: <https://github.com/amyinorbit/orbitvm>
+
