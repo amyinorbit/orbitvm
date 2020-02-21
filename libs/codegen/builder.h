@@ -29,62 +29,49 @@ typedef struct {
 
 DECLARE_BUFFER(Selector, OpSelectData);
 
-typedef struct Function {
-    ORCObject base;
-    struct Function* parent;
-    
-    OrbitFunction* impl;
-    OCStringID locals[256];
-    int localCount;
-    int maxLocals;
-} Function;
+typedef struct sFunction Function;
+typedef struct sCodegen Codegen;
 
-typedef struct {
+struct sCodegen {
     OrbitGC* gc;
-    // OrbitFunction* function;
-    OrbitASTContext* context;
+    OrbitASTContext* ast;
     OrbitSelectorArray selector;
-    
-    Function* function;
-    
-    const OrbitAST* current;
-} Builder;
+    OrbitModule* module;
+    Function* fn;
+};
 
-// typedef struct {
-//     OrbitValueBuffer constants;
-//     OCStringID locals[256];
-//     int localCount;
-//     int maxLocals;
-// } FunctionBuilder;
-//
-// typedef struct {
-//     OrbitValueBuffer globals;
-//     OCStringID functions[256];
-//
-// } ModuleBuilder;
+struct sFunction {
+    Codegen* context;
+    Function* parent;
+    OrbitFunction* impl;
+    int localCount, maxLocals;
+    OCStringID locals[256];
+};
 
+int local(Function* gen, OCStringID name);
 
-void builderInit(Builder* builder, OrbitGC* gc);
-void builderDeinit(Builder* builder);
+void contextInit(Codegen* fn, OrbitGC* gc);
+void contextDeinit(Codegen* fn);
 
 int findConstant(OrbitValueArray* constants, OrbitValue value);
-uint8_t emitConstant(Builder* builder, OrbitValue value);
+uint8_t emitConstant(Function* fn, OrbitValue value);
 
-int openScope(Builder* builder);
-void dropScope(Builder* builder, int stack);
-void openFunction(Builder* builder);
-void openFunctionGC(Builder* builder, OrbitFunction* function);
-int localVariable(Builder* builder, OCStringID name);
-void closeFunction(Builder* builder);
+int openScope(Function* fn);
+void dropScope(Function* fn, int stack);
+int localVariable(Function* fn, OCStringID name);
 
-int offset(Builder* builder);
-int emitInst(Builder* builder, OrbitCode code);
-int emitLocalInst(Builder* builder, OrbitCode code, OCStringID name);
-int emitConstInst(Builder* builder, OrbitCode code, OrbitValue value);
-int emitJump(Builder* builder, OrbitCode code);
-void patchJump(Builder* builder, int patch);
-int emitRJump(Builder* builder, OrbitCode code, int target);
+void openFunction(Codegen* gen, Function* fn, OCStringID name);
+void openFunctionGC(Codegen* gen, Function* fn, OCStringID name, OrbitFunction* impl);
+OrbitFunction* closeFunction(Function* fn);
 
-OrbitCode instSelect(Builder* builder, OrbitTokenKind op, const OrbitAST* lhs, const OrbitAST* rhs);
+int offset(Function* fn);
+int emitInst(Function* fn, OrbitCode code);
+int emitLocalInst(Function* fn, OrbitCode code, OCStringID name);
+int emitConstInst(Function* fn, OrbitCode code, OrbitValue value);
+int emitJump(Function* fn, OrbitCode code);
+void patchJump(Function* fn, int patch);
+int emitRJump(Function* fn, OrbitCode code, int target);
+
+OrbitCode instSelect(Function* fn, OrbitTokenKind op, const OrbitAST* lhs, const OrbitAST* rhs);
 
 #endif
