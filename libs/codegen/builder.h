@@ -36,7 +36,6 @@ struct sCodegen {
     OrbitGC* gc;
     OrbitASTContext* ast;
     OrbitSelectorArray selector;
-    OrbitModule* module;
     Function* fn;
 };
 
@@ -46,6 +45,9 @@ struct sFunction {
     OrbitFunction* impl;
     int localCount, maxLocals;
     OCStringID locals[256];
+
+    OCStringID functions[256];
+    int functionCount;
 };
 
 int local(Function* gen, OCStringID name);
@@ -59,6 +61,7 @@ uint8_t emitConstant(Function* fn, OrbitValue value);
 int openScope(Function* fn);
 void dropScope(Function* fn, int stack);
 int localVariable(Function* fn, OCStringID name);
+int localFunction(Function* fn, OCStringID name);
 
 void openFunction(Codegen* gen, Function* fn, OCStringID name);
 void openFunctionGC(Codegen* gen, Function* fn, OCStringID name, OrbitFunction* impl);

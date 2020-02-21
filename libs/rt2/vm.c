@@ -128,11 +128,11 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
     OrbitFrame* frame = vm->task->frames.data;
 
 #define NEXT() break
-#define BINARY(type, T, U, op)                                                                           \
-    do {                                                                                           \
+#define BINARY(type, T, U, op)                                                                                             \
+    do {                                                                                        \
         type b = T(pop(vm));                                                                    \
         type a = T(pop(vm));                                                                    \
-        push(vm, U(a op b));                                                                       \
+        push(vm, U(a op b));                                                                    \
     } while(false)
 
     for(;;) {
@@ -252,6 +252,12 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
             OrbitValue callee = pop(vm);
             assert(ORBIT_IS_FUNCTION(callee) && "cannot call a non-function object");
             orbitTaskPushFrame(&vm->gc, vm->task, (OrbitFunction*)ORBIT_AS_REF(callee));
+        } NEXT();
+
+        case OP_call_sym: {
+            OrbitValue callee = pop(vm);
+            assert(ORBIT_IS_STRING(callee) && "cannot resolve a non-string reference");
+            
         } NEXT();
 
         case OP_return:

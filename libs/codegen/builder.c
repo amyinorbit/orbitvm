@@ -27,8 +27,8 @@ void contextInit(Codegen* ctx, OrbitGC* gc) {
     ctx->ast = NULL;
     orbitSelectorArrayInit(&ctx->selector);
 
-    ctx->module = orbitModuleNew(ctx->gc);
-    orbitGCPush(ctx->gc, (OrbitObject*)ctx->module);
+    // ctx->module = orbitModuleNew(ctx->gc);
+    // orbitGCPush(ctx->gc, (OrbitObject*)ctx->module);
 
 #define BINARY_OP(T, op, code) ((OpSelectData){(op), ORBIT_AST_TYPEEXPR_##T, ORBIT_AST_TYPEEXPR_##T, (code)})
 
@@ -58,12 +58,11 @@ void contextInit(Codegen* ctx, OrbitGC* gc) {
 }
 
 void contextDeinit(Codegen* ctx) {
-    orbitGCRelease(ctx->gc, (OrbitObject*)ctx->module);
     orbitSelectorArrayDeinit(ctx->gc, &ctx->selector);
 }
 
 #define GC(fn) ((fn)->context->gc)
-#define MODULE(fn) ((fn)->context->module->functions)
+// #define MODULE(fn) ((fn)->context->module->functions)
 #define GC_FUNC() fn->impl
 #define SEL(fn) ((fn)->context->selector)
 
@@ -73,6 +72,17 @@ void openFunctionGC(Codegen* gen, Function* fn, OCStringID signature, OrbitFunct
     fn->impl = impl;
     fn->context = gen;
 
+    fn->localCount = 0;
+    fn->maxLocals = 0;
+    fn->functionCount = 0;
+
+    if(gen->fn) {
+        // We declare the function as a constant in the enclosing scope
+        // we should also probably keep track of the function table, otherwise calling is going
+        // to be dicey
+        emitConstant(gen->fn, ORBIT_VALUE_REF(impl));
+    }
+
     //fn->signature = signature;
     // TODO: we probably need to start worrying about garbage collection here. This is also where
     // it would be useful to maybe start using reference counting in the VM too, instead of GC?
@@ -80,11 +90,6 @@ void openFunctionGC(Codegen* gen, Function* fn, OCStringID signature, OrbitFunct
     fn->maxLocals = 0;
 
     const OCString* sig = orbitStringPoolGet(signature);
-    orbitGlobalArrayWrite(GC(fn), &MODULE(fn), (OrbitGlobal){
-        orbitStringCopy(GC(fn), sig->data, sig->length),
-        ORBIT_VALUE_REF(impl)
-    });
-
     gen->fn = fn;
 }
 
