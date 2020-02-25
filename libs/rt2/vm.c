@@ -118,7 +118,7 @@ static inline OrbitValue readConst(OrbitVM* vm) {
     return vm->function->constants.data[read8(vm)];
 }
 
-// #define ORBIT_DEBUG_TRACE
+#define ORBIT_DEBUG_TRACE
 OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
     assert(vm && "null vm error");
     assert(function && "null chunk error");
@@ -138,6 +138,7 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
 
     for(;;) {
 #ifdef ORBIT_DEBUG_TRACE
+        printf(" size: %d\n", vm->task->stackTop - vm->task->stack);
         orbitDebugInstruction(vm->function, vm->task->ip - vm->function->code.data);
         orbitDebugStack(vm);
         // orbitDebugTOS(vm);
@@ -260,6 +261,8 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
             frame->stack = frame->base + fn->locals;
             frame->function = fn;
             frame->ip = task->ip;
+
+            vm->function = fn;
             task->stackTop = frame->stack;
             task->ip = fn->code.data;
         } NEXT();
@@ -274,6 +277,7 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
             task->stackTop = frame->base;
             task->ip = frame->ip;
             frame = &task->frames.data[--task->frames.count];
+            vm->function = frame->function;
             if(!task->frames.count) return ORBIT_OK;
         } NEXT();
 
@@ -282,6 +286,7 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
             task->stackTop = frame->base;
             task->ip = frame->ip;
             frame = &task->frames.data[--task->frames.count];
+            vm->function = frame->function;
             push(vm, value);
             if(!task->frames.count) return ORBIT_OK;;
 
