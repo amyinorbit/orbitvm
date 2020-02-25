@@ -25,7 +25,6 @@
 #define SEL(fn) ((fn)->context->selector)
 #define CTX(fn) ((fn)->context)
 
-#define MATCH(type, block) case ORBIT_AST_##type: { block } break
 #define OTHERWISE(block) default: block break
 
 static inline OrbitValue constantInt(const OrbitAST* node) {
@@ -49,36 +48,34 @@ void codegen(Function* builder, const OrbitAST* node) {
     while(node) {
         // builder->current = node;
         switch(node->kind) {
-            MATCH(DECL_MODULE, {
+            case ORBIT_AST_DECL_MODULE: {
                 codegen(builder, node->moduleDecl.body);
                 // emitInst(builder, OP_return);
-            });
+            } break;
 
-            MATCH(DECL_VAR, {
+            case ORBIT_AST_DECL_VAR: {
                 localVariable(builder, node->varDecl.name);
-            });
+            } break;
 
-            MATCH(DECL_FUNC, {
+            case ORBIT_AST_DECL_FUNC: {
 
                 Function fn;
                 openFunction(CTX(builder), &fn, node->funcDecl.mangledName);
                 int stack = openScope(&fn);
                 codegen(&fn, node->funcDecl.params);
-
-                // This is a bit protracted but it avoid creating another scope block.
-                codegen(&fn, node->funcDecl.body->block.body);
+                codegen(&fn, node->funcDecl.body);
 
                 dropScope(&fn, stack);
                 closeFunction(&fn);
-            });
+            } break;
 
-            MATCH(BLOCK, {
+            case ORBIT_AST_BLOCK: {
                 int stack = openScope(builder);
                 codegen(builder, node->block.body);
                 dropScope(builder, stack);
-            });
+            } break;
 
-            MATCH(CONDITIONAL, {
+            case ORBIT_AST_CONDITIONAL: {
                 codegen(builder, node->conditionalStmt.condition);
                 // if the condition evaluates to false, we jump over the else-jump
                 int ifJump = emitJump(builder, OP_jump_if);
@@ -94,9 +91,9 @@ void codegen(Function* builder, const OrbitAST* node) {
                 } else {
                     patchJump(builder, elseJump);
                 }
-            });
+            } break;
 
-            MATCH(WHILE, {
+            case ORBIT_AST_WHILE: {
 
                 int loopJump = offset(builder);
                 codegen(builder, node->whileLoop.condition);
@@ -106,41 +103,41 @@ void codegen(Function* builder, const OrbitAST* node) {
                 codegen(builder, node->whileLoop.body);
                 emitRJump(builder, OP_rjump, loopJump);
                 patchJump(builder, endJump);
-            });
+            } break;
 
-            MATCH(PRINT, {
+            case ORBIT_AST_PRINT: {
                 codegen(builder, node->printStmt.expr);
                 emitInst(builder, OP_print);
-            });
+            } break;
 
-            MATCH(EXPR_CONSTANT_INTEGER, {
+            case ORBIT_AST_EXPR_CONSTANT_INTEGER: {
                 emitConstInst(builder, OP_const, constantInt(node));
-            });
+            } break;
 
-            MATCH(EXPR_CONSTANT_FLOAT, {
+            case ORBIT_AST_EXPR_CONSTANT_FLOAT: {
                 emitConstInst(builder, OP_const, constantFloat(node));
-            });
+            } break;
 
-            MATCH(EXPR_CONSTANT_STRING, {
+            case ORBIT_AST_EXPR_CONSTANT_STRING: {
                 emitConstInst(builder, OP_const, constantString(builder, node));
-            });
+            } break;
 
-            MATCH(EXPR_CONSTANT_BOOL, {
+            case ORBIT_AST_EXPR_CONSTANT_BOOL: {
                 if(node->constantExpr.symbol.kind == ORBIT_TOK_TRUE)
                     emitInst(builder, OP_true);
                 else
                     emitInst(builder, OP_false);
-            });
+            } break;
 
-            MATCH(EXPR_UNARY, {
+            case ORBIT_AST_EXPR_UNARY: {
                 // const OrbitAST* lhs = node->binaryExpr.lhs;
                 // const OrbitAST* rhs = node->binaryExpr.rhs;
                 // OrbitTokenKind operator = node->binaryExpr.operator.kind;
                 // OrbitCode code = instSelectBinary(builder, operator, lhs, rhs);
                 // emitInst(builder, code);
-            });
+            } break;
 
-            MATCH(ASSIGN, {
+            case ORBIT_AST_ASSIGN: {
                 const OrbitAST* lhs = node->binaryExpr.lhs;
                 const OrbitAST* rhs = node->binaryExpr.rhs;
                 // OrbitTokenKind operator = node->binaryExpr.operator.kind;
@@ -156,9 +153,9 @@ void codegen(Function* builder, const OrbitAST* node) {
                     codegen(builder, rhs);
                     // TODO: there's an issue here with the whole lvalue/rvalue dealio
                 }
-            });
+            } break;
 
-            MATCH(EXPR_BINARY, {
+            case ORBIT_AST_EXPR_BINARY: {
                 const OrbitAST* lhs = node->binaryExpr.lhs;
                 const OrbitAST* rhs = node->binaryExpr.rhs;
                 OrbitTokenKind operator = node->binaryExpr.operator.kind;
@@ -167,26 +164,43 @@ void codegen(Function* builder, const OrbitAST* node) {
                 codegen(builder, rhs);
                 emitInst(builder, instSelect(builder, operator, lhs, rhs));
 
-            });
+            } break;
 
             // TODO: We really should handle assignment as
-            MATCH(EXPR_NAME, {
+            case ORBIT_AST_EXPR_NAME: {
                 emitLocalInst(builder, OP_load_local, node->nameExpr.name);
-            });
+            } break;
 
-            MATCH(EXPR_I2F, {
+            case ORBIT_AST_EXPR_I2F: {
                 codegen(builder, node->conversionExpr.expr);
                 emitInst(builder, OP_i2f);
-            });
+            } break;
 
-            MATCH(EXPR_F2I, {
+            case ORBIT_AST_EXPR_F2I: {
                 codegen(builder, node->conversionExpr.expr);
                 emitInst(builder, OP_f2i);
-            });
+            } break;
 
+            case ORBIT_AST_EXPR_CALL: {
+                codegen(builder, node->callExpr.params);
+                if(node->callExpr.callee != orbitInvalidStringID) {
+                    emitLocalInst(builder, OP_load_local, node->callExpr.callee);
+                } else {
+                    codegen(builder, node->callExpr.symbol);
+                }
+                emitInst(builder, OP_call);
+            } break;
 
+            case ORBIT_AST_RETURN: {
+                if(node->returnStmt.returnValue) {
+                    codegen(builder, node->returnStmt.returnValue);
+                    emitInst(builder, OP_return_val);
+                } else {
+                    emitInst(builder, OP_return);
+                }
+            } break;
 
-            OTHERWISE({});
+            default: break;
         }
         node = node->next;
     }
@@ -196,9 +210,8 @@ void codegen(Function* builder, const OrbitAST* node) {
 // comes to mind and might be a good idea to simplify how we're doing this.
 //
 // Another thing that could be worth it is simplifying things a lot and getting rid of the AST
-void orbitCodegen(OrbitGC* gc, OrbitFunction* function, OrbitASTContext* context) {
+OrbitFunction* orbitCodegen(OrbitGC* gc, OrbitASTContext* context) {
     assert(gc && "null garbage collector error");
-    assert(function && "null function error");
     assert(context && "null AST context error");
 
     Codegen gen;
@@ -206,9 +219,10 @@ void orbitCodegen(OrbitGC* gc, OrbitFunction* function, OrbitASTContext* context
     gen.ast = context;
 
     Function root;
-    openFunctionGC(&gen, &root, orbitStringIntern("<script>", strlen("<script>")), function);
-
+    openFunction(&gen, &root, orbitStringIntern("<script>", strlen("<script>")));
     codegen(&root, context->root);
-    closeFunction(&root);
+    OrbitFunction* fn = closeFunction(&root);
     contextDeinit(&gen);
+
+    return fn;
 }

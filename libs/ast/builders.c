@@ -38,7 +38,7 @@ static OrbitToken ast_copyToken(const OrbitToken* token) {
 
 OrbitAST* orbitASTMakeAssign(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs) {
     OrbitAST* ast = orbitASTMake(ORBIT_AST_ASSIGN);
-    
+
     ast->assignStmt.operator = ast_copyToken(operator);
     ast->assignStmt.lhs = ORCRETAIN(lhs);
     ast->assignStmt.rhs = ORCRETAIN(rhs);
@@ -133,7 +133,7 @@ OrbitAST* orbitASTMakeFuncDecl(const OrbitToken* symbol, OrbitAST* returnType, O
 
 OrbitAST* orbitASTMakeStructDecl(const OrbitToken* symbol, OrbitAST* constructor, OrbitAST* destructor, OrbitAST* fields) {
     OrbitAST* ast = orbitASTMake(ORBIT_AST_DECL_STRUCT);
-    
+
     ast->sourceRange = orbitSrangeFromLength(symbol->sourceLoc, symbol->length);
     ast->structDecl.symbol = ast_copyToken(symbol);
     ast->structDecl.name = orbitStringIntern(
@@ -143,13 +143,13 @@ OrbitAST* orbitASTMakeStructDecl(const OrbitToken* symbol, OrbitAST* constructor
     ast->structDecl.constructor = ORCRETAIN(constructor);
     ast->structDecl.destructor = ORCRETAIN(destructor);
     ast->structDecl.fields = ORCRETAIN(fields);
-    
+
     return ast;
 }
 
 OrbitAST* orbitASTMakeBinaryExpr(const OrbitToken* operator, OrbitAST* lhs, OrbitAST* rhs) {
     OrbitAST* ast = orbitASTMake(ORBIT_AST_EXPR_BINARY);
-    
+
     ast->binaryExpr.operator = ast_copyToken(operator);
     ast->binaryExpr.lhs = ORCRETAIN(lhs);
     ast->binaryExpr.rhs = ORCRETAIN(rhs);
@@ -173,6 +173,7 @@ OrbitAST* orbitASTMakeCallExpr(OrbitAST* symbol, OrbitAST* params) {
     OrbitAST* ast = orbitASTMake(ORBIT_AST_EXPR_CALL);
     ast->callExpr.symbol = ORCRETAIN(symbol);
     ast->callExpr.params = ORCRETAIN(params);
+    ast->callExpr.callee = orbitInvalidStringID;
     ast->sourceRange = params ?
                         orbitSrangeUnion(symbol->sourceRange, params->sourceRange) :
                         symbol->sourceRange;

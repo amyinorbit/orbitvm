@@ -25,6 +25,7 @@ static int32_t currentLine(const Function* fn) {
 void contextInit(Codegen* ctx, OrbitGC* gc) {
     ctx->gc = gc;
     ctx->ast = NULL;
+    ctx->fn = NULL;
     orbitSelectorArrayInit(&ctx->selector);
 
     // ctx->module = orbitModuleNew(ctx->gc);
@@ -74,28 +75,40 @@ void openFunctionGC(Codegen* gen, Function* fn, OCStringID signature, OrbitFunct
 
     fn->localCount = 0;
     fn->maxLocals = 0;
-    fn->functionCount = 0;
 
+    // TODO: here we need to handle the case of the root function, that gets declared in nothing (global)
     if(gen->fn) {
-        // We declare the function as a constant in the enclosing scope
-        // we should also probably keep track of the function table, otherwise calling is going
-        // to be dicey
-        emitConstant(gen->fn, ORBIT_VALUE_REF(impl));
+        fn->slot = localVariable(gen->fn, signature);
+        orbitGCPop(gen->gc);
+    } else {
+        fn->slot = 0;
     }
 
-    //fn->signature = signature;
-    // TODO: we probably need to start worrying about garbage collection here. This is also where
-    // it would be useful to maybe start using reference counting in the VM too, instead of GC?
     fn->localCount = 0;
     fn->maxLocals = 0;
 
-    const OCString* sig = orbitStringPoolGet(signature);
     gen->fn = fn;
+    orbitGCPush(gen->gc, (OrbitObject*)gen->fn->impl);
 }
 
 void openFunction(Codegen* gen, Function* fn, OCStringID signature) {
     assert(fn && "cannot open a codegen function without a fn");
     openFunctionGC(gen, fn, signature, orbitFunctionNew(gen->gc));
+}
+
+OrbitFunction* closeFunction(Function* fn) {
+    assert(fn && "cannot close a codegen function without a fn");
+    GC_FUNC()->locals = fn->maxLocals;
+    OrbitFunction* compiled = fn->impl;
+    fn->context->fn = fn->parent;
+
+    orbitGCPop(fn->context->gc);
+    if(fn->context->fn) {
+        emitConstInst(fn->context->fn, OP_const, ORBIT_VALUE_REF(fn->impl));
+        emitInst8(fn->context->fn, OP_store_local, fn->slot);
+        orbitGCPush(fn->context->gc, (OrbitObject*)fn->context->fn->impl);
+    }
+    return compiled;
 }
 
 
@@ -118,14 +131,6 @@ int localVariable(Function* fn, OCStringID name) {
     if(fn->localCount > fn->maxLocals)
         fn->maxLocals = fn->localCount;
     return idx;
-}
-
-OrbitFunction* closeFunction(Function* fn) {
-    assert(fn && "cannot close a codegen function without a fn");
-    GC_FUNC()->locals = fn->maxLocals;
-    OrbitFunction* compiled = fn->impl;
-    fn->context->fn = fn->parent;
-    return compiled;
 }
 
 int findConstant(OrbitValueArray* constants, OrbitValue value) {
@@ -153,6 +158,12 @@ uint8_t emitConstant(Function* fn, OrbitValue value) {
 int emitInst(Function* fn, OrbitCode code) {
     orbitFunctionWrite(GC(fn), GC_FUNC(), code, currentLine(fn));
     return GC_FUNC()->code.count - 1;
+}
+
+int emitInst8(Function* fn, OrbitCode code, uint8_t param) {
+    int offset = emitInst(fn, code);
+    orbitFunctionWrite(GC(fn), GC_FUNC(), param, currentLine(fn));
+    return offset;
 }
 
 int emitConstInst(Function* fn, OrbitCode code, OrbitValue value) {

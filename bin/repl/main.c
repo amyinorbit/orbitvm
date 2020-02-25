@@ -49,7 +49,7 @@ typedef struct {
     const char* input;
 } Options;
 
-OrbitResult repl_compile(Compiler comp, int line, char* input, Options options) {
+OrbitResult repl_compile(Compiler* comp, int line, char* input, Options options) {
     size_t length = strlen(input);
     // char* src = orbitAllocator(NULL, 0, length + 1);
     // memcpy(src, input, length);
@@ -67,9 +67,9 @@ OrbitResult repl_compile(Compiler comp, int line, char* input, Options options) 
     if(options.dumpJSON && !options.dumpAST) orbitASTJSON(stdout, ctx.root);
     if(ctx.diagnostics.errorCount) return ORBIT_COMPILE_ERROR;
 
-    orbitCodegen(comp.gc, comp.fn, &ctx);
-    orbitFunctionWrite(comp.gc, comp.fn, OP_return_repl, 1);
-    if(options.dumpBytecode) orbitDebugFunction(comp.fn, "repl");
+    comp->fn = orbitCodegen(comp->gc, &ctx);
+    orbitFunctionWrite(comp->gc, comp->fn, OP_return_repl, 1);
+    if(options.dumpBytecode) orbitDebugFunction(comp->fn, "repl");
 
     orbitASTContextDeinit(&ctx);
     return ORBIT_OK;
@@ -106,12 +106,12 @@ void repl(OrbitVM* vm, Options options) {
     lineSetPrompt(editor, promptBuffer);
 
     while((source = lineGet(editor))) {
-        OrbitFunction* fn = orbitFunctionNew(&vm->gc);
-        orbitGCPush(&vm->gc, (OrbitObject*)fn);
-        Compiler comp = (Compiler){&vm->gc, fn};
+        // OrbitFunction* fn = orbitFunctionNew(&vm->gc);
+        // orbitGCPush(&vm->gc, (OrbitObject*)fn);
+        Compiler comp = (Compiler){&vm->gc, NULL};
 
-        if(repl_compile(comp, lineNumber, source, options) == ORBIT_OK) {
-            orbitRun(vm, fn);
+        if(repl_compile(&comp, lineNumber, source, options) == ORBIT_OK) {
+            orbitRun(vm, comp.fn);
             termColorFG(stderr, kTermGreen);
             orbitDebugTOS(vm);
             // orbitDebugStack(vm);
@@ -131,9 +131,9 @@ void repl(OrbitVM* vm, Options options) {
 }
 
 OrbitResult compileFile(OrbitVM* vm, const char* path, Options options) {
-    OrbitFunction* fn = orbitFunctionNew(&vm->gc);
-    orbitGCPush(&vm->gc, (OrbitObject*)fn);
-    Compiler comp = (Compiler){&vm->gc, fn};
+    // OrbitFunction* fn = orbitFunctionNew(&vm->gc);
+    // orbitGCPush(&vm->gc, (OrbitObject*)fn);
+    Compiler comp = (Compiler){&vm->gc, NULL};
 
     OrbitASTContext ctx;
     orbitASTContextInit(&ctx);
@@ -149,13 +149,13 @@ OrbitResult compileFile(OrbitVM* vm, const char* path, Options options) {
 
     if(!options.codegen) goto cleanup;
 
-    orbitCodegen(comp.gc, comp.fn, &ctx);
-    if(options.dumpBytecode) orbitDebugFunction(fn, path);
-    orbitFunctionWrite(&vm->gc, fn, OP_return, 1);
+    comp.fn = orbitCodegen(comp.gc, &ctx);
+    if(options.dumpBytecode) orbitDebugFunction(comp.fn, path);
+    orbitFunctionWrite(&vm->gc, comp.fn, OP_return, 1);
 
     if(!options.run) goto cleanup;
 
-    orbitRun(vm, fn);
+    orbitRun(vm, comp.fn);
 
 cleanup:
     orbitASTContextDeinit(&ctx);

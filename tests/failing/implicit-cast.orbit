@@ -1,0 +1,10 @@
+#!/usr/bin/env orbit
+# *=failing=*
+# "cannot cast a non-expression node"
+#   function orbitTypeCast, file /Users/amy/workspace/dev/orbitvm/libs/ast/type.c, line 171.
+fun test = (a: Int) -> Int {
+    return a
+}
+
+test(123.004)
+

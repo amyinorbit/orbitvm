@@ -119,8 +119,10 @@ static bool checkNameCall(Sema* self, OrbitAST* call) {
     OrbitAST* args = call->callExpr.params;
 
     const OCSymbol* symbol = orbitFunctionLookup(self->current, name, args);
-    if(symbol)
+    if(symbol) {
+        call->callExpr.callee = symbol->decl->funcDecl.mangledName;
         return finishCallExpr(self, symbol->decl, call);
+    }
     errorInvalidCall(self, call);
     return false;
 }

@@ -21,11 +21,11 @@ DEFINE_BUFFER(Global, OrbitGlobal);
 OrbitObject* orbitObjectNew(OrbitGC* gc, OrbitObjectKind kind, size_t size) {
     assert(gc && "null Garbage Collector error");
     OrbitObject* obj = (OrbitObject*)orbitGCalloc(gc, NULL, 0, size);
-    
+    printf("creating object of kind: %d at %p\n", kind, obj);
     obj->kind = kind;
     obj->retainCount = 0;
     obj->mark = false;
-    
+
     obj->next = gc->head;
     gc->head = obj;
     return obj;
@@ -35,10 +35,10 @@ OrbitString* orbitStringCopy(OrbitGC* gc, const char* data, int32_t count) {
     assert(gc && "null Garbage Collector error");
     OrbitString* self = (OrbitString*)orbitObjectNew(gc, ORBIT_OBJ_STRING,
         sizeof(OrbitString) + (count+1)*sizeof(char));
-    
+
     self->count = unic_countGraphemes(data, count);
     self->utf8count = count;
-    
+
     memcpy(self->data, data, count);
     self->data[count] = '\0';
     self->hash = orbitHashString(self->data, self->utf8count);
@@ -53,7 +53,7 @@ OrbitString* orbitStringNew(OrbitGC* gc, int32_t count) {
     self->utf8count = 0;
     self->data[0] = '\0';
     self->hash = orbitHashString(self->data, self->utf8count);
-    
+
     return self;
 }
 
@@ -109,7 +109,7 @@ static inline void markModule(OrbitGC* gc, OrbitModule* self) {
 
 static inline void markFunction(OrbitGC* gc, OrbitFunction* self) {
     // This shouldn't actually be required since we are keeping track of deallocation sizes
-    
+
     for(int i = 0; i < self->constants.count; ++i) {
         if(!ORBIT_IS_REF(self->constants.data[i])) continue;
         orbitObjectMark(gc, ORBIT_AS_REF(self->constants.data[i]));
@@ -121,7 +121,7 @@ static inline void markTask(OrbitGC* gc, OrbitTask* self) {
         if(ORBIT_IS_REF(*val))
             orbitObjectMark(gc, ORBIT_AS_REF(*val));
     }
-    
+
     for(int i = 0; i < self->frames.count; ++i) {
         orbitObjectMark(gc, (OrbitObject*)self->frames.data[i].function);
     }
@@ -131,7 +131,7 @@ void orbitObjectMark(OrbitGC* gc, OrbitObject* self) {
     assert(self && "null object error");
     if(self->mark) return;
     self->mark = true;
-    
+
     switch(self->kind) {
         case ORBIT_OBJ_STRING:
             markString(gc, (OrbitString*)self);
@@ -171,7 +171,7 @@ static inline void freeTask(OrbitGC* gc, OrbitTask* self) {
     orbitGCalloc(gc, self->stack, sizeof(OrbitValue) * self->stackCapacity, 0);
     self->stack = self->stackTop = NULL;
     self->stackCapacity = 0;
-    
+
     orbitFrameArrayDeinit(gc, &self->frames);
     orbitGCalloc(gc, self, sizeof(OrbitTask), 0);
 }
@@ -179,7 +179,7 @@ static inline void freeTask(OrbitGC* gc, OrbitTask* self) {
 void orbitObjectFree(OrbitGC* gc, OrbitObject* self) {
     assert(self && "null object error");
     switch(self->kind) {
-        case ORBIT_OBJ_STRING: 
+        case ORBIT_OBJ_STRING:
             freeString(gc, (OrbitString*)self);
             break;
         case ORBIT_OBJ_MODULE:

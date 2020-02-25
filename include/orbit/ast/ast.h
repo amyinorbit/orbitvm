@@ -54,22 +54,22 @@ enum _OrbitASTTypeFlags {
 struct _OrbitASTType {
     //OrbitAST*       canonicalType;
     OrbitASTTypeFlags   flags;
-    
+
     union {
         struct {
             OrbitAST*   elementType;
         } arrayType;
-    
+
         struct {
             OrbitAST*   keyType;
             OrbitAST*   elementType;
         } mapType;
-    
+
         struct {
             OrbitAST*   returnType;
             OrbitAST*   params;
         } funcType;
-        
+
         struct {
             OrbitAST*   genericParams;
             OCStringID  symbol;
@@ -85,13 +85,13 @@ struct sOrbitAST {
     ASTKind         kind;
     OrbitAST*       next;
     const OrbitAST* type;
-    
+
     OrbitSRange sourceRange;
-    
+
     struct {
         uint32_t line;
     } debug;
-    
+
     union {
         // --------------------------------------------------------------------
         // Statements
@@ -101,36 +101,36 @@ struct sOrbitAST {
             OrbitAST* lhs;
             OrbitAST* rhs;
         } assignStmt;
-        
+
         struct {
             OrbitAST*   condition;
             OrbitAST*   ifBody;
             OrbitAST*   elseBody;
         } conditionalStmt;
-        
+
         struct {
             OrbitToken  variable;
             OrbitAST*   collection;
             OrbitAST*   body;
         } forInLoop;
-        
+
         struct {
             OrbitAST*   condition;
             OrbitAST*   body;
         } whileLoop;
-        
+
         struct {
             OrbitAST*   body;
         } block;
-        
+
         struct {
             OrbitAST*   returnValue;
         } returnStmt;
-        
+
         struct {
             OrbitAST*   expr;
         } printStmt;
-        
+
         // --------------------------------------------------------------------
         // Declarations
         // --------------------------------------------------------------------
@@ -138,7 +138,7 @@ struct sOrbitAST {
             OCStringID  symbol;
             OrbitAST*   body;
         } moduleDecl;
-        
+
         struct {
             OrbitToken  symbol;
             OCStringID  name;
@@ -147,13 +147,13 @@ struct sOrbitAST {
             OrbitAST*   params;
             OrbitAST*   body;
         } funcDecl;
-        
+
         struct {
             OrbitToken  symbol;
             OCStringID  name;
             OrbitAST*   typeAnnotation;
         } varDecl;
-        
+
         struct {
             OrbitToken  symbol;
             OCStringID  name;
@@ -161,7 +161,7 @@ struct sOrbitAST {
             OrbitAST*   destructor;
             OrbitAST*   fields;
         } structDecl;
-        
+
         // --------------------------------------------------------------------
         // Expressions
         // --------------------------------------------------------------------
@@ -169,48 +169,49 @@ struct sOrbitAST {
             OrbitToken  operator;
             OrbitAST*   rhs;
         } unaryExpr;
-        
+
         struct {
             OrbitToken  operator;
             OrbitAST*   lhs;
             OrbitAST*   rhs;
         } binaryExpr;
-        
+
         struct {
             OrbitAST*   symbol;
             OrbitAST*   params;
+            OCStringID  callee;
         } callExpr;
-        
+
         struct {
             OrbitAST*   symbol;
             OrbitAST*   subscript;
         } subscriptExpr;
-        
+
         struct {
             OrbitToken  symbol;
         } constantExpr;
-        
+
         struct {
             OrbitAST*   params;
             OrbitAST*   body;
         } lambdaExpr;
-        
+
         struct {
             OrbitToken  symbol;
             OCStringID  name;
         } nameExpr;
-        
+
         struct {
             OrbitAST*   type;
             OrbitAST*   params;
         } initExpr;
-        
+
         struct {
             OrbitAST*   expr;
         } conversionExpr;
-        
+
         // Type Expressions (necessary for a non-trivial type system)
-        
+
         OrbitASTType    typeExpr;
     };
 };

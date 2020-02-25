@@ -43,11 +43,13 @@ struct sFunction {
     Codegen* context;
     Function* parent;
     OrbitFunction* impl;
+
+    // For the time being, functions are stored in local variable slots.
+    // In the future, we probably want to change that so we can have proper overload and all.
+    int slot;
+
     int localCount, maxLocals;
     OCStringID locals[256];
-
-    OCStringID functions[256];
-    int functionCount;
 };
 
 int local(Function* gen, OCStringID name);
@@ -61,7 +63,7 @@ uint8_t emitConstant(Function* fn, OrbitValue value);
 int openScope(Function* fn);
 void dropScope(Function* fn, int stack);
 int localVariable(Function* fn, OCStringID name);
-int localFunction(Function* fn, OCStringID name);
+// int localFunction(Function* fn, OCStringID name);
 
 void openFunction(Codegen* gen, Function* fn, OCStringID name);
 void openFunctionGC(Codegen* gen, Function* fn, OCStringID name, OrbitFunction* impl);
@@ -69,6 +71,7 @@ OrbitFunction* closeFunction(Function* fn);
 
 int offset(Function* fn);
 int emitInst(Function* fn, OrbitCode code);
+int emitInst8(Function* fn, OrbitCode code, uint8_t param);
 int emitLocalInst(Function* fn, OrbitCode code, OCStringID name);
 int emitConstInst(Function* fn, OrbitCode code, OrbitValue value);
 int emitJump(Function* fn, OrbitCode code);
