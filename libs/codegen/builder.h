@@ -66,6 +66,7 @@ int localVariable(Function* fn, OCStringID name);
 // int localFunction(Function* fn, OCStringID name);
 
 void openFunction(Codegen* gen, Function* fn, OCStringID name);
+void finishParams(Function* fn);
 void openFunctionGC(Codegen* gen, Function* fn, OCStringID name, OrbitFunction* impl);
 OrbitFunction* closeFunction(Function* fn);
 

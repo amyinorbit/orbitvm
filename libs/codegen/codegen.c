@@ -63,6 +63,7 @@ void codegen(Function* builder, const OrbitAST* node) {
                 openFunction(CTX(builder), &fn, node->funcDecl.mangledName);
                 int stack = openScope(&fn);
                 codegen(&fn, node->funcDecl.params);
+                finishParams(&fn);
                 codegen(&fn, node->funcDecl.body);
 
                 dropScope(&fn, stack);

@@ -39,7 +39,7 @@ struct sOrbitInstance {
 struct sOrbitString {
     OrbitObject base;
     int32_t count;
-    int32_t utf8count;  // This is different than OrbitString::count, which represents graphemes 
+    int32_t utf8count;  // This is different than OrbitString::count, which represents graphemes
     uint32_t hash;
     char data[];        // We use the flexible array member trick to avoid double-alloc
 };
@@ -60,13 +60,13 @@ struct sOrbitModule {
 
 struct sOrbitFunction {
     OrbitObject base;
-    
+
     OrbitModule* module;
-    
+
     uint8_t arity;
     uint8_t locals;
     uint16_t requiredStack;
-    
+
     OrbitByteArray code;
     OrbitIntArray lines;
     OrbitValueArray constants;
@@ -76,6 +76,7 @@ struct sOrbitFrame {
     OrbitFunction* function;
     OrbitValue* base;
     OrbitValue* stack;
+    uint8_t* ip;
 };
 
 DECLARE_BUFFER(Frame, OrbitFrame);
@@ -87,7 +88,7 @@ struct sOrbitTask {
     size_t stackCapacity;
     OrbitValue* stack;
     OrbitValue* stackTop;
-    
+
     OrbitFrameArray frames;
 };
 
@@ -107,7 +108,7 @@ OrbitString* orbitStringNew(OrbitGC* gc, int32_t count);
 OrbitModule* orbitModuleNew(OrbitGC* gc);
 OrbitFunction* orbitFunctionNew(OrbitGC* gc);
 // TODO: replace function with Module?
-OrbitTask* orbitTaskNew(OrbitGC* gc, OrbitFunction* function); 
+OrbitTask* orbitTaskNew(OrbitGC* gc, OrbitFunction* function);
 
 void orbitObjectMark(OrbitGC* gc, OrbitObject* self);
 void orbitObjectFree(OrbitGC* gc, OrbitObject* self);

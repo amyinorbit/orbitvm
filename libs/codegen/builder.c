@@ -96,6 +96,10 @@ void openFunction(Codegen* gen, Function* fn, OCStringID signature) {
     openFunctionGC(gen, fn, signature, orbitFunctionNew(gen->gc));
 }
 
+void finishParams(Function* fn) {
+    GC_FUNC()->arity = fn->localCount;
+}
+
 OrbitFunction* closeFunction(Function* fn) {
     assert(fn && "cannot close a codegen function without a fn");
     GC_FUNC()->locals = fn->maxLocals;

@@ -64,8 +64,8 @@ OPCODE(jump, 2, 0)
 OPCODE(rjump, 2, 0)
 OPCODE(jump_if, 2, -1)
 
-OPCODE(call, 1, 0)
-OPCODE(call_sym, 1, 0)
+OPCODE(call, 0, 0)
+OPCODE(call_sym, 0, 0)
 //
 // OPCODE(retain, 0, 0)
 // OPCODE(release, 0, -1)

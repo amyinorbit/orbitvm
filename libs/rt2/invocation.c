@@ -52,10 +52,10 @@ void orbitTaskEnsureStack(OrbitTask* self, size_t addedSize) {
 OrbitFrame* orbitTaskPushFrame(OrbitGC* gc, OrbitTask* self, OrbitFunction* function) {
     assert(self && "null task error");
     assert(function && "null function error");
-    
-    
+
+
     orbitTaskEnsureStack(self, self->stackCapacity + function->requiredStack);
-    
+
     OrbitFrame frame;
     frame.function = function;
     frame.base = self->stackTop - function->arity;
@@ -64,7 +64,7 @@ OrbitFrame* orbitTaskPushFrame(OrbitGC* gc, OrbitTask* self, OrbitFunction* func
 
     self->ip = function->code.data;
     self->stackTop = frame.stack;
-    
+
     return &self->frames.data[self->frames.count-1];
 }
 

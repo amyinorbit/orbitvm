@@ -125,7 +125,8 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
     vm->function = function;
     vm->task = orbitTaskNew(&vm->gc, function);
 
-    OrbitFrame* frame = vm->task->frames.data;
+    register OrbitTask* task = vm->task;
+    register OrbitFrame* frame = task->frames.data;
 
 #define NEXT() break
 #define BINARY(type, T, U, op)                                                                                             \
@@ -245,25 +246,46 @@ OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
             OrbitValue tos = pop(vm);
             uint16_t offset = read16(vm);
             if(ORBIT_IS_BOOL(tos) && ORBIT_AS_BOOL(tos))
-                vm->task->ip += offset;
+                task->ip += offset;
         } NEXT();
 
         case OP_call: {
             OrbitValue callee = pop(vm);
             assert(ORBIT_IS_FUNCTION(callee) && "cannot call a non-function object");
-            orbitTaskPushFrame(&vm->gc, vm->task, (OrbitFunction*)ORBIT_AS_REF(callee));
+            OrbitFunction* fn = (OrbitFunction*)ORBIT_AS_REF(callee);
+
+            orbitFrameArrayWrite(&vm->gc, &task->frames, (OrbitFrame){});
+            frame = &task->frames.data[task->frames.count-1];
+            frame->base = task->stackTop - fn->arity;
+            frame->stack = frame->base + fn->locals;
+            frame->function = fn;
+            frame->ip = task->ip;
+            task->stackTop = frame->stack;
+            task->ip = fn->code.data;
         } NEXT();
 
         case OP_call_sym: {
             OrbitValue callee = pop(vm);
             assert(ORBIT_IS_STRING(callee) && "cannot resolve a non-string reference");
-            
+
         } NEXT();
 
-        case OP_return:
-            orbitTaskPopFrame(&vm->gc, vm->task);
-            if(!vm->task->frames.count) return ORBIT_OK;
-            NEXT();
+        case OP_return: {
+            task->stackTop = frame->base;
+            task->ip = frame->ip;
+            frame = &task->frames.data[--task->frames.count];
+            if(!task->frames.count) return ORBIT_OK;
+        } NEXT();
+
+        case OP_return_val: {
+            OrbitValue value = pop(vm);
+            task->stackTop = frame->base;
+            task->ip = frame->ip;
+            frame = &task->frames.data[--task->frames.count];
+            push(vm, value);
+            if(!task->frames.count) return ORBIT_OK;;
+
+        }  NEXT();
 
         case OP_return_repl:
             if(vm->task->stackTop != orbitTaskFrame(vm->task)->stack) {
