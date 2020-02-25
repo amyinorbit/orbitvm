@@ -103,6 +103,9 @@ void finishParams(Function* fn) {
 OrbitFunction* closeFunction(Function* fn) {
     assert(fn && "cannot close a codegen function without a fn");
     GC_FUNC()->locals = fn->maxLocals;
+    if(!GC_FUNC()->code.count) {
+        emitInst(fn, OP_return);
+    }
     OrbitFunction* compiled = fn->impl;
     fn->context->fn = fn->parent;
 

@@ -118,7 +118,7 @@ static inline OrbitValue readConst(OrbitVM* vm) {
     return vm->function->constants.data[read8(vm)];
 }
 
-#define ORBIT_DEBUG_TRACE
+//#define ORBIT_DEBUG_TRACE
 OrbitResult orbitRun(OrbitVM* vm, OrbitFunction* function) {
     assert(vm && "null vm error");
     assert(function && "null chunk error");
